@@ -6,4 +6,4 @@ This repo is currently a place holder where ~2 years of private commits will be 
 
 In the meantime, here are some slides to provide more background to this project
 
-[![image](https://user-images.githubusercontent.com/4748380/45743582-a8073f00-bbfc-11e8-920f-323a496ba9a3.png)](https://docs.google.com/presentation/d/1nmJWFLzQvE6NmxmOWiexzx2XKbFi-G8dTT_9xoT1Swc/edit?usp=sharing)
+[![image](https://user-images.githubusercontent.com/4748380/45744218-4cd64c00-bbfe-11e8-9c13-73e798c49427.png)](https://docs.google.com/presentation/d/1nmJWFLzQvE6NmxmOWiexzx2XKbFi-G8dTT_9xoT1Swc/edit?usp=sharing)
