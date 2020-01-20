@@ -1,0 +1,11 @@
+# Allow fix the number of "default" master created by CFCR deployment
+
+- type: replace
+  path: /instance_groups/name=master/azs
+  value: [z1]
+- type: replace
+  path: /instance_groups/name=worker/azs
+  value: [z1]
+- type: replace
+  path: /instance_groups/name=haproxy-to-master/azs
+  value: [z1]

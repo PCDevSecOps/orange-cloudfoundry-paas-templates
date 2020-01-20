@@ -1,0 +1,51 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+    
+    
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: haproxy-to-master
+    vm_type: small
+    stemcell: default    
+    instances: 2
+    networks:
+    - name: ((network))
+      static_ips: 
+      - ((ip_ha_proxy_1))
+      - ((ip_ha_proxy_2))
+      
+    azs: [z1,z2]
+    jobs:
+    - name: haproxy
+      release: haproxy
+#      consumes:
+#      - kube-apiserver
+      properties:
+        ha_proxy:
+          disable_http: true
+          log_level: debug
+          tcp:
+          - name: kube-apiserver
+            port: 443
+            backend_port: 8443
+            backend_servers:
+            - master.cfcr.internal #leverages bosh-dns
+#          - name: kube-ingress
+#            port: 30725
+#            backend_port: 30725
+#            backend_servers:
+#            - ((ip_master_1))
+#            - ((ip_master_2))
+#            - ((ip_master_3))
+#          - name: kube-tls-ingress
+#            port: 30726
+#            backend_port: 30726
+#            backend_servers:
+#            - ((ip_master_1))
+#            - ((ip_master_2))
+#            - ((ip_master_3))
+

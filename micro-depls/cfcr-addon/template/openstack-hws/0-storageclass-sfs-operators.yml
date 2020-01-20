@@ -1,0 +1,140 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "sa-sfs-provisioner"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: sfs-provisioner
+        namespace: kube-system
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "cr-sfs-provisioner-runner"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: ClusterRole
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: sfs-provisioner-runner
+      rules:
+      - apiGroups: [""]
+        resources: ["secrets"]
+        verbs: ["create", "get", "delete"]
+      - apiGroups: [""]
+        resources: ["persistentvolumes"]
+        verbs: ["get", "list", "watch", "create", "delete"]
+      - apiGroups: [""]
+        resources: ["persistentvolumeclaims"]
+        verbs: ["get", "list", "watch", "update"]
+      - apiGroups: ["storage.k8s.io"]
+        resources: ["storageclasses"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: [""]
+        resources: ["events"]
+        verbs: ["list", "watch", "create", "update", "patch"]
+      - apiGroups: ["policy"]
+        resources: ["podsecuritypolicies"]
+        verbs: ["use"]
+        resourceNames:
+        - privileged
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "crb-sfs-provisioner-runner"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: ClusterRoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: sfs-provisioner-role
+      subjects:
+      - kind: ServiceAccount
+        name: sfs-provisioner
+        namespace: default
+      roleRef:
+        kind: ClusterRole
+        name: sfs-provisioner-runner
+        apiGroup: rbac.authorization.k8s.io
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "sf-sfs-provisioner"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: StatefulSet
+      apiVersion: apps/v1
+
+      metadata:
+        name: sfs-provisioner
+        namespace: kube-system
+      spec:
+        podManagementPolicy: OrderedReady
+        replicas: 1
+        revisionHistoryLimit: 10
+        selector:
+          matchLabels:
+            app: sfs-provisioner
+        serviceName: sfs-provisioner
+        template:
+          metadata:
+            creationTimestamp: null
+            labels:
+              app: sfs-provisioner
+          spec:
+            serviceAccount: sfs-provisioner
+            containers:
+            - name: sfs-provisioner
+              securityContext:
+                privileged: true
+                capabilities:
+                  add: ["SYS_ADMIN"]
+                allowPrivilegeEscalation: true
+              image: quay.io/huaweicloud/sfs-provisioner:latest
+              imagePullPolicy: Always
+              args:
+              - "--v=5"
+              - "--cloudconfig=$(CLOUD_CONFIG)"
+              - "--vpcid=((/secrets/openstack_router_id))"
+              env:
+              - name: CLOUD_CONFIG
+                value: /etc/config/cloud-provider.ini
+              volumeMounts:
+              - name: cloud-config-dir
+                mountPath: /etc/config
+              - name: cloud-data-dir
+                mountPath: /var/lib/cloud/data
+            volumes:
+            - name: cloud-config-dir
+              hostPath:
+                path: /var/vcap/jobs/kubelet/config
+                type: DirectoryOrCreate
+            - name: cloud-data-dir
+              hostPath:
+                path: /var/vcap/data/
+                type: DirectoryOrCreate
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "storageclass-sfs-storage"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: storage.k8s.io/v1
+      kind: StorageClass
+      metadata:
+        name: sfs
+      parameters:
+        protocol: NFS
+      provisioner: external.k8s.io/sfs
+      reclaimPolicy: Delete

@@ -1,0 +1,11 @@
+shield_legacy_version: "7.0.2"
+tenant_name: master-depls
+deployment_name: cloudfoundry-datastores
+pg_port: "5524"
+pg_dir: postgres
+pg_user: vcap
+pg_password: ""
+pg_version: "11.5"
+mysql_password: ((/bosh-master/cloudfoundry-datastores/cf_mysql_mysql_admin_password))
+mysql_port: "3036"
+when: "daily 3:15"

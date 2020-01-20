@@ -1,0 +1,19 @@
+---
+#add shield release
+- type: replace
+  path: /releases/-
+  value:
+    name: shield
+    version: latest
+
+- type: replace
+  path: /releases/name=cf-mysql
+  value:
+    name: cf-mysql
+    version: latest
+
+- type: replace
+  path: /releases/name=routing?
+  value:
+    name: routing
+    version: latest

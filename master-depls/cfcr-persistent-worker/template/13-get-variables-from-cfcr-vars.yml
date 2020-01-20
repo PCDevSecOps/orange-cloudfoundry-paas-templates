@@ -1,0 +1,53 @@
+
+
+kubo-admin-password: ((/bosh-master/cfcr/kubo-admin-password))
+
+kubelet-password: ((/bosh-master/cfcr/kubelet-password))
+kubelet-drain-password: ((/bosh-master/cfcr/kubelet-drain-password))
+kube-proxy-password: ((/bosh-master/cfcr/kube-proxy-password))
+#kube-controller-manager-password: ((/bosh-master/cfcr/kube-controller-manager-password))
+#kube-scheduler-password: ((/bosh-master/cfcr/kube-scheduler-password))
+etcd_user_root_password: ((/bosh-master/cfcr/etcd_user_root_password))
+etcd_user_flanneld_password: ((/bosh-master/cfcr/etcd_user_flanneld_password))
+
+kubo_ca.ca: ((/bosh-master/cfcr/kubo_ca.ca))
+kubo_ca.certificate: ((/bosh-master/cfcr/kubo_ca.certificate))
+kubo_ca.private_key: ((/bosh-master/cfcr/kubo_ca.private_key))
+
+service-account-key.public_key: ((/bosh-master/cfcr/service-account-key.public_key))
+service-account-key.private_key: ((/bosh-master/cfcr/service-account-key.private_key))
+
+tls-kubelet.ca: ((/bosh-master/cfcr/tls-kubelet.ca))
+tls-kubelet.certificate: ((/bosh-master/cfcr/tls-kubelet.certificate))
+tls-kubelet.private_key: ((/bosh-master/cfcr/tls-kubelet.private_key))
+
+tls-kubelet-client.ca: ((/bosh-master/cfcr/tls-kubelet-client.ca))
+tls-kubelet-client.certificate: ((/bosh-master/cfcr/tls-kubelet-client.certificate))
+tls-kubelet-client.private_key: ((/bosh-master/cfcr/tls-kubelet-client.private_key))
+
+tls-kubernetes.ca: ((/bosh-master/cfcr/tls-kubernetes.ca))
+tls-kubernetes.certificate: ((/bosh-master/cfcr/tls-kubernetes.certificate))
+tls-kubernetes.private_key: ((/bosh-master/cfcr/tls-kubernetes.private_key))
+
+#tls-kube-controller-manager: ((/bosh-master/cfcr/tls-kube-controller-manager))
+
+
+etcd_ca.ca: ((/bosh-master/cfcr/etcd_ca.ca))
+etcd_ca.certificate: ((/bosh-master/cfcr/etcd_ca.certificate))
+etcd_ca.private_key: ((/bosh-master/cfcr/etcd_ca.private_key))
+
+tls-etcdctl-v0-29-0.ca: ((/bosh-master/cfcr/tls-etcdctl-v0-29-0.ca))
+tls-etcdctl-v0-29-0.certificate: ((/bosh-master/cfcr/tls-etcdctl-v0-29-0.certificate))
+tls-etcdctl-v0-29-0.private_key: ((/bosh-master/cfcr/tls-etcdctl-v0-29-0.private_key))
+
+tls-etcdctl-root.ca: ((/bosh-master/cfcr/tls-etcdctl-root.ca))
+tls-etcdctl-root.certificate: ((/bosh-master/cfcr/tls-etcdctl-root.certificate))
+tls-etcdctl-root.private_key: ((/bosh-master/cfcr/tls-etcdctl-root.private_key))
+
+tls-etcdctl-flanneld.ca: ((/bosh-master/cfcr/tls-etcdctl-flanneld.ca))
+tls-etcdctl-flanneld.certificate: ((/bosh-master/cfcr/tls-etcdctl-flanneld.certificate))
+tls-etcdctl-flanneld.private_key: ((/bosh-master/cfcr/tls-etcdctl-flanneld.private_key))
+
+tls-metrics-server.ca: ((/bosh-master/cfcr/tls-metrics-server.ca))
+tls-metrics-server.certificate: ((/bosh-master/cfcr/tls-metrics-server.certificate))
+tls-metrics-server.private_key: ((/bosh-master/cfcr/tls-metrics-server.private_key))

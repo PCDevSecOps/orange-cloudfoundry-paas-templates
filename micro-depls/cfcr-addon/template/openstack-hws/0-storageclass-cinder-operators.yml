@@ -1,0 +1,39 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "storageclass-cinder"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: StorageClass
+      apiVersion: storage.k8s.io/v1
+      metadata:
+        name: tf-cinder-storage-class
+        selfLink: "/apis/storage.k8s.io/v1/storageclasses/tf-cinder-storage-class"
+
+      provisioner: kubernetes.io/cinder
+      parameters:
+        availability: ((/secrets/openstack_availability_zone))
+        type: SATA
+      reclaimPolicy: Delete
+      volumeBindingMode: Immediate
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "storageclass-cinder-ssd"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: StorageClass
+      apiVersion: storage.k8s.io/v1
+      metadata:
+        name: tf-cinder-performant-storage-class
+        selfLink: "/apis/storage.k8s.io/v1/storageclasses/tf-cinder-performant-storage-class"
+      provisioner: kubernetes.io/cinder
+      parameters:
+        availability: ((/secrets/openstack_availability_zone))
+        type: SSD
+      reclaimPolicy: Delete
+      volumeBindingMode: Immediate
+

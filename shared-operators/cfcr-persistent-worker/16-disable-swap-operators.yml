@@ -1,0 +1,4 @@
+#disable swap partition see https://bosh.io/docs/manifest-v2/#instance-groups
+- type: replace
+  path: /instance_groups/name=worker/env?/bosh?/swap_size?
+  value: 0

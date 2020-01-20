@@ -1,0 +1,9 @@
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/elpaaso-concourse-client-secret # To avoid cyclic dependencies with CF deployment
+    type: password
+
+- type: replace
+  path: /instance_groups/name=web/jobs/name=web/properties/cf_auth?/ca_cert
+  value: ((cf_ca_cert))

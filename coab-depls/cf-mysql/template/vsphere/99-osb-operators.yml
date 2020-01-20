@@ -1,0 +1,22 @@
+---
+#this operators adapts the deployment in order to use tf-net-osb-data-plane-dedicated-pub and tf-net-osb-data-plane-dedicated-priv networks
+
+- type: replace
+  path: /instance_groups/name=proxy/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-pub
+
+- type: replace
+  path: /instance_groups/name=mysql/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-priv
+
+- type: replace
+  path: /instance_groups/name=broker/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-priv
+
+- type: replace
+  path: /instance_groups/name=shield/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-priv

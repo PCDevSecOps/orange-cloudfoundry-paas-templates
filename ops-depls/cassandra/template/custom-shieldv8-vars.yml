@@ -1,0 +1,4 @@
+shield_legacy_version: "7.0.8"
+tenant_name: ops-depls
+deployment_name: cassandra
+when: "daily 4:15"

@@ -1,0 +1,24 @@
+---
+#adapt vm type and disk size
+# redis
+#- type: replace
+#  path: /instance_groups/name=redis/persistent_disk_type?
+#  value: ((vm-redis.persistent_disk_type))
+#
+#- type: replace
+#  path: /instance_groups/name=redis/vm_type?
+#  value: ((vm-redis.vm_type))
+
+#Case Standalone
+#- type: replace
+#  path: /instance_groups/name=redis/instances?
+#  value: ((vm-redis.node_count))
+#
+## Case Sentinel
+#- type: replace
+#  path: /instance_groups/name=redis-master/instances?
+#  value: ((vm-redis.master_node_count))
+#
+#- type: replace
+#  path: /instance_groups/name=redis-slave/instances?
+#  value: ((vm-redis.slave_node_count))

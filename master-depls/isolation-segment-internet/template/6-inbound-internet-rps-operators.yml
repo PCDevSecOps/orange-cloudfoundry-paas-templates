@@ -1,0 +1,33 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: cf-internet-rp
+    instances: 2
+    vm_type: small
+    stemcell: default
+    azs: [z1,z2]
+    networks:
+    - name: tf-net-cf
+      default: [dns,gateway]
+
+    jobs:
+    - name: haproxy
+      release: haproxy
+
+      properties:
+        ha_proxy:
+          log_level: info
+#          stats_enable: true
+#          stats_user: prometheus
+#          stats_password: (( grab secrets.prometheus.password ))
+#          trusted_stats_cidrs: 0.0.0.0/0
+          https_redirect_all: true  #<--no inbound http permitted
+          #implicit link, will consume go routers
+#          backend_servers:
+#          - 192.168.26.6   #router z1
+#          - 192.168.26.105 #router z2
+  
+          # pem file inluding certs+ private key. some say order matters ...
+          # https://www.digicert.com/ssl-support/pem-ssl-creation.htm
+          ssl_pem:
+          - "#--- ssl cert\n((/secrets/certs/internet.certificate))\n#--- ssl key\n((/secrets/certs/internet.private_key))"

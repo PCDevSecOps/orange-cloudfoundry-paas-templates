@@ -1,0 +1,25 @@
+#remove bosh username
+#- type: remove
+#  path: /instance_groups/name=prometheus2/jobs/name=bosh_exporter/properties/bosh_exporter/bosh/username
+
+#remove bosh password
+#- type: remove
+#  path: /instance_groups/name=prometheus2/jobs/name=bosh_exporter/properties/bosh_exporter/bosh/password
+
+#add bosh.uaa.client-id (https://github.com/bosh-prometheus/bosh_exporter)
+#- type: replace
+#  path: /instance_groups/name=prometheus2/jobs/name=bosh_exporter/properties/bosh_exporter/bosh?
+#  value:
+#    uaa.client-id : bosh-exporter
+
+#add bosh.uaa.client-id (https://github.com/bosh-prometheus/bosh_exporter)
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=bosh_exporter/properties/bosh_exporter/bosh?
+  value:
+    url: "((bosh_url))"
+    ca_cert: "((bosh_ca_cert))"
+#    uaa:
+#      client-id : bosh_exporter
+#      client-secret : "((uaa_bosh_exporter_client_secret))"
+    username: "((bosh_username))"
+    password: "((bosh_password))"

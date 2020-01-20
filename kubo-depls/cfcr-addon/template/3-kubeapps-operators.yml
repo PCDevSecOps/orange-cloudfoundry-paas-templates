@@ -1,0 +1,81 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/repositories/-
+  value:
+    name: bitnami
+    url: http://charts.bitnami.com/bitnami
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: kubeapps-ingress
+    namespace: kubeapps
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: kubeapps-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kubeapps
+                servicePort: 80
+              path: /
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: kubeapps
+    chart:  bitnami/kubeapps
+    namespace: kubeapps
+    version: ((kubeapps-version))
+    debug: true
+    properties:
+    - name: apprepository.syncImage.tag
+      value: 1.4.0-r1
+    values:
+      mongodb:
+        securityContext:
+          enabled: true
+          fsGroup: 1001
+          runAsUser: 1001
+        mongodbEnableIPv6: false
+      securityContext:
+        enabled: true
+        runAsUser: 1001
+      apprepository:
+        initialRepos:
+        - name: stable
+          url: http://storage.googleapis.com/kubernetes-charts
+          source: https://github.com/kubernetes/charts/tree/master/stable
+        - name: incubator
+          url: https://kubernetes-charts-incubator.storage.googleapis.com
+          source: https://github.com/kubernetes/charts/tree/master/incubator
+        - name: svc-ca
+          url: https://svc-catalog-charts.storage.googleapis.com
+        - name: monocular
+          url: https://helm.github.io/monocular
+          source: https://github.com/helm/monocular/tree/master/charts
+        - name: appscode
+          url: https://charts.appscode.com/stable
+        - name: internal
+          url: http://chartmuseum-chartmuseum.default.svc.cluster.local:8080
+        - name: bitnami
+          url: https://charts.bitnami.com/bitnami
+        - name: mattermost
+          url: https://releases.mattermost.com/helm
+        - name: riff-incubator
+          url: http://riff-incubator.cfapps.io
+        - name: suse
+          url: https://kubernetes-charts.suse.com
+        - name: stratos
+          url: https://cloudfoundry-incubator.github.io/stratos
+        - name: openfaas
+          url: https://openfaas.github.io/faas-netes
+        - name: gitlab
+          url: https://charts.gitlab.io
+        - name: kiwigrid
+          url: https://kiwigrid.github.io

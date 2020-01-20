@@ -1,0 +1,113 @@
+#--- Add releases
+- type: replace
+  path: /releases/-
+  value:
+    name: minio
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+#--- Define a local bosh-dns alias to enable thanos => s3 wiring (avoids hardcoding ip)
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: storage.orange.com #FIX: this is OBOS alias. we try to mock it on vsphere
+    targets:
+    - query: '*'
+      instance_group: minio-s3-shield
+      deployment: shield
+      network: tf-net-exchange
+      domain: bosh
+
+#--- ssl certificate generation
+- type: replace
+  path: /variables/-
+  value:
+    name: s3_shield_private_cert
+    type: certificate
+    options:
+      ca: /internalCA
+      common_name: storage.orange.com #FIX: this is OBOS alias. we try to mock it on vsphere
+      alternative_names:
+      - "storage.orange.com"
+      - "*.storage.orange.com"
+
+#--- s3 instance group definition
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: minio-s3-shield
+    instances: 1
+    azs: [z1]
+    networks:
+    - name: tf-net-exchange
+      static_ips: [192.168.99.90]
+    vm_type: default
+    stemcell: default
+    persistent_disk_type: large
+    jobs:
+    - name: minio-server
+      release: minio
+      provides:
+        minio-server: {as: minio-link}
+      properties:
+        credential:
+          accesskey: ((/secrets/shield_obos_access_key_id))
+          secretkey: ((/secrets/shield_obos_secret_access_key)) #reuse shared/secrets.yml credentials
+
+#--- Add minio shield job
+- type: replace
+  path: /instance_groups/name=minio-s3-shield/jobs/-
+  value:
+    name: haproxy # private ssl offload for thanos s3
+    release: haproxy
+    properties:
+      ha_proxy:
+        log_level: info
+        https_redirect_all: true  # only https access
+        backend_servers:
+        - localhost   # to local minio
+        backend_port: 9000
+        ssl_pem:
+        - ((s3_shield_private_cert.certificate))((s3_shield_private_cert.private_key))
+        rsp_headers:
+          Strict-Transport-Security: max-age=15768000
+
+#--- minio bucket creation errand (after shield deployment)
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: bucket-seeding
+    azs: [z1]
+    networks: [{name: tf-net-exchange}]
+    vm_type: default
+    stemcell: default
+    instances: 1
+    lifecycle: errand
+    post_deploy: true
+    jobs:
+    - name: mc
+      release: minio
+      templates:
+      - name: mc
+      consumes:
+        minio: {from: minio-link}
+      properties:
+        script: |
+          #!/bin/sh
+          #--- Create buckets for OBOS (or assert if they already exists)
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-bosh-master --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-bosh-ops --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-concourse --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-credhub --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-gitlab --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-openldap --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-postgres-all-db --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-p-mysql-osb-full-backup --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-redis-osb-broker --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-redis-osb-dedicated --ignore-existing
+          mc mb myminio/((/secrets/shield_obos_bucket_prefix))-shield --ignore-existing

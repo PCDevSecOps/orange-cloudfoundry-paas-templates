@@ -1,0 +1,18 @@
+---
+deployment:
+  cfcr-addon:
+    resources:
+      templates:
+        extended_scan_path:
+        - "shared-operators/cfcr-prometheus"
+        - "shared-operators/cfcr-core-addon-products"
+    stemcells:
+    errands:
+      kubectl:
+      helm:
+    manual-errands:
+      cfcr-clean-kube-system:
+      cfcr-clean-monitoring:
+      cfcr-clean-openebs:
+      cfcr-clean-traefik:
+

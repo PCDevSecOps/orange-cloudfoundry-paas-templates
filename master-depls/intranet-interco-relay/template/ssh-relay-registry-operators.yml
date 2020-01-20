@@ -1,0 +1,9 @@
+#--- Configure docker
+- type: replace
+  path: /instance_groups/name=ops-relay/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      registry_mirrors:
+      - https://elpaaso-nexus.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy

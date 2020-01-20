@@ -1,0 +1,31 @@
+---
+- type: replace
+  path: /instance_groups/name=tcp-internet-rp?
+  value:
+    name: tcp-internet-rp
+    instances: 2
+    vm_type: small
+    stemcell: default
+    azs: [z1,z2]
+    networks:
+    - name: ((is_network_name))
+      default: [dns,gateway]
+    - name: net-floating
+      static_ips:
+      - ((/secrets/cloudfoundry_tcp_routing_public_ip_1))
+      - ((/secrets/cloudfoundry_tcp_routing_public_ip_2))
+
+    jobs:
+    - name: haproxy
+      release: haproxy
+      consumes: {http_backend: nil}
+      properties:
+        ha_proxy:
+          log_level: info
+          stats_enable: true
+          stats_user: prometheus
+          stats_password: prometheus_password
+          trusted_stats_cidrs: 0.0.0.0/0
+          https_redirect_all: true
+          tcp_routing:
+            port_range: "((/secrets/cloudfoundry_default_router_group_reservable_port_min))-((/secrets/cloudfoundry_default_router_group_reservable_port_max))"

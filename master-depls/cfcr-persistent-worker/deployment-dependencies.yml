@@ -1,0 +1,37 @@
+---
+deployment:
+  cfcr-persistent-worker:
+    resources:
+      secrets: {}
+      templates:
+        extended_scan_path:
+        - submodules/kubo-deployment
+        - shared-operators/cfcr-persistent-worker
+
+    stemcells:
+    releases:
+
+      kubo-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/kubo-release
+
+
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+
+      docker-incubator-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+
+
+      cfcr-etcd:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/cfcr-etcd-release
+
+
+
+
+        
+
+

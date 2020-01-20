@@ -1,0 +1,76 @@
+---
+##############################################################################################################
+# network
+network_name   : tf-net-coab-depls-instance
+
+
+##############################################################################################################
+# vm_type
+#  +-----------------------+---------------+--------+-----+-----------+----------------+ 
+#  | name                  | instance_type | ram GB | cpu | root-disk | ephemeral_disk |
+#  +-----------------------+---------------+--------+-----+-----------+----------------+
+#  |small                  | s3.medium.4   |    4   |  1  |      50   |                |
+#  |default                | s3.medium.4   |    4   |  1  |      50   |                |
+#  |large                  | s3.large.4    |    8   |  2  |      50   |                |
+#  |xlarge                 | s3.xlarge.4   |   16   |  4  |      50   |                |
+#  |xxlarge                | s3.2xlarge.4  |   32   |  8  |      50   |                |
+#  |worker                 | s3.medium.4   |    4   |  1  |      50   |                |
+#  |xxxlarge               | s1.4xlarge    |   64   | 16  |      50   |                |
+
+
+##############################################################################################################
+# persistent_disk_type
+#  +--------------------+---------+-------------+ 
+#  | disk_types         |  taille |    type     |
+#  +--------------------+---------+-------------+ 
+#  | default            |    3000 |             |
+#  | small              |    3000 |             |
+#  | large              |   50000 |             |
+#  | xlarge             |  100000 |             |
+#  | xlarge-performant  |  200000 | SSD         |
+#  | x3large-performant |  300000 | SSD         |
+#  | xxlarge-performant |  400000 |             |
+#  | database           |  200000 |             |
+#  | datawarehouse      |  800000 |             |
+#  +--------------------+---------+-------------+ 
+
+##############################################################################################################
+# plan
+# +--------------++---------------+------+-----++--------------------+-------------------------++-----+----------------------------------------------------------------------------------
+# |   type       ||     Name      | Size |  NB ||persistent_disk_type|         vm_type         || FS  |             description
+# |              ||               |  GB  |Node ||                    |                         ||store|
+# +--------------++---------------+------+-----++--------------------+-------------------------++-----+----------------------------------------------------------------------------------
+# | standard     || small         |    3 |   1 || small              | small                   ||   3 | Dedicated Redis (Standalone) 3GB data storage with 4GB RAM/1CPU
+# | sentinel     || sentinelsmall |    3 |   3 || small              | small                   ||   3 | Dedicated Redis (Sentinel 3 nodes) 3GB data storage with 4GB RAM/1CPU
+
+
+vm-redis:
+  persistent_disk_type: small
+  vm_type:              small
+  master_node_count:    1
+  slave_node_count:     2
+
+##############################################################################################################
+# release
+redis_bind: true
+redis_exporter_debug: false
+
+##############################################################################################################
+# sentinel 
+redis_replication: true
+redis_sentinel_bind: true
+redis_min_replicas_to_write: 1
+
+##############################################################################################################
+#
+##############################################################################################################
+cf:
+  api:
+    url: "https://api.((!/secrets/cloudfoundry_system_domain))"
+  admin:
+    password: ((!/secrets/cloudfoundry_admin_password))
+  redis:
+    appdomain: ((!/secrets/cloudfoundry_apps_domain))
+
+broker:
+  password: ((!/secrets/cloudfoundry_service_brokers_redis_password))

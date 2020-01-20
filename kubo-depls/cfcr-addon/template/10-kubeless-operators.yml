@@ -1,0 +1,34 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: kubeless
+    chart: incubator/kubeless
+    namespace: kubeless
+    version: ((kubeless-version))
+    properties:
+    - name: rbac.create
+      value: true
+    - name: ui.enabled
+      value: true
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: kubeless-ingress
+    namespace: kubeless
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kubeless-kubeless-ui
+                servicePort: 3000
+              path: /kubeless
+

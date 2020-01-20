@@ -1,0 +1,7 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: false
+    releases: []

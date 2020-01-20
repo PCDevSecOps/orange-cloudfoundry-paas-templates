@@ -1,0 +1,35 @@
+#errand leveraging scripting release (errand script) to repair bosh variables/variaable set unconsistency
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          echo "Begin Errand"
+
+          export https_proxy=http://system-internet-http-proxy.internal.paas:3128
+          export BOSH_CLI_VERSION="3.0.1"
+          curl "https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-${BOSH_CLI_VERSION}-linux-amd64" -L -s -o /usr/local/bin/bosh
+          unset https_proxy
+          cd /usr/local/bin
+          chmod +x bosh
+          export BOSH_CLIENT="admin"
+          export BOSH_CLIENT_SECRET=((/micro-bosh/bosh-master/admin_password))
+          export BOSH_CA_CERT=/etc/ssl/certs/ca-certificates.crt
+          export BOSH_ENVIRONMENT="192.168.116.158"
+          bosh alias-env bosh > /dev/null 2>&1
+          bosh -n log-in
+          if [ $? != 0 ] ; then
+            printf "\n%bLog to bosh director failed%b\n\n" "${RED}" "${STD}" ; exit 0
+          fi
+          ./bosh -d ((deployment_name)) errands
+          ./bosh -d ((deployment_name)) run-errand import --instance=postgres
+          boshInstances=$(bosh -d ((deployment_name)) instances | grep "running" | grep "mysql" | awk '{print $1}')
+          for instance in ${boshInstances} ; do
+            ./bosh -d ((deployment_name)) run-errand import --instance=${instance}
+          done
+
+          echo "End Errand"

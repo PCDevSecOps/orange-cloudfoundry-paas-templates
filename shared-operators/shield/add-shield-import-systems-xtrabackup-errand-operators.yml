@@ -1,0 +1,35 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: import
+    release: shield
+    properties:
+      generate_token: true
+      core: ((shield-core))
+      domain: ((shield-alias))
+      password: ((failsafe-password))
+      import:
+        ca: ((/bosh-master/shieldv8/shield-tls.ca))
+        core: https://((shield-alias))
+        tenants:
+          - name: ((tenant_name))
+            systems:
+              - name: ((deployment_name))-(ip)
+                agent: (ip):5444
+                plugin: xtrabackup
+                config:
+                  mysql_datadir: "/var/vcap/store/mysql"
+                  mysql_user: root
+                  mysql_password: ((/bosh-master/cloudfoundry-datastores/cf_mysql_mysql_admin_password))
+                  mysql_xtrabackup: "/var/vcap/packages/xtrabackup/bin/xtrabackup"
+                  mysql_socket: "/var/vcap/sys/run/mysql/mysqld.sock"
+                  mysql_port: ((mysql_port))
+                summary: "Full Xtrabackup"
+                jobs:
+                  - name: mysql-(index)-xtrabackup-full-daily
+                    when: ((when))
+                    policy: twenty-one-days-term*
+                    retain: 20
+                    storage: remote-((deployment_name))-(ip)
+                    paused:  false

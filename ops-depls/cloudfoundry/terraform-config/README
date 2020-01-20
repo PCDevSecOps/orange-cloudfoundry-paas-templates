@@ -1,0 +1,5 @@
+this is the terraform config for cloudfoundry level assets.
+organizations
+cf app security groups
+spaces
+service brokers

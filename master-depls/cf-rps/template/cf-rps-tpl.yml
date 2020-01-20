@@ -1,0 +1,48 @@
+---
+name: cf-rps
+
+releases:
+  - {name: haproxy, version: latest}
+
+update:
+  canaries: 1
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1 # important to limit max in flight
+  serial: false
+
+# Stemcell details
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+- name: cf-apps-rp
+  instances: 2
+  vm_type: small
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-exchange
+    static_ips:
+    - 192.168.99.40
+    - 192.168.99.41
+  jobs:
+  - name: haproxy
+    release: haproxy
+
+    properties:
+      ha_proxy:
+        accept_proxy: true #combined with apps-relay send-proxy, to propagate origin ip
+        log_level: info
+        https_redirect_all: false  #enable intranet apps http traffic
+        backend_servers:
+        #- 192.168.26.30 # this is cf ha-proxy internal ip, to start. double haproxy is ko with x-forward-protocol and webrick
+        - 192.168.26.6   #router z1
+        - 192.168.26.105 #router z2
+        ssl_pem:
+        - "#--- ssl cert\n((/secrets/certs/intranet-1.certificate))\n#--- ssl_ca cert\n((/secrets/certs/intranet-1.certificate))\n#--- ssl key\n((/secrets/certs/intranet-1.private_key))"        
+        
+        rsp_headers:
+          Strict-Transport-Security: max-age=15768000

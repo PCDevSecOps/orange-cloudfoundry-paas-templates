@@ -1,0 +1,19 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path: ["submodules/logsearch-boshrelease"]
+    releases:
+      logsearch-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/logsearch-boshrelease
+      logsearch-for-cloudfoundry:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/logsearch-for-cloudfoundry
+    errands:
+      create-uaa-client: # used for kibana uaa client
+      upload-kibana-objects: # used to upload kibana dashboard provided by this release
+      smoke-tests:

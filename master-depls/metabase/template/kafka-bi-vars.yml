@@ -1,0 +1,5 @@
+vm_type: default
+network: tf-net-exchange
+disk_type: xlarge
+cp-kafka-connect-version: 5.2.1
+debezium-version: 0.10.0.Final

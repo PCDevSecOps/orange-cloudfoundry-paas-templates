@@ -1,0 +1,132 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/repositories/-
+  value:
+    name: appscode
+    url: https://charts.appscode.com/stable
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: kubedb
+    chart:  appscode/kubedb
+    namespace: kube-system
+    version: ((kubedb-version))
+    values:
+      enable-analytics: false
+      rbac:
+        create: true
+      apiserver:
+        enableValidatingWebhook: true
+        enableMutatingWebhook: true
+        ca: ((/bosh-kubo/cfcr/tls-kubernetes.ca)
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: kubedb-catalog
+    chart:  appscode/kubedb-catalog
+    namespace: kube-system
+    version: ((kubedb-version))
+    values:
+      dockerRegistry: "kubedb"
+      catalog:
+        elasticsearch: true
+        etcd: true
+        memcached: true
+        mongo: true
+        mysql: true
+        postgres: true
+        redis: true
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: kubedb
+    namespace: kube-system
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    - name: nginx.ingress.kubernetes.io/secure-backends
+      value: "true"
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kubedb
+                servicePort: 443
+              path: /kubedb/
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "kubedb_mysql"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: "kubedb.com/v1alpha1"
+      kind: MySQL
+      metadata:
+        name: mysql
+        namespace: kubedb
+      spec:
+        version: "8.0-v1"
+        doNotPause: true
+        storage:
+          storageClassName: "nfs"
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Mi
+        monitor:
+          agent: prometheus.io/builtin
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "kubedb_elasticsearch"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: kubedb.com/v1alpha1
+      kind: Elasticsearch
+      metadata:
+        name: elasticsearch
+        namespace: kubedb
+      spec:
+        version: "5.6-v1"
+        doNotPause: true
+        storage:
+          storageClassName: "nfs"
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Mi
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "kubedb_redis"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: kubedb.com/v1alpha1
+      kind: Redis
+      metadata:
+        name: redis-quickstart
+        namespace: kubedb
+      spec:
+        version: "4"
+        doNotPause: true
+        storage:
+          storageClassName: "nfs"
+          accessModes:
+          - ReadWriteOnce
+          resources:
+            requests:
+              storage: 50Mi

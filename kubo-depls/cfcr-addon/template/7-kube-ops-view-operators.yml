@@ -1,0 +1,32 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: kube-ops-view
+    chart: stable/kube-ops-view
+    version: ((kube-obs-view-version))
+    properties:
+    - name: rbac.create
+      value: true
+    - name: securityContext.runAsUser
+      value: 1001
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: kube-ops-view-ingress
+    namespace: default
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kube-ops-view-kube-ops-view
+                servicePort: 80
+              path: /kube-ops-view/

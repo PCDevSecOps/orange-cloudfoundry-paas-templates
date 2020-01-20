@@ -1,0 +1,26 @@
+#--- Concourse user for COA (change pwd with Ldap admin)
+dn: uid=concourse,ou=users,dc=orange,dc=com
+cn: concourse
+givenname: concourse
+objectclass: organizationalPerson
+objectclass: person
+objectclass: inetOrgPerson
+objectclass: top
+sn: concourse
+uid: concourse
+userpassword: {SSHA}HP9cAEIVfSH6iFKz3XVBq4MC0eaaOHjE
+
+#--- Default PWM user (need for PWM health check tests)
+dn: uid=pwmtestuser,ou=users,dc=orange,dc=com
+cn: PWM healt check user
+givenname: pwmtestuser
+objectclass: inetOrgPerson
+objectclass: pwmUser
+objectclass: top
+pwmeventlog:: MDAwMSMuIy4jPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz
+ 4KPGhpc3Rvcnk+PHJlY29yZCB0aW1lc3RhbXA9IjE1MTQ4ODg1MTM0MzYiIGV2ZW50Q29kZT0iR
+ XZlbnRMb2dfQ3JlYXRlVXNlciIgc3JjSVA9IjE5Mi4xNjguOTkuMzEiIHNyY0hvc3Q9IjE5Mi4x
+ NjguOTkuMzEiIC8+PC9oaXN0b3J5Pgo=
+sn: pwmtestuser
+uid: pwmtestuser
+userpassword: {SSHA}ZfwZxEvnQhJZyZXvJoV2QCxNPiSVxZrG

@@ -1,0 +1,14 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "clusterissuer"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: cert-manager.io/v1alpha2
+      kind: ClusterIssuer
+      metadata:
+        name: issuer
+      spec:
+        ca:
+          secretName: ca-key-cert-secret

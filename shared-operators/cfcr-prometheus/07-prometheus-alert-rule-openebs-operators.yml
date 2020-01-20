@@ -1,0 +1,35 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "cm-prometheus-alert-rule-openebs"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: alert-rules-openebs
+        namespace: monitoring
+      data:
+        alert-rules-openebs.yaml: |
+          groups:
+            - name: openebs
+              rules:
+                - alert: openebs_used_pool_capacity_percent
+                  expr: (openebs_used_pool_capacity_percent) > 80
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "OpenEBS Pool use more than 80 percent of his capacity (instance {{ $labels.instance }})"
+                    description: "OpenEBS Pool use more than 80% of his capacity\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: openebs_parse_error_total
+                  expr: (openebs_parse_error_total) > 0
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "OpenEBS pb on (instance {{ $labels.instance }})"
+                    description: "OpenEBS parse error total \n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+

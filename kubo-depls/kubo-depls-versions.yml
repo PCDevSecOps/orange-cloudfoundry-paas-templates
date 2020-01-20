@@ -1,0 +1,20 @@
+---
+deployment-name: "kubo-depls"
+
+#--- Stemcell
+stemcell-version: "456.84"
+
+#--- Bosh releases
+bosh-dns-version: "1.11.0"
+bpm-version: "1.1.5"
+cf-routing-version: "0.195.0"
+cfcr-etcd-version: "1.9.0"
+docker-incubator-boshrelease-version: "35.3.4"
+garden-runc-release-version: "1.18.2"
+haproxy-boshrelease-version: "9.8.0"
+kubo-boshrelease-version: "0.36.0"
+
+nfs-volume-version: "1.1.0"
+os-conf-version: "21.0.0"
+route-registrar-boshrelease-version: "3"
+shield-version: "7.0.2"

@@ -1,0 +1,31 @@
+---
+applications:
+- name: uaa-broker
+  instances: 2
+  path: static-creds-broker.jar
+  memory: 1G
+  stack: cflinuxfs3
+  host: (( grab meta.uaa-broker.host ))
+  domain: (( grab meta.uaa-broker.domain ))
+  timeout: 180
+  buildpack: cached-java-buildpack
+
+  env:
+    # mandatory variables
+    SECURITY_USER_NAME: (( grab secrets.uaa-broker.user_name ))
+    SECURITY_USER_PASSWORD: (( grab secrets.uaa-broker.user_password ))
+    
+    # The following environment settings is a example configuration, and used for acceptance test. Please change it to your own services definitions.
+    # Change this value to the git uri which stores the remote config yaml file, in format https://user:secret@mygit.mycompany.com/myrepo.git
+    SPRING_CLOUD_CONFIG_SERVER_GIT_URI: (( grab secrets.uaa-broker.config_server.git.uri ))
+    # The "label" is useful for rolling back to previous versions of configuration; with the default  Config Server implementation it can be a git label, branch name or commit id.
+    SPRING_CLOUD_CONFIG_LABEL: master
+    #you may need to set following properties, for details see spring cloud config documentation at http://cloud.spring.io/spring-cloud-static/spring-cloud.html#_spring_cloud_config_server
+    # Change this value to the path of your config file, if it is not at the top level directory
+    SPRING_CLOUD_CONFIG_SERVER_GIT_SEARCH_PATHS: apps-dev/guardian-uaa-broker-cf
+    SPRING_CLOUD_CONFIG_SERVER_GIT_USERNAME: (( grab secrets.uaa-broker.config_server.git.username ))
+    SPRING_CLOUD_CONFIG_SERVER_GIT_PASSWORD: (( grab secrets.uaa-broker.config_server.git.password ))
+    SPRING_CLOUD_CONFIG_SERVER_GIT_TIMEOUT: 30000
+    JAVA_OPTS: (( grab meta.uaa-broker.java_opts ))
+    JBP_CONFIG_CONTAINER_CERTIFICATE_TRUST_STORE: '{enabled: true}'   
+    

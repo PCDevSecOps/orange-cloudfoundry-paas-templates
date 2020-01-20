@@ -1,0 +1,10 @@
+#local vars to generate ca cert list
+certs:
+  intranet: (( file "../../shared/certs/intranet-ca.crt" ))
+  internal: (( file "../../shared/certs/internal_paas-ca/server-ca.crt" ))
+  internal-2: (( file "../../shared/certs/internal_paas-ca-2/server-ca.crt" ))
+
+allcerts: (( concat certs.intranet certs.internal certs.internal-2 ))
+intranet: (( file "../../shared/certs/intranet-ca.crt" ))
+internal: (( file "../../shared/certs/internal_paas-ca/server-ca.crt" ))
+internal_2: (( file "../../shared/certs/internal_paas-ca-2/server-ca.crt" ))

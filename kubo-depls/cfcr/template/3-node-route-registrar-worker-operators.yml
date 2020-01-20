@@ -1,0 +1,29 @@
+- type: replace
+  path: /instance_groups/name=worker/jobs/-
+  value :
+    name: route_registrar
+    release: routing
+    consumes:
+      nats:
+        instances:
+        - address: ops-routing-nats
+        properties:
+          nats:
+            port: 4222
+            user: nats
+            password: ((/bosh-master/ops-routing/nats_password))
+    
+    properties:
+      route_registrar:
+        routes:
+        - name: ingress-endpoint
+          registration_interval: 60s
+          port: 30726
+          server_cert_domain_san: "ingress-((env_pf)).cfcr.internal"
+          uris:
+            - ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+            - monocular-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+            - kubeapps-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+            - kube-state-metrics-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+            - stratos-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+

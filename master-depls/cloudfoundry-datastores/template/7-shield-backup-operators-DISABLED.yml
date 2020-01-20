@@ -1,0 +1,257 @@
+#shield backup
+
+
+#add shield release
+- type: replace
+  path: /releases/name=shield?
+  value:
+    name: shield
+    version: latest
+
+#adding shield-agent to postgres VM
+# for postgres
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent?/release
+  value: shield
+# for mysql
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent?/release
+  value: shield
+
+#adding bosh link
+# for postgres
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent/consumes?
+  value:
+    shield-daemon: {deployment: shield, from: shield-daemon}
+# for mysql
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/consumes?
+  value:
+    shield-daemon: {deployment: shield, from: shield-daemon}
+
+
+#add shield server uri
+# for postgres
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent/properties?
+  value:
+    autoprovision: true
+# for mysql
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties?
+  value:
+    autoprovision: true
+
+
+#add shield retention policies
+# for postgres
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent/properties/retention-policies?
+  value:
+    Short-term: 20d
+    Long-term: 180d
+
+# for mysql
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/retention-policies?
+  value:
+    Short-term: 20d
+    Long-term: 180d
+
+# add shield schedules
+# for postgres
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent/properties/schedules?
+  value:
+    DevSched: daily 4am
+    daily: daily 2am
+    weekly: sundays 9am
+    monthly: 2st sunday at 0am
+# for mysql
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/schedules?
+  value:
+    DevSched: daily 4am
+    daily: daily 2am
+    weekly: sundays 9am
+    monthly: 2st sunday at 0am
+
+
+#add targets information
+# Postgres Backup
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent/properties/targets?/cf_datastores_postgres_target?
+  value:
+    plugin: postgres
+    config:
+      pg_bindir: "/var/vcap/packages/postgres-11.5/bin/"
+      pg_user: vcap
+      pg_password: "" # password is unused for backup, use empty password to avoid shield error
+      pg_host: 127.0.0.1
+      pg_port: "5524"
+
+# Mysql full Backup
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/targets?/cf_datastores_mysql_target?
+  value:
+    plugin: mysql
+    config:
+      mysql_host: 127.0.0.1
+      mysql_user: root
+      mysql_password: ((/bosh-master/cloudfoundry-datastores/cf_mysql_mysql_admin_password))
+      #mysql_database: "mysql" # ==> all databases
+      mysql_options: "--flush-logs --add-drop-database --single-transaction  --opt" # default options
+      mysql_bindir: "/var/vcap/packages/mariadb/bin"
+      mysql_port: "3036"
+
+# network_connectivity
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/targets/cf_datastores_mysql_network_connectivity_target?
+  value:
+    plugin: mysql
+    config:
+      mysql_host: 127.0.0.1
+      mysql_user: root
+      mysql_password: ((/bosh-master/cloudfoundry-datastores/cf_mysql_mysql_admin_password))
+      mysql_database: "network_connectivity"
+      mysql_bindir: "/var/vcap/packages/mariadb/bin"
+      mysql_port: "3036"
+
+# network_policy
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/targets/cf_datastores_mysql_network_policy_target?
+  value:
+    plugin: mysql
+    config:
+      mysql_host: 127.0.0.1
+      mysql_user: root
+      mysql_password: ((/bosh-master/cloudfoundry-datastores/cf_mysql_mysql_admin_password))
+      mysql_database: "network_policy"
+      mysql_bindir: "/var/vcap/packages/mariadb/bin"
+      mysql_port: "3036"
+
+# routing-api
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/targets/cf_datastores_mysql_routing_api_target?
+  value:
+    plugin: mysql
+    config:
+      mysql_host: 127.0.0.1
+      mysql_user: root
+      mysql_password: ((/bosh-master/cloudfoundry-datastores/cf_mysql_mysql_admin_password))
+      mysql_database: "routing-api"
+      mysql_bindir: "/var/vcap/packages/mariadb/bin"
+      mysql_port: "3036"
+
+
+
+
+#add stores information
+# Bucket for postgres server
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent/properties/stores?/cf_datastores_postgres_s3_obos?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: ((/secrets/shield_obos_access_key_id))
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-cf-datastores-postgres" # replace with your bucket name
+      signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+# Bucket for mysql cluster
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/stores?/cf_datastores_mysql_s3_obos?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: ((/secrets/shield_obos_access_key_id))
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-cf-datastores-mysql" # replace with your bucket name
+      skip_ssl_validation: false
+      signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+# Bucket for mysql network_connectivity database
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/stores/cf_datastores_mysql_network_connectivity_s3_obos?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: ((/secrets/shield_obos_access_key_id))
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-cf-datastores-mysql-network-connectivity" # replace with your bucket name
+      skip_ssl_validation: false
+      signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+# Bucket for mysql network_policy database
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/stores/cf_datastores_mysql_network_policy_s3_obos?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: ((/secrets/shield_obos_access_key_id))
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-cf-datastores-mysql-network-policy" # replace with your bucket name
+      skip_ssl_validation: false
+      signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+# Bucket for mysql routing-api database
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/stores/cf_datastores_mysql_routing_api_s3_obos?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: ((/secrets/shield_obos_access_key_id))
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-cf-datastores-mysql-routing-api" # replace with your bucket name
+      skip_ssl_validation: false
+      signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+
+
+#add jobs configurations
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=shield-agent/properties/jobs?
+  value:
+    cf_datastores_postgres_backup:
+      retention: Short-term
+      schedule: daily
+      store: cf_datastores_postgres_s3_obos
+      target: cf_datastores_postgres_target
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/jobs?/cf_datastores_mysql_backup?
+  value:
+    retention: Short-term
+    schedule: daily
+    store: cf_datastores_mysql_s3_obos
+    target: cf_datastores_mysql_target
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/jobs/cf_datastores_mysql_network_connectivity_backup?
+  value:
+    retention: Short-term
+    schedule: daily
+    store: cf_datastores_mysql_network_connectivity_s3_obos
+    target: cf_datastores_mysql_network_connectivity_target
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/jobs/cf_datastores_mysql_network_policy_backup?
+  value:
+    retention: Short-term
+    schedule: daily
+    store: cf_datastores_mysql_network_policy_s3_obos
+    target: cf_datastores_mysql_network_policy_target
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/jobs/cf_datastores_mysql_routing_api_backup?
+  value:
+    retention: Short-term
+    schedule: daily
+    store: cf_datastores_mysql_routing_api_s3_obos
+    target: cf_datastores_mysql_routing_api_target

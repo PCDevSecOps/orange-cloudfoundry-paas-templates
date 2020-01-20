@@ -1,0 +1,7 @@
+---
+deployment:
+  cfcr-addon-experimental:
+    stemcells:
+    errands:
+      kubectl:
+      helm:

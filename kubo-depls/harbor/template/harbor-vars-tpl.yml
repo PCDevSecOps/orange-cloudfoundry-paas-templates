@@ -1,0 +1,1 @@
+hostname: (( concat "harbor." secrets.cloudfoundry.ops_domain ))

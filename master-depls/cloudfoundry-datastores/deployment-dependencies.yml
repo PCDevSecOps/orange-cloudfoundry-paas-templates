@@ -1,0 +1,32 @@
+---
+deployment:
+  cloudfoundry-datastores:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/shield
+        - "submodules/cf-mysql-deployment"
+    releases:
+      cf-mysql:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-mysql-release
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+      postgres:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/postgres-release
+      haproxy-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+      cron-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/cron-boshrelease
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+    errands:
+#      errand-scripting:
+      smoke-tests: 
+      import:
+        display-name: shield-provisioning

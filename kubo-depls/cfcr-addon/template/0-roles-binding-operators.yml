@@ -1,0 +1,173 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "clusterrolebinding-admin"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: ClusterRoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: clusterrolebinding-k8s-ops-admin
+      subjects:
+      - kind: Group
+        name: k8s-ops-admin
+        apiGroup: rbac.authorization.k8s.io
+      roleRef:
+        kind: ClusterRole
+        name: admin
+        apiGroup: "rbac.authorization.k8s.io"
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "role-deployment-manager-mobo7205"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: Role
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: role-deployment-manager-mobo7205
+        namespace: mobo7205
+      rules:
+      - apiGroups: [""]
+        resources: ["*"]
+        verbs: ["*"]
+      - apiGroups: ["batch"]
+        resources: ["jobs","cronjobs"]
+        verbs: ["*"]
+      - apiGroups: ["extensions"]
+        resources: ["ingresses"]
+        verbs: ["*"]
+      - apiGroups: ["apps"]
+        resources: ["deployments","statefulsets","replicasets","daemonsets"]
+        verbs: ["*"]
+      - apiGroups: ["policy"]
+        resources: ["podsecuritypolicies"]
+        verbs: ["use"]
+        resourceNames:
+          - privileged
+
+
+
+
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "rolebinding-deployment-manager-mobo7205"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: RoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: rolebinding-deployment-manager-mobo7205
+        namespace: mobo7205
+      subjects:
+      - kind: Group
+        name: k8s-ops-mobo7205
+        apiGroup: rbac.authorization.k8s.io
+      roleRef:
+        kind: Role
+        name: role-deployment-manager-mobo7205
+        apiGroup: "rbac.authorization.k8s.io"
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "clusterrole-deployment-manager-mobo7205"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: ClusterRole
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: clusterrole-deployment-manager-mobo7205
+      rules:
+      - apiGroups: [""]
+        resources: ["namespaces", "nodes","persistentvolumeclaims","persistentvolumes","roles" ]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: ["storage.k8s.io"]
+        resources: ["storageclasses"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: ["rbac.authorization.k8s.io"]
+        resources: [ "rolebindings","roles"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: ["policy"]
+        resources: ["podsecuritypolicies"]
+        verbs: ["use"]
+        resourceNames:
+        - restricted
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "clusterrolebinding-deployment-manager-mobo7205"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: ClusterRoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: admin
+      subjects:
+      - kind: Group
+        name: k8s-ops-mobo7205
+        apiGroup: rbac.authorization.k8s.io
+      roleRef:
+        kind: ClusterRole
+        name: clusterrole-deployment-manager-mobo7205
+        apiGroup: "rbac.authorization.k8s.io"
+
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "clusterrole-authenticated-user"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: ClusterRole
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: clusterrole-authenticated-user
+      rules:
+      - apiGroups: ["policy"]
+        resources: ["podsecuritypolicies"]
+        verbs: ["use"]
+        resourceNames:
+        - restricted
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "default-clusterrolebinding-for-authenticated-user"
+    cmd: "apply"
+    options: ""
+    apply:
+      kind: ClusterRoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: psp:restricted
+      roleRef:
+        kind: ClusterRole
+        name: clusterrole-authenticated-user
+        apiGroup: rbac.authorization.k8s.io
+      subjects:
+      - kind: Group
+        apiGroup: rbac.authorization.k8s.io
+        # system:authenticated captures all authenticated users
+        name: system:authenticated

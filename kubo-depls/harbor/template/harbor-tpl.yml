@@ -1,0 +1,103 @@
+---
+name: harbor
+
+
+releases:
+- name: harbor-container-registry
+  version: 1.5.0
+  sha1: ded9ed8a5e2efadc3aed26444710d8446483bd59
+  url: https://storage.googleapis.com/harbor-bosh-releases/harbor-container-registry-1.5.0.tgz
+
+
+
+
+#Stemcells Block
+stemcells:
+- alias: trusty
+  os: ubuntu-trusty
+  version: latest
+
+addons:
+- name: harbor-bosh-dns
+  jobs:
+  - name: harbor-dns-aliases
+    release: harbor-container-registry
+    properties:
+      aliases:
+        # 'harbor.local' must be the Harbor FQDN specified by the user.
+        # 'harbor-deployment' is the deployment name specified in 'bosh deploy -d ...'.
+        # 'deployment-network' is the deployment network name defined in Bosh Director.
+        
+        #should disable, harbor is exposed on ops router with ssl offload ?
+#        ((hostname)):
+#        - "*.harbor-app.tf-net-kubo.harbor.bosh"
+        uaa.server.local:
+        - "*.uaa.tf-net-exchange.cf.bosh"
+- name: enable-bosh-dns
+  jobs:
+  - name: enable-bosh-dns
+    release: harbor-container-registry
+
+instance_groups:
+- name: harbor-app
+  azs: [z1]
+  instances: 1
+  jobs:
+  - name: harbor
+    release: harbor-container-registry
+    properties:
+      hostname: ((hostname))
+      db_password: ((harbor_db_password))
+      admin_password: ((harbor_admin_password))
+      clair_db_password: ((clair_db_password))
+      with_clair: true
+      with_notary: true
+      #ui_url_protocol: http #default is https
+      ssl:
+        cert: ((harbor_ssl.certificate))
+        key: ((harbor_ssl.private_key))
+        ca: ((config_server_root_ca.ca))
+
+  - name: docker
+    release: harbor-container-registry
+
+  - name: smoke-test
+    release: harbor-container-registry
+    properties: {}
+    consumes:
+       harbor_reference: {from: harbor}
+
+  vm_type: xlarge
+  stemcell: trusty
+  persistent_disk_type: xlarge
+  networks:
+  - name: tf-net-kubo
+
+update:
+  canaries: 2
+  max_in_flight: 1
+  canary_watch_time: 30000-600000
+  update_watch_time: 30000-600000
+
+variables:
+- name: harbor_admin_password
+  type: password
+- name: clair_db_password
+  type: password
+- name: harbor_db_password
+  type: password
+- name: config_server_root_ca
+  type: certificate
+  options:
+    is_ca: true
+    common_name: config_server_ca
+- name: harbor_ssl
+  type: certificate
+  options:
+    ca: config_server_root_ca
+    common_name: ((hostname))
+    alternative_names: [((hostname))]
+
+
+
+

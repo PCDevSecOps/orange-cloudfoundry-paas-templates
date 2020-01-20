@@ -1,0 +1,51 @@
+
+# global cluster quotas
+resource "kubernetes_resource_quota" "example" {
+  metadata {
+    name = "terraform-example"
+  }
+
+  spec {
+    hard {
+      pods = 10
+    }
+
+    scopes = ["BestEffort"]
+  }
+}
+
+#global cluster limits
+resource "kubernetes_limit_range" "example" {
+  metadata {
+    name      = "terraform-example"
+    namespace = "sample-namespace"
+  }
+
+  spec {
+    limit {
+      type = "Pod"
+
+      max {
+        cpu    = "800m"
+        memory = "1024M"
+      }
+    }
+
+    limit {
+      type = "PersistentVolumeClaim"
+
+      min {
+        storage = "24M"
+      }
+    }
+
+    limit {
+      type = "Container"
+
+      default {
+        cpu    = "50m"
+        memory = "24M"
+      }
+    }
+  }
+}

@@ -1,0 +1,6 @@
+access_key_id: (( grab secrets.shield.obos_access_key_id ))
+secret_access_key: (( grab secrets.shield.obos_secret_access_key ))
+bucket: (( concat secrets.shield.obos_bucket_prefix "-credhub" ))
+cloudfoundry_ops_domain: (( grab secrets.ops_interco.ops_domain ))
+shield_basic_password: (( grab secrets.shield.basic_password ))
+shield_autoprovision_key: (( grab secrets.shield.autoprovision_key ))

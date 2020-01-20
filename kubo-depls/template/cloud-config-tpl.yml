@@ -1,0 +1,97 @@
+#--- Availability zones
+azs:
+- name: z1
+  cloud_properties:
+    availability_zone: ((az_1))
+- name: z2
+  cloud_properties:
+    availability_zone: ((az_2))
+- name: z3
+  cloud_properties:
+    availability_zone: ((az_3))
+
+    
+
+# openstack flavors for bosh 2 =================================================
+vm_types:
+
+- name: small
+
+- name: default
+
+- name: large
+
+- name: xlarge
+
+- name: xxlarge
+
+- name: worker
+
+# openstack disk sizes for bosh 2 =================================================
+disk_types:
+
+- disk_size: 3000
+  name: small
+
+- name: default
+  disk_size: 3000
+
+- name: small_disk
+  disk_size: 3000
+
+- name: large
+  disk_size: 70_000
+
+- name: xlarge
+  disk_size: 110_000
+
+- name: xlarge-performant
+  disk_size: 200_000
+
+- name: xxlarge-performant
+  disk_size: 400_000
+
+
+- name: database
+  disk_size: 20_000
+
+- name: logsearch-ops-es-data
+  disk_size: 6_000_000
+
+#  bosh networks =================================================
+networks:
+
+- name: tf-net-kubo
+  type: manual
+  subnets:
+  - range: 192.168.245.0/24
+    gateway: 192.168.245.1
+    dns: []
+    azs:
+    - z1
+    - z2
+    - z3    
+    reserved:
+    - 192.168.245.1 - 192.168.245.150  # <-- exclude dhcp address (see terraform )
+    static:
+    - 192.168.245.151 - 192.168.245.200  # <-- all bosh static ip
+
+
+#shared compilation network
+- name: compilation-network
+  type: manual
+  subnets:
+  - range: 192.168.100.0/24
+    gateway: 192.168.100.1
+    dns: ((dns))
+    azs: [z1,z2]
+    reserved:
+    - 192.168.100.2 - 192.168.100.100
+    - 192.168.100.121- 192.168.100.254
+
+compilation:
+  workers: 5
+  reuse_compilation_vms: true
+  az: z2
+  vm_type: default
+  network: compilation-network

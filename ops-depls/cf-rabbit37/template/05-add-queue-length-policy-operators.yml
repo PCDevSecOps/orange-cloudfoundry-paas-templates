@@ -1,0 +1,8 @@
+# add job section
+- type: replace
+  path: /instance_groups/name=rmq-broker/jobs/name=rabbitmq-service-broker/properties/rabbitmq-service-broker/rabbitmq/operator_set_policy?
+  value:
+    enabled: true
+    policy_name: ((policy_name))
+    policy_definition: ((policy_definition))
+    policy_priority: ((policy_priority))

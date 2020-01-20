@@ -1,0 +1,13 @@
+---
+deployment:
+  shield:
+    releases: 
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+      haproxy-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+    errands:
+      bucket-seeding: 
+

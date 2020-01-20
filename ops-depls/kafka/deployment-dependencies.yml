@@ -1,0 +1,19 @@
+---
+deployment:
+  kafka:
+    releases:
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      kafka:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/kafka-boshrelease
+      kafka-service-broker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/kafka-service-broker-boshrelease
+      zookeeper:
+        base_location: https://bosh.io/d/github.com/
+        repository: cppforlife/zookeeper-release
+
+    errands:
+#    - sanity-test => hard-coded service name => always red in Concourse

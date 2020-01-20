@@ -1,0 +1,38 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: magic-namespace
+    chart: stable/magic-namespace
+    namespace: mobo7205
+    version: ((magic-namespace-version))
+    values:
+      roleBindings:
+      - name: admin-group-admin
+        role:
+          ## Valid values are "Role" or "ClusterRole"
+          kind: ClusterRole
+          name: admin
+        subject:
+          ## Valid values are "User", "Group", or "ServiceAccount"
+          kind: Group
+          name: k8s-ops-admin
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: magic-namespace-ingress
+    namespace: mobo7205
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: magic-namespace
+                servicePort: 8080
+              path: /magic-namespace/

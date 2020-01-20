@@ -1,0 +1,65 @@
+---
+
+#--- enable proxy protocol so originating ip are not lost par tcp relays
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/enable_proxy?
+  value: true
+
+- type: remove
+  path: /instance_groups/name=router/vm_extensions
+
+- type: replace
+  path: /instance_groups/name=router/instances
+  value: ((number_of_router))
+
+- type: replace
+  path: /instance_groups/name=router/vm_type
+  value: default
+  
+- type: replace
+  path: /instance_groups/name=router/networks
+  value:
+  - name: ((is_network_name))
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/consumes?
+  value:
+    nats:
+      from: nats
+      deployment: cf
+    cloud_controller:
+      from: cloud_controller
+      deployment: cf
+    routing_api :
+      from: routing_api
+      deployment: cf
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/provides?
+  value:
+    gorouter:
+      as: gorouter
+      shared: true  #shared to enable remote link from external rps
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=loggr-udp-forwarder/consumes?
+  value:
+    cloud_controller:
+      from: cloud_controller
+      deployment: cf
+
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/isolation_segments?
+  value: [((isolation_segment))]
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/routing_table_sharding_mode?
+  value: segments
+
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/tracing?/enable_zipkin?
+  value: true
+
+

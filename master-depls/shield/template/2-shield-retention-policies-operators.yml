@@ -1,0 +1,15 @@
+#shield backups
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/retention-policies?
+  value:
+    Short-term: 20d
+    Long-term: 180d
+
+
+
+
+
+
+
+
+

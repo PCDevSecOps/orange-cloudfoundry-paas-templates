@@ -1,0 +1,19 @@
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/email?/server?
+  value : ((/secrets/smtp_host))
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/email?/port?
+  value : ((/secrets/smtp_port))
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/email?/username?
+  value : ((/secrets/smtp_user))
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/email?/password?
+  value : ((/secrets/smtp_password))
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/email?/password?
+  value : ((/secrets/smtp_from))

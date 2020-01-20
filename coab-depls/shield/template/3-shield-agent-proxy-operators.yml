@@ -1,0 +1,7 @@
+#--- Add proxy usage
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env?
+  value:
+    http_proxy: http://system-internet-http-proxy.internal.paas:3128
+    https_proxy: http://system-internet-http-proxy.internal.paas:3128
+    no_proxy: localhost,127.0.0.1,shield-webui.((/secrets/cloudfoundry_ops_domain)) #no proxy to connect to shield server

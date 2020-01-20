@@ -1,0 +1,36 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: import
+    release: shield
+    properties:
+      generate_token: true
+      core: ((shield-core))
+      domain: ((shield-alias))
+      password: ((failsafe-password))
+      import:
+        ca: ((/bosh-master/shieldv8/shield-tls.ca))
+        core: https://((shield-alias))
+        tenants:
+          - name: ((tenant_name))
+            systems:
+              - name: ((deployment_name))-(ip)
+                agent: (ip):5444
+                plugin: mysql
+                config:
+                  mysql_host: (ip)
+                  mysql_port: ((mysql_port))
+                  mysql_user: root
+                  mysql_password: ((mysql_password))
+                  #mysql_database: "mysql" # ==> all databases
+                  mysql_options: "--flush-logs --add-drop-database --single-transaction  --opt" # default options
+                  mysql_bindir: "/var/vcap/packages/mariadb/bin"
+                summary: "Full MySQL backup"
+                jobs:
+                  - name: mysql-(index)-full-daily
+                    when: ((when))
+                    policy: twenty-one-days-term
+                    retain: 20
+                    storage: remote-((deployment_name))-(ip)
+                    paused:  false

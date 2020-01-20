@@ -1,0 +1,48 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/ingress/-
+  value:
+    name: gitlab-ingress
+    namespace: gitlab
+    definition:
+      spec:
+        rules:
+        - host: gitlab-gitlab.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: gitlab-unicorn
+                servicePort: 8181
+              path: /
+            - backend:
+                serviceName: gitlab-unicorn
+                servicePort: 8080
+              path: /admin/sidekiq
+        tls:
+        - secretName: release-gitlab-tls
+          hosts:
+          - gitlab-gitlab.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/ingress/-
+  value:
+    name: registry-ingress
+    namespace: gitlab
+    annotations:
+    - name: "ingress.kubernetes.io/protocol"
+      value: "http"
+    definition:
+      spec:
+        rules:
+        - host: registry-gitlab.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: gitlab-registry
+                servicePort: 5000
+              path: /
+        tls:
+        - secretName: release-registry-tls
+          hosts:
+          - registry-gitlab.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+

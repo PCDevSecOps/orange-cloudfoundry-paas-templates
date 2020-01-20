@@ -1,0 +1,12 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /releases/name=shield-addon-bbr?
+  value:
+    name: shield-addon-bbr
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: shield-addon-bbr
+    release: shield-addon-bbr

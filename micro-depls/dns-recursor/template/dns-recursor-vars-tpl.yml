@@ -1,0 +1,13 @@
+#--- DNS recursion is to iaas_dns
+target_dns_recursor_1: (( grab secrets.bosh.iaas_dns[0] ))
+target_dns_recursor_2: (( grab secrets.bosh.iaas_dns[1] ))
+
+#--- From dns-recursor secrets. 
+target_ntp_server_1: (( grab secrets.intranet_interco_1.ntp_server_1 ))
+target_ntp_server_2: (( grab secrets.intranet_interco_1.ntp_server_2 ))
+
+api_ip: (( grab secrets.intranet_interco_ips.api ))
+api_domain: (( grab secrets.cloudfoundry.system_domain ))
+
+apps_ip: (( grab secrets.intranet_interco_ips.apps ))
+apps_domain: (( grab secrets.intranet_interco_1.apps_domain ))

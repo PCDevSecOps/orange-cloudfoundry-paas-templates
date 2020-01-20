@@ -1,0 +1,19 @@
+http_proxy: http://system-internet-http-proxy.internal.paas:3128
+https_proxy: http://system-internet-http-proxy.internal.paas:3128
+no_proxy: "169.254.169.254,127.0.0.1,localhost,.((/secrets/cloudfoundry_ops_domain)),.paas,.internal,.svc,.svc.cluster.local,192.168.0.0/16,10.200.0.0/16"
+registry-mirrors: "https://elpaaso-nexus.((/secrets/cloudfoundry_ops_domain))"
+
+env_pf: k8s-master
+kubernetes.host: cfcr-api-k8s-master.internal.paas
+
+kubernetes.port: 443
+kubernetes-password: ((/bosh-master/cfcr/kubo-admin-password))
+kubernetes.cluster_ca_certificate: ((/bosh-master/cfcr/tls-kubernetes.ca))
+kubernetes.cluster_ca_certificate_key: ((/bosh-master/cfcr/tls-kubernetes.private_key))
+
+kubernetes.dashboard_cert: ((/bosh-master/cfcr/kubernetes-dashboard-ca.ca))
+kubernetes.dashboard_key: ((/bosh-master/cfcr/kubernetes-dashboard-ca.private_key))
+
+network: tf-net-cfcr-master
+#ldap_host: 192.168.99.60
+ldap_host: "elpaaso-ldap.internal.paas"

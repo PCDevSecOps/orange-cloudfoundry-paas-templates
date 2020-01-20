@@ -1,0 +1,25 @@
+# copy instead of reference in order to grab from secrets when it is possible instead of credhub usage
+log-level: "debug"
+shield-domain: (( concat "shieldv8-webui." secrets.ops_interco.ops_domain ))
+shield-alias: "shield.internal.paas"
+shield-core: paas-templates
+s3_bucket_prefix: (( grab secrets.backup.bucket_prefix )) #fe-int-backup
+remote_s3_host: (( concat "https://" secrets.backup.remote_s3.host ))
+local_s3_host: https://shield-s3.internal.paas
+remote_s3_access_key_id: (( grab secrets.backup.remote_s3.access_key_id ))
+local_s3_access_key_id: shield-s3
+remote_s3_secret_access_key: (( grab secrets.backup.remote_s3.secret_access_key ))
+local_s3_secret_access_key: ((/bosh-master/shieldv8/s3_secretkey))
+s3_signature_version: (( grab secrets.backup.remote_s3.signature_version ))
+failsafe-password: ((/bosh-master/shieldv8/failsafe-password))
+
+# real custom part
+shield_legacy_version: "7.0.2"
+tenant_name: micro-depls
+deployment_name: credhub-ha
+pg_port: "5432"
+pg_dir: postgres
+pg_user: vcap
+pg_password: ""
+pg_version: "11.5"
+when: "daily 2:15"

@@ -1,0 +1,41 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "namespace-openldap"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: openldap
+        labels:
+          name: openldap
+
+
+
+##
+## need to have cert-manager already installed inside K8S to be able to generate certificate
+##
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "certificate-openldap"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: cert-manager.io/v1alpha2
+      kind: Certificate
+      metadata:
+        name: certificate-openldap
+        namespace: openldap
+      spec:
+        secretName: secret-openldap-tls-cert
+        duration: 24h
+        renewBefore: 12h
+        commonName: openldap.openldap.svc.cluster.local
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer

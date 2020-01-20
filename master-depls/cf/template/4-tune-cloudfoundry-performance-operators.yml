@@ -1,0 +1,30 @@
+---
+- type: replace
+  path: /instance_groups/name=api/instances
+  value: ((api_instance))
+
+- type: replace
+  path: /instance_groups/name=router/instances
+  value: ((gorouter_instance))
+
+#- type: replace
+#  path: /instance_groups/name=api/properties/route_registrar/routes/name=api-health-check/route_registrar/timeout
+#  value: 15s #default is 3s, must be lower than registration interval (20s)
+
+- type: replace
+  path: /instance_groups/name=api/vm_type
+  value: large #was default
+
+  # limit concurrent starting container on diego
+  # see https://github.com/orange-cloudfoundry/paas-templates/issues/86
+  # https://bosh.io/jobs/auctioneer?source=github.com/cloudfoundry/diego-release&version=2.12.0#p%3ddiego.auctioneer.starting_container_count_maximum
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=auctioneer/properties/diego/auctioneer/starting_container_count_maximum?
+  value: 40 #default is 0, ie unlimited
+
+  
+  ## raise staging timeout from 900s (15min) to 1800s (30 min)
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/staging_timeout_in_seconds?
+  value: 1800 #default is 900, ie 15min
+  

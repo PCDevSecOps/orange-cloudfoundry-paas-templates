@@ -1,0 +1,34 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets: {}
+      templates:
+        extended_scan_path:
+          - ops-depls/cloudfoundry-mysql
+          - shared-operators/shield
+    releases:
+      cf-mysql:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-mysql-release
+      bpm:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bpm-release
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      prometheus-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/prometheus-boshrelease
+      haproxy-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+    errands:
+      smoke-tests:
+      import:
+        display-name: shield-provisioning
+    manual-errands:
+      bootstrap:

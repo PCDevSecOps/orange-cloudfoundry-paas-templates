@@ -1,0 +1,52 @@
+#add shield release
+- type: replace
+  path: /releases/name=shield?
+  value:
+    name: shield
+    version: latest
+
+#configure shield backup
+- path: /instance_groups/name=rmq/jobs/name=shield-agent?
+  type: replace
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      shield:
+        agent:
+          autoprovision: http://192.168.99.25 #shield server, avoid cyclic dep on go router with (( concat "https://shield-webui." secrets.cloudfoundry.ops_domain ))
+        provisioning_key: "((/secrets/shield_autoprovision_key))"
+        retention-policies:
+          Long-term: 180d
+          Short-term: 20d
+        schedules:
+          DevSched: daily 4am
+          daily: daily 2am
+          monthly: 2st sunday at 0am
+          weekly: sundays 9am
+        jobs:
+          rabbitmq37_backup:
+            name: rabbitmq37_backup
+            retention: Short-term
+            schedule: daily
+            store: rabbitmq37_s3_obos
+            target: rabbitmq37_target
+        stores:
+          rabbitmq37_s3_obos:
+            name: rabbitmq37_s3_obos
+            plugin: scality
+            config:
+              scality_host: storage.orange.com
+              access_key_id: ((/secrets/shield_obos_access_key_id))
+              secret_access_key: ((/secrets/shield_obos_secret_access_key))
+              bucket: "((/secrets/shield_obos_bucket_prefix))-rabbitmq37"  # replace with your bucket name
+              signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+        targets:
+          rabbitmq37_target:
+            name: rabbitmq37_target
+            plugin: rabbitmq-broker
+            config:
+              rmq_url: "http://localhost:15672"
+              rmq_username: "((rabbitmq-management-username))"
+              rmq_password: "((rabbitmq-management-password))"
+              skip_ssl_validation: true

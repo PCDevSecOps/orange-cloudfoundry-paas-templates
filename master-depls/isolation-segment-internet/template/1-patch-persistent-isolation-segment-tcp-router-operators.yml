@@ -1,0 +1,55 @@
+---
+- type: replace
+  path: /instance_groups/name=tcp-router/instances
+  value: ((number_of_tcp_router))
+
+- type: replace
+  path: /instance_groups/name=tcp-router/vm_type
+  value: default
+
+- type: remove
+  path: /instance_groups/name=tcp-router/vm_extensions
+
+- type: replace
+  path: /instance_groups/name=tcp-router/networks
+  value:
+  - name: ((is_network_name))
+
+- type: replace
+  path: /instance_groups/name=tcp-router/jobs/name=tcp_router/consumes?
+  value:
+    nats:
+      from: nats
+      deployment: cf
+
+- type: replace
+  path: /instance_groups/name=tcp-router/jobs/name=tcp_router/consumes?
+  value:
+    cloud_controller:
+      from: cloud_controller
+      deployment: cf
+    routing_api :
+      from: routing_api
+      deployment: cf
+
+
+- type: replace
+  path: /instance_groups/name=tcp-router/jobs/name=loggr-udp-forwarder/consumes?
+  value:
+    cloud_controller:
+      from: cloud_controller
+      deployment: cf
+
+
+
+
+
+
+
+- type: replace
+  path: /instance_groups/name=tcp-router/jobs/name=tcp_router/properties/tcp_router/isolation_segments?
+  value: [((isolation_segment))]
+
+- type: replace
+  path: /instance_groups/name=tcp-router/jobs/name=tcp_router/properties/tcp_router/routing_table_sharding_mode?
+  value: segments

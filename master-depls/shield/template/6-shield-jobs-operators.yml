@@ -1,0 +1,19 @@
+#add jobs configurations
+# shield backup job
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/jobs?
+  value:
+    shield_backup: # user defined name
+      target: shield_target
+      store: shield_s3_obos
+      retention: Short-term
+      schedule: daily
+
+# PowerDNS backup job
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/jobs/pdns_job?
+  value:
+    retention: Short-term
+    schedule: daily
+    store: pdns_s3_obos
+    target: pdns_target

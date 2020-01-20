@@ -1,0 +1,6 @@
+- type: replace
+  path: /instance_groups/name=proxy0/name
+  value: shield
+
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent

@@ -1,0 +1,9 @@
+shield_legacy_version: "7.0.2"
+tenant_name: micro-depls
+deployment_name: bosh-master
+pg_port: "5432"
+pg_dir: postgres
+pg_user: vcap
+pg_password: ""
+pg_version: 10
+when: "daily 2:15"

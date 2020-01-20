@@ -1,0 +1,42 @@
+---
+deployment:
+  cfcr:
+    resources:
+      secrets: {}
+      templates:
+        extended_scan_path: ["submodules/kubo-deployment"]
+    stemcells:
+    releases:
+
+      kubo-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/kubo-release
+
+        
+      haproxy-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+        
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+
+      docker-incubator-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+
+
+      cfcr-etcd:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/cfcr-etcd-release
+
+
+    errands:
+      apply-specs:
+      apply-addons:
+      #smoke-tests:
+      
+
+        
+
+

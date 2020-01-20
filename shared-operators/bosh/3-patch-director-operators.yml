@@ -1,0 +1,116 @@
+#--- Bosh-deployment is designed for a micro-bosh "create-env" manifest
+# This director is created from another director, so we have to remove unused elements.
+# Assumes that we use bosh-deployment/openstack/cpi.yml
+- type: remove
+  path: /cloud_provider
+
+- type: remove
+  path: /disk_pools
+
+- type: remove
+  path: /resource_pools
+
+- type: remove
+  path: /instance_groups/name=bosh/resource_pool
+
+#--- Update deployment name, director name and dns name
+- type: replace
+  path: /name
+  value: ((director_name))
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/name
+  value: ((director_name))
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/dns?/domain?
+  value: ((director_name))
+
+#--- Force bosh and stemcell release to concourse provided, no direct download
+- type: replace
+  path: /releases/name=bosh
+  value:
+    name: bosh
+    version: latest
+
+- type: remove
+  path: /releases/name=bpm
+
+- type: remove
+  path: /instance_groups/name=bosh/jobs/name=bpm
+
+
+#--- Replace persistent_disk_pool by persistent_disk_type
+- type: remove
+  path: /instance_groups/name=bosh/persistent_disk_pool
+
+- type: replace
+  path: /instance_groups/name=bosh/persistent_disk_type?
+  value: xlarge
+
+#--- Add AZ
+- type: replace
+  path: /instance_groups/name=bosh/azs?
+  value: [z1]
+
+#--- Add networks
+- type: remove
+  path: /networks
+
+- type: replace
+  path: /instance_groups/name=bosh/networks/0
+  value:
+    name: ((bosh_network))
+    default: [dns,gateway]
+    static_ips: [((internal_ip))]
+
+#--- Activate bosh director local dns resolution
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/local_dns?
+  value:
+    enabled: true
+    include_index: true
+
+#--- Support big bosh releases upload
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/max_upload_size?
+  value: "10000m"
+
+#--- Set worker number (depends on iaas api rate limits, default is 4 in bosh deployment)
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/workers?
+  value: 10
+
+#--- Change ntp servers
+- type: replace
+  path: /instance_groups/name=bosh/properties/ntp
+  value:
+    - elpaaso-ntp1.internal.paas
+    - elpaaso-ntp2.internal.paas
+
+#--- Add stemcell
+- type: replace
+  path: /stemcells?
+  value:
+  - alias: default
+    os: ubuntu-xenial
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=bosh/stemcell?
+  value: default
+
+#--- Add vm type
+- type: replace
+  path: /instance_groups/name=bosh/vm_type?
+  value: xlarge
+
+#--- Add canary update
+- type: replace
+  path: /update?
+  value:
+    canaries: 1
+    max_in_flight: 1
+    serial: false
+    canary_watch_time: 1000-60000
+    update_watch_time: 1000-60000

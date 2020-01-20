@@ -1,0 +1,8 @@
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/schedules?
+  value:
+    DevSched: daily 4am
+    daily: daily 2am
+    weekly: sundays 9am
+    monthly: 2st sunday at 0am

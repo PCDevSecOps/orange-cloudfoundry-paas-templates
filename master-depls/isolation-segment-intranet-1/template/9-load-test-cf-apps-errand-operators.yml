@@ -1,0 +1,76 @@
+#errand leveraging scripting release (errand script) and cf-cli release (cf cli binary)
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: load-test-cf-apps-deploy-errand
+    instances: 1
+    lifecycle: errand
+    vm_type: small
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: ((network_name))
+    jobs:
+    - name: errand-scripting
+      release: generic-scripting
+      properties:
+        scripting:
+          errand-script: |
+            echo "Launching Errand"
+            #export PATH=/var/vcap/packages/cf-cli-6-linux/bin:$PATH
+            alias cf="/var/vcap/packages/cf-cli-6-linux/bin/cf"
+            cf --version
+            cf login -a https://api.((/secrets/cloudfoundry_system_domain)) -u admin -p ((/secrets/cloudfoundry_admin_password))
+            
+            export CF_ORG=((is_org))
+            export CF_SPACE=load-test-space
+            cf create-org $CF_ORG
+            cf create-space $CF_SPACE -o $CF_ORG
+            cf target -o $CF_ORG -s $CF_SPACE
+            
+            mkdir -p /var/vcap/data/errand-scripting/package/
+            
+            cat - > /var/vcap/data/errand-scripting/package/app.php <<EOF
+            <?php Echo "Hello, World!"; ?>
+            EOF
+
+            dd if=/dev/urandom of=/var/vcap/data/errand-scripting/package/1GB.bin bs=64M count=2 iflag=fullblock
+            
+            for i in {1..5}
+            do
+              echo "Looping ... number $i"
+              cf push "app-$i" -i 5 -m 128M -k 1G -b cached-php-buildpack --random-route  -d ((/secrets/cloudfoundry_apps_domain))  -p /var/vcap/data/errand-scripting/package
+            done
+            
+            echo "Done scripting Errand"
+    - name: cf-cli-6-linux
+      release: cf-cli
+
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: purge-test-cf-apps-errand
+    instances: 1
+    lifecycle: errand
+    vm_type: small
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: ((network_name))
+    jobs:
+    - name: errand-scripting
+      release: generic-scripting
+      properties:
+        scripting:
+          errand-script: |
+            echo "Launching Errand"
+            export PATH=$PATH:/var/vcap/jobs/cf-cli-6-linux/packages/cf-cli-6-linux/bin
+            cf login -a https://api.((/secrets/cloudfoundry_system_domain)) -u admin -p ((/secrets/cloudfoundry_admin_password))
+            export CF_ORG=((is_org))
+            cf delete-space load-test-space -o ((is_org)) -f
+            echo "Done scripting Errand"
+    - name: cf-cli-6-linux
+      release: cf-cli
+            

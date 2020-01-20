@@ -1,0 +1,130 @@
+---
+#this operators adapts the deployment in order to use tf-net-osb-data-plane-shared-pub network
+
+#replace deployment name
+- path: /name
+  type: replace
+  value: ((deployment_name))
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-pub
+      static_ips:
+      - ((proxy_ip_shared))
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/jobs/name=route_registrar
+  value:
+      name: route_registrar
+      release: routing
+      properties:
+        nats:
+          machines:
+          - 192.168.62.23
+          password: ((/bosh-master/osb-routing/nats_password))
+          port: 4222
+          user: nats
+        route_registrar:
+          routes:
+          - name: broker_0
+            port: 12350
+            registration_interval: 10s
+            health_check:
+              name: redis-broker
+              script_path: "/var/vcap/jobs/cf-redis-broker/bin/health_check.sh"
+            tags:
+              component: "redis-broker"
+              env: production
+            uris:
+            - "redis-broker.((/secrets/osb_interco/osb_domain))"
+
+
+- type: remove
+  path: /instance_groups/name=cf-redis-broker/jobs/name=smoke-tests
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/jobs/name=cf-redis-broker/properties/redis/broker/dedicated_nodes
+  value:
+  - ((proxy_ip_dedicated1))
+  - ((proxy_ip_dedicated2))
+  - ((proxy_ip_dedicated3))
+  - ((proxy_ip_dedicated4))
+  - ((proxy_ip_dedicated5))
+
+- type: replace
+  path: /instance_groups/name=dedicated-node/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-pub
+      static_ips:
+      - ((proxy_ip_dedicated1))
+      - ((proxy_ip_dedicated2))
+      - ((proxy_ip_dedicated3))
+      - ((proxy_ip_dedicated4))
+      - ((proxy_ip_dedicated5))
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/jobs/name=cf-redis-broker/properties/redis/broker/service_name?
+  value: p-redis-osb
+
+#------------
+#Shield part
+#------------
+- type: remove
+  path: /instance_groups/name=cf-redis-broker/jobs/name=shield-agent/properties/targets/redis-broker-target?
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/jobs/name=shield-agent/properties/targets?/redis-osb-broker-target?
+  value:
+    name: redis-osb-broker-target
+    plugin: redis-broker
+    config:
+      redis_type: broker
+
+- type: remove
+  path: /instance_groups/name=cf-redis-broker/jobs/name=shield-agent/properties/stores/redis-broker-s3?
+ redis-osb stores are iaas specific
+
+- type: remove
+  path: /instance_groups/name=cf-redis-broker/jobs/name=shield-agent/properties/jobs/redis-broker-backup?
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/jobs/name=shield-agent/properties/jobs/redis-osb-broker-backup?
+  value:
+    retention: Short-term
+    schedule: daily
+    store: redis-osb-broker-s3
+    target: redis-osb-broker-target
+
+- type: remove
+  path: /instance_groups/name=dedicated-node/jobs/name=shield-agent/properties/targets/redis-dedicated-target?
+
+- type: replace
+  path: /instance_groups/name=dedicated-node/jobs/name=shield-agent/properties/targets?/redis-osb-dedicated-target?
+  value:
+    name: redis-osb-dedicated-(index)-target
+    plugin: redis-broker
+    config:
+      redis_type: dedicated
+
+- type: remove
+  path: /instance_groups/name=dedicated-node/jobs/name=shield-agent/properties/stores/redis-dedicated-s3?
+# redis-osb stores are iaas specific
+
+- type: remove
+  path: /instance_groups/name=dedicated-node/jobs/name=shield-agent/properties/jobs/redis-dedicated-(index)-job?
+
+- type: replace
+  path: /instance_groups/name=dedicated-node/jobs/name=shield-agent/properties/jobs/redis-osb-dedicated-(index)-job?
+  value:
+    retention: Short-term
+    schedule: daily
+    store: redis-osb-dedicated-(index)-s3
+    target: redis-osb-dedicated-(index)-target
+
+#------------
+#Prometheus part
+#------------
+- type: replace
+  path: /instance_groups/name=dedicated-node/jobs/name=redis_exporter/properties/redis_exporter/redis/address
+  value: redis://((proxy_ip_dedicated1)):6379|redis://((proxy_ip_dedicated2)):6379|redis://((proxy_ip_dedicated3)):6379|redis://((proxy_ip_dedicated4)):6379|redis://((proxy_ip_dedicated5)):6379

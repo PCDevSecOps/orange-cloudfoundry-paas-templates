@@ -1,0 +1,27 @@
+#--- Load networking release
+- type: replace
+  path: /releases/name=networking?
+  value:
+    name: networking
+    version: latest
+
+#--- Set interco network
+- type: replace
+  path: /instance_groups/name=system-internet-relay/networks/-
+  value:
+    name: intranet-ha-interco
+    static_ips: [((proxy-interco-ip))]
+
+#--- Set routes on interco network
+- type: replace
+  path: /instance_groups/name=system-internet-relay/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+        - net: ((target-proxy-net))
+          netmask: ((target-proxy-range))
+          interface: eth1
+          gateway: ((interco_gateway))

@@ -1,0 +1,50 @@
+---
+- type: replace
+  path: /instance_groups/name=smoke-tests/vm_type
+  value: default
+  
+- type: replace
+  path: /instance_groups/name=smoke-tests/networks
+  value:
+  - name: ((is_network_name)) #FIXME : check tf-net-cf for smoke_tests ? 
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/apps_domain
+  value: ((/secrets/cloudfoundry_apps_internet_domain))
+
+#position smoke test on orange-internet org as internet domain is owned  
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/org
+  value: orange-internet
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/enable_isolation_segment_tests?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/backend?
+  value: diego
+  
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/enable_etcd_cluster_check_tests?
+  value: false
+
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/isolation_segment_name?
+  value: ((isolation_segment))
+
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/isolation_segment_domain?
+  value: ((router_domain))
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/use_existing_org?
+  value: true
+  
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke_tests/properties/smoke_tests/skip_ssl_validation?
+  value: true
+
+  

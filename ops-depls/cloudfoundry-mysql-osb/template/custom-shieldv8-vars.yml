@@ -1,0 +1,6 @@
+shield_legacy_version: "6.8.0"
+tenant_name: ops-depls
+deployment_name: cloudfoundry-mysql-osb
+mysql_password: ((/secrets/p-mysql-root-password))
+mysql_port: "3306"
+when: "daily 4:15"

@@ -1,0 +1,92 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: gitlab-minio
+    chart: stable/minio
+    namespace: gitlab
+    version: ((minio-version))
+    properties:
+    - name: mode
+      value: "distributed"
+    - name: accessKey
+      value: "minio"
+    - name: secretKey
+      value: ((minio-secret-key))
+    - name: persistence.storageClass
+      value: "openebs-hostpath-custom"
+    - name: persistence.enabled
+      value: 'true'
+
+
+    values:
+      service:
+        annotations:
+          prometheus.io/scrape: 'true'
+          prometheus.io/path: '/minio/prometheus/metrics'
+          prometheus.io/port: '9000'
+
+      buckets:
+      - name: registry
+        policy: none
+        purge: false
+
+      - name: git-lfs
+        policy: none
+        purge: false
+
+      - name: runner-cache
+        policy: none
+        purge: false
+
+      - name: gitlab-uploads
+        policy: none
+        purge: false
+
+      - name: gitlab-artifacts
+        policy: none
+        purge: false
+
+      - name: gitlab-backups
+        policy: none
+        purge: false
+
+      - name: gitlab-packages
+        policy: none
+        purge: false
+
+      - name: tmp
+        policy: none
+        purge: false
+
+      - name: gitlab-pseudo
+        policy: none
+        purge: false
+
+      - name: gitlab-mr-diffs
+        policy: none
+        purge: false
+
+      - name: chartmuseum
+        policy: none
+        purge: false
+
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: traefik
+          kubernetes.io/ingress.allow-http: "false"
+          kubernetes.io/ingress.global-static-ip-name: ""
+          ingress.kubernetes.io/protocol: "http"
+          #certmanager.k8s.io/cluster-issuer: "issuer"
+          # kubernetes.io/tls-acme: "true"
+          # nginx.ingress.kubernetes.io/secure-backends: "true"
+          # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+          # nginx.ingress.kubernetes.io/whitelist-source-range: 0.0.0.0/0
+        path: /
+        hosts:
+        - minio.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+        tls:
+        - secretName: secret-minio-tls-cert
+          hosts:
+          - minio.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+

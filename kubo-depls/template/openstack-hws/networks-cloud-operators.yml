@@ -1,0 +1,15 @@
+- type: replace
+  path: /networks/name=tf-net-kubo/subnets/0/cloud_properties?
+  value:
+    net_id: ((/tf/networks_net-kubo)) #terraform generated
+    security_groups: 
+    - tf-default-sg
+
+    
+- type: replace
+  path: /networks/name=compilation-network/subnets/0/cloud_properties?
+  value:
+    net_id: ((/secrets/openstack_networks_compilation))
+    security_groups:
+    - tf-default-sg
+    

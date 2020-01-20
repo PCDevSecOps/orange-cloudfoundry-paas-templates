@@ -1,0 +1,19 @@
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          echo "- Start unlock"
+
+          #--- Use shield cli in order to unlock
+          set +e
+          /var/vcap/packages/shield/bin/shield api -k https://((shield-alias)) ((shield-core))
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) init --master ((failsafe-password))
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master ((failsafe-password))
+
+          echo "- Unlock done"

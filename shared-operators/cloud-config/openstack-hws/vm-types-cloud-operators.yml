@@ -1,0 +1,93 @@
+#--- Flexible Engine Openstack VM flavors
+- type: replace
+  path: /vm_types/name=micro/cloud_properties?
+  value:
+    instance_type: s3.small.1 # 1 vCPUs | 1 GB0.1/0.5 Gbit/s50,000
+
+- type: replace
+  path: /vm_types/name=small/cloud_properties?
+  value:
+    instance_type: s3.medium.2   #1 vCPUs | 2 GB0.1/0.5 Gbit/s50,000
+
+- type: replace
+  path: /vm_types/name=default/cloud_properties?
+  value:
+    instance_type: s3.medium.4 # 1 cpu, 4 Go memory
+
+- type: replace
+  path: /vm_types/name=medium/cloud_properties?
+  value:
+    instance_type: s3.medium.4 #--- 1 cpu, 4 Go memory
+
+- type: replace
+  path: /vm_types/name=large/cloud_properties?
+  value:
+    instance_type: s3.large.4 # 2 cpu, 8 Go memory - 45€/month
+
+- type: replace
+  path: /vm_types/name=xlarge/cloud_properties?
+  value:
+    instance_type: s3.xlarge.4 # 4 cpu, 16 Go memory
+
+- type: replace
+  path: /vm_types/name=xxlarge/cloud_properties?
+  value:
+    boot_from_volume: true      
+    instance_type: s3.2xlarge.4 # 8 cpu, 32 Go memory
+    root_disk:
+      size: 100 #root disk size is 100Go so it can hold the swap size = mem size
+
+- type: replace
+  path: /vm_types/name=worker/cloud_properties?
+  value:
+    boot_from_volume: true
+    instance_type: s3.xlarge.2  # 4 cpu, 8 Go memory - 81€/month
+    ephemeral_disk: {size: 100000}
+    root_disk:
+      size: 100
+
+# -----> for coab mysql plan with ephemeral_disk
+- type: replace
+  path: /vm_types/name=large-mysql/cloud_properties?
+  value:
+    boot_from_volume: true
+    instance_type:  s3.large.4 # 2 cpu, 8 Go memory
+    ephemeral_disk: {size: 100000}
+    root_disk:
+      size: 100
+
+- type: replace
+  path: /vm_types/name=xlarge-mysql/cloud_properties?
+  value:
+    boot_from_volume: true
+    instance_type:  s3.xlarge.4 # 4 cpu, 16 Go memory
+    ephemeral_disk: {size: 200000}
+    root_disk:
+      size: 200
+
+- type: replace
+  path: /vm_types/name=xxlarge-mysql/cloud_properties?
+  value:
+    boot_from_volume: true
+    instance_type:  s3.2xlarge.4 # 8 cpu, 32 Go memory
+    ephemeral_disk: {size: 400000}
+    root_disk:
+      size: 400
+
+- type: replace
+  path: /vm_types/name=xxxlarge-highpowermysql/cloud_properties?
+  value:
+    boot_from_volume: true
+    instance_type:  s1.4xlarge # 16 cpu, 64 Go memory
+    ephemeral_disk: {size: 200000}
+    root_disk:
+      size: 200
+
+- type: replace
+  path: /vm_types/name=xlarge-highcapmysql/cloud_properties?
+  value:
+    boot_from_volume: true
+    instance_type:  s3.xlarge.4 # 4 cpu, 16 Go memory
+    ephemeral_disk: {size: 800000}
+    root_disk:
+      size: 800

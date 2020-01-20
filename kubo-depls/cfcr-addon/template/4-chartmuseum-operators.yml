@@ -1,0 +1,57 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: chartmuseum
+    chart: stable/chartmuseum
+    version: ((chartmuseum-version))
+    properties:
+    - name: env.open.DISABLE_API
+      value: false
+    values:
+      securityContext:
+        runAsUser: 1001
+      env:
+        open:
+          DISABLE_METRICS: false
+          STORAGE: amazon
+          STORAGE_AMAZON_PREFIX: charts
+          STORAGE_AMAZON_REGION: us-east-1
+
+# for minio
+          STORAGE_AMAZON_BUCKET: p2a-integration-chartmuseum
+          STORAGE_AMAZON_ENDPOINT: http://private-s3.internal.paas:9000/
+        secret:
+          AWS_ACCESS_KEY_ID: private-s3
+          AWS_SECRET_ACCESS_KEY: ((/micro-bosh/minio-private-s3/s3_secretkey))
+# end for minio
+
+# for obos
+#          STORAGE_AMAZON_BUCKET: p2a-integration-chartmuseum
+#          STORAGE_AMAZON_ENDPOINT: https://storage.orange.com
+#        secret:
+#          AWS_ACCESS_KEY_ID: ((/secrets/shield_obos_access_key_id))
+#          AWS_SECRET_ACCESS_KEY: ((/secrets/shield_obos_secret_access_key))
+# end for obos
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: chartmuseum-ingress
+    namespace: default
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: chartmuseum-chartmuseum
+                servicePort: 8080
+              path: /chartmuseum/
+

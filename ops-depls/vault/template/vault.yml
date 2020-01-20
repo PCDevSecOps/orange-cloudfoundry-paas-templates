@@ -1,0 +1,92 @@
+---
+name: vault
+
+releases:
+   - {name: prometheus, version: latest}
+   - {name: safe, version: latest}
+   - {name: routing, version: latest}
+   - {name: broker-registrar, version: latest}
+   - {name: haproxy, version: latest}
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  serial: false
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+- name : vault
+  instances: 3
+  vm_type: default
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-services-2
+    static_ips:
+    - 192.168.31.45
+    - 192.168.31.46
+    - 192.168.31.47
+  persistent_disk_type: default
+  jobs:
+      - name: vault_exporter
+        release: prometheus
+        properties:
+          vault_exporter:
+            web:
+               listen_address: "0.0.0.0:9410"
+            vault_address: "https://127.0.0.1:8443"
+            insecure_ssl: "true"
+
+      - name: vault
+        release: safe
+        properties:
+          safe:
+            port: 8443
+            tls:
+              certificate: ((/secrets/certs/api.certificate))
+              key: ((/secrets/certs/api.private_key))
+            peer:
+              tls:
+                verify: false
+
+      - name: haproxy
+        release: haproxy
+        properties:
+          ha_proxy:
+            disable_http: true
+            log_level: debug
+            tcp:
+            - backend_port: 8443
+              backend_servers:
+              - 192.168.31.45
+              - 192.168.31.46
+              - 192.168.31.47
+              port: 443
+
+      - consumes:
+          nats:
+            instances:
+            - address: 192.168.35.30 # 192.168.35.31 is missing
+            properties:
+              nats:
+                password: ((/secrets/cloudfoundry_nats_password))
+                port: 4222
+                user: nats
+        name: route_registrar
+        release: routing
+        properties:
+          route_registrar:
+            routes:
+            - name: vault-endpoint1
+              port: 443
+              registration_interval: 60s
+              server_cert_domain_san: "vault-deployment.((/secrets/cloudfoundry_system_domain))"
+              tls_port: 443
+              uris:
+              - "vault-deployment.((/secrets/cloudfoundry_system_domain))"

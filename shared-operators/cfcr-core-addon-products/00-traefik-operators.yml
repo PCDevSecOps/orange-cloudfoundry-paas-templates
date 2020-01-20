@@ -1,0 +1,37 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/namespaces/-
+  value: traefik
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: traefik
+    chart: stable/traefik
+    version: ((traefik-version))
+    namespace: traefik
+    values:
+      dashboard:
+        enabled: true
+        domain: traefik-ui.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+        service:
+      replicas: 4
+      rbac:
+        enabled: true
+      service:
+        annotations:
+          prometheus.io/scrape: 'true'
+          prometheus.io/path: '/metrics'
+          prometheus.io/port: '8080'
+        nodePorts:
+          http: 30726
+          https: 30725
+      serviceType: NodePort
+      metrics:
+        prometheus:
+          enabled: true
+      startupArguments:
+      - --kubernetes
+      - --insecureSkipVerify=true
+      - --logLevel=INFO
+      gzip:
+        enabled: false

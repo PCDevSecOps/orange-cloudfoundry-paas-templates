@@ -1,0 +1,16 @@
+---
+deployment:
+  nexus:
+    releases:
+      docker-incubator-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+      nginx:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/nginx-release
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+
+    errands:
+    - errand-scripting #jfrog container provisioning errand

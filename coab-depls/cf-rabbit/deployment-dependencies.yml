@@ -1,0 +1,31 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/cf-rabbit
+    releases:
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/cf-routing-release
+      cf-rabbitmq:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/cf-rabbitmq-release
+      cf-rabbitmq-multitenant-broker:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/cf-rabbitmq-multitenant-broker-release
+      cf-rabbitmq-smoke-tests:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/cf-rabbitmq-smoke-tests-release
+      cf-cli:
+        base_location: https://bosh.io/d/github.com/
+        repository: bosh-packages/cf-cli-release
+      bpm:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bpm-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+    errands:
+    - smoke-tests

@@ -1,0 +1,76 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/ingress/-
+  value:
+    name: phpldapadmin-ingress
+    namespace: openldap
+    annotations:
+    - name: "traefik.fontend.rule.type"
+      value: "PathPrefixStrip"
+    definition:
+      spec:
+        rules:
+        - host: phpldapadmin.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: phpldapadmin
+                servicePort: 80
+              path: /
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "sv-phpldapadmin"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        labels:
+          app: phpldapadmin
+        name: phpldapadmin
+        namespace: openldap
+      spec:
+        ports:
+        - port: 80
+        selector:
+          app: phpldapadmin
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "deploy-phpldapadmin"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: phpldapadmin
+        namespace: openldap
+        labels:
+          app: phpldapadmin
+
+      spec:
+        selector:
+          matchLabels:
+            app: phpldapadmin
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: phpldapadmin
+              namespace: openldap
+          spec:
+            containers:
+            - name: phpldapadmin
+              image: osixia/phpldapadmin:((phpLDAPadmin-version))
+              ports:
+              - containerPort: 80
+              env:
+              - name: PHPLDAPADMIN_LDAP_HOSTS
+                value: "openldap.openldap.svc.cluster.local"
+              - name: PHPLDAPADMIN_HTTPS
+                value: "false"
+

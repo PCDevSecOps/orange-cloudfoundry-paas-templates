@@ -1,0 +1,5 @@
+shield_legacy_version: "7.0.2"
+tenant_name: master-depls
+deployment_name: openldap
+base_dir: "/var/vcap/store/ldap-server"
+when: "daily 3:15"

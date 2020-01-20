@@ -1,0 +1,34 @@
+---
+deployment-name: ops-depls
+
+#--- Stemcell
+stemcell-version: "456.84"
+
+#--- Bosh releases
+admin-ui-boshrelease-version: "11"
+bpm-version: "1.1.5"
+broker-registrar-boshrelease-version: "3.4.0"
+cf-cli-version: "1.5.0"
+cf-containers-broker-version: "1.0.3"
+cf-mysql-version: "36.19.0"
+cf-rabbitmq-version: "279.0.0"
+cf-rabbitmq-multitenant-broker-version: "59.0.0"
+cf-rabbitmq-smoke-tests-version: "37.0.0"
+cf-redis-version: "434.3.12"
+cf-routing-version: "0.195.0"
+concourse-version: "5.6.0"
+cron-boshrelease-version: "1.2.0"
+docker-incubator-boshrelease-version: "35.3.4"
+haproxy-boshrelease-version: "9.8.0"
+kafka-version : "2.3.0"
+kafka-service-broker-version : "2.2.0"
+memcache-version: "6.0.0"
+minio-version: "2019-06-27T21-13-50Z"
+nfs-volume-version: "1.1.0" #old version for legacy broker compatibility
+os-conf-version: "21.0.0"
+postgres-version: "39"
+prometheus-boshrelease-version: "26.1.0"
+route-registrar-boshrelease-version: "3"
+shield-version: "8.6.2"
+uaa-version: "17"
+zookeeper-version : "0.0.10"

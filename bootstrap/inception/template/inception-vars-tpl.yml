@@ -1,0 +1,3 @@
+#--- Set inception cpi release versions
+bosh_cpi_version: (( grab $BOSH_CPI_VERSION ))
+bosh_cpi_sha1: (( grab $BOSH_CPI_SHA1 ))

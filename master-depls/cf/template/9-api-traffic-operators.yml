@@ -1,0 +1,51 @@
+#add an interco ip for api
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: api-relay
+    instances: 1
+    vm_type: small
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: intranet-ha-interco
+      static_ips:
+      - ((/secrets/intranet_interco_ips_api))
+
+    jobs:
+    - release: haproxy
+      name: haproxy
+      consumes:
+        tcp_backend: nil #disable default tcp_backend wiring.
+        http_backend: nil
+
+      properties:
+        ha_proxy:
+          tcp_link_port: 80  #port for tcp_backend wiring ?
+          resolvers:
+          - local-bosh-dns: 169.254.0.2
+          dns_hold: 1s
+
+          disable_http: true
+          log_level: debug
+          tcp:
+          - name: cf-api-https
+            port: 443
+            backend_servers:
+            - cf-deployment-routers #bosh-dns alias to cf/routers instances
+
+          - name: cf-api-ssh  #--- ssh access to cf api (cf haproxy vm 8080 port conflicts with haproxy health check port)
+            port: ((/secrets/cloudfoundry_cf_ssh_port)) #--- Matches app_ssh.port property in cf manifest
+            backend_port: 2222 #--- 2222 is the port expected by diego, use apps_ssh.port to use haproxy ssh LB
+            backend_servers:
+            - cf-deployment-schedulers #--- diego access vm
+          #use proxy protocol to tcp backend to propagate originating ip
+          #https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#5.2-send-proxy-v2-ssl-cn
+          tcp_backend_config: |
+            default-server send-proxy
+
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=ssh_proxy/provides?
+  value:
+    ssh_proxy: nil

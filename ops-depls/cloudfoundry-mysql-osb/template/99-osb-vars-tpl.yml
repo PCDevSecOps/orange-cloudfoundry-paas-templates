@@ -1,0 +1,10 @@
+deployment_name: "cloudfoundry-mysql-osb"
+
+#172.17 configuration
+proxy_ip1: "(( ips secrets.osb_data_plane_shared_public.range 27 ))"
+proxy_ip2: "(( ips secrets.osb_data_plane_shared_public.range 28 ))"
+vrrp_ip: "(( ips secrets.osb_data_plane_shared_public.range -10 ))"
+
+#10.228 configuration
+#proxy_ip1: "(( ips secrets.osb_data_plane_shared_public.range 8 ))"
+#proxy_ip2: "(( ips secrets.osb_data_plane_shared_public.range 9 ))"

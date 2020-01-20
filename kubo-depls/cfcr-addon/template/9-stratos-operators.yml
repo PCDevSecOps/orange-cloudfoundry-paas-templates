@@ -1,0 +1,72 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "stratos-namespace"
+    cmd: "apply"
+    options: ""
+    apply:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        labels:
+          name: stratos
+        name: stratos
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/repositories/-
+  value:
+    name: stratos
+    url: https://cloudfoundry-incubator.github.io/stratos
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: susecf-console
+    chart: suse/console
+    namespace: stratos
+    version: ((stratos-version))
+    properties:
+    - name: mariadb.persistence.storageClass
+      value: tf-cinder-storage-class
+    - name: dbPassword
+      value: ((stratos-mariadb-password))
+    - name: mariadb.persistence.mariadbRootPassword
+      value: ((stratos-mariadb-root-password))
+    - name: mariadb.persistence.mariadbPassword
+      value: ((stratos-mariadb-password))
+    - name: storageClass
+      value: tf-cinder-storage-class
+    -
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: stratos-ingress
+    namespace: stratos
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: stratos-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: susecf-console-ui-ext
+                servicePort: 80
+              path: /
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: stratos-mariadb-password
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: stratos-mariadb-root-password
+    type: password

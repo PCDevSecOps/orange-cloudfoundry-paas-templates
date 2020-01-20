@@ -1,0 +1,104 @@
+---
+name: ((deployment_name))
+
+releases:
+  - name: &cassandra_release cassandra
+    version: "12"
+
+instance_groups:
+  - name: cassandra-seeds
+    instances: 3
+    azs: [ z1, z2 ]
+    jobs:
+      - name: cassandra
+        release: *cassandra_release
+        provides:
+          cassandra: { as: cassandra_seeds_list }
+        consumes:
+          seeds: { from: cassandra_seeds_list }
+          non_seeds: { from: cassandra_non_seeds_list }
+        properties: &cassandra_properties
+          cluster_name: ((deployment_name))
+          cassandra_password: ((cassandra_admin_password))
+          # Notice: these two properties 'max_heap_size' and 'heap_newsize'
+          # have to be set in pair
+          max_heap_size: 5G
+          heap_newsize: 600M
+          bosh_to_cassandra_topology_mapping:
+            z1:      { dc: DC1, rack: RAC1 }
+            z2:      { dc: DC1, rack: RAC2 }
+            z3:      { dc: DC1, rack: RAC3 }
+            default: { dc: DC1, rack: RAC1 }
+    stemcell: default
+    vm_type: default
+    persistent_disk_type: default
+    env:
+      persistent_disk_fs: xfs
+      bosh: { swap_size: 0 }
+    networks: [ name: ((network_name)) ]
+
+  - name: cassandra-servers
+    instances: 1
+    azs: [ z1, z2 ]
+    jobs:
+      - name: cassandra
+        release: *cassandra_release
+        provides:
+          cassandra: { as: cassandra_non_seeds_list }
+        consumes:
+          seeds: { from: cassandra_seeds_list }
+          non_seeds: { from: cassandra_non_seeds_list }
+        properties: *cassandra_properties
+    stemcell: default
+    vm_type: default
+    persistent_disk_type: default
+    env:
+      persistent_disk_fs: xfs
+      bosh: { swap_size: 0 }
+    networks: [ name: ((network_name)) ]
+
+
+
+
+
+  - name: smoke-tests
+    lifecycle: errand
+    instances: 1
+    azs: [ z1 ]
+    jobs:
+      - name: cassandra-acceptance-tests
+        consumes:
+          cassandra_seeds_list: { from: cassandra_seeds_list }
+          cassandra_servers_list: { from: cassandra_non_seeds_list  }
+        release: *cassandra_release
+        properties:
+          cassandra_test_suites: [ crud ]
+    stemcell: default
+    vm_type: small
+    env:
+      persistent_disk_fs: xfs
+      bosh: { swap_size: 0 }
+    networks: [ name: ((network_name)) ]
+
+update:
+  # We don't support Cassandra instance groups to be deployed in parallel.
+  # They must be deployed sequentially.
+  serial: true
+
+  canaries: 1
+  canary_watch_time: 30000-240000
+
+  # We don't support values > 1 for 'max_in_flight'. Indeed there can be a
+  # race condition in post-start when 2 repair-table are executed in parallel.
+  max_in_flight: 1
+  update_watch_time: 30000-240000
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+variables:
+  - name: cassandra_admin_password
+    type: password
+

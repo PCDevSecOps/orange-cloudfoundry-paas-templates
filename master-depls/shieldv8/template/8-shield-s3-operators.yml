@@ -1,0 +1,88 @@
+#--- Add releases
+- type: replace
+  path: /releases/-
+  value:
+    name: minio
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+#--- Add variables
+- type: replace
+  path: /variables/-
+  value:
+    name: s3_secretkey
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: private_cert
+    type: certificate
+    options:
+      ca: /internalCA
+      common_name: shield-s3.internal.paas
+      alternative_names:
+        - shield-s3.internal.paas
+        - "*.shield-s3.internal.paas"
+
+#--- Add s3 proxy instance group
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: shield-s3-minio-proxy
+    instances: 1
+    azs: [z1]
+    networks:
+    - name: tf-net-exchange
+      static_ips: [192.168.99.27]
+    vm_type: default
+    stemcell: default
+    persistent_disk_type: default
+    jobs:
+      - name: haproxy
+        release: haproxy
+        properties:
+          ha_proxy:
+            log_level: debug
+            disable_http: false
+            backend_port: 9000
+            backend_servers:
+              - 192.168.99.28
+              - 192.168.99.29
+              - 192.168.99.30
+              - 192.168.99.31
+            ssl_pem:
+              - ((private_cert.certificate))((private_cert.private_key))
+            rsp_headers:
+              Strict-Transport-Security: max-age=15768000
+
+
+#--- Add s3 minio instance group
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: shield-s3-minio
+    instances: 4
+    azs: [z1, z2]
+    networks:
+    - name: tf-net-exchange
+      static_ips:
+        - 192.168.99.28
+        - 192.168.99.29
+        - 192.168.99.30
+        - 192.168.99.31
+    vm_type: default
+    stemcell: default
+    persistent_disk: 200000
+    jobs:
+    - name: minio-server
+      release: minio
+      properties:
+        credential:
+          accesskey: shield-s3
+          secretkey: ((s3_secretkey))

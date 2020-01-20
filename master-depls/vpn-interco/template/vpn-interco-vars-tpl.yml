@@ -1,0 +1,5 @@
+---
+vpn_network: (( grab secrets.openvpn.vpn_network ))
+vpn_network_netmask: (( grab secrets.openvpn.vpn_network_netmask ))
+dh_pem: (( grab secrets.openvpn.dh_pem ))
+static_ip: (( grab secrets.openvpn.static_ip ))

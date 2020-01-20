@@ -1,0 +1,13 @@
+#add stores information
+- type: replace
+  path: /instance_groups/name=openldap/jobs/name=shield-agent/properties/stores?
+  value:
+    openldap_s3_obos:
+      plugin: s3
+      config:
+        s3_host: storage.orange.com
+        access_key_id: private-s3
+        secret_access_key: ((/secrets/shield_obos_secret_access_key))
+        bucket: "((/secrets/shield_obos_bucket_prefix))-openldap" # replace with your bucket name
+        skip_ssl_validation: true
+        signature_version: "4" #  change it to 4 if you want to use a an amazon storage

@@ -1,0 +1,4 @@
+#--- shared secrets
+interco_gateway: (( grab secrets.intranet_interco_ips.gateway ))
+
+dedicated_pub_net: (( ips secrets.osb_data_plane_dedicated_public.range 0 )) #attemps to get the network from cidr

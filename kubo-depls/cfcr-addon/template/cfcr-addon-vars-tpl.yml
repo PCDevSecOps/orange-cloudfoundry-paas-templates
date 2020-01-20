@@ -1,0 +1,10 @@
+
+env_pf: ops
+kubernetes.host: cfcr-api-ops.internal.paas
+#kubernetes.host: kube-api-ops.((/secrets/cloudfoundry_ops_domain))
+kubernetes.port: 443
+kubernetes-password: ((/bosh-kubo/cfcr/kubo-admin-password))
+kubernetes.cluster_ca_certificate: ((/bosh-kubo/cfcr/tls-kubernetes.ca))
+#kubernetes.cluster_ca_certificate:  (( file "../../shared/certs/orange-certs" ))
+
+

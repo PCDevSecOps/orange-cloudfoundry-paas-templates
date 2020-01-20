@@ -1,0 +1,71 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/0/config/mysql_host
+  value: 127.0.0.1
+
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/-
+  value:
+    name: ((deployment_name))-network_connectivity-(ip)
+    agent: (ip):5444
+    plugin: mysql
+    config:
+      mysql_host: 127.0.0.1
+      mysql_port: ((mysql_port))
+      mysql_user: root
+      mysql_password: ((mysql_password))
+      mysql_database: "network_connectivity"
+      mysql_bindir: "/var/vcap/packages/mariadb/bin"
+    summary: "network_connectivity backup"
+    jobs:
+      - name: mysql/(index)-full-daily
+        when: ((when))
+        policy: twenty-one-days-term
+        retain: 20
+        storage: remote-((deployment_name))-(ip)
+        paused:  false
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/-
+  value:
+    name: ((deployment_name))-network_policy-(ip)
+    agent: (ip):5444
+    plugin: mysql
+    config:
+      mysql_host: 127.0.0.1
+      mysql_port: ((mysql_port))
+      mysql_user: root
+      mysql_password: ((mysql_password))
+      mysql_database: "network_policy"
+      mysql_bindir: "/var/vcap/packages/mariadb/bin"
+    summary: "network_policy backup"
+    jobs:
+      - name: mysql/(index)-full-daily
+        when: ((when))
+        policy: twenty-one-days-term
+        retain: 20
+        storage: remote-((deployment_name))-(ip)
+        paused:  false
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/-
+  value:
+    name: ((deployment_name))-routing-api-(ip)
+    agent: (ip):5444
+    plugin: mysql
+    config:
+      mysql_host: 127.0.0.1
+      mysql_port: ((mysql_port))
+      mysql_user: root
+      mysql_password: ((mysql_password))
+      mysql_database: "routing-api"
+      mysql_bindir: "/var/vcap/packages/mariadb/bin"
+    summary: "routing-api"
+    jobs:
+      - name: mysql/(index)-full-daily
+        when: ((when))
+        policy: twenty-one-days-term
+        retain: 20
+        storage: remote-((deployment_name))-(ip)
+        paused:  false

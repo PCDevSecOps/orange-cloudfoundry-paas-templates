@@ -1,0 +1,77 @@
+#shield backup
+
+#add shield release
+- type: replace
+  path: /releases/name=shield?
+  value:
+    name: shield
+    version: latest
+
+#adding shield-agent to mysql vms
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent?/release
+  value: shield
+
+#adding bosh link
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent/consumes?
+  value:
+    shield-daemon: {deployment: shield, from: shield-daemon}
+
+#add shield server uri
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent/properties?
+  value:
+    autoprovision: true
+
+#add shield retention policies
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent/properties/retention-policies?
+  value:
+    Short-term: 20d
+    Long-term: 180d
+
+# add shield schedules
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent/properties/schedules?
+  value:
+    DevSched: daily 4am
+    daily: daily 2am
+    weekly: sundays 9am
+    monthly: 2st sunday at 0am
+
+#add targets information
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent/properties/targets?
+  value:
+    bosh_coab_target:
+      plugin: postgres
+      config:
+        pg_bindir: "/var/vcap/packages/postgres-10/bin/"
+        pg_user: vcap
+        pg_password: "" # password is unused for backup, use empty password to avoid shield error
+        pg_host: 127.0.0.1
+        pg_port: "5432"
+
+#add stores information
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent/properties/stores?
+  value:
+    bosh_coab_s3_obos:
+      plugin: scality
+      config:
+        scality_host: storage.orange.com
+        access_key_id: ((/secrets/shield_obos_access_key_id))
+        secret_access_key: ((/secrets/shield_obos_secret_access_key))
+        bucket: "((/secrets/shield_obos_bucket_prefix))-bosh-coab" # replace with your bucket name
+        signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+#add jobs configurations
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=shield-agent/properties/jobs?
+  value:
+    bosh_coab_backup:
+      retention: Short-term
+      schedule: daily
+      store: bosh_coab_s3_obos
+      target: bosh_coab_target

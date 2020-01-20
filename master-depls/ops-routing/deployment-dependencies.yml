@@ -1,0 +1,22 @@
+---
+deployment:
+  ops-routing:
+    releases:
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      nats:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nats-release
+      uaa:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/uaa-release
+      postgres:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/postgres-release
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+
+    errands:
+

@@ -1,0 +1,55 @@
+---
+name: weave-scope 
+
+releases:
+  - {name: weave-scope, version: latest}
+  - {name: routing, version: latest}
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  serial: false
+
+
+# Stemcell details
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+- name: weave
+  instances: 1
+  vm_type: large
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-exchange
+    static_ips: [192.168.99.65]
+  persistent_disk_type: small_disk
+  jobs:
+  - release: weave-scope
+    name: scope_app
+    provides:
+      weave_scope_app:
+        as: weave_scope_app
+        shared: true
+
+  - release: routing
+    name: route_registrar
+    properties:
+       # this is a route to expose weave console  via cf routers
+      nats:
+        machines: [ops-routing-nats] 
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+          - name: elpaaso-weave
+            uris:
+              - elpaaso-weave.((/secrets/cloudfoundry_ops_domain))
+            port: 4040
+            registration_interval: 20s  

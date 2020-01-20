@@ -1,0 +1,22 @@
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 50GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true #required when ephemeral size exceeds base flavor disk size
+      root_disk:
+        size: 50
+
+- type: replace
+  path: /vm_extensions/-
+  value: 
+    name: 100GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true #required when ephemeral size exceeds base flavor disk size
+      root_disk:
+        size: 150
+
+
+
+
+          

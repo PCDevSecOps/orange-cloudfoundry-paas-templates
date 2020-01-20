@@ -1,0 +1,33 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/-
+  value :
+    name: route_registrar
+    release: routing
+    consumes:
+      nats:
+        instances:
+        - address: ops-routing-nats
+        properties:
+          nats:
+            port: 4222
+            user: nats
+            password: ((/bosh-master/ops-routing/nats_password))
+    
+    properties:
+      route_registrar:
+        routes:
+        - name: harbor-endpoint
+          registration_interval: 60s
+          tls_port: 443
+          port: 443 #should not be used
+          server_cert_domain_san: "harbor.((/secrets/cloudfoundry_ops_domain))"
+          uris:
+            - harbor.((/secrets/cloudfoundry_ops_domain))
+
+

@@ -1,0 +1,63 @@
+#shield backups
+
+#add shield release
+- type: replace
+  path: /releases/name=shield?
+  value:
+    name: shield
+    version: latest
+
+#adding shield-agent to rmq vms
+- type: replace
+  path: /instance_groups/name=guardian_uaa_qa/jobs/name=shield-agent?/release
+  value: shield
+
+
+#add shield server uri
+- type: replace
+  path: /instance_groups/name=guardian_uaa_qa/jobs/name=shield-agent/properties?/shield/agent
+  value:
+    autoprovision: http://192.168.99.25 #shield server, avoid cyclic dep on go router with (( concat "https://shield-webui." secrets.cloudfoundry.ops_domain ))
+
+#add provisioning key
+- type: replace
+  path: /instance_groups/name=guardian_uaa_qa/jobs/name=shield-agent/properties/shield/provisioning_key?
+  value:  ((/secrets/shield_autoprovision_key))
+
+#add targets information
+- type: replace
+  path: /instance_groups/name=guardian_uaa_qa/jobs/name=shield-agent/properties/shield/targets?
+  value:
+    guardian_uaa_qa_target:
+      plugin: postgres
+      config:
+        pg_bindir: "/var/vcap/packages/uaa_postgres-9.4.6/bin/"
+        pg_user: vcap
+        pg_password: "" # password is unused for backup, use empty password to avoid shield error
+        pg_host: 127.0.0.1
+        pg_port: "5524"
+
+
+#add stores information
+- type: replace
+  path: /instance_groups/name=guardian_uaa_qa/jobs/name=shield-agent/properties/shield/stores?
+  value:
+    guardian_uaa_qa_s3_obos:
+      plugin: scality
+      config:
+        scality_host: storage.orange.com
+        access_key_id: ((/secrets/shield_obos_access_key_id))
+        secret_access_key: ((/secrets/shield_obos_secret_access_key))
+        bucket: "((/secrets/shield_obos_bucket_prefix))-guardian-uaa"  # replace with your bucket name
+        signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+
+#add jobs configurations
+- type: replace
+  path: /instance_groups/name=guardian_uaa_qa/jobs/name=shield-agent/properties/shield/jobs?
+  value:
+    guardian_uaa_qa_backup:
+      retention: Short-term
+      schedule: daily
+      store: guardian_uaa_qa_s3_obos
+      target: guardian_uaa_qa_target

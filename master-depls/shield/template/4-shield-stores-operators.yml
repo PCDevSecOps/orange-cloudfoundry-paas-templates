@@ -1,0 +1,36 @@
+#add stores information
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/stores?
+  value:
+    shield_s3_obos:
+      plugin: scality
+      config:
+        scality_host: storage.orange.com
+        access_key_id:  ((/secrets/shield_obos_access_key_id))
+        secret_access_key: ((/secrets/shield_obos_secret_access_key))
+        bucket:  "((/secrets/shield_obos_bucket_prefix))-shield"  # replace with your bucket name
+        signature_version: "2" #  change it to 4 if you want to use a an amazon storage
+
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/stores/cf_db_s3?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: ((/secrets/shield_obos_access_key_id))
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-cf-db"   # create the bucket manually
+      signature_version: "2"
+
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/stores/pdns_s3_obos?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: ((/secrets/shield_obos_access_key_id))
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-pdns"  # replace with your bucket name
+      signature_version: "2" #  change it to 4 if you want to use a an amazon storage

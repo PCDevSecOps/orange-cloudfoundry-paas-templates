@@ -1,0 +1,6 @@
+---
+
+#adapt stemcell
+- type: replace
+  path: /stemcells/alias=default/version
+  value: latest

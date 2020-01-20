@@ -1,0 +1,27 @@
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/auth_mode?
+  value: ldap_auth
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/ldap?/url?
+  value: "ldap://elpaaso-ldap.internal.paas:389"
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/ldap?/searchdn?
+  value: "cn=manager,dc=orange,dc=com"
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/ldap?/searchpwd?
+  value: "((/secrets/ldap_root_password))"
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/ldap?/basedn?
+  value: "ou=users,dc=orange,dc=com"
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/ldap?/filter?
+  value: uid={0}
+
+- type: replace
+  path: /instance_groups/name=harbor-app/jobs/name=harbor/properties/ldap?/uid?
+  value: mail

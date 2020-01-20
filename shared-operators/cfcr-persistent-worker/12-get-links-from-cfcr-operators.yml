@@ -1,0 +1,18 @@
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=kubo-dns-aliases/consumes?/etcd?
+  value:
+    from: etcd
+    deployment: cfcr
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=kubo-dns-aliases/consumes?/kube-apiserver?
+  value:
+    from: kube-apiserver
+    deployment: cfcr
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=flanneld/consumes?/etcd?
+  value:
+    from: etcd
+    deployment: cfcr

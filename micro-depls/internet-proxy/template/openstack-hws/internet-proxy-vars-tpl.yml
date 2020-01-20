@@ -1,0 +1,6 @@
+#FIXME: only for redsocks. to remove (internal depl wiring)
+#proxy-ip: system-internet-http-proxy.internal.paas
+#proxy-port: 3128
+
+#floating ip for internet outbound traffic
+floating_ip: (( grab secrets.outbound_floating_ip ))

@@ -1,0 +1,24 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: cfcr-clean-traefik
+    lifecycle: errand
+    vm_type: small
+    stemcell: default
+    networks:
+    - name: ((network))
+    azs: [z1,z2,z3]
+    instances: 1
+    jobs:
+    - name: kubectl
+      release: helm-kubectl
+      properties:
+        kubernetes:
+          host: ((kubernetes.host))
+          port: ((kubernetes.port))
+          cluster_ca_certificate: ((kubernetes.cluster_ca_certificate))
+          password: ((kubernetes-password))
+        commands:
+        - name: "clean-traefik"
+          cmd: "delete"
+          options: "rs -n traefik --all"

@@ -1,0 +1,13 @@
+#--- Remove components for bootstrap
+- type: remove
+  path: /instance_groups/name=credhub-db/jobs/name=scripting
+
+- type: remove
+  path: /instance_groups/name=credhub-db/jobs/name=import
+
+- type: remove
+  path: /instance_groups/name=credhub-db/jobs/name=shield-agent
+
+- type: remove
+  path: /instance_groups/name=credhub-db/jobs/name=mc
+

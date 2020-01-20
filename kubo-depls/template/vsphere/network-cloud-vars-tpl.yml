@@ -1,0 +1,10 @@
+#--- vsphere tenant
+az_1: (( grab secrets.vpshere.availability_zone ))
+az_2: (( grab secrets.vpshere.availability_zone_2 ))
+az_3: (( grab secrets.vpshere.availability_zone ))
+public_dns: (( grab secrets.bosh.public_dns ))
+iaas_dns: (( grab secrets.bosh.iaas_dns ))
+dns: [192.168.116.156,192.168.116.166]
+
+#--- networks name
+compilation-network-name: (( grab secrets.vphere.networks.compilation.name ))

@@ -1,0 +1,11 @@
+- type: remove
+  path: /instance_groups/name=master
+
+- type: remove
+  path: /instance_groups/name=apply-addons
+
+- type: remove
+  path: /variables
+
+- type: remove
+  path: /releases/name=bpm

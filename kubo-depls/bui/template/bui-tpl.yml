@@ -1,0 +1,67 @@
+---
+name: bui 
+
+
+releases:
+  - {name: bui, version: latest }
+  - {name: route-registrar, version: latest}
+  - {name: haproxy, version: latest}  
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  serial: false
+
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+
+instance_groups:
+- name: bui-kubo
+  instances: 1 
+  vm_type: small
+  stemcell: default
+  azs: [z1]
+  networks: [{name: tf-net-kubo}]
+  persistent_disk_type: small 
+  jobs:
+  - name: bui
+    release: bui
+    properties:
+      bui:
+        bosh_addr: https://192.168.99.154:25555 #to bosh-expe
+        domain: (( concat "elpaaso-bui-kubo." secrets.cloudfoundry.ops_domain ))
+    
+  #a http connector (default bui listens http on 127.0.0.1, caddy https not compatible with route registrar)
+  - name: haproxy
+    release: haproxy
+    properties:
+      ha_proxy:
+        disable_http: true 
+        log_level: debug
+        tcp:
+        - name: http-to-bui
+          port: 8080
+          backend_port: 9303 #targets bui localhost:9303 endpoint
+          backend_servers:
+          - localhost
+     
+  - name: route-registrar
+    release: route-registrar
+    properties:
+      # this is a route to expose  console  via cf routers          
+      route_registrar:
+        external_host: (( concat "elpaaso-bui-expe." secrets.cloudfoundry.ops_domain ))
+        port: 8080 
+        message_bus_servers:
+        - host:  (( concat secrets.cloudfoundry.nats_host ":4222" )) # <-- cf nats, cant use dns cause cf is in bosh-ops powerdns, not bosh-master
+          user: nats
+          password: (( grab secrets.cloudfoundry.nats_password ))  #nats
+        health_checker:
+          interval: 10
+          name: healthchk

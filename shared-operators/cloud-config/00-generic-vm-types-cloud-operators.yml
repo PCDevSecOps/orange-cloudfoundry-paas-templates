@@ -1,0 +1,16 @@
+- type: replace
+  path: /vm_types?
+  value:
+  - name: micro
+  - name: default
+  - name: small
+  - name: medium
+  - name: large
+  - name: xlarge
+  - name: xxlarge
+  - name: worker
+  - name: large-mysql
+  - name: xlarge-mysql
+  - name: xxlarge-mysql
+  - name: xxxlarge-highpowermysql
+  - name: xlarge-highcapmysql

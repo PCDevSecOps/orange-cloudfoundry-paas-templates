@@ -1,0 +1,11 @@
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=shield-agent/properties/shield/stores/p_mysql_osb_full_backup_s3?
+  value:
+    plugin: scality
+    config:
+      scality_host: storage.orange.com
+      access_key_id: "((/secrets/shield_obos_access_key_id))"
+      secret_access_key: "((/secrets/shield_obos_secret_access_key))"
+      bucket: "((/secrets/shield_obos_bucket_prefix))-p-mysql-osb-full-backup"
+      skip_ssl_validation: true
+      signature_version: "2" #  change it to 4 if you want to use an amazon storage

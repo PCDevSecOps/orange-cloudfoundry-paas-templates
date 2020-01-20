@@ -1,0 +1,14 @@
+# --- Vsphere ephemeral disk size (Mb) which can be set in vm cloud_properties
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 50GB_ephemeral_disk
+    cloud_properties:
+      disk: 51200
+
+- type: replace
+  path: /vm_extensions/-
+  value: 
+    name: 100GB_ephemeral_disk
+    cloud_properties:
+      disk: 102400

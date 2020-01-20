@@ -1,0 +1,89 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: gogs-mariadb
+    chart: stable/mariadb
+    namespace: gogs
+    version: ((mariadb-version))
+    values:
+      persistence:
+        storageClass: tf-cinder-storage-class
+
+      rootUser:
+        password: ((mariadb_password))
+        forcePassword: true
+      db:
+        user: gogs
+        password: ((mariadb_gogs_password))
+        name: gogs
+      replication:
+        enabled: false
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: gogs
+    chart: incubator/gogs
+    namespace: gogs
+    version: ((gogs-version))
+    values:
+      persistence:
+        enabled: true
+        storageClass: tf-cinder-storage-class
+
+      postgresql:
+        install: false
+
+      service:
+        gogs:
+          appName: 'Gogs for CAP'
+          serviceEnableCaptcha: false
+          serviceDisableRegistration: true
+          installLock: false
+          runMode: 'prod'
+          databaseType: mysql
+          databaseUser: gogs
+          databasePassword: ((mariadb_gogs_password))
+          databaseName: gogs
+          databaseHost: gogs-mariadb-mariadb
+          serverRootUrl: https://ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))/gogs/
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: gogs
+    namespace: gogs
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: gogs-gogs
+                servicePort: 80
+              path: /gogs/
+
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: mariadb_gogs_password
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: mariadb_password
+    type: password
+

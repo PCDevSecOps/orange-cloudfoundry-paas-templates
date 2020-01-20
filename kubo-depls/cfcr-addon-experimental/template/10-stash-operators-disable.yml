@@ -1,0 +1,21 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/repositories/-
+  value:
+    name: appscode
+    url: https://charts.appscode.com/stable
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: stash
+    chart:  appscode/stash
+    namespace: stash
+    version: ((stash-version))
+    values:
+      enable-analytics: false
+      rbac:
+        create: true
+      apiserver:
+        enableValidatingWebhook: true
+        enableMutatingWebhook: true
+        ca: ((/bosh-kubo/cfcr/tls-kubernetes.ca))

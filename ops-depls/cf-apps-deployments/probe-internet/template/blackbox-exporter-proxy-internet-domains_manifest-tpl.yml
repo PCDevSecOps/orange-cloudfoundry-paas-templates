@@ -1,0 +1,17 @@
+---
+applications:
+- name: blackbox-exporter-proxy-internet-domains
+  instances: 2
+  path: blackbox_exporter
+  memory: 64M
+  stack: cflinuxfs3
+  buildpack: binary_buildpack
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  command: ./blackbox_exporter --web.listen-address=:$PORT  --log.level=debug  --config.file='blackbox-proxy.yml'
+  services:
+  - o-internet-ha-access-service
+  env:
+    HTTP_PROXY: http://apps-internet-http-proxy.internal.paas:3128
+    http_proxy: http://apps-internet-http-proxy.internal.paas:3128
+    HTTPS_PROXY: http://apps-internet-http-proxy.internal.paas:3128
+    https_proxy: http://apps-internet-http-proxy.internal.paas:3128

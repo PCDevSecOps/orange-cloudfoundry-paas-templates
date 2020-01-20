@@ -1,0 +1,7 @@
+az_1: (( grab secrets.openstack.availability_zone ))
+az_2: (( grab secrets.openstack.availability_zone_2 ))
+az_3: (( grab secrets.openstack.availability_zone ))
+
+#--- Openstack vars
+tf_net_coab_depls_instance: ((/tf/networks_net-coab-depls-instance)) #--- from credhub, saved there by terraform @subnet creation time
+tf_net_coab_depls_compilation: ((/tf/networks_net-coab-depls-compilation)) #--- from credhub, saved there by terraform @subnet creation time

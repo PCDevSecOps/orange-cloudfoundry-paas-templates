@@ -1,0 +1,12 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/policies?/-
+  value:
+    name: four-days-term
+    days: 4
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/policies?/-
+  value:
+    name: twenty-one-days-term
+    days: 21

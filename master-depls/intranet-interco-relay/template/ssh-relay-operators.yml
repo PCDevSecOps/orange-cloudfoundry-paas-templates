@@ -1,0 +1,86 @@
+#--- Bosh releases
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+#prepare envoy config file
+# see https://github.com/envoyproxy/envoy/blob/v1.10.0/configs/envoy_front_proxy_v2.template.yaml
+- type: replace
+  path: /instance_groups/name=ops-relay/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/sh
+          echo "prestart, generate envoy config file"
+
+          cat - > /var/vcap/data/scripting/front-envoy.yaml <<EOF
+          static_resources:
+            listeners:
+            - name: ops_ssh_listener
+              address:
+                socket_address:
+                  protocol: TCP
+                  address: 0.0.0.0
+                  port_value: 8080
+              filter_chains:
+              - filters:
+                - name: envoy.tcp_proxy
+                  config:
+                    stat_prefix: ssh_proxy
+                    cluster: backend_ssh
+                    access_log:
+                      - name: envoy.file_access_log
+                        config:
+                          path: /dev/stdout
+            clusters:
+            - name: backend_ssh
+              type: static
+              connect_timeout: 1s
+              hosts:
+                - socket_address:
+                    address: 192.168.116.100
+                    port_value: 22
+            - name: ops-routers
+              connect_timeout: 0.25s
+              type: strict_dns
+              dns_lookup_family: v4_only
+              lb_policy: round_robin
+              hosts: [
+                { socket_address: { address: ops-router-z1, port_value: 443 }},
+                { socket_address: { address: ops-router-z2, port_value: 443 }}
+              ]
+
+          admin:
+            access_log_path: "/dev/stdout"
+            address:
+              socket_address:
+                address: 0.0.0.0
+                port_value: 9901
+          EOF
+
+#configure envoy docker container (l2 relay to ops ssh on docker-bosh-cli)
+- type: replace
+  path: /instance_groups/name=ops-relay/jobs/-
+  value:
+    name: containers
+    release: docker
+    properties:
+      containers:
+        - name: ssh_envoy
+          image: "envoyproxy/envoy:((envoy_proxy_version))"
+          bind_ports:
+          - 80:8080
+          - 9901:9901
+          volumes:
+          - /var/vcap/data/scripting/front-envoy.yaml:/etc/envoy/envoy.yaml

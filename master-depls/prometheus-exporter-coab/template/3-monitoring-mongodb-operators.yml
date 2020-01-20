@@ -1,0 +1,38 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value: {name: prometheus-addons, version: latest }
+  
+#dashboards
+
+- type: replace
+  path: /instance_groups/name=grafana/jobs/-
+  value:
+    name: mongodb_dashboards
+    release: prometheus-addons
+    
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=grafana/properties/grafana/prometheus/dashboard_folders/-
+  value:
+    name: MongoDB
+    files:
+      - /var/vcap/jobs/mongodb_dashboards/*.json
+
+#alerts
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: mongodb_alerts
+    release: prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/rule_files/-
+  value: "/var/vcap/jobs/mongodb_alerts/*.alerts.yml"
+
+    #scraping, using bosh inventory discovery comes from prmoetheus bosh-release
+
+    
+    
+    
+    
+    

@@ -1,0 +1,12 @@
+- type: replace
+  path: /instance_groups/name=worker/networks/0
+  value:
+    name: ((network))
+#    static_ips:
+#    - ((ip_persistent_worker_1))
+#    - ((ip_persistent_worker_2))
+#    - ((ip_persistent_worker_3))
+#    - ((ip_persistent_worker_4))
+#    - ((ip_persistent_worker_5))
+    cloud_properties:
+      security_groups: [default]

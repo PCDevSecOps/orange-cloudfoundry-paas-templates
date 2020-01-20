@@ -1,0 +1,15 @@
+#echange target go routers to isolation-segment-internet 
+
+ #remove explicit backend in manifest
+- type: remove
+  path: /instance_groups/name=cf-internet-rp/jobs/name=haproxy/properties/ha_proxy/backend_servers
+  
+  
+#uses bosh link to internet isolation segment
+- type: replace
+  path: /instance_groups/name=cf-internet-rp/jobs/name=haproxy/consumes?
+  value:
+    http_backend:
+      from: gorouter
+      deployment: isolation-segment-internet
+ 

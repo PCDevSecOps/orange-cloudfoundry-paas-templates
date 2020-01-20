@@ -1,0 +1,30 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: kube-state-metrics
+    chart: stable/kube-state-metrics
+    namespace: kube-state-metrics
+    version: ((kube-state-metrics-version))
+
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: kube-state-metrics-ingress
+    namespace: kube-state-metrics
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: kube-state-metrics-((env_pf)).cfcr.((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kube-state-metrics
+                servicePort: 8080
+              path: /

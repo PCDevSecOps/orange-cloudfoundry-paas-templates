@@ -1,0 +1,31 @@
+# bosh release is added by monitoring-cf-cassandra-operators.yml
+#- type: replace
+#  path: /releases/-
+#  value: {name: prometheus, version: latest }
+
+#dashboards
+- type: replace
+  path: /instance_groups/name=grafana/jobs/-
+  value:
+    name: rabbitmq_dashboards
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=grafana/properties/grafana/prometheus/dashboard_folders/-
+  value:
+    name: RabbitMQ
+    files:
+      - /var/vcap/jobs/rabbitmq_dashboards/*.json
+
+#alerts
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: rabbitmq_alerts
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/rule_files/-
+  value: "/var/vcap/jobs/rabbitmq_alerts/*.alerts.yml"
+
+#scraping, using bosh inventory discovery comes from prometheus bosh-release

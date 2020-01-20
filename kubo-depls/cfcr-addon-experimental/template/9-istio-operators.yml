@@ -1,0 +1,65 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/repositories/-
+  value:
+    name: internal
+    url: https://ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))/chartmuseum/
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: istio
+    chart: internal/istio
+    namespace: istio-system
+    version: ((istio-version))
+    properties :
+    - name: prometheus.server.baseURL
+      value: istio-prometheus
+    - name: gateways.istio-ingressgateway.type
+      value: NodePort
+    - name: gateways.istio-egressgateway.type
+      value: NodePort
+
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: istio-ingress
+    namespace: istio-system
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: prometheus
+                servicePort: 9090
+              path: /istio-prometheus
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/ingress/-
+  value:
+    name: istio-egressgateway
+    namespace: istio-system
+    annotations:
+    - name: nginx.ingress.kubernetes.io/rewrite-target
+      value: '/'
+    definition:
+      spec:
+        rules:
+        - host: ingress-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: istio-egressgateway
+                servicePort: 80
+              path: /istio-egressgateway
+

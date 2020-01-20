@@ -1,0 +1,28 @@
+#--- Load networking release
+- type: replace
+  path: /releases/name=networking?
+  value:
+    name: networking
+    version: latest
+
+#--- Add network interface on master-depls subnet
+- type: replace
+  path: /instance_groups/name=osb-relay/networks/-
+  value:
+    name: tf-net-exchange
+    default: [dns,gateway]
+    static_ips: [192.168.99.35]
+
+#--- Set routes to public internal subnets
+- type: replace
+  path: /instance_groups/name=osb-relay/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+        - net: 10.0.0.0
+          netmask: 255.0.0.0
+          interface: eth0
+          gateway: ((interco_gateway))

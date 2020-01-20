@@ -1,0 +1,7 @@
+---
+deployment:
+  internet-proxy:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases: []

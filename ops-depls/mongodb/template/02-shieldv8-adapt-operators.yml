@@ -1,0 +1,10 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=mongod/name
+  value: shield
+
+- type: remove
+  path: /releases/name=shield
+
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent

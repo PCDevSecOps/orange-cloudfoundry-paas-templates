@@ -1,0 +1,56 @@
+#--- vsphere VM flavors
+- type: replace
+  path: /vm_types/name=small/cloud_properties?
+  value:
+    # 1 cpu, 4 Go memory
+    cpu: 1
+    ram: 4024
+    disk: 10240
+
+- type: replace
+  path: /vm_types/name=default/cloud_properties?
+  value:
+    # 1 cpu, 4 Go memory
+    cpu: 1
+    ram: 4024
+    disk: 10240
+
+- type: replace
+  path: /vm_types/name=medium/cloud_properties?
+  value:
+    # 1 cpu, 4 Go memory
+    cpu: 1
+    ram: 4024
+    disk: 10240
+
+- type: replace
+  path: /vm_types/name=large/cloud_properties?
+  value:
+    # 2 cpu, 8 Go memory
+    cpu: 2
+    ram: 8024
+    disk: 10240
+
+- type: replace
+  path: /vm_types/name=xlarge/cloud_properties?
+  value:
+    # 4 cpu, 16 Go memory
+    cpu: 4
+    ram: 16024
+    disk: 10240
+
+- type: replace
+  path: /vm_types/name=xxlarge/cloud_properties?
+  value:
+    # 8 cpu, 32 Go memory
+    cpu: 8
+    ram: 32000
+    disk: 10240
+
+- type: replace
+  path: /vm_types/name=worker/cloud_properties?
+  value:
+    cpu: 2
+    ram: 8000
+    disk: 100000
+

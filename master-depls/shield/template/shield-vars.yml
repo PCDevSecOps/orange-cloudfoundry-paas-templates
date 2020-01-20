@@ -1,0 +1,5 @@
+shield-daemon-password:  ((/secrets/shield_basic_password))  # password for web interface, same as secret
+shield-daemon-api-key: ((/secrets/shield_autoprovision_key))  # password for auto-provision
+static-ip: 192.168.99.25
+log-level: "info"
+shield-domain:  "shield-webui.((/secrets/cloudfoundry_ops_domain))"

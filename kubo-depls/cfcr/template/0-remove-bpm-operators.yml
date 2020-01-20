@@ -1,0 +1,6 @@
+# remove bpm de cfcr as it already add by addon of deployment
+- type: remove
+  path: /instance_groups/name=master/jobs/name=bpm
+
+- type: remove
+  path: /releases/name=bpm

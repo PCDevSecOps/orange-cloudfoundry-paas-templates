@@ -1,0 +1,6 @@
+#--- vpshere Disks flavors override
+- type: replace
+  path: /disk_types/name=logsearch-ops-es-data?
+  value:
+    name: logsearch-ops-es-data
+    disk_size: 300_000

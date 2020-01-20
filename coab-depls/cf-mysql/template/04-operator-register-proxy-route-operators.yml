@@ -1,0 +1,36 @@
+---
+- type: replace
+  path: /releases/name=routing?
+  value:
+    name: routing
+    version: "0.180.0"
+    url: https://bosh.io/d/github.com/cloudfoundry-incubator/cf-routing-release?v=0.180.0
+    sha1: 990c2c319e6063573eec18dbeb7c3631a382db7d
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/-
+  value:
+    release: routing
+    name: route_registrar
+    consumes:
+      nats: {from: nats, deployment: cf}
+    properties:
+      route_registrar:
+        routes:
+        - name: cf-mysql-proxy
+          port: 8080 # must match the value of 'cf_mysql.proxy.api_port'
+          registration_interval: 10s
+          uris:
+          - &proxy_base_uri proxy-((cf_mysql_external_host))
+          prepend_instance_index: true
+        - name: cf-mysql-proxy-aggregator
+          port: 8082 # must match the value of 'cf_mysql.proxy.api_aggregator_port'
+          registration_interval: 10s
+          uris:
+          - *proxy_base_uri
+          # The switchboard aggregator page assumes there is only a single route registered for the proxies
+
+# make sure to match what the route_registrar is registering above in cf-mysql-proxy route
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=proxy/properties/cf_mysql/proxy/api_uri?
+  value: *proxy_base_uri

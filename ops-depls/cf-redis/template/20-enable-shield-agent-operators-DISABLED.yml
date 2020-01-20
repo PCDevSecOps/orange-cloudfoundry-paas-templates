@@ -1,0 +1,85 @@
+#add shield release
+- type: replace
+  path: /releases/name=shield?
+  value:
+    name: shield
+    version: latest
+
+- path: /instance_groups/name=cf-redis-broker/jobs/name=shield-agent?
+  type: replace
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      autoprovision: http://192.168.99.25 #shield server, avoid cyclic dep on go router with (( concat "https://shield-webui." secrets.cloudfoundry.ops_domain ))
+      provisioning_key: "((/secrets/shield_autoprovision_key))"
+      jobs:
+        redis-broker-backup:
+          store: redis-broker-s3
+          retention: Short-term
+          schedule: daily
+          target: redis-broker-target
+      retention-policies:
+        Long-term: 180d
+        Short-term: 20d
+      schedules:
+        DevSched: daily 4am
+        daily: daily 2am
+        monthly: 2st sunday at 0am
+        weekly: sundays 9am
+      stores:
+        redis-broker-s3:
+          name: redis-broker-s3
+          plugin: scality
+          config:
+            access_key_id: "((/secrets/shield_obos_access_key_id))"
+            bucket: "((/secrets/shield_obos_bucket_prefix))-redis-broker"
+            scality_host: storage.orange.com
+            secret_access_key: "((/secrets/shield_obos_secret_access_key))"
+            signature_version: '2'
+      targets:
+        redis-broker-target:
+          name: redis-broker-target
+          plugin: redis-broker
+          config:
+            redis_type: broker
+
+- path: /instance_groups/name=dedicated-node/jobs/name=shield-agent?
+  type: replace
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      autoprovision: http://192.168.99.25 #shield server, avoid cyclic dep on go router with (( concat "https://shield-webui." secrets.cloudfoundry.ops_domain ))
+      provisioning_key: "((/secrets/shield_autoprovision_key))"
+      jobs:
+        redis-dedicated-(index)-job:
+          store: redis-dedicated-(index)-s3
+          retention: Short-term
+          schedule: daily
+          target: redis-dedicated-(index)-target
+      retention-policies:
+        Long-term: 180d
+        Short-term: 20d
+      schedules:
+        DevSched: daily 4am
+        daily: daily 2am
+        monthly: 2st sunday at 0am
+        weekly: sundays 9am
+      stores:
+        redis-dedicated-s3:
+          name: redis-dedicated-(index)-s3
+          plugin: scality
+          config:
+            access_key_id: "((/secrets/shield_obos_access_key_id))"
+            bucket: "((/secrets/shield_obos_bucket_prefix))-redis-dedicated"
+            scality_host: storage.orange.com
+            secret_access_key: "((/secrets/shield_obos_secret_access_key))"
+            signature_version: '2'
+      targets:
+        redis-dedicated-target:
+          name: redis-dedicated-(index)-target
+          plugin: redis-broker
+          config:
+            redis_type: dedicated
+

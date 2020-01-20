@@ -1,0 +1,158 @@
+---
+name: prometheus-exporter-ops
+
+releases:
+  - {name: prometheus, version: latest }
+  - {name: routing, version: latest}
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  serial: false
+
+# Stemcell details
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+
+- name: prometheus2
+  instances: 1
+  vm_type: default 
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-exchange
+    static_ips:
+    - 192.168.99.207
+    
+  persistent_disk_type: large
+  # activate xfs
+  env:
+    persistent_disk_fs: xfs   
+   
+  jobs:
+  - name: prometheus2
+    release: prometheus
+    properties:
+      prometheus:
+        external_labels:
+          bosh: bosh-ops
+        storage:
+          local:
+            engine: persisted
+            retention: 12h 
+        web:
+          external_url: "https://elpaaso-prometheus-exporter-ops.((/secrets/cloudfoundry_ops_domain))"
+        rule_files: []
+        scrape_configs:
+        - job_name: bosh
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          static_configs:
+          - targets:
+            - localhost:9190 #bosh exporter
+        #leverage bosh inventory for discovery of the node exporters to scrape
+        - job_name: node_exporter
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          file_sd_configs:
+            - files:
+              - /var/vcap/store/bosh_exporter/bosh_target_groups.json
+          relabel_configs:
+            - source_labels: [__meta_bosh_job_process_name]
+              regex: node_exporter
+              action: keep
+            - source_labels: [__address__]
+              regex: "(.*)"
+              target_label: __address__
+              replacement: "${1}:9100"
+        - job_name: mongodb
+          file_sd_configs:
+            - files:
+              - /var/vcap/store/bosh_exporter/bosh_target_groups.json
+          relabel_configs:
+          - action: keep
+            regex: mongodb_exporter
+            source_labels:
+            - __meta_bosh_job_process_name
+          - replacement: "${1}:9001"
+            source_labels:
+            - __address__
+            target_label: __address__
+          scrape_interval: 30s
+          scrape_timeout: 15s
+        - job_name: cassandra
+          file_sd_configs:
+            - files:
+              - "/var/vcap/store/bosh_exporter/bosh_target_groups.json"
+          relabel_configs:
+          - action: keep
+            regex: cassandra
+            source_labels:
+            - __meta_bosh_job_process_name
+          - replacement: "${1}"
+            source_labels:
+            - __address__
+            target_label: database
+          - regex: "(.*)"
+            replacement: "${1}:9001"
+            source_labels:
+            - __address__
+            target_label: __address__
+          scrape_interval: 5m
+          scrape_timeout: 2m
+        - job_name: postgres
+          file_sd_configs:
+            - files:
+              - /var/vcap/store/bosh_exporter/bosh_target_groups.json
+          relabel_configs:
+          - action: keep
+            regex: postgres_exporter
+            source_labels:
+            - __meta_bosh_job_process_name
+          - replacement: "${1}:9001"
+            source_labels:
+            - __address__
+            target_label: __address__
+          scrape_interval: 30s
+          scrape_timeout: 15s
+        - job_name: vault
+          file_sd_configs:
+            - files:
+              - /var/vcap/store/bosh_exporter/bosh_target_groups.json
+          relabel_configs:
+          - action: keep
+            regex: vault_exporter
+            source_labels:
+            - __meta_bosh_job_process_name
+          - replacement: "${1}:9410"
+            source_labels:
+            - __address__
+            target_label: __address__
+          scrape_interval: 30s
+          scrape_timeout: 15s
+
+
+
+
+
+
+
+
+
+
+        # scrape prometheus internal metrics
+        - job_name: prometheus
+          static_configs:
+            - targets:
+              - localhost:9090
+          relabel_configs:
+            - source_labels: [instance]
+              target_label: instance
+              replacement: "exporter-ops"
+

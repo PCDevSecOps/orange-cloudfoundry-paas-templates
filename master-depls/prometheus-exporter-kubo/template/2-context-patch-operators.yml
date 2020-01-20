@@ -1,0 +1,40 @@
+- type: replace
+  path: /name
+  value: prometheus-exporter-kubo
+  
+  #adapt networks
+- type: replace
+  path: /instance_groups/name=prometheus2/networks/0/name
+  value: tf-net-exchange
+  
+- type: replace
+  path: /instance_groups/name=grafana/networks/0/name
+  value: tf-net-exchange
+  
+  
+- type: replace
+  path: /instance_groups/name=nginx/networks/0/name
+  value: tf-net-exchange
+
+- type: replace
+  path: /instance_groups/name=alertmanager/networks/0/name
+  value: tf-net-exchange
+
+- type: replace
+  path: /instance_groups/name=database/networks/0/name
+  value: tf-net-exchange
+
+
+  
+  #adapt release
+- type: replace
+  path: /releases/name=prometheus
+  value:
+    name: prometheus
+    version: latest
+ 
+- type: replace
+  path: /releases/name=postgres
+  value:
+    name: postgres
+    version: latest

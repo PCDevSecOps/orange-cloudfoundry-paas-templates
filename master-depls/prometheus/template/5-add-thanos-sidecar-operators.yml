@@ -1,0 +1,178 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+#override prometheus local retention policy
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/storage?/tsdb?/retention?/time?
+  value: ((prometheus-metrics-retention-days))d
+
+#add thanos query on grafana servers
+- type: replace
+  path: /instance_groups/name=grafana/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      registry_mirrors:
+      - https://elpaaso-nexus.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy
+
+- type: replace
+  path: /instance_groups/name=grafana/jobs/-
+  value:
+    name: containers
+    release: docker
+    properties:
+      containers:
+        #thanos querier - scalable
+      - name: thanos_query
+        image: thanosio/thanos:((thanos_version))
+        command: "query --log.level=debug  --store=prometheus-alias:19090 --store=thanos-store-alias:10901  --http-address=0.0.0.0:19491 --grpc-address=0.0.0.0:19991"
+        bind_ports:
+        - "19491:19491"
+        - "19991:19991"
+        volumes:
+        - "/etc/ssl/certs:/etc/ssl/certs:ro"
+
+#force grafana bosh link to prometheus to use local thanos_query
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=grafana/consumes?
+  value:
+    prometheus:
+      instances:
+      - address: localhost
+      properties:
+        prometheus:
+          web:
+            port: 19491 #thanos query
+            external_url: http://localhost:19491
+#scale grafana to 2 instances in az1/az2
+- type: replace
+  path: /instance_groups/name=grafana/instances
+  value: 1
+- type: replace
+  path: /instance_groups/name=grafana/azs
+  value: [z1,z2]
+
+#scale prometheus to 2 instances in az1/az2 (remove static_ips)
+- type: replace
+  path: /instance_groups/name=prometheus2/instances
+  value: 2
+- type: replace
+  path: /instance_groups/name=prometheus2/azs
+  value: [z1,z2]
+- type: remove
+  path: /instance_groups/name=prometheus2/networks/0/static_ips
+
+
+#add thanos sidecar on prometheus servers
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      registry_mirrors:
+      - https://elpaaso-nexus.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy
+
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: containers
+    release: docker
+    properties:
+      containers:
+        #prometheus colocated sidecar
+      - name: thanos_sidecar
+        image: paas/thanos_sidecar:((thanos_version))
+        command: "sidecar --log.level=info --prometheus.url=http://prometheus-alias:9090 --tsdb.path=/var/vcap/store/prometheus2 --http-address=0.0.0.0:19191 --grpc-address=0.0.0.0:19090 --objstore.config-file=/config/bucket_config.yaml"
+        bind_ports:
+        - "19191:19191"
+        - "19090:19090"
+        volumes:
+        - "/etc/ssl/certs:/etc/ssl/certs:ro"
+        - "/var/vcap/store/prometheus2:/var/vcap/store/prometheus2"
+        dockerfile: |
+          FROM thanosio/thanos:((thanos_version))
+          RUN mkdir /config; \
+          printf "type: S3\n\
+          config:\n\
+            bucket: ((thanos_s3_bucket))\n\
+            endpoint: ((thanos_s3_endpoint))\n\
+            insecure: ((thanos_s3_insecure))\n\
+            signature_version2: ((thanos_s3_signature))\n\
+            access_key: ((thanos_s3_access_key))\n\
+            secret_key: ((thanos_s3_secret_key))\n\
+          " > /config/bucket_config.yaml
+
+#config prometheus for thanos sidecar
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/storage/tsdb/min_block_duration?
+  value: 2h
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/storage/tsdb/max_block_duration?
+  value: 2h
+
+# add singleton instance group to hold thanos store and compactor
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: thanos-store
+    instances: 1
+    vm_type: xxlarge
+    stemcell: default
+    azs: [z1]
+    networks:
+      - name: tf-net-exchange
+    persistent_disk_type: large
+    # activate xfs
+    env:
+      persistent_disk_fs: xfs
+    jobs:
+    - name: docker
+      release: docker
+      properties:
+        registry_mirrors:
+        - https://elpaaso-nexus.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy
+
+    - name: containers
+      release: docker
+      properties:
+        containers:
+          #thanos store - singleton
+        - name: thanos_store
+          image: paas/thanos_store:((/meta/template_version))
+          command: "store --log.level=info --data-dir /var/thanos/store --objstore.config-file=/config/bucket_config.yaml"
+          bind_volumes:
+          - "/var/thanos/store"
+          bind_ports:
+          - "10902:10902" #http
+          - "10901:10901" #grpc
+          volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"
+          dockerfile: &configured_dockerfile |
+            FROM thanosio/thanos:((thanos_version))
+            RUN mkdir /config; \
+            printf "type: S3\n\
+            config:\n\
+              bucket: ((thanos_s3_bucket))\n\
+              endpoint: ((thanos_s3_endpoint))\n\
+              insecure: ((thanos_s3_insecure))\n\
+              signature_version2: ((thanos_s3_signature))\n\
+              access_key: ((thanos_s3_access_key))\n\
+              secret_key: ((thanos_s3_secret_key))\n\
+            " > /config/bucket_config.yaml
+
+          #thanos compact - singleton
+        - name: thanos_compact
+          image: paas/thanos_compact:((/meta/template_version))
+          command: "compact --wait --log.level=debug --data-dir /var/thanos/compact --objstore.config-file=/config/bucket_config.yaml --retention.resolution-raw=((thanos-metrics-retention-days))d"
+          bind_volumes:
+          - "/var/thanos/compact"
+          volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"
+          dockerfile: *configured_dockerfile

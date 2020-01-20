@@ -1,0 +1,9 @@
+shield_legacy_version: "6.8.0"
+tenant_name: ops-depls
+deployment_name: guardian-uaa-prod
+pg_port: "5524"
+pg_dir: uaa_postgres
+pg_user: vcap
+pg_password: ""
+pg_version: "9.4.6"
+when: "daily 4:15"

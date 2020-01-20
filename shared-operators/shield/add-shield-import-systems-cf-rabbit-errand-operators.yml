@@ -1,0 +1,33 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: import
+    release: shield
+    properties:
+      generate_token: true
+      core: ((shield-core))
+      domain: ((shield-alias))
+      password: ((failsafe-password))
+      import:
+        ca: ((/bosh-master/shieldv8/shield-tls.ca))
+        core: https://((shield-alias))
+        tenants:
+          - name: ((tenant_name))
+            systems:
+              - name: ((deployment_name))-(ip)
+                agent: (ip):5444
+                plugin: rabbitmq-broker
+                config:
+                  rmq_url: "http://localhost:15672"
+                  rmq_username: "((rabbitmq-management-username))"
+                  rmq_password: "((rabbitmq-management-password))"
+                  skip_ssl_validation: true
+                summary: "Full backup"
+                jobs:
+                  - name: ((deployment_name))-full-daily
+                    when: ((when))
+                    policy: twenty-one-days-term
+                    retain: 20
+                    storage: remote-((deployment_name))-(ip)
+                    paused:  false

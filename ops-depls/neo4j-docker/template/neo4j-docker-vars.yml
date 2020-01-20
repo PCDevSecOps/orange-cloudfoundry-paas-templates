@@ -1,0 +1,2 @@
+broker-hostname: neo4j-cf-containers-broker-ops #OSB broker hostname, on system_domain
+bosh-domain: ((/secrets/cloudfoundry_system_domain)) #domain to expose the OSB broker.

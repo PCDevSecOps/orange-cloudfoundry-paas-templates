@@ -1,0 +1,25 @@
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/jobs/name=shield-agent/properties/stores/redis-osb-broker-s3?
+  value:
+    name: redis-osb-broker-s3
+    plugin: s3
+    config:
+      s3_host: storage.orange.com
+      access_key_id: private-s3
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-redis-osb-broker"
+      skip_ssl_validation: true
+      signature_version: "4" #  change it to 4 if you want to use an amazon storage
+
+- type: replace
+  path: /instance_groups/name=dedicated-node/jobs/name=shield-agent/properties/stores/redis-osb-dedicated-s3?
+  value:
+    name: redis-osb-dedicated-(index)-s3
+    plugin: s3
+    config:
+      s3_host: storage.orange.com
+      access_key_id: private-s3
+      secret_access_key: ((/secrets/shield_obos_secret_access_key))
+      bucket: "((/secrets/shield_obos_bucket_prefix))-redis-osb-dedicated"
+      skip_ssl_validation: true
+      signature_version: "4" #  change it to 4 if you want to use an amazon storage

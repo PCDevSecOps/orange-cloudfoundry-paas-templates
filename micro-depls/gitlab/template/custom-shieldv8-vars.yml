@@ -1,0 +1,7 @@
+shield_legacy_version: "7.0.2"
+tenant_name: micro-depls
+deployment_name: gitlab
+base_dir: "/var/vcap/store/containers/gitlab/postgresql"
+system_name: gitlab-data
+system_base_dir: "/var/vcap/store/containers/gitlab/git-data/repositories"
+when: "daily 2:15"

@@ -1,0 +1,59 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=openldap/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/bash
+          echo "pre-start !!"
+
+        post-start-script: |
+          #!/bin/bash
+          echo "post-start !!"
+
+        post-stop-script: |
+          #!/bin/bash
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          #!/bin/bash
+          echo "post-deploy !!"
+
+          #--- Set openldap tmp directory
+          TMP_OPENLDAP="/var/vcap/data/tmp/opendlap"
+          rm -fr ${TMP_OPENLDAP} > /dev/null 2>&1 ; mkdir ${TMP_OPENLDAP}
+          echo "Set pwm.schema.ldif configuration.\n"
+          cat > ${TMP_OPENLDAP}/pwm.schema.ldif <<'EOF'
+          ((pwm_schema_ldif))
+          EOF
+
+          #--- Update openldap with pwm extension if needed
+          LDAP_DATABASE_PASSWORD="((/bosh-master/openldap/database_password))"
+          echo ${LDAP_DATABASE_PASSWORD}
+          LDAP_SEARCH="/var/vcap/packages/openldap/bin/ldapsearch"
+          LDAP_ADD="/var/vcap/packages/openldap/bin/ldapadd"
+          nbRes=$(${LDAP_SEARCH} -x -h elpaaso-ldap.internal.paas -p 389  -D "cn=config" -w ${LDAP_DATABASE_PASSWORD} -b "cn=schema,cn=config" "cn={4}pwm" | grep dn: | wc -l)
+          if [ ${nbRes} = 0 ] ; then
+            echo "Add ldap pwm schema...\n"
+            ${LDAP_ADD} -x -h elpaaso-ldap.internal.paas -p 389  -D "cn=config" -w ${LDAP_DATABASE_PASSWORD} -f ${TMP_OPENLDAP}/pwm.schema.ldif
+          fi
+
+          #--- Docker cleaning
+          DOCKER_BIN="/var/vcap/packages/docker/bin/docker"
+          DOCKER_OPTS="--host unix:///var/vcap/sys/run/docker/docker.sock"
+          if [ -s ${DOCKER_BIN} ] ; then
+            echo "Clean unused docker images...\n"
+            ${DOCKER_BIN} ${DOCKER_OPTS} image prune -af
+            echo "Clean unused docker volumes...\n"
+            ${DOCKER_BIN} ${DOCKER_OPTS} volume ls -qf dangling=true | /usr/bin/xargs -r ${DOCKER_BIN} ${DOCKER_OPTS} volume rm
+          else
+            echo "Docker binary file \"${DOCKER_BIN}\" unknown.\n"
+          fi

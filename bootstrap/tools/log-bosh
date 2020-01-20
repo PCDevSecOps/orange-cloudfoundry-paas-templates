@@ -1,0 +1,89 @@
+#!/bin/bash
+#===========================================================================
+# Log with bosh cli V2
+#===========================================================================
+
+#--- Colors and styles
+export RED='\033[1;31m'
+export YELLOW='\033[1;33m'
+export GREEN='\033[1;32m'
+export STD='\033[0m'
+export BOLD='\033[1m'
+export REVERSE='\033[7m'
+
+error() {
+  printf "\n%bERROR: %s.%b\n\n" "${REVERSE}${RED}" "$1" "${STD}"
+}
+
+#--- Test presence of referent credentials files
+if [ ! -s "${SHARED_SECRETS}" ] ; then
+  error "Credential file \"${SHARED_SECRETS}\" unknown"
+else
+  if [ ! -s "${INTERNAL_CA_CERT}" ] ; then
+    error "CA cert file \"${INTERNAL_CA_CERT}\" unknown"
+  else
+    #--- Identify BOSH director
+    flag=0
+    while [ ${flag} = 0 ] ; do
+      flag=1
+      clear
+      printf "%bDirector BOSH :%b\n\n" "${REVERSE}${GREEN}" "${STD}"
+      printf "%b1%b : micro\n" "${GREEN}${BOLD}" "${STD}"
+      printf "%b2%b : master\n" "${GREEN}${BOLD}" "${STD}"
+      printf "%b3%b : ops\n" "${GREEN}${BOLD}" "${STD}"
+      printf "%b4%b : coab\n" "${GREEN}${BOLD}" "${STD}"
+      printf "%b5%b : kubo\n" "${GREEN}${BOLD}" "${STD}"
+      printf "\n%bYour choice :%b " "${GREEN}${BOLD}" "${STD}" ; read choice
+      case "${choice}" in
+        1) BOSH_TARGET="micro" ;;
+        2) BOSH_TARGET="master" ;;
+        3) BOSH_TARGET="ops" ;;
+        4) BOSH_TARGET="coab" ;;
+        5) BOSH_TARGET="kubo" ;;
+        *) flag=0 ;;
+      esac
+    done
+
+    #--- BOSH variables (used by bosh cli V2)
+    export BOSH_TARGET
+    export BOSH_CA_CERT="${INTERNAL_CA_CERT}"
+    unset BOSH_CLIENT
+    unset BOSH_CLIENT_SECRET
+
+    #--- Login to the director and list active deployments
+    if [ "${choice}" = "1" ] ; then
+      export BOSH_ENVIRONMENT="192.168.10.10"
+    else
+      export BOSH_ENVIRONMENT=$(host bosh-${BOSH_TARGET}.internal.paas | awk '{print $4}')
+    fi
+    bosh alias-env ${BOSH_TARGET} > /dev/null 2>&1
+    printf "%bEnter CF LDAP user and password :%b\n" "${REVERSE}${YELLOW}" "${STD}"
+    bosh log-in
+    if [ $? != 0 ] ; then
+      printf "\n\n%bERROR : Log to bosh director \"${BOSH_TARGET}\" failed.%b\n\n" "${RED}" "${STD}"
+    else
+      #--- Select specific deployment (BOSH_DEPLOYMENT variable)
+      clear
+      deployments=$(bosh deployments --column=Name | grep -vE "^Name$|^Succeeded$|^[0-9]* deployments$")
+      if [ "${deployments}" = "" ] ; then
+        unset BOSH_DEPLOYMENT
+      else
+        printf "\n%bSelect a specific deployment in the list, or suffix your bosh commands with -d <deployment_name>:%b\n%s" "${REVERSE}${YELLOW}" "${STD}" "${deployments}"
+        printf "\n\n%bYour choice (<Enter> to select none) :%b " "${GREEN}${BOLD}" "${STD}" ; read choice
+        if [ "${choice}" = "" ] ; then
+          unset BOSH_DEPLOYMENT
+        else
+          flag=$(echo "${deployments}" | grep "${choice}")
+          clear
+          if [ "${flag}" = "" ] ; then
+            unset BOSH_DEPLOYMENT
+          else
+            export BOSH_DEPLOYMENT="${choice}"
+            bosh instances
+          fi
+        fi
+      fi
+    fi
+  fi
+fi
+printf "\n"

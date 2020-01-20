@@ -1,0 +1,39 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/secrets/-
+  value:
+    name: kubernetes-dashboard-certs-valid
+    namespace: kube-system
+    data:
+    - name: tls.crt
+      value: ((kubernetes.dashboard_cert))
+    - name: tls.key
+      value: ((kubernetes.dashboard_key))
+
+
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/ingress/-
+  value:
+    name: dashboard-ingress
+    namespace: kube-system
+    annotations:
+    - name: "traefik.fontend.rule.type"
+      value: "PathPrefixStrip"
+    - name: "ingress.kubernetes.io/ssl-proxy-headers"
+      value: "X-Forwarded-Proto:https"
+    definition:
+      spec:
+        tls:
+        - hosts:
+          - dashboard.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          secretName: kubernetes-dashboard-certs-valid
+
+        rules:
+        - host: dashboard.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kubernetes-dashboard
+                servicePort: 443
+              path: /

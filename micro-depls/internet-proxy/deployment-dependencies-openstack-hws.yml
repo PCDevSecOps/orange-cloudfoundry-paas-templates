@@ -1,0 +1,10 @@
+---
+deployment:
+  internet-proxy:
+    releases:
+#      networking-release:
+#        base_location: https://bosh.io/d/github.com/
+#        repository: cloudfoundry/networking-release
+      docker-incubator-boshrelease:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease

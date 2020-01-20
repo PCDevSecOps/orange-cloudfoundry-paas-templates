@@ -1,0 +1,13 @@
+#--- Delete powerDNS (store, target and job)
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/stores/pdns_s3_obos?
+
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/targets/pdns_target?
+
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/jobs/pdns_job?
+
+#--- Delete cfdb store
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/stores/cf_db_s3?

@@ -1,0 +1,11 @@
+#add targets information
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/targets?/shield_target
+  value:
+    plugin: postgres
+    config:
+       pg_user: shieldadmin
+       pg_password: ""
+       pg_database: shielddb
+       pg_host: 127.0.0.1
+       pg_port: "5432"

@@ -1,0 +1,36 @@
+- type: replace
+  path: /instance_groups/name=jfrog-container-registry/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          #!/bin/sh
+          echo "errand script"
+          
+          export AUTH=" -u admin:((jcr_admin_password))"
+          export BASE_URL="http://localhost:8081/artifactory"
+          
+          #configure base url
+          curl -vvv $AUTH -X PUT "http://localhost:8081/artifactory/api/system/configuration/baseUrl" -d 'https://jcr.((/secrets/cloudfoundry_ops_domain))/artifactory'
+          
+          #remote repos
+          curl -vvv $AUTH -H 'Content-Type: text/json; charset=utf-8' -X PUT $BASE_URL/api/repositories -d @- <<'EOF'
+          {
+            "key": "remote-repo1",
+            "rclass" : "remote",
+            "packageType": "docker",
+            "url" : "http://host:port/some-repo",
+            "proxy": "internet-proxy",
+            "description": "The remote repository public description"
+          }
+          EOF
+          
+          
+          #virtual repos
+          
+          
+          echo "errand script successfull !"
+

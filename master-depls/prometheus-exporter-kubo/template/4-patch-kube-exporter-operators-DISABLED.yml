@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=kube_state_metrics_exporter/properties/kube_state_metrics_exporter?/kubeconfig_tls_ca
+  value: "((kubernetes_ca_cert))"

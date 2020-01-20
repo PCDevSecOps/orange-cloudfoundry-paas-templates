@@ -1,0 +1,10 @@
+smoke_tests:
+  api: "api.((/secrets/cloudfoundry_system_domain))"
+  apps_domain: ((/secrets/cloudfoundry_apps_domain))
+  backend: diego
+  ginkgo_opts: -v
+  org: SMOKE_TEST_ORG
+  password: "((/secrets/cloudfoundry_admin_password))"
+  skip_ssl_validation: true 
+  space: SMOKE_TEST_SPACE
+  user: admin

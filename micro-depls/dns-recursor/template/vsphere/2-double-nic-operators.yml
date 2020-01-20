@@ -1,0 +1,37 @@
+#--- Load networking release
+- type: replace
+  path: /releases/name=networking?
+  value:
+    name: networking
+    version: latest
+
+#--- Set interco network
+- type: replace
+  path: /instance_groups/name=dns-recursor/networks/-
+  value:
+    name: intranet-ha-interco
+    static_ips:
+      - ((dns_recursor_ip_1))
+      - ((dns_recursor_ip_2))
+
+#--- Set routes on interco network
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+        - host: ((target_dns_recursor_1))
+          interface: eth1
+          gateway: ((interco_gateway))
+        - host: ((target_dns_recursor_2))
+          interface: eth1
+          gateway: ((interco_gateway))
+        - host: ((target_ntp_server_1))
+          interface: eth1
+          gateway: ((interco_gateway))
+        - host: ((target_ntp_server_2))
+          interface: eth1
+          gateway: ((interco_gateway))

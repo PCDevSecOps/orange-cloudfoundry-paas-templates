@@ -1,0 +1,35 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: import
+    release: shield
+    properties:
+      generate_token: true
+      core: ((shield-core))
+      domain: ((shield-alias))
+      password: ((failsafe-password))
+      import:
+        ca: ((/bosh-master/shieldv8/shield-tls.ca))
+        core: https://((shield-alias))
+        tenants:
+          - name: ((tenant_name))
+            systems:
+              - name: ((deployment_name))-(ip)
+                agent: (ip):5444
+                plugin: cassandra2
+                config:
+                  host: (ip)
+                  user: cassandra
+                  password: ((cassandra_admin_password))
+                  bindir: "/var/vcap/jobs/cassandra/bin"
+                  datadir: "/var/vcap/store/cassandra/((deployment_name))/data"
+                  keyspace: "system"
+                summary: "Full backup"
+                jobs:
+                  - name: ((deployment_name))-(ip)-full-daily
+                    when: ((when))
+                    policy: twenty-one-days-term
+                    retain: 20
+                    storage: remote-((deployment_name))-(ip)
+                    paused:  false

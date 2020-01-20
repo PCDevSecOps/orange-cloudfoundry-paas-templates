@@ -1,0 +1,42 @@
+---
+#this operators fixed the deployment for upgrade compatibility with existing bosh 1 manifest:
+#- set the backends on the legacy ips, legacy bosh 1 network
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/networks
+  value:
+    - name: tf-net-services
+      static_ips:
+      - 192.168.30.190
+
+- type: replace
+  path: /instance_groups/name=cf-redis-broker/migrated_from?
+  value:
+    - name: cf-redis-broker
+      az: z1
+
+#- type: replace
+#  path: /instance_groups/name=cf-redis-broker/jobs/name=cf-redis-broker/properties/redis/broker/dedicated_nodes
+#  value:
+#    - 192.168.30.191
+#    - 192.168.30.192
+#    - 192.168.30.193
+#    - 192.168.30.194
+#    - 192.168.30.195
+
+#- type: replace
+#  path: /instance_groups/name=dedicated-node/networks
+#  value:
+#    - name: tf-net-services
+#      static_ips:
+#      - 192.168.30.191
+#      - 192.168.30.192
+#      - 192.168.30.193
+#      - 192.168.30.194
+#      - 192.168.30.195
+
+#- type: replace
+#  path: /instance_groups/name=dedicated-node/migrated_from?
+#  value:
+#    - name: dedicated-node
+#      az: z1

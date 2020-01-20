@@ -1,0 +1,59 @@
+# add postgres server for cloudfoundry databases
+
+
+# Releases Section
+- type: replace
+  path: /releases/-
+  value:
+    name: postgres
+    version: latest
+
+
+
+
+# Instance_groups section
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: postgres
+    instances: 1
+    stemcell: default
+    networks: [{name: tf-net-exchange}]
+    azs:
+    - z1
+    vm_type: xlarge
+    persistent_disk_type: large #70GB
+    jobs:
+    - name: postgres
+      release: postgres
+      provides:
+        postgres: {as: postgres-database}
+      properties:
+        databases:
+          port: 5524
+          databases:
+          - name: ccdb
+            tag: cc
+            citext: true
+          - name: uaadb
+            tag: uaa
+          - name: diego
+            tag: diego
+          - name: credhubdb
+            tag: credhub
+          roles:
+          - name: uaaadmin
+            password: ((/secrets/cloudfoundry_uaadb_password)) #from shared/secrets + credhub seeder
+            tag: admin
+          - name: ccadmin
+            password: ((/secrets/cloudfoundry_ccdb_password)) #from shared/secrets + credhub seeder
+            tag: cc
+          - name: credhubadmin
+            password: ((/secrets/cloudfoundry_ccdb_password)) #from shared/secrets + credhub seeder FIX: same as ccdb ??
+            tag: cc
+          - name: diego
+            password: ((/secrets/cloudfoundry_diegodb_password)) # get it from credhub
+            tag: diego
+
+
+# Properties section

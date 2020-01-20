@@ -1,0 +1,38 @@
+---
+name: internet-proxy
+
+releases:
+- name: squid
+  version: latest
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 10000-600000
+  update_watch_time: 10000-600000
+  max_in_flight: 1
+  serial: true
+
+instance_groups:
+- name: system-internet-relay
+  instances: 1
+  stemcell: default
+  networks:
+  - name: net-bosh-2
+    default: [dns,gateway]
+    static_ips:
+    - 192.168.116.80
+  azs:
+  - z1
+  vm_type: large
+  env:
+    bosh:
+      swap_size: 0 #disable swap partition see https://bosh.io/docs/manifest-v2/#instance-groups
+
+  jobs: []
+
+variables: []

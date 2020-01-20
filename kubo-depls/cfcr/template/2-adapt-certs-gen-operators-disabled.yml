@@ -1,0 +1,14 @@
+#adapt certs generation to map our bosh dns context
+#network is tf-net-kubo
+
+- type: replace
+  path: /variables/name=tls-etcd/options/common_name 
+  value: "master.tf-net-kubo.cfcr.bosh"
+
+  
+- type: replace
+  path: /variables/name=tls-etcd/options/alternative_names 
+  value:
+  - "master.tf-net-kubo.cfcr.bosh"
+  - "*.master.tf-net-kubo.cfcr.bosh"
+  

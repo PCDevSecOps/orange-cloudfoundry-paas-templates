@@ -1,0 +1,113 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: jfrog-container-registry
+    instances: 1
+    vm_type: default 
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: net-bosh-2
+      default: [dns, gateway]
+    persistent_disk_type: xlarge 
+    jobs:
+    - name: docker
+      release: docker
+      properties:
+        debug: true
+        #log_driver: syslog
+        store_dir: /var/vcap/data
+        #--- Set proxy to internet-proxy for docker images downloading
+        env:
+          http_proxy: http://system-internet-http-proxy.internal.paas:3128
+          https_proxy: http://system-internet-http-proxy.internal.paas:3128
+          no_proxy: localhost,127.0.0.1
+        registry_mirrors:
+        - https://docker.bintray.io
+        - https://elpaaso-nexus.((/secrets/cloudfoundry_ops_domain))
+
+    - release: docker
+      name: containers
+      properties:
+        containers:
+        - name: jfrog_container_registry
+          image: jfrog/artifactory-jcr:((jcr-version))
+          #log_driver: syslog
+          memory: 3500m
+          memory_swappiness: 0
+          ulimits:
+          - nofile=32000:32000 #required to raise by jcr
+          bind_ports:
+          - "8081:8081"
+          - "8045:8045"
+          env_vars:
+          - "ARTIFACTORY_USER_ID=1000" #1000 is bosh vcap user
+
+#          bind_volumes:
+#          - "/var/spool/squid"
+          volumes:
+            - "/etc/ssl/certs:/etc/ssl/certs:ro"
+            - '/var/vcap/data/scripting/jfrog.conf:/artifactory_extra_conf/jfrog.conf.test' #artifactory extra conf is copied on artifactory/etc at startup
+            
+            - '/var/vcap/store/containers/jfrog_container_registry/etc:/var/opt/jfrog/artifactory/etc'
+            - '/var/vcap/store/containers/jfrog_container_registry/etc:/var/opt/jfrog/artifactory/etc'
+            - '/var/vcap/store/containers/jfrog_container_registry/data:/var/opt/jfrog/artifactory/data'
+            - '/var/vcap/store/containers/jfrog_container_registry/metadata:/var/opt/jfrog/artifactory/metadata'
+            - '/var/vcap/store/containers/jfrog_container_registry/backup:/var/opt/jfrog/artifactory/backup'
+            - '/var/vcap/store/containers/jfrog_container_registry/access:/var/opt/jfrog/artifactory/access'
+            #- '/var/vcap/sys/log/containers/logs:/var/opt/jfrog/artifactory/logs'
+
+- type: replace
+  path: /instance_groups/name=jfrog-container-registry/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/sh
+          echo "ensure chmod on mount points"
+          chmod -R ugo+rwx /var/vcap/store/containers/jfrog_container_registry
+          
+          echo "pre-start. Generate jfrog config"
+          cat - > /var/vcap/data/scripting/jfrog.conf <<EOF
+          EOF
+
+
+  #expose behind ops gorouters
+- type: replace
+  path: /instance_groups/name=jfrog-container-registry/jobs/-
+  value:
+    name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines:
+        - ops-routing-nats
+        password: ((/bosh-master/ops-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: jfrog-route
+          port: 8081
+          registration_interval: 20s
+          uris:
+          - jcr.((/secrets/cloudfoundry_ops_domain))
+          - docker.jcr.((/secrets/cloudfoundry_ops_domain)) #specific subdomain for docker virtual repo access.
+
+
+#generate secrets for jcr
+- type: replace
+  path: /variables?/-
+  value:
+    name: jcr_admin_password # Jfrog Container Registry admin password  (to set manually in the jfrog ui)
+    type: password
+
+

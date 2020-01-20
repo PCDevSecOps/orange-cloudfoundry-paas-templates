@@ -1,0 +1,25 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: nginx-ingress
+    chart: stable/nginx-ingress
+    version: ((nginx-ingress-version))
+    properties:
+    - name: rbac.create
+      value: true
+    - name: controller.service.type
+      value: NodePort
+    - name: controller.service.nodePorts.https
+      value: 30725
+    - name: controller.service.nodePorts.http
+      value: 30726
+    - name: revisionHistoryLimit
+      value: 5
+    - name: controller.extraArgs.enable-ssl-passthrough
+      value: ""
+    - name: controller.replicaCount
+      value: 2
+    - name: controller.minAvailable
+      value: 1
+    - name: podSecurityPolicy.enabled
+      value: true

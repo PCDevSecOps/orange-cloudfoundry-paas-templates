@@ -1,0 +1,37 @@
+---
+applications:
+- name: cloudflare-broker
+  memory: 1GB
+  stack: cflinuxfs3
+  host: cloudflare-broker
+  domain: (( grab secrets.cloudfoundry.system_domain ))
+  instances: 1
+  path: cf-ops-automation-cloudflare-broker.jar
+  timeout: 180
+  buildpack: cached-java-buildpack
+  env:
+       # suffix of the route is concatenated with user provided prefix, resulting in FQDN
+     cloudflare.routeSuffix: (( grab secrets.cloudflare-broker.cloudflare.routeSuffix ))
+     # TF config files prefix e.g. "cloudflare-instance-" in paas-secret config dir (pathTFSpecs)
+     clouflare.filePrefix: (( grab secrets.cloudflare-broker.cloudflare.filePrefix ))
+     # path to tf configs e.g. "cloudflare-depls/terraform-config/spec"
+     cloudflare.pathTFSpecs: (( grab secrets.cloudflare-broker.cloudflare.pathTFSpecs ))
+     # cloudflare-depls/terraform-config/terraform.tfstate
+     cloudflare.pathToTfState: (( grab secrets.cloudflare-broker.cloudflare.pathToTfState ))
+     # Max execution duration after which the broker reports the async action as failed
+     # (i.e. duration of TF apply step in concourse)
+     cloudflare.maxExecutionDurationSeconds: (( grab secrets.cloudflare-broker.cloudflare.maxExecutionDurationSeconds ))
+     # username of the git user that push commits in paas-secret
+     git.user: (( grab secrets.cloudflare-broker.git.user ))
+     # password of the git user that push commits in paas-secret
+     git.password: (( grab secrets.cloudflare-broker.git.password ))
+     # url to gitlab paas-secret
+     git.url: (( grab secrets.cloudflare-broker.git.url ))
+     # commit name of the git user that push commits in paas-secret
+     git.committerName: (( grab secrets.cloudflare-broker.git.committerName ))
+     # commit name of the git user that push commits in paas-secret
+     git.committerEmail: (( grab secrets.cloudflare-broker.git.committerEmail ))
+     # broker basic auth user
+     security.user.name: (( grab secrets.cloudflare-broker.name ))
+     # broker basic auth password
+     security.user.password: "(( grab secrets.cloudfoundry.service_brokers.cloudflare-broker.password ))"

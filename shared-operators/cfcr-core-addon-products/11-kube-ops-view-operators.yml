@@ -1,0 +1,33 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/namespaces/-
+  value: monitoring
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/charts/-
+  value:
+    name: kube-ops-view
+    chart: stable/kube-ops-view
+    namespace: monitoring
+    version: ((kube-obs-view-version))
+    properties:
+    - name: rbac.create
+      value: true
+    - name: securityContext.runAsUser
+      value: 1001
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/ingress/-
+  value:
+    name: kube-ops-view-ingress
+    namespace: monitoring
+    definition:
+      spec:
+        rules:
+        - host: kube-ops-view.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kube-ops-view
+                servicePort: 80
+              path: /

@@ -1,0 +1,41 @@
+---
+#adapt network : tf-net-coab-depls-instance
+# mysql and proxy
+- type: replace
+  path: /instance_groups/name=mysql/networks
+  value: [{name: ((network_name))}]
+
+- type: replace
+  path: /instance_groups/name=proxy/networks
+  value: [{name: ((network_name))}]
+
+# errands
+- type: replace
+  path: /instance_groups/name=bootstrap-vm/networks
+  value: [{name: ((network_name))}]
+
+- type: replace
+  path: /instance_groups/name=rejoin-unsafe-vm/networks
+  value: [{name: ((network_name))}]
+
+- type: replace
+  path: /instance_groups/name=verify-cluster-schemas-vm/networks
+  value: [{name: ((network_name))}]
+
+# smoke test
+- type: replace
+  path: /instance_groups/name=smoke-tests-vm/networks
+  value: [{name: ((network_name))}]
+
+# broker
+- type: replace
+  path: /instance_groups/name=broker/networks
+  value: [{name: ((network_name))}]
+
+- type: replace
+  path: /instance_groups/name=deregister-and-purge-instances-vm/networks
+  value: [{name: ((network_name))}]
+
+- type: replace
+  path: /instance_groups/name=broker-registrar-vm/networks
+  value: [{name: ((network_name))}]

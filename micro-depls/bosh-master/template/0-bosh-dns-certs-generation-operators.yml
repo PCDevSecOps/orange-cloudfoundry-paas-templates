@@ -1,0 +1,66 @@
+#--- See https://github.com/cloudfoundry/bosh-deployment/blob/develop/experimental/dns-addon-with-api-certificates.yml
+#--- For "~1", see escaping https://bosh.io/docs/cli-ops-files/#escaping to replace with "/"
+# we remove the variables to avoid secrets generation by bosh-master (wih 268 bosh-deployment, the variables are included)
+# platform level generation is managed by micro-bosh bootstrap
+- type: replace
+  path: /variables/-
+  value:
+    name: /dns_healthcheck_tls_ca
+    options:
+      common_name: dns-healthcheck-tls-ca
+      is_ca: true
+    type: certificate
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /dns_healthcheck_server_tls
+    options:
+      ca: /dns_healthcheck_tls_ca
+      common_name: health.bosh-dns
+      extended_key_usage:
+      - server_auth
+    type: certificate
+ 
+- type: replace
+  path: /variables/-
+  value:
+    name: /dns_healthcheck_client_tls
+    options:
+      ca: /dns_healthcheck_tls_ca
+      common_name: health.bosh-dns
+      extended_key_usage:
+      - client_auth
+    type: certificate
+  
+- type: replace
+  path: /variables/-
+  value:
+    name: /dns_api_tls_ca
+    options:
+      common_name: dns-api-tls-ca
+      is_ca: true
+    type: certificate
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /dns_api_server_tls
+    options:
+      ca: /dns_api_tls_ca
+      common_name: api.bosh-dns
+      extended_key_usage:
+      - server_auth
+    type: certificate
+  
+- type: replace
+  path: /variables/-
+  value:
+    name: /dns_api_client_tls
+    options:
+      ca: /dns_api_tls_ca
+      common_name: api.bosh-dns
+      extended_key_usage:
+      - client_auth
+    type: certificate
+

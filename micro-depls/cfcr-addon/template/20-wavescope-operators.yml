@@ -1,0 +1,25 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/ingress/-
+  value:
+    name: weave-ingress
+    namespace: weave
+    annotations:
+    - name: "traefik.fontend.rule.type"
+      value: "PathPrefixStrip"
+    definition:
+      spec:
+        rules:
+        - host: weave-scope-app.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: weave-scope-app
+                servicePort: 80
+              path: /
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=kubectl/properties/commands/-
+  value:
+    name: "install weavescope"
+    cmd: "apply"
+    options: "-f \"https://cloud.weave.works/k8s/scope.yaml?k8s-version=$(kubectl version | base64 | tr -d '\n')\""

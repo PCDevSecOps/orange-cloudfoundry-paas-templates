@@ -1,0 +1,15 @@
+-4f1d693e4e188ba0ab737fa2c3abf19a29b47f64 coab-depls/cf-mysql/template/cf-mysql-deployment
+-b592ac7bdb6d2e26fda32ee060325d73b388bde8 master-depls/cached-buildpack-pipeline/concourse-pipeline-config/ci-buildpack-cached
+-f17bc232866703a09536e50dd7a9e2e49344fd81 master-depls/logsearch/template/logsearch-boshrelease
+-43f6c8cf4d67d72201feb958af9daefd4db594ec master-depls/shield/template/shield-boshrelease
+-45d699425770a6f0cb31ccf8169edeaa56411a35 micro-depls/concourse/template/concourse-bosh-deployment
+-4f1d693e4e188ba0ab737fa2c3abf19a29b47f64 ops-depls/cloudfoundry-mysql/template/cf-mysql-deployment
+-993c70e039074eb26536555a26983bb1c1cd649d ops-depls/concourse-dev/template/concourse-bosh-deployment
+-58230887b47539d144c96eb8bf430df8f64a5a25 submodules/bosh-deployment
+-5352c2bf4b508086379b4b2cd372a6feb71e41b9 submodules/cf-deployment
+-4f1d693e4e188ba0ab737fa2c3abf19a29b47f64 submodules/cf-mysql-deployment
+-8e3be5faa135746cfd1e05bc618fe18053eab2b5 submodules/cf-networking-examples
+-b6e9f6b187d48ea9ec8b04ce6f2bd5d325f869c3 submodules/kubo-deployment
+-35cb158e6145d6e0eb836b3e393198dee9c75f4c submodules/logsearch-boshrelease
+-8ec45cf10110a9328a2f5ba7f8ee36aac8f0ea9b submodules/prometheus-boshrelease
+-65639055490f83d8427f471b42ada5e4a8953365 submodules/shield

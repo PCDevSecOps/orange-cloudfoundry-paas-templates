@@ -1,0 +1,17 @@
+---
+deployment:
+  bosh-deployment:
+    stemcells:
+    releases:
+      bpm:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bpm-release
+      cf-routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/cf-routing-release
+      os-conf:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/os-conf-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease

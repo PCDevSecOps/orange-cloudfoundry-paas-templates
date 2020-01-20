@@ -1,0 +1,19 @@
+---
+# add prometheus release to deployment manifest
+- type: replace
+  path: /releases/name=prometheus?
+  value:
+    name: prometheus
+    version: latest
+
+# add redis exporter properties
+- type: replace
+  path: /instance_groups/name=redis/jobs/name=redis_exporter?
+  value:
+    name: redis_exporter
+    release: redis-service
+    properties:
+      debug: ((redis_exporter_debug))
+
+
+

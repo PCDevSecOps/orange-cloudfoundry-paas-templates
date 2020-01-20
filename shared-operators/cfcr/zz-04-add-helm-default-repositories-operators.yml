@@ -1,0 +1,11 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/repositories/-
+  value:
+    name: stable
+    url: https://kubernetes-charts.storage.googleapis.com/
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=helm/properties/repositories/-
+  value:
+    name: incubator
+    url : https://kubernetes-charts-incubator.storage.googleapis.com/

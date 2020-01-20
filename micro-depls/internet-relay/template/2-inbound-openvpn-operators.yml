@@ -1,0 +1,8 @@
+---
+- type: replace
+  path: /instance_groups/name=internet-relay/jobs/name=haproxy/properties/ha_proxy/tcp/-
+  value:
+    name: openvpn
+    port: 1194
+    backend_servers:
+    - 172.24.99.20 #to vpn-interco/openvpn-server

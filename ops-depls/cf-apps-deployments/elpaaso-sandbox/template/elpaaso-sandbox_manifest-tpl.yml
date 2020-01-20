@@ -1,0 +1,44 @@
+---
+inherrit: cf-manifest-reference.yml
+applications:
+- name: elpaaso-sandbox-service
+  memory: 1GB
+  stack: cflinuxfs3
+  instances: 2
+  timeout: 180
+  buildpack: cached-java-buildpack
+  domains:
+   - (( grab secrets.cloudfoundry.system_domain ))
+  path: elpaaso-sandbox-service.jar
+  host: elpaaso-sandbox-service
+  env:
+    CLOUDFOUNDRY_TRUST_SELF_SIGNED_CERTS: true
+    CLOUDFOUNDRY_API_URL: (( concat "https://api." secrets.cloudfoundry.system_domain ))
+    CLOUDFOUNDRY_CREDENTIALS_USER_ID: (( grab secrets.sandbox-service.cf.user ))
+    CLOUDFOUNDRY_CREDENTIALS_PASSWORD: (( grab secrets.sandbox-service.cf.password ))
+    CLOUDFOUNDRY_ORG: (( grab secrets.sandbox-service.cf.org ))
+    SECURITY_REQUIRE_SSL: false
+    SECURITY_OAUTH2_RESOURCE_JWT_KEY_VALUE:  (( grab secrets.cloudfoundry.jwt.public-key ))
+    JAVA_OPTS: "-Djava.security.egd=file:///dev/urandom"
+
+- name: elpaaso-sandbox-ui
+  memory: 1GB
+  stack: cflinuxfs3
+  host: elpaaso-sandbox-ui
+  domains:
+  - (( grab secrets.cloudfoundry.system_domain ))
+  instances: 2
+  timeout: 180  
+  buildpack: cached-java-buildpack
+  path: elpaaso-sandbox-ui.jar
+  env:
+    ADMIN_PASSWORD: (( grab secrets.sandbox-ui.admin.password ))
+    enableSslCertificateCheck: false
+    SANDBOX_SERVICE_URL: (( concat "https://elpaaso-sandbox-service." secrets.cloudfoundry.system_domain ))
+    LOGIN_URL: (( concat "https://login." secrets.cloudfoundry.system_domain ))
+    SECURITY_OAUTH2_CLIENT_CLIENT_ID: (( grab secrets.sandbox-ui.oauth2.client-id ))
+    SECURITY_OAUTH2_CLIENT_CLIENT_SECRET: (( grab secrets.sandbox-ui.oauth2.client-secret ))
+    SECURITY_OAUTH2_RESOURCE_JWT_KEY_VALUE:  (( grab secrets.cloudfoundry.jwt.public-key ))
+    JAVA_OPTS: "-Djava.security.egd=file:///dev/urandom"
+
+

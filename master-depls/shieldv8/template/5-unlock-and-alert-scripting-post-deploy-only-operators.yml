@@ -1,0 +1,57 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=scripting/properties/scripting/post-deploy-script
+  value: |
+    #--- Initialize context
+    echo "- Start post-deploy"
+    > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+    > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+    echo "- Start unlock"
+
+    #-------------------------------------
+    #--- Use shield cli in order to unlock
+    #-------------------------------------
+
+    set +e
+    /var/vcap/packages/shield/bin/shield api -k https://((shield-alias)) ((shield-core))
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) init --master ((failsafe-password))
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master ((failsafe-password))
+
+    echo "- Unlock done"
+
+    #-------------------------------------------------------------
+    #--- Use shield cli to check status and to send an email alert
+    #-------------------------------------------------------------
+
+    #--- Msmtp install
+    echo "- Install msmtp"
+    sudo http_proxy=((http_proxy)) apt-get update
+    sudo http_proxy=((http_proxy)) apt-get install -y msmtp
+    echo "- Install done"
+
+    #--- Msmtp config
+    echo "- Configure msmtp"
+    sudo cat > /root/.msmtprc <<'EOF'
+    account default
+    host ((mailhost))
+    from ((mailfrom))
+    auth off
+    EOF
+    echo "- Configure done"
+
+    #--- Alert based on shield status
+    echo "- Status alert"
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) status > /tmp/status
+    ligne=$(sed -n '/BACKUP JOB HEALTH/=' /tmp/status)
+    taille=$(cat /tmp/status | wc -l)
+    echo $taille
+    let "extract=$taille-$ligne+2"
+    echo $extract
+    tail -n ${extract} /tmp/status > /tmp/jobs
+    failing=$(grep 'FAILING' /tmp/jobs | wc -l)
+    sed -i "1i Subject:[((site))]${failing} jobs are failing on Shield v8" /tmp/jobs
+    cat /tmp/jobs | msmtp ((mailto))
+
+    echo "- Status alert done"
