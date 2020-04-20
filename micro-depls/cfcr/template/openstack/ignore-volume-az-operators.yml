@@ -1,0 +1,4 @@
+#patch cloud-provider to disable volume az
+- type: replace
+  path: /instance_groups/name=master/jobs/name=cloud-provider/properties/cloud-config/BlockStorage?/ignore-volume-az?
+  value: true

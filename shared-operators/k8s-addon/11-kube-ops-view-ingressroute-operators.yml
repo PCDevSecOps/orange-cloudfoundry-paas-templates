@@ -1,0 +1,28 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kube-ops-view-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: kube-ops-view-ingress
+        namespace: monitoring
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`kube-ops-view.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: kube-ops-view
+            namespace: monitoring
+            port: 80
+

@@ -1,0 +1,13 @@
+- type: replace
+  path: /cpis/-
+  value:
+    name: region-1
+    type: vsphere
+    properties: {} #FIXME 
+
+- type: replace
+  path: /cpis/-
+  value:
+    name: region-2
+    type: vsphere
+    properties: {} #FIXME 

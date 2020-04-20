@@ -1,0 +1,22 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases:
+      networking:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/networking-release
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+      os-conf:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/os-conf-release
+      prometheus:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/prometheus-boshrelease
+      docker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease

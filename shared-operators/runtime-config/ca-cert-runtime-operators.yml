@@ -1,0 +1,13 @@
+- type: replace
+  path: /addons/-
+  value:
+    name: custom_ca
+    jobs:
+    - name: ca_certs
+      release: os-conf
+      properties:
+        certs: ((allcerts))
+    exclude:
+      jobs:
+        - name: uaa
+          release: uaa

@@ -1,0 +1,22 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "crd-for-cert-manager"
+    cmd: "apply"
+    options: "-f https://github.com/jetstack/cert-manager/releases/download/v((cert-manager-version))/cert-manager-no-webhook.yaml"
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterissuer"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: cert-manager.io/v1alpha2
+      kind: ClusterIssuer
+      metadata:
+        name: issuer
+      spec:
+        ca:
+          secretName: ca-key-cert-secret

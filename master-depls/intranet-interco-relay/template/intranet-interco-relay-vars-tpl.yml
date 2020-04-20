@@ -1,0 +1,7 @@
+#--- shared secrets
+intranet_smtp_host: (( grab secrets.smtp_relay.host ))
+ops_ip: (( grab secrets.intranet_interco_ips.ops ))
+to-intranet-ip: (( grab secrets.intranet_interco_ips.to_intranet ))
+intranet_dns_1: (( grab secrets.intranet_interco_1.intranet_dns_1 ))
+intranet_dns_2: (( grab secrets.intranet_interco_1.intranet_dns_2 ))
+

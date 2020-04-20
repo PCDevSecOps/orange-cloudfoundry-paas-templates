@@ -1,0 +1,44 @@
+#force bosh release to concourse provided, no direct download
+
+
+- type: remove
+  path: /stemcells/alias=default
+
+- type: replace
+  path: /stemcells/-
+  value:
+    alias: default
+    os: ubuntu-xenial
+    version: latest
+
+
+- type: remove
+  path: /releases/name=kubo
+
+- type: remove
+  path: /releases/name=cfcr-etcd
+
+- type: remove
+  path: /releases/name=docker
+
+
+- type: replace
+  path: /releases/-
+  value:
+    name: kubo
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+
+- type: replace
+  path: /releases/-
+  value:
+    name: cfcr-etcd
+    version: latest
+
+

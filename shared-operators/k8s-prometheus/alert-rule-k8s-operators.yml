@@ -1,0 +1,62 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-prometheus-alert-rule-k8s"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: alert-rules-k8s
+        namespace: prometheus
+      data:
+        alert-rules-k8s.yaml: |
+          groups:
+            - name: K8S
+              rules:
+                - alert: ServiceDown
+                  expr: avg_over_time(up[5m]) * 100 < 50
+                  annotations:
+                    description: The service {{ $labels.job }} instance {{ $labels.instance }} is
+                      not responding for more than 50% of the time for 5 minutes.
+                    summary: The service {{ $labels.job }} is not responding
+
+                - alert: VolumeOutOfDiskSpace
+                  expr: kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes * 100 < 10
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "Volume out of disk space (instance {{ $labels.instance }})"
+                    description: "Volume is almost full (< 10% left)\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: VolumeFullInFourDays
+                  expr: 100 * (kubelet_volume_stats_available_bytes / kubelet_volume_stats_capacity_bytes) < 15 and predict_linear(kubelet_volume_stats_available_bytes[6h], 4 * 24 * 3600) < 0
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "Volume full in four days (instance {{ $labels.instance }})"
+                    description: "{{ $labels.namespace }}/{{ $labels.persistentvolumeclaim }} is expected to fill up within four days. Currently {{ $value | humanize }}% is available.\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: StatefulsetDown
+                  expr: (kube_statefulset_status_replicas_ready / kube_statefulset_status_replicas_current) != 1
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "StatefulSet down (instance {{ $labels.instance }})"
+                    description: "A StatefulSet went down\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: CorednsPanicCount
+                  expr: increase(coredns_panic_count_total[10m]) > 0
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "CoreDNS Panic Count (instance {{ $labels.instance }})"
+                    description: "Number of CoreDNS panics encountered\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+

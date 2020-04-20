@@ -1,0 +1,124 @@
+#--- Local bosh variables mapped to global credhub namespace, to retrieve core cloudfoundry secrets
+router_route_services_secret: ((/bosh-master/cf/router_route_services_secret))
+router_status_password: ((/bosh-master/cf/router_status_password))
+
+
+uaa_clients_tcp_emitter_secret: ((/bosh-master/cf/uaa_clients_tcp_emitter_secret)) #FIXME: should use /uaa namespace ?
+
+uaa_clients_gorouter_secret: ((/bosh-master/cf/uaa_clients_gorouter_secret)) #FIXME: should use /uaa namespace ?
+uaa_ssl.ca: ((/bosh-master/cf/uaa_ssl.ca))
+uaa_ca.certificate: ((/bosh-master/cf/uaa_ca.certificate))
+
+service_cf_internal_ca.certificate: ((/bosh-master/cf/service_cf_internal_ca.certificate))
+application_ca.certificate: ((/bosh-master/cf/application_ca.certificate))
+
+diego_bbs_client.ca: ((/bosh-master/cf/diego_bbs_client.ca))
+diego_bbs_client.certificate: ((/bosh-master/cf/diego_bbs_client.certificate))
+diego_bbs_client.private_key: ((/bosh-master/cf/diego_bbs_client.private_key))
+
+diego_rep_agent.ca: ((/bosh-master/cf/diego_rep_agent.ca))
+diego_rep_agent.certificate: ((/bosh-master/cf/diego_rep_agent.certificate))
+diego_rep_agent.private_key: ((/bosh-master/cf/diego_rep_agent.private_key))
+
+diego_rep_agent_v2.ca: ((/bosh-master/cf/diego_rep_agent_v2.ca))
+diego_rep_agent_v2.certificate: ((/bosh-master/cf/diego_rep_agent_v2.certificate))
+diego_rep_agent_v2.private_key: ((/bosh-master/cf/diego_rep_agent_v2.private_key))
+
+diego_rep_client.ca: ((/bosh-master/cf/diego_rep_client.ca))
+diego_rep_client.certificate: ((/bosh-master/cf/diego_rep_client.certificate))
+diego_rep_client.private_key: ((/bosh-master/cf/diego_rep_client.private_key))
+
+
+diego_bbs_client.ca: ((/bosh-master/cf/diego_bbs_client.ca))
+diego_bbs_client.certificate: ((/bosh-master/cf/diego_bbs_client.certificate))
+diego_bbs_client.private_key: ((/bosh-master/cf/diego_bbs_client.private_key))
+
+diego_instance_identity_ca.ca: ((/bosh-master/cf/diego_instance_identity_ca.ca))
+diego_instance_identity_ca.certificate: ((/bosh-master/cf/diego_instance_identity_ca.certificate))
+diego_instance_identity_ca.private_key: ((/bosh-master/cf/diego_instance_identity_ca.private_key))
+
+silk_ca.certificate: ((/bosh-master/cf/silk_ca.certificate))
+
+silk_daemon.ca: ((/bosh-master/cf/silk_daemon.ca))
+silk_daemon.certificate: ((/bosh-master/cf/silk_daemon.certificate))
+silk_daemon.private_key: ((/bosh-master/cf/silk_daemon.private_key))
+
+network_policy_ca.certificate: ((/bosh-master/cf/network_policy_ca.certificate))
+
+network_policy_client.ca: ((/bosh-master/cf/network_policy_client.ca))
+network_policy_client.certificate: ((/bosh-master/cf/network_policy_client.certificate))
+network_policy_client.private_key: ((/bosh-master/cf/network_policy_client.private_key))
+
+network_policy_server.certificate: ((/bosh-master/cf/network_policy_server.certificate))
+network_policy_server.private_key: ((/bosh-master/cf/network_policy_server.private_key
+
+
+loggregator_ca.certificate: ((/bosh-master/cf/loggregator_ca.certificate))
+loggregator_tls_agent.ca: ((/bosh-master/cf/loggregator_tls_agent.ca))
+loggregator_tls_agent.certificate: ((/bosh-master/cf/loggregator_tls_agent.certificate))
+loggregator_tls_agent.private_key: ((/bosh-master/cf/loggregator_tls_agent.private_key))
+
+
+credhub_ca.certificate: ((/bosh-master/cf/credhub_ca.certificate))
+
+gorouter_backend_tls.ca: ((/bosh-master/cf/gorouter_backend_tls.ca))
+gorouter_backend_tls.certificate: ((/bosh-master/cf/gorouter_backend_tls.certificate))
+gorouter_backend_tls.private_key: ((/bosh-master/cf/gorouter_backend_tls.private_key))
+
+
+uaa_clients_cf_smoke_tests_secret: (/bosh-master/cf/uaa_clients_cf_smoke_tests_secret))
+
+expvar_forwarder.certificate: ((/bosh-master/cf/expvar_forwarder.certificate))
+expvar_forwarder.private_key: ((/bosh-master/cf/expvar_forwarder.private_key))
+
+
+credhub_tls.ca: ((/bosh-master/cf/credhub_tls.ca))
+credhub_tls.certificate: ((/bosh-master/cf/credhub_tls.certificate))
+credhub_tls.private_key: ((/bosh-master/cf/credhub_tls.private_key))
+
+uaa_clients_tcp_router_secret: ((/bosh-master/cf/uaa_clients_tcp_router_secret))
+
+
+ssh_proxy_backends_tls.ca: ((/bosh-master/cf/ssh_proxy_backends_tls.ca))
+ssh_proxy_backends_tls.certificate: ((/bosh-master/cf/ssh_proxy_backends_tls.certificate))
+ssh_proxy_backends_tls.private_key: ((/bosh-master/cf/ssh_proxy_backends_tls.private_key))
+
+cc_tls.ca: ((/bosh-master/cf/cc_tls.ca))
+cc_tls.certificate: ((/bosh-master/cf/cc_tls.certificate))
+cc_tls.private_key: ((/bosh-master/cf/cc_tls.private_key))
+
+# cf dns discovery on is fix
+cf_app_sd_client_tls.ca: ((/bosh-master/cf/cf_app_sd_client_tls.ca))
+cf_app_sd_client_tls.certificate: ((/bosh-master/cf/cf_app_sd_client_tls.certificate))
+cf_app_sd_client_tls.private_key: ((/bosh-master/cf/cf_app_sd_client_tls.private_key))
+
+cf_app_sd_server_tls.ca: ((/bosh-master/cf/cf_app_sd_server_tls.ca))
+cf_app_sd_server_tls.certificate: ((/bosh-master/cf/cf_app_sd_server_tls.certificate))
+cf_app_sd_server_tls.private_key: ((/bosh-master/cf/cf_app_sd_server_tls.private_key))
+
+loggregator_agent_metrics_tls.ca: ((/bosh-master/cf/loggregator_agent_metrics_tls.ca))
+loggregator_agent_metrics_tls.certificate: ((/bosh-master/cf/loggregator_agent_metrics_tls.certificate))
+loggregator_agent_metrics_tls.private_key: ((/bosh-master/cf/loggregator_agent_metrics_tls.private_key))
+
+
+loggr_udp_forwarder_tls.ca: ((/bosh-master/cf/loggr_udp_forwarder_tls.ca))
+loggr_udp_forwarder_tls.certificate: ((/bosh-master/cf/loggr_udp_forwarder_tls.certificate))
+loggr_udp_forwarder_tls.private_key: ((/bosh-master/cf/loggr_udp_forwarder_tls.private_key))
+
+
+prom_scraper_scrape_tls.ca: ((/bosh-master/cf/prom_scraper_scrape_tls.ca))
+prom_scraper_scrape_tls.certificate: ((/bosh-master/cf/prom_scraper_scrape_tls.certificate))
+prom_scraper_scrape_tls.private_key: ((/bosh-master/cf/prom_scraper_scrape_tls.private_key))
+
+prom_scraper_metrics_tls.ca: ((/bosh-master/cf/prom_scraper_metrics_tls.ca))
+prom_scraper_metrics_tls.certificate: ((/bosh-master/cf/prom_scraper_metrics_tls.certificate))
+prom_scraper_metrics_tls.private_key: ((/bosh-master/cf/prom_scraper_metrics_tls.private_key))
+
+forwarder_agent_metrics_tls.ca: ((/bosh-master/cf/forwarder_agent_metrics_tls.ca))
+forwarder_agent_metrics_tls.certificate: ((/bosh-master/cf/forwarder_agent_metrics_tls.certificate))
+forwarder_agent_metrics_tls.private_key: ((/bosh-master/cf/forwarder_agent_metrics_tls.private_key))
+
+network_policy_server_external.ca: ((/bosh-master/cf/network_policy_server_external.ca))
+network_policy_server_external.certificate: ((/bosh-master/cf/network_policy_server_external.certificate))
+network_policy_server_external.private_key: ((/bosh-master/cf/network_policy_server_external.private_key))
+

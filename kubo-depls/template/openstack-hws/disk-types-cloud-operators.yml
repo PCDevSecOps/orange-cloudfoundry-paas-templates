@@ -1,0 +1,4 @@
+- type: replace
+  path: /disk_types/name=xlarge-performant/cloud_properties?
+  value:
+    type: SSD #leverages FE performant disk

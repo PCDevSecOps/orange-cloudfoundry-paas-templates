@@ -1,0 +1,45 @@
+---
+applications:
+- name: huawei-sec-group-broker-filter
+  instances: 2
+  path: service-broker-filter-securitygroups.jar
+  memory: 1G
+  stack: cflinuxfs3
+  routes:
+  - route: (( concat "huawei-cloud-osb-sec." secrets.cloudfoundry.system_domain ))
+
+  timeout: 180
+  buildpack: cached-java-buildpack
+
+  env:
+    # Where to send received traffic: URL to the target broker.
+    BROKER_FILTER_URL: (( concat "https://huawei-cloud-osb." secrets.cloudfoundry.system_domain ))
+    # basic auth credentials to use while sending traffic to the target broker
+    BROKER_FILTER_USER: (( grab secrets.broker.username ))
+    BROKER_FILTER_PASSWORD: (( grab secrets.broker.password ))
+
+    # Optionally restrict the IPs/ports in created security groups to a set of trusted destinations.
+    # In case the target broker gets compromised and returns unrelated IPs in credentials, the binding response
+    # will error, preventing unathorized accesses to unrelated destinations.
+    # Trusted destinations is expressed as either a single IP address (10.0.11.0), an IP address range (e.g. 10.0.11.1-10.0.11.2),
+    # or a CIDR block (e.g. 10.0.11.0/24).
+    # If empty or unspecified, any IP adress returned from the binding response will be granted access in
+    # created security groups
+    #BROKER_FILTER_TRUSTED_DESTINATION_HOSTS= (( grab secrets.redis-sec-group-broker-filter.trusted_destination_hosts ))
+    # An optional trusted destination ports. Can be a single port, multiple comma-separated ports, or a single range of ports.
+    # Examples: 3306 3306,3307 3300-3400
+    # If empty or unspecified, any port returned from the binding response
+    # will be granted access in created security groups
+    #BROKER_FILTER_TRUSTED_DESTINATION_PORTS= (( grab secrets.redis-sec-group-broker-filter.trusted_destination_ports ))
+
+    # CloudFoundry CC api host
+    CLOUDFOUNDRY_HOST: (( concat "api." secrets.cloudfoundry.system_domain ))
+
+    # CloudFoudry user with Org admin privileges on orgs where services will be bound
+    CLOUDFOUNDRY_USER: admin
+    # CloudFoudry user password
+    CLOUDFOUNDRY_PASSWORD: (( grab secrets.cloudfoundry.admin_password ))
+
+    JBP_CONFIG_CONTAINER_CERTIFICATE_TRUST_STORE: '{enabled: true}'
+    JAVA_OPTS: "-Djava.security.egd=file:///dev/urandom"
+    

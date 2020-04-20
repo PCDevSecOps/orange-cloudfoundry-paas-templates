@@ -1,0 +1,8 @@
+---
+# add bpm release
+- type: replace
+  path: /releases/name=bpm?
+  value:
+    name: bpm
+    version: latest
+

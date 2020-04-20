@@ -1,0 +1,4 @@
+#--- apply vm_extension
+- type: replace
+  path: /instance_groups/name=haproxy/vm_extensions?/-
+  value: haproxy-cf-rabbit37-vrrp

@@ -1,0 +1,24 @@
+---
+deployment:
+  k8s-traefik:
+    resources:
+      templates:
+        extended_scan_path:
+        - "shared-operators/cfcr-common-master"
+        - "shared-operators/cfcr-common"
+        - "shared-operators/k8s-traefik"
+
+    stemcells:
+    releases:
+      helm-kubectl:
+        base_location: https://github.com
+        repository: orange-cloudfoundry/helm-kubectl-boshrelease
+
+    errands:
+      action:
+
+    manual-errands:
+      cfcr-clean-traefik:
+
+
+

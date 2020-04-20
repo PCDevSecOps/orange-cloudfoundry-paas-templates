@@ -1,0 +1,71 @@
+---
+name: bui 
+
+
+releases:
+  - {name: bui, version: latest }
+  - {name: bpm, version: latest }
+  - {name: routing, version: latest}
+  - {name: haproxy, version: latest}  
+
+update:
+  canaries: 1
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  serial: false
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+- name: bui-coab
+  instances: 1 
+  vm_type: small
+  stemcell: default
+  azs: [z1]
+  networks: [{name: tf-net-coab-depls-instance}]
+  persistent_disk_type: small 
+  jobs:
+  - name: bui
+    release: bui
+    properties:
+      bui:
+        bosh_addr: https://192.168.99.155:25555 #to bosh-expe
+        domain: ((bui-domain))
+    
+  #a http connector (default bui listens http on 127.0.0.1, caddy https not compatible with route registrar)
+  - name: haproxy
+    release: haproxy
+    properties:
+      ha_proxy:
+        disable_http: true 
+        log_level: debug
+        tcp:
+        - name: http-to-bui
+          port: 8080
+          backend_port: 9303 #targets bui localhost:9303 endpoint
+          backend_servers:
+          - localhost
+
+  - name: bpm
+    release: bpm
+
+  - name: route_registrar
+    release: routing
+    properties:
+      # this is a route to expose weave console  via cf routers
+      nats:
+        machines: [ops-routing-nats]
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+          - name: bui
+            uris:
+              - ((bui-domain))
+            port: 8080
+            registration_interval: 20s

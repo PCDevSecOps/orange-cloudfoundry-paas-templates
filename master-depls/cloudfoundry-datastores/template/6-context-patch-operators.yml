@@ -1,0 +1,215 @@
+---
+
+# Adapt properties for minio release
+
+#adapt static_ips : force static ip to be the same after each deploy
+
+- type: replace
+  path: /instance_groups/name=minio-proxy/networks/name=tf-net-exchange/static_ips?
+  value: 192.168.99.125
+
+# add statics ips for minio cluster
+- type: replace
+  path: /instance_groups/name=minio-s3-cluster/networks/name=tf-net-exchange/static_ips?
+  value:
+    - 192.168.99.120
+    - 192.168.99.121
+    - 192.168.99.122
+    - 192.168.99.123
+
+
+- type: replace
+  path: /instance_groups/name=postgres/networks/name=tf-net-exchange/static_ips?
+  value: ((static-ip-postgres))
+
+
+# Adapt properties for mysql release
+#adapt disk size
+- type: remove
+  path: /instance_groups/name=mysql/persistent_disk
+
+- type: replace
+  path: /instance_groups/name=mysql/persistent_disk_type?
+  value: xlarge-performant
+
+#adapt network
+
+- path: /instance_groups/name=mysql/networks
+  type: replace
+  value: [{name: tf-net-exchange}]
+
+- path: /instance_groups/name=arbitrator/networks
+  type: replace
+  value: [{name: tf-net-exchange}]
+
+- path: /instance_groups/name=proxy/networks
+  type: replace
+  value: [{name: tf-net-exchange}]
+
+- path: /instance_groups/name=bootstrap/networks
+  type: replace
+  value: [{name: tf-net-exchange}]
+
+- path: /instance_groups/name=rejoin-unsafe/networks
+  type: replace
+  value: [{name: tf-net-exchange}]
+
+- path: /instance_groups/name=verify-cluster-schemas/networks
+  type: replace
+  value: [{name: tf-net-exchange}]
+
+- path: /instance_groups/name=smoke-tests/networks
+  type: replace
+  value: [{name: tf-net-exchange}]
+
+- type: replace
+  path: /instance_groups/name=proxy/networks/name=tf-net-exchange?/static_ips?
+  value: ((static-ip-mysql-proxy))
+
+
+#adapt AZ
+- path: /instance_groups/name=mysql/azs
+  type: replace
+  value: [z1]
+
+- path: /instance_groups/name=arbitrator/azs
+  type: replace
+  value: [z1]
+
+- path: /instance_groups/name=proxy/azs
+  type: replace
+  value: [z1]
+
+
+
+#remove migrate from section (no need since we deploy from scratch)
+- path: /instance_groups/name=mysql/migrated_from
+  type: remove
+- path: /instance_groups/name=proxy/migrated_from
+  type: remove
+- path: /instance_groups/name=arbitrator/migrated_from
+  type: remove
+
+
+
+# adapt disable-cross-deployment-links.yml because it depend on a unused add-broker ops file
+
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke-tests/properties/cf?
+  value:
+    app_domains: ((app_domains))
+
+- type: replace
+  path: /instance_groups/name=smoke-tests/jobs/name=smoke-tests/consumes?
+  value:
+    cloud_controller: nil
+
+
+
+#add databases definition to be seed (CF databases)
+# more : https://github.com/cloudfoundry/cf-deployment/blob/master/cf-deployment.yml#L183
+#add needed variables
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /cf/diego_database_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /cf/network_connectivity_database_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /cf/network_policy_database_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /cf/routing_api_database_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /cf/locket_database_password
+    type: password
+#--- end variables for seeded databases
+
+
+# need to add those properties after modifying mysql instance group
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties?
+  value:
+    cf_mysql:
+      mysql:
+        admin_password: ((cf_mysql_mysql_admin_password))
+        cluster_health:
+          password: ((cf_mysql_mysql_cluster_health_password))
+        galera_healthcheck:
+          db_password: ((cf_mysql_mysql_galera_healthcheck_db_password))
+          endpoint_password: ((cf_mysql_mysql_galera_healthcheck_endpoint_password))
+        #persistent_disk: 10000 #use persistance_disk_type instead
+#------
+
+#adapt mysql port (for cf-deployment compatibility)
+- path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/port?
+  type: replace
+  value: 3036
+
+- path: /instance_groups/name=proxy/jobs/name=proxy/properties/cf_mysql/proxy/port?
+  type: replace
+  value: 3036
+
+- path: /instance_groups/name=smoke-tests/jobs/name=smoke-tests/properties/cf_mysql/mysql/port?
+  type: replace
+  value: 3036
+
+
+
+# uaa and diego will use postgres
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases?/-
+  value:
+    name: diego
+    username: diego # credential_leak_validated
+    password: "((/cf/diego_database_password))"
+
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases?/-
+  value:
+    name: network_connectivity
+    username: network_connectivity # credential_leak_validated
+    password: "((/cf/network_connectivity_database_password))"
+
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases?/-
+  value:
+    name: network_policy
+    username: network_policy # credential_leak_validated
+    password: "((/cf/network_policy_database_password))"
+
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases?/-
+  value:
+    name: routing-api
+    username: routing-api # credential_leak_validated
+    password: "((/cf/routing_api_database_password))"
+
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/seeded_databases?/-
+  value:
+    name: locket
+    username: locket # credential_leak_validated
+    password: "((/cf/locket_database_password))"

@@ -1,0 +1,29 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - submodules/shield/manifests
+        - shared-operators/shield
+    releases:
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+    manual-errands:
+      errand-scripting:
+    errands:
+      import:
+        display-name: provisioning

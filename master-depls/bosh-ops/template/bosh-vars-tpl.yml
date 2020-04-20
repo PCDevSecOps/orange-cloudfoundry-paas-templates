@@ -1,0 +1,14 @@
+#--- bosh-deployment expected props with credhub and secrets
+director_name: bosh-ops
+bosh_network: tf-net-exchange
+internal_ip: 192.168.99.152
+
+#--- Bosh-deployment misc dns
+internal_dns: [192.168.116.156, 192.168.116.166]
+
+#--- Intranet CA certs and Internal CA cert
+certs:
+  intranet: ((/secrets/certs/intranet-ca))
+  internal: ((/internalCA.certificate))
+
+openstack_ca_cert: (( concat certs.intranet certs.internal ))

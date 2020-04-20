@@ -1,0 +1,46 @@
+#--- Force bosh-openstack-cpi release to concourse provided, no direct download
+- type: replace
+  path: /releases/name=bosh-openstack-cpi
+  value:
+    name: bosh-openstack-cpi
+    version: latest
+
+#--- Stemcell visibility
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/stemcell_public_visibility?
+  value: false
+
+#--- Flexible Engine supports multiple az. Required for correct volume allocation
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/ignore_server_availability_zone?
+  value: false
+
+#--- Enable DHCP. False. The vm will find its network config in config drive (avoids parasits resolver in /etc/resolv.conf, causing issues with alpine based containers.
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/use_dhcp?
+  value: false
+
+#--- Disable SSL verification for FE
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/ssl_verify_peer
+  value: false
+
+#--- Openstack cpi config (specific Flexible Engine, Default value 300)
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/state_timeout?
+  value: 900
+
+#--- Allow to boot from a persistant volume rather than local
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/boot_from_volume?
+  value: false
+
+#--- Vm mounts as persistant disks after reboot
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/config_drive?
+  value: disk
+
+#--- human readable vm are not compatible with cfcr / k8S
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/human_readable_vm_names?
+  value: ((human_readable_vm_names))

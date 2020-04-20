@@ -1,0 +1,15 @@
+---
+#adapt AZ : [z1, z2, z3]
+# mysql and proxy
+- type: replace
+  path: /instance_groups/name=mysql/azs
+  value: [z1, z2, z3]
+
+- type: replace
+  path: /instance_groups/name=proxy/azs
+  value: [z1, z2, z3]
+
+# broker
+- type: replace
+  path: /instance_groups/name=broker/azs
+  value: [z1, z2, z3]

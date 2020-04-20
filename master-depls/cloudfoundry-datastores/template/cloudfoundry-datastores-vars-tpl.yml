@@ -1,0 +1,10 @@
+ops_domain: ((/secrets/cloudfoundry_ops_domain))
+
+static-ip-postgres: 192.168.99.70
+static-ip-mysql-proxy: 192.168.99.55
+app_domains:
+  - ((/secrets/cloudfoundry_apps_domain))
+s3_bucket_prefix: ((/secrets/backup_bucket_prefix)) #fe-int-backup
+remote_s3_host: https://((/secrets/backup_remote_s3_host))
+remote_s3_access_key_id: ((/secrets/backup_remote_s3_access_key_id))
+remote_s3_secret_access_key: ((/secrets/backup_remote_s3_secret_access_key))

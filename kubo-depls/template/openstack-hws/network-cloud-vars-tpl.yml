@@ -1,0 +1,6 @@
+#--- Openstack vars
+az_1: (( grab secrets.openstack.availability_zone ))
+az_2: (( grab secrets.openstack.availability_zone_2 ))
+az_3: (( grab secrets.openstack.availability_zone ))
+
+dns: [192.168.116.156,192.168.116.166]

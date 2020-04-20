@@ -1,0 +1,16 @@
+#--- map az to cluster
+- type: replace
+  path: /azs/
+  value:
+  - name: z1
+    cloud_properties:
+      datacenters:
+      - clusters: [((/secrets/vsphere_vcenter_cluster)): {}]
+  - name: z2
+    cloud_properties:
+      datacenters:
+      - clusters: [((/secrets/vsphere_vcenter_cluster)): {}]
+  - name: z3
+    cloud_properties:
+      datacenters:
+      - clusters: [((/secrets/vsphere_vcenter_cluster)): {}]

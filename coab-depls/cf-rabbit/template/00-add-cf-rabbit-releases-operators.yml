@@ -1,0 +1,42 @@
+---
+- type: replace
+  path: /releases/name=cf-rabbitmq?
+  value:
+    name: cf-rabbitmq
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: cf-rabbitmq-multitenant-broker
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: cf-rabbitmq-smoke-tests
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: cf-cli
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: bpm
+    version: latest
+
+- type: replace
+  path: /releases/name=bosh-dns-aliases?
+  value:
+    name: bosh-dns-aliases
+    version: latest

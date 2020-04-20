@@ -1,0 +1,11 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: nfs-volume
+    version: latest
+- type: replace
+  path: /releases/-
+  value:
+    name: mapfs
+    version: latest 
+

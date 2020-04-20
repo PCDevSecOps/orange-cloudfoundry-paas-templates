@@ -1,0 +1,16 @@
+---
+deployment:
+  jcr:
+    releases:
+      docker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+
+    manual-errands:
+    - errand-scripting #jfrog container provisioning errand

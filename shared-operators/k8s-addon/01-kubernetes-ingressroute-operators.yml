@@ -1,0 +1,29 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "k8singressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: dashboard-ingress
+        namespace: kube-system
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`dashboard.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          middlewares:
+          - name: middleware-https
+            namespace: kube-system
+          priority: 0
+          services:
+          - kind: Service
+            name: dashboard-kubernetes-dashboard
+            namespace: kube-system
+            port: 443
+

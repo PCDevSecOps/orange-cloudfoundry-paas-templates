@@ -1,0 +1,23 @@
+- type: replace
+  path: /azs/-
+  value:
+    name: z1
+    cpi: region-1
+    cloud-properties:
+      availability_zone: ((/secrets/openstack_availability_zone))
+
+- type: replace
+  path: /azs/-
+  value:
+    name: z2
+    cpi: region-1
+    cloud-properties:
+      availability_zone: ((/secrets/openstack_availability_zone_2))
+
+- type: replace
+  path: /azs/-
+  value:
+    name: z3
+    cpi: region-1
+    cloud-properties:
+      availability_zone: ((/secrets/openstack_availability_zone))

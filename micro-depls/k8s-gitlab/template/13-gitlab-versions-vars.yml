@@ -1,0 +1,10 @@
+gitlab-version: 3.0.4
+gitlab-exporter-version: 2.3.7
+postgresql-version: 6.3.12
+redis-version: 9.5.4
+redis-ha-version: 4.3.3
+minio-version: 5.0.10
+# stolon-version caution 1.4.0 is bad pb on ssl
+stolon-version: 1.3.0
+prometheus-postgres-exporter-version: 1.1.1
+plantuml-version: 0.1.12

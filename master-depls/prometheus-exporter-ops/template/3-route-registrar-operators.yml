@@ -1,0 +1,20 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    release: routing
+    name: route_registrar
+    properties:
+       # this is a route to expose openldap admin interface via ops gorouters
+      nats:
+        machines: [ops-routing-nats]
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+          - name: prometheus-ops
+            uris:
+              - elpaaso-prometheus-exporter-ops.((/secrets/cloudfoundry_ops_domain))
+            port: 9090
+            registration_interval: 20s
+

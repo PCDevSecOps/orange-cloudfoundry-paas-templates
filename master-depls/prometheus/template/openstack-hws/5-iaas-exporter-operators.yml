@@ -1,0 +1,31 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: prometheus-iaas-tenant-exporter
+    version: 10
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: iaas_exporter
+    release: prometheus-iaas-tenant-exporter 
+    properties:
+      iaas_exporter:
+        proxy_host: ""
+        openstack:
+          endpoint: ((/secrets/openstack_auth_url))
+          tenant: ((/secrets/openstack_tenant_name))
+          username: ((/secrets/openstack_username))
+          password: ((/secrets/openstack_password))
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: iaas_exporter
+    scrape_interval: 5m
+    scrape_timeout: 2m
+    metrics_path: /prometheus
+    static_configs:
+    - targets:
+      - localhost:5000
+

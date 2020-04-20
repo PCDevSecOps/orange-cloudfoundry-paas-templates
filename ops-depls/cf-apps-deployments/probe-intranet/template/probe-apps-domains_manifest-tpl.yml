@@ -1,0 +1,10 @@
+---
+applications:
+- name: probe-apps-domains
+  instances: 2
+  path: .
+  memory: 64M
+  stack: cflinuxfs3
+  buildpack: php_buildpack
+  domains:
+  - (( grab secrets.intranet_interco_1.apps_domain ))

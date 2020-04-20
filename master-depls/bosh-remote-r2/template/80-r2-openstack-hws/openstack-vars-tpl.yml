@@ -1,0 +1,22 @@
+#--- Openstack keystone v3. target remote region 2
+auth_url: ((/secrets/openstack_2_auth_url))
+openstack_username: ((/secrets/openstack_2_username))
+openstack_password: ((/secrets/openstack_2_password))
+openstack_domain: ((/secrets/openstack_2_domain))
+openstack_project: ((/secrets/openstack_2_project))
+region: ((/secrets/openstack_2_region))
+
+#--- Director properties
+default_key_name: bosh
+default_security_groups: [tf-default-sg]
+
+#--- human readable vm are not compatible with cfcr / k8S
+human_readable_vm_names: true
+
+#--define exernal ip to let r3 vms joins r1 bosh director
+#port mapping enables firewall friendly communication for nats, blobstore and registry
+blobstore_ip: ((/secrets/multi_region_region_2_vpn_interco_blobstore_ip))
+blobstore_port: 443 #25550
+nats_ip: ((/secrets/multi_region_region_2_vpn_interco_nats_ip))
+nats_port: 443 #4222
+registry_port: 80 #2577

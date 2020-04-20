@@ -1,0 +1,2 @@
+deployment_name: "cf-rabbit"
+plan_id: "cf-rabbit-ondemand-plan"

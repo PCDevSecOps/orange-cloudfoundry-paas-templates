@@ -1,0 +1,16 @@
+# Exporter jobs, override community provided with uaa client-id/client-secrets
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=bosh_exporter
+  value:
+    name: bosh_exporter
+    release: prometheus
+    properties:
+      bosh_exporter:
+        bosh:
+          url: "((bosh_url))"
+          uaa:
+            client_id: "((bosh_username))"
+            client_secret: "((bosh_password))"
+          ca_cert: "((bosh_ca_cert))"
+        metrics:
+          environment: "((metrics_environment))"

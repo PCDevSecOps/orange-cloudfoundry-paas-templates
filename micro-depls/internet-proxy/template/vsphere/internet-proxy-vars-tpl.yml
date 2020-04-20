@@ -1,0 +1,14 @@
+#--- shared secrets
+ops_domain: (( grab secrets.ops_interco.ops_domain ))
+
+interco_gateway: (( grab secrets.intranet_interco_ips.gateway ))
+proxy-interco-ip: (( grab secrets.intranet_interco_ips.to_internet_proxy ))
+
+#--- internet-proxy secrets
+target-proxy-host: (( grab secrets.target_proxy_host ))
+target-proxy-port: (( grab secrets.target_proxy_port ))
+target-proxy-net: (( grab secrets.target_proxy_net ))
+target-proxy-range: (( grab secrets.target_proxy_range ))
+
+target-proxy-cred: (( concat "login=" secrets.target_proxy_login || "" ":" secrets.target_proxy_password || "" ))
+target-proxy-auth: (( grab secrets.target_proxy_noauth || target-proxy-cred ))

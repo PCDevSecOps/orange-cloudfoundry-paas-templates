@@ -1,0 +1,29 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: false
+      templates:
+        extended_scan_path:
+        - submodules/bosh-deployment
+        - shared-operators/bosh
+        - shared-operators/shield
+    releases:
+      bosh:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh
+      uaa:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/uaa-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+    manual-errands:
+        errand-scripting:
+    errands:
+      import:
+        display-name: shield-provisioning

@@ -1,0 +1,44 @@
+#leveraging scripting release to patch provisioning errand
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=scripting/properties/scripting/post-deploy-script
+  value: |
+    #--- Initialize context
+    echo "- Start post-deploy"
+    > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+    > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+    set +u
+    cat <<EOF > /var/vcap/jobs/import/bin/addon
+    tenant=\$(\${bin}/shield tenants | grep ((tenant_name)) | grep -oE '[0-9a-z]{8,8}')
+    #i holds the instance group index
+    i=\$(cat /etc/hosts | grep `hostname -I` | grep -oE ' [0-9]{1,1}\.' | grep -oE '[0-9]{1,1}')
+    if [ "\${i}" -eq 0 ]; then
+    echo "nothing to update"
+    elif [ "\${i}" -eq 1 ]; then
+    \${bin}/shield -t \${tenant} update-job ((deployment_name))-1-full-daily --schedule '((when_1))'
+    elif [ "\${i}" -eq 2 ]; then
+    \${bin}/shield -t \${tenant} update-job ((deployment_name))-2-full-daily --schedule '((when_2))'
+    else
+    echo "unexpected case"
+    exit 1
+    fi
+    EOF
+
+    #test if addon already presents in /var/vcap/jobs/import/bin/run
+    addon=$(cat /var/vcap/jobs/import/bin/run | grep '#i' | wc -l)
+    if [ "${addon}" -eq 0 ]; then
+    #addon is not present so concat at the end
+    echo "nothing to do"
+    elif [ "${addon}" -eq 1 ]; then
+    #addon is already present so clean and afterwards concat at the end
+    line_counter=13
+    head -n -${line_counter} /var/vcap/jobs/import/bin/run > /var/vcap/jobs/import/bin/run.tmp
+    mv /var/vcap/jobs/import/bin/run.tmp /var/vcap/jobs/import/bin/run
+    else
+    echo "unexpected case"
+    exit 1
+    fi
+
+    #add addon to the end and change rights
+    cat /var/vcap/jobs/import/bin/addon >> /var/vcap/jobs/import/bin/run
+    chown root:vcap /var/vcap/jobs/import/bin/run

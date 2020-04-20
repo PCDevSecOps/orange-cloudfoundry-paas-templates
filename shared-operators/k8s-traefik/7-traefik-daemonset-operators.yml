@@ -1,0 +1,73 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikdaemonset"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: traefik-ingress-controller
+        namespace: traefik
+        labels:
+          k8s-app: traefik
+          kubernetes.io/cluster-service: "true"
+      spec:
+        template:
+          metadata:
+            labels:
+              k8s-app: traefik
+              name: traefik
+          spec:
+            hostNetwork: false # workaround
+            serviceAccountName: traefik-ingress-controller
+            terminationGracePeriodSeconds: 60
+            tolerations:
+            - key: node-role.kubernetes.io/master
+              effect: NoSchedule
+            - key: openebs
+              value: 'true'
+              effect: NoExecute
+
+            containers:
+            - image: traefik:v2.2
+              name: traefik
+              imagePullPolicy: Always
+              volumeMounts:
+              - mountPath: "/config"
+                name: "config"
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 20Mi
+              args:
+              - --api=true
+              - --api.dashboard=true
+              - --log.level=INFO
+              - --accesslog=true
+              - --global.sendanonymoususage=false
+              - --providers.kubernetescrd=true
+              - --entrypoints.web=true
+              - --entryPoints.web.address=:80
+              - --entrypoints.websecure=true
+              - --entryPoints.websecure.address=:443
+              - --metrics.prometheus=true
+              - --entrypoints.postgresql=true
+              - --entryPoints.postgresql.address=:5432
+              - --serverstransport.insecureskipverify=true
+              - --tracing.serviceName=traefik
+              - --tracing=true
+              - --tracing.jaeger.samplingType=const
+              - --tracing.jaeger.samplingParam=1.0
+              - --tracing.jaeger.samplingServerURL=http://my-jaeger-agent.jaeger.svc.cluster.local:5778/sampling
+              - --tracing.jaeger.collector.endpoint=http://my-jaeger-collector.jaeger.svc.cluster.local:14268/api/traces?format=jaeger.thrift
+
+            volumes:
+            - name: config
+              configMap:
+                name: traefik-conf
+        selector:
+          matchLabels:
+            k8s-app: traefik

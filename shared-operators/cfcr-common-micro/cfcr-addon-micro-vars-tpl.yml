@@ -1,0 +1,8 @@
+env_pf: k8s-micro
+kubernetes.host: cfcr-api-k8s-micro.internal.paas
+kubernetes-password: ((/micro-bosh/cfcr/kubo-admin-password))
+kubernetes.cluster_ca_certificate: ((/micro-bosh/cfcr/tls-kubernetes.ca))
+kubernetes.cluster_ca_certificate_key: ((/micro-bosh/cfcr/tls-kubernetes.private_key))
+kubernetes.dashboard_cert: ((/micro-bosh/cfcr/kubernetes-dashboard-ca.ca))
+kubernetes.dashboard_key: ((/micro-bosh/cfcr/kubernetes-dashboard-ca.private_key))
+network: tf-net-cfcr-micro

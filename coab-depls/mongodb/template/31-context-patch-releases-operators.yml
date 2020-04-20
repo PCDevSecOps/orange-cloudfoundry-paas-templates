@@ -1,0 +1,27 @@
+---
+#add shield release
+- type: replace
+  path: /releases/-
+  value:
+    name: shield
+    version: latest
+
+#add bpm
+- type: replace
+  path: /releases/-
+  value:
+    name: bpm
+    version: latest
+
+#add routing
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+- type: replace
+  path: /releases/name=bosh-dns-aliases?
+  value:
+    name: bosh-dns-aliases
+    version: latest

@@ -1,0 +1,7 @@
+# add drain time out to force drain even if a pod disruption policy is present to allow cluster update
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=kubelet/properties/kubectl-drain-timeout?
+  value: 60s
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=kubelet/properties/kubelet-drain-force-node?
+  value: true

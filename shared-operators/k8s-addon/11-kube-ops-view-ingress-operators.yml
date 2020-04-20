@@ -1,0 +1,16 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: ingress
+    name: kube-ops-view-ingress
+    namespace: monitoring
+    definition:
+      spec:
+        rules:
+        - host: kube-ops-view.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: kube-ops-view
+                servicePort: 80
+              path: /

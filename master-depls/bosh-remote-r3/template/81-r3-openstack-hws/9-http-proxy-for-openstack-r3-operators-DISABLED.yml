@@ -1,0 +1,5 @@
+#let openstack cpi use internet http proxy
+- path: /instance_groups/name=bosh/properties/env?/http_proxy?
+  type: replace
+  value: http://system-internet-http-proxy.internal.paas:3128
+

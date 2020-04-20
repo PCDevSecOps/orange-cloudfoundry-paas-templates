@@ -1,0 +1,7 @@
+#--- vsphere tenant
+public_dns: (( grab secrets.bosh.public_dns ))
+iaas_dns: (( grab secrets.bosh.iaas_dns ))
+dns: [192.168.116.156,192.168.116.166]
+
+#--- networks name
+compilation-network-name: (( grab secrets.networks.compilation-dedicated ))

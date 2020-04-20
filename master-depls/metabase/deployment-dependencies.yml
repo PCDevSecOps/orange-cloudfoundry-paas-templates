@@ -1,0 +1,23 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+    releases:
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      postgres:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/postgres-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+    errands:
+      import:
+        display-name: shield-provisioning

@@ -1,0 +1,134 @@
+---
+#this operators adapts the deployment in order to use tf-net-osb-data-plane-shared-pub network
+
+#replace deployment name
+- path: /name
+  type: replace
+  value: ((deployment_name))
+
+- type: replace
+  path: /instance_groups/name=mysql/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+      static_ips:
+      - 192.168.60.21
+      - 192.168.60.22
+      - 192.168.60.23
+
+- type: replace
+  path: /instance_groups/name=proxy/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-pub
+      static_ips:
+      - ((proxy_ip1))
+      - ((proxy_ip2))
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar
+  value:
+      consumes:
+        nats: nil
+      name: route_registrar
+      properties:
+        nats:
+          machines:
+          - 192.168.62.23
+          password: ((/bosh-master/osb-routing/nats_password))
+          port: 4222
+          user: nats
+        route_registrar:
+          routes:
+          - name: cf-mysql-proxy
+            port: 8080
+            prepend_instance_index: true
+            registration_interval: 10s
+            uris:
+            - "proxy-p-mysql.((/secrets/osb_interco/osb_domain))"
+          - name: cf-mysql-proxy-aggregator
+            port: 8082
+            registration_interval: 10s
+            uris:
+            - "proxy-p-mysql.((/secrets/osb_interco/osb_domain))"
+      release: routing
+
+- type: replace
+  path: /instance_groups/name=bootstrap-vm/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+
+- type: replace
+  path: /instance_groups/name=rejoin-unsafe-vm/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+
+- type: replace
+  path: /instance_groups/name=verify-cluster-schemas-vm/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+
+- type: remove
+  path: /instance_groups/name=smoke-tests-vm
+
+- type: replace
+  path: /instance_groups/name=broker/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=route_registrar
+  value:
+      consumes:
+        nats: nil
+      name: route_registrar
+      properties:
+        nats:
+          machines:
+          - 192.168.62.23
+          password: ((/bosh-master/osb-routing/nats_password))
+          port: 4222
+          user: nats
+        route_registrar:
+          routes:
+          - health_check:
+              name: script
+              script_path: /var/vcap/jobs/cf-mysql-broker/bin/healthcheck.sh
+            name: cf-mysql-broker
+            port: 8081
+            registration_interval: 10s
+            uris:
+            - "p-mysql.((/secrets/osb_interco/osb_domain))"
+      release: routing
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/external_host
+  value: p-mysql.((/secrets/osb_interco/osb_domain))
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/host?
+  value: ((vrrp_ip))
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker/auth_password
+  value: ((broker-password))
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker/services/0/name?
+  value: p-mysql-osb
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker/services/0/dashboard_client/id?
+  value: p-mysql-osb
+
+- type: remove
+  path: /instance_groups/name=broker-registrar-vm
+
+- type: remove
+  path: /instance_groups/name=deregister-and-purge-instances-vm
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=keepalived/properties/keepalived/vip?
+  value: ((vrrp_ip))
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=keepalived/properties/keepalived/virtual_router_id?
+  value: 202

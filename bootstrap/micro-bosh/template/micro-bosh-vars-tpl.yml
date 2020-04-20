@@ -1,0 +1,58 @@
+#--- Bosh-deploymenty micro-bosh director configuration
+director_name: micro-bosh
+internal_cidr: 192.168.10.0/28
+internal_gw: 192.168.10.1
+internal_ip: 192.168.10.10
+admin_password: (( grab secrets.bosh.admin.password ))
+
+#--- Stemcell
+url_stemcell: (( grab $URL_STEMCELL ))
+sha1_stemcell: (( grab $SHA1_STEMCELL ))
+
+#--- Set micro-bosh releases versions
+bosh_version: (( grab $BOSH_VERSION ))
+bosh_sha1: (( grab $BOSH_SHA1 ))
+bpm_version: (( grab $BPM_VERSION ))
+bpm_sha1: (( grab $BPM_SHA1 ))
+uaa_version: (( grab $UAA_VERSION ))
+uaa_sha1: (( grab $UAA_SHA1 ))
+bosh_cpi_version: (( grab $BOSH_CPI_VERSION ))
+bosh_cpi_sha1: (( grab $BOSH_CPI_SHA1 ))
+os_conf_version: (( grab $OS_CONF_VERSION ))
+os_conf_sha1: (( grab $OS_CONF_SHA1 ))
+bosh_dns_version: (( grab $BOSH_DNS_VERSION ))
+bosh_dns_sha1: (( grab $BOSH_DNS_SHA1 ))
+bbr_version: (( grab $BBR_VERSION ))
+bbr_sha1: (( grab $BBR_SHA1 ))
+node_exporter_version: (( grab $NODE_EXPORTER_VERSION ))
+node_exporter_sha1: (( grab $NODE_EXPORTER_SHA1 ))
+
+#--- Default keypair name used when creating new instance
+default_key_name: bosh
+
+#--- CA certs
+INTRANET_CA_CERTS: (( grab $INTRANET_CA_CERTS ))
+INTERNAL_CA_CERT: (( grab $INTERNAL_CA_CERT ))
+INTERNAL_CA2_CERT: (( grab $INTERNAL_CA2_CERT ))
+
+ca_cert:
+  intranet: (( file INTRANET_CA_CERTS ))
+  internal: (( file INTERNAL_CA_CERT ))
+  internal2: (( file INTERNAL_CA2_CERT ))
+
+trusted_certs: (( concat ca_cert.intranet ca_cert.internal ca_cert.internal2 ))
+
+#--- root password
+root_password: (( grab secrets.bosh.root.password ))
+
+#--- credhub server client password
+bosh_credhub_secrets: (( grab secrets.bosh_credhub_secrets ))
+
+#--- prometheus password
+prometheus_password: (( grab secrets.prometheus.password ))
+
+#--- ldap password
+ldap_root_password: (( grab secrets.ldap.root.password ))
+
+#--- smtp mail
+smtp_mail: (( grab secrets.smtp.to_ops ))

@@ -1,0 +1,6 @@
+tf-net-services_id: (( grab secrets.networks.tf-net-services )) # <-- from terraform
+tf-net-services-2_id: (( grab secrets.networks.tf-net-services-2 )) # <-- from terraform
+compilation_network_id: (( grab secrets.networks.compilation ))
+az_1: (( grab secrets.openstack.availability_zone ))
+az_2: (( grab secrets.openstack.availability_zone_2 ))
+dns: [192.168.116.156,192.168.116.166]

@@ -1,0 +1,6 @@
+auth_url: ((/secrets/openstack_auth_url))
+openstack_project_id: ((/secrets/openstack_tenant_id))
+openstack_domain: ((/secrets/openstack_domain))
+openstack_password: ((/secrets/openstack_password))
+region: ((/secrets/openstack_region)) #required as 2 regions in cloudwatttenant-id: ((/secrets/openstack_tenant_id)) #required by kubo ?
+openstack_username: ((/secrets/openstack_username))

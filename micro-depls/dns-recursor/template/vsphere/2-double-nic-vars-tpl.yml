@@ -1,0 +1,4 @@
+#--- From shared secrets
+dns_recursor_ip_1: (( grab secrets.intranet_interco_ips.dns_recursor_1 ))
+dns_recursor_ip_2: (( grab secrets.intranet_interco_ips.dns_recursor_2 ))
+interco_gateway: (( grab secrets.intranet_interco_ips.gateway ))

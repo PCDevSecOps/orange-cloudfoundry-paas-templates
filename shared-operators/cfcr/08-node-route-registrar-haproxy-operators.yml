@@ -1,0 +1,28 @@
+
+
+- type: replace
+  path: /instance_groups/name=haproxy-to-master/jobs/-
+  value :
+    name: route_registrar
+    release: routing
+    consumes:
+      nats:
+        instances:
+        - address: ops-routing-nats
+        properties:
+          nats:
+            port: 4222
+            user: nats
+            password: ((/bosh-master/ops-routing/nats_password))
+    
+    properties:
+      route_registrar:
+        routes:
+        - name: kube-api-tls-endpoint
+          registration_interval: 60s
+          tls_port: 443
+          port: 443 #should not be used
+          server_cert_domain_san: "kube-api-((env_pf)).cfcr.internal"
+          uris:
+            - kube-api-((env_pf)).((/secrets/cloudfoundry_ops_domain))
+

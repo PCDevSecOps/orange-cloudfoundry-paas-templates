@@ -1,0 +1,12 @@
+---
+applications:
+- name: postgresql-docker-test-app
+  host: postgresql-docker-test-app
+  instances: 1
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  memory:  64M
+  stack: cflinuxfs3
+  disk: 64M
+  buildpack: nodejs_buildpack 
+  services:
+  - postgresql-docker-test-app-service

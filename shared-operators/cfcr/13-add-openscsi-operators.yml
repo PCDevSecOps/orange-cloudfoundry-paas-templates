@@ -1,0 +1,12 @@
+
+- type: replace
+  path: /releases/-
+  value:
+    name: open-iscsi
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/-
+  value:
+    name: open-iscsi-pkg-install
+    release: open-iscsi

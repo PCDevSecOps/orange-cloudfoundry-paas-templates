@@ -1,0 +1,104 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: minio
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+#define a local bosh-dns alias to enable thanos=> s3 wiring (avoids hardcoding ip)
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: thanos-s3.internal.paas #local alias
+    targets:
+    - query: '*'
+      instance_group: minio-s3-thanos
+      deployment: prometheus
+      network: tf-net-exchange
+      domain: bosh
+
+#access key credhub generation
+- type: replace
+  path: /variables/-
+  value:
+    name: minio_s3_thanos_secretkey
+    type: password
+
+#ssl certificate generation
+- type: replace
+  path: /variables/-
+  value:
+    name: s3_thanos_private_cert
+    type: certificate
+    options:
+      ca: /internalCA
+      common_name: thanos-s3.internal.paas
+      alternative_names:
+      - "thanos-s3.internal.paas"
+      - "*.thanos-s3.internal.paas"
+
+#s3 instance group definition
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: minio-s3-thanos
+    instances: 1
+    azs: [z1]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-4g
+    stemcell: default
+    persistent_disk_type: medium
+    jobs:
+    - name: minio-server
+      release: minio
+      provides:
+        minio-server: {as: minio-link}
+      properties:
+        credential:
+          accesskey: minio_s3_accesskey #fixed well know account
+          secretkey: ((minio_s3_thanos_secretkey))
+
+- type: replace
+  path: /instance_groups/name=minio-s3-thanos/jobs/-
+  value:
+    name: haproxy #private ssl offload for thanos s3
+    release: haproxy
+    properties:
+      ha_proxy:
+        log_level: info
+        https_redirect_all: true  #only https access
+        backend_servers:
+        - localhost   #to local minio
+        backend_port: 9000
+        ssl_pem:
+        - ((s3_thanos_private_cert.certificate))((s3_thanos_private_cert.private_key))
+        rsp_headers:
+          Strict-Transport-Security: max-age=15768000
+#minio seeding
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: bucket-seeding # To create default buckets after manifest-deploy
+    azs: [z1]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-4g
+    stemcell: default
+    instances: 1
+    lifecycle: errand
+    post_deploy: true
+    jobs:
+    - name: mc
+      release: minio
+      templates:
+      - name: mc
+      consumes:
+        minio: {from: minio-link}
+      properties:
+        script: |
+          #!/bin/sh
+          mc mb myminio/thanos-bucket --ignore-existing

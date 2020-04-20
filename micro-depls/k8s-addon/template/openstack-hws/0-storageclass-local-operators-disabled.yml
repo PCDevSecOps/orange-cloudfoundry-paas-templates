@@ -1,0 +1,18 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "storageclass-local-storage"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: StorageClass
+      apiVersion: storage.k8s.io/v1
+      metadata:
+        name: tf-local-storage-class
+        selfLink: "/apis/storage.k8s.io/v1/storageclasses/tf-local-storage-class"
+      provisioner: kubernetes.io/no-provisioner
+      reclaimPolicy: Delete
+      volumeBindingMode: Immediate
+
+

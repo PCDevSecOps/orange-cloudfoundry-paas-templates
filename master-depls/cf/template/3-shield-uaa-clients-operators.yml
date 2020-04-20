@@ -1,0 +1,25 @@
+#FIXME add variable to variables section
+
+# UAA client for shield-coab
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/shield-webui-coab-client-secret
+    type: password
+
+# UAA client for shield-coab
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/shield-webui-coab-client?
+  value:
+    name: shield-webui-coab-client
+    override: true
+    authorized-grant-types: authorization_code,refresh_token
+    authorities: uaa.none
+    resource_ids: none
+    autoapprove: false
+    scope: openid
+    secret: ((/uaa/shield-webui-coab-client-secret))
+    #cf stands for the uaa.identifier defined in shield deployment
+    redirect-uri: https://shield-webui-coab.((/secrets/cloudfoundry_ops_domain))/auth/cf/redir
+    access-token-validity: 180
+    refresh-token-validity: 180

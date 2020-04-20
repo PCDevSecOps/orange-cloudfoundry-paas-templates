@@ -1,0 +1,27 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "jaeger-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: jaeger-ingressroute
+        namespace: jaeger
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`jaeger.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/jaeger`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: my-jaeger-query
+            namespace: jaeger
+            port: 16686

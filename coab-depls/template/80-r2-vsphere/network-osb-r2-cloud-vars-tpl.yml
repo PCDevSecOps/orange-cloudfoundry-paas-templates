@@ -1,0 +1,3 @@
+#--- Osb data plane dedicated private (other information are hard-coded since it is a private network)
+osb-data-plane-dedicated-priv-2-network-name: (( grab secrets.networks.tf-net-osb-data-plane-dedicated-priv ))
+

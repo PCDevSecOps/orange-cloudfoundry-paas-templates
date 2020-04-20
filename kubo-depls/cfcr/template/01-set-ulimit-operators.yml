@@ -1,0 +1,20 @@
+# set ulimit on workers
+
+- type: replace
+  path: /releases/-
+  value:
+    name: os-conf
+    version: latest
+
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/-
+  value:
+    name: limits
+    release: os-conf
+    properties:
+      nofile:
+        soft: 65535
+        hard: 65535
+
+  

@@ -1,0 +1,9 @@
+---
+deployment:
+  bosh-deployment:
+    stemcells:
+    releases:
+      route-registrar:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/route-registrar-boshrelease
+    errands:

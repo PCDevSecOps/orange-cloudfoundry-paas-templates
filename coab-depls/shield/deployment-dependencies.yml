@@ -1,0 +1,18 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      bpm:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bpm-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+    errands:
+      - import

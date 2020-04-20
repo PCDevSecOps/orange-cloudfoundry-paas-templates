@@ -1,0 +1,30 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+    releases:
+      docker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+    errands:
+      import:
+        display-name: shield-provisioning
+
+#commented, release not yet avail on bosh.io
+#      openldap-boshrelease:
+#        base_location: https://github.com/
+#        repository: cloudfoundry-community/openldap-boshrelease
+
+

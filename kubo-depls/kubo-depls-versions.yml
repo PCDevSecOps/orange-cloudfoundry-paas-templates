@@ -1,0 +1,23 @@
+---
+deployment-name: "kubo-depls"
+
+#--- Stemcell
+stemcell-version: "621.55"
+
+#--- Bosh releases
+backup-and-restore-sdk-version: "1.17.2"
+bosh-dns-version: "1.17.0"
+bpm-version: "1.1.5"
+cfcr-etcd-version: "1.11.0"
+containerd-version: "1"
+docker-version: "35.3.4"
+generic-scripting-version: "3"
+haproxy-version: "9.8.0"
+helm-kubectl-version: "20"
+#kubo-boshrelease-version: "0.36.0"
+kubo-version: "0.42.1"
+nfs-volume-version: "1.1.0"
+os-conf-version: "21.0.0"
+route-registrar-version: "3"
+routing-version: "0.197.0"
+shield-version: "8.6.2"

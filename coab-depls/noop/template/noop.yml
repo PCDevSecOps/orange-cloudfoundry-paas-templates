@@ -1,0 +1,28 @@
+---
+name: ((deployment_name))
+
+releases:
+- {name: route-registrar, version: latest}
+
+update:
+  serial: false
+  canaries: 1
+  canary_watch_time: 30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  update_watch_time:  30000-240000
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+- name: no-op
+  instances: 0
+  jobs:
+  - name: route-registrar
+    release: route-registrar
+  networks: [{name: tf-net-coab-depls-instance}]
+  stemcell: default
+  azs: [z1]
+  vm_type: large

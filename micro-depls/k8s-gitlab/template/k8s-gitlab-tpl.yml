@@ -1,0 +1,74 @@
+---
+#Deployment Identification
+name: k8s-gitlab
+
+#Features Block
+
+#Releases Block
+releases:
+- name: helm-kubectl
+  version: latest
+
+#Stemcells Block
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+#Update Block
+update:
+  canaries: 1
+  max_in_flight: 2
+  canary_watch_time: 15000-30000
+  update_watch_time: 15000-300000
+
+#Instance Groups Block
+instance_groups:
+- name: cfcr-helm-addons
+  vm_type: small
+  stemcell: default
+  networks:
+  - name: ((network))
+  azs: [z1,z2,z3]
+  instances: 1
+  jobs:
+  - name: action
+    release: helm-kubectl
+    properties:
+      kubernetes:
+        host: ((kubernetes.host))
+        port: ((kubernetes.port))
+        cluster_ca_certificate: ((kubernetes.cluster_ca_certificate))
+        password: ((kubernetes-password))
+        default_storageclass: openebs-cstor-sparse
+      ingress_class: traefik
+      proxy:
+        https: ((https_proxy))
+        http: ((http_proxy))
+        noproxy: ((no_proxy))
+      repository_mirror:
+        enabled: true
+        url: https://jcr.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+      actions:
+      - type: helm_repo
+        name: stable
+        url: https://kubernetes-charts.storage.googleapis.com/
+      - type: helm_repo
+        name: incubator
+        url: https://kubernetes-charts-incubator.storage.googleapis.com/
+
+
+
+#variables:
+
+#Addons Block
+
+#Properties Block
+#should not be used anymore
+
+#variables:
+
+#Addons Block
+
+#Properties Block
+#should not be used anymore

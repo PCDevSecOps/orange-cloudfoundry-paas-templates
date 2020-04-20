@@ -1,0 +1,31 @@
+---
+applications:
+- name: huawei-cloud-osb-sample-app
+  memory: 64M
+  stack: cflinuxfs3
+  instances: 1
+  path: .
+  buildpacks:
+  - php_buildpack
+
+  services:
+  - rds-sqlserver-2014_SP2_SE
+  - obs-Standard
+  - obs-InfrequentAccess
+  - obs-Archive
+  - rds-mysql-5.6
+  - rds-mysql-5.7
+  - rds-postgresql-9.5
+  - rds-postgresql-9.6
+
+
+#disable:
+
+#  - dcs-imdg-SingleNode 
+#  - dcs-imdg-Cluster
+
+#  - dms-standard-PartitionLevelFIFO
+#  - dms-standard-GlobalFIFO
+#  - rds-sqlserver-2016_SP1_SE  
+#  - rds-sqlserver-2014_SP2_EE
+#  - rds-sqlserver-2016_SP1_EE

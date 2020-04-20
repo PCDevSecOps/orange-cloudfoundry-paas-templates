@@ -1,0 +1,43 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: bosh-openstack-cpi
+    sha1: ((bosh_cpi_sha1))
+    url: https://bosh.io/d/github.com/cloudfoundry/bosh-openstack-cpi-release?v=((bosh_cpi_version))
+
+- type: replace
+  path: /resource_pools/name=vms/stemcell?
+  value:
+    sha1: ((sha1_stemcell))
+    url: ((url_stemcell))
+
+- type: replace
+  path: /resource_pools/name=vms/cloud_properties?
+  value:
+    availability_zone: ((az))
+    instance_type: ((instance_type))
+
+- type: replace
+  path: /networks/name=private/subnets/0/cloud_properties?
+  value:
+    net_id: ((net_id))
+
+- type: replace
+  path: /cloud_provider/template?
+  value:
+    name: openstack_cpi
+    release: bosh-openstack-cpi
+
+- type: replace
+  path: /cloud_provider/properties/openstack?
+  value:
+    api_key: ((openstack_password))
+    auth_url: ((auth_url))
+    default_key_name: ((default_key_name))
+    default_security_groups: ((default_security_groups))
+    domain: ((openstack_domain))
+    human_readable_vm_names: true
+    project: ((openstack_project))
+    region: ((region))
+    username: ((openstack_username))
+    state_timeout: 900    #--- Specific FE (workaround for timeout when loading stemcell)

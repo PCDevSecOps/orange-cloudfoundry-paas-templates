@@ -1,0 +1,47 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: bosh-dns
+    version: 1.17.0
+
+
+- type: replace
+  path: /addons/-
+  value:
+    name: bosh-dns
+    jobs:
+    - name: bosh-dns
+      release: bosh-dns
+      properties:
+        health:
+          enabled: true
+          server:
+            tls: ((/dns_healthcheck_server_tls))
+          client:
+            tls: ((/dns_healthcheck_client_tls))
+        api:
+          server:
+            tls: ((/dns_api_server_tls))
+          client:
+            tls: ((/dns_api_client_tls))
+        recursors:
+        - 192.168.116.156
+        - 192.168.116.166
+        cache:
+          enabled: true
+        #bosh dns alias to ops-routing nats and routers (ip because bosh-dns is internal a director)
+        aliases:
+          cf-nats:
+          - 192.168.35.30
+          - 192.168.35.31
+          ops-router:
+          - 192.168.99.81
+          - 192.168.99.82
+          ops-routing-nats:
+          - 192.168.99.80
+          - 192.168.99.79
+          osb-router:
+          - 192.168.62.21
+          - 192.168.62.22
+          osb-routing-nats:
+          - 192.168.62.23

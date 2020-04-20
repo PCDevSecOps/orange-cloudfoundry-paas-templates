@@ -1,0 +1,20 @@
+#--- Disable swap on stemcell https://www.system-linux.eu/index.php?post/2017/06/22/Analyse-memoire,-SWAP-et-Swapiness
+#    and tune tcp properties to reduce CLOSE_WAIT on instances
+- type: replace
+  path: /addons/-
+  value:
+    name: no-swapiness
+    jobs:
+    - name: sysctl
+      release: os-conf
+      properties:
+        sysctl:
+        - vm.swappiness=0
+        - net.ipv4.tcp_fin_timeout=10
+        - net.ipv4.tcp_tw_reuse=1
+    include:
+      deployments:
+      - ops-routing
+      - cfcr
+      - cfcr-persistent
+

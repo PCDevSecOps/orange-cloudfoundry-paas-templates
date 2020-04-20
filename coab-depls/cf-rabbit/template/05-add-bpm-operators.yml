@@ -1,0 +1,12 @@
+#--- add bpm
+- path: /instance_groups/name=haproxy/jobs/-
+  type: replace
+  value:
+    name: bpm
+    release: bpm
+
+- path: /instance_groups/name=rmq-broker/jobs/-
+  type: replace
+  value:
+    name: bpm
+    release: bpm

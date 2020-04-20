@@ -1,0 +1,4 @@
+#--- Specify which cipher-suite will be used for gorouter ssl endpoint
+- type: replace
+  path: /instance_groups/name=osb-routing-router/properties/router/cipher_suites?
+  value: ((gorouter_cipher_ssl))

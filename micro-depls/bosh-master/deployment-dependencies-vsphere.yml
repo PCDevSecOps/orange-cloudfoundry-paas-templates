@@ -1,0 +1,7 @@
+---
+deployment:
+  bosh-master:
+    releases:
+      bosh-vsphere-cpi-release:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-vsphere-cpi-release

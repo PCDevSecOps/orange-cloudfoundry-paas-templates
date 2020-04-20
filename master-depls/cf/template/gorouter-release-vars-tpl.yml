@@ -1,0 +1,9 @@
+#--- Api cert and key from credhub
+system_domain_certificate: ((/secrets/certs/api.certificate))
+system_domain_private_key: ((/secrets/certs/api.private_key))
+
+#--- Use nats password from shared secrets
+nats_password: ((/secrets/cloudfoundry_nats_password))
+
+#--- gorouter cipher suite
+gorouter_cipher_ssl: "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-SHA256"
