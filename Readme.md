@@ -17,3 +17,5 @@ Here are some slides to provide more background to this project
 ## Backlog
 
 The [backlog](https://github.com/orange-cloudfoundry/paas-templates/projects/2) is shared in the form of GH issues. Please open an issue if you are interested in learning more and you need a fresh private preview copy of this repo.
+
+<!-- hidden text for testing PR restrictions -->
