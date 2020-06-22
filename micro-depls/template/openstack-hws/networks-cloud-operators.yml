@@ -1,0 +1,64 @@
+#define openstack floating ip networks
+#--- docker-bosh-cli floating ip
+- type: replace
+  path: /networks/-
+  value:
+    name: floating-boshcli
+    type: vip
+
+#--- concourse-micro floating ip
+- type: replace
+  path: /networks/-
+  value:
+    name: floating-concourse
+    type: vip
+
+#--- internet-relay floating ip
+- type: replace
+  path: /networks/-
+  value:
+    name: net-floating
+    type: vip
+
+
+#--- Add micro-depls network Id and security group
+- type: replace
+  path: /networks/name=net-bosh-2/subnets/0/cloud_properties?
+  value:
+    net_id: ((bosh-2_net_id))
+    security_groups:
+    - tf-default-sg
+
+#--- Add compilation network Id and security group
+- type: replace
+  path: /networks/name=compilation-network/subnets/0/cloud_properties?
+  value:
+    net_id: ((compilation_net_id))
+    security_groups:
+    - tf-default-sg
+
+#--- Add docker-bosh-cli floating ip security group
+- type: replace
+  path: /networks/name=floating-boshcli/cloud_properties?
+  value:
+    security_groups: ((boostrap_security_groups))
+
+#--- Add concourse-micro floating ip security group
+- type: replace
+  path: /networks/name=floating-concourse/cloud_properties?
+  value:
+    security_groups: ((boostrap_security_groups))
+
+#--- Add internet-relay floating ip security group
+- type: replace
+  path: /networks/name=net-floating/cloud_properties?
+  value:
+    security_groups: ((boostrap_security_groups))
+
+
+- type: replace
+  path: /networks/name=tf-net-cfcr-micro/subnets/0/cloud_properties?
+  value:
+    net_id: ((/tf/networks_net-cfcr-micro)) #terraform generated
+    security_groups:
+    - tf-default-sg

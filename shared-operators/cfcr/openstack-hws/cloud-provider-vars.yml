@@ -1,0 +1,7 @@
+auth_url: ((/secrets/openstack_auth_url))
+openstack_project_id: ((/secrets/openstack_project_id))
+openstack_domain: ((/secrets/openstack_tenant_id))
+openstack_password: ((/secrets/openstack_password))
+region: ((/secrets/openstack_region))
+openstack_username: ((/secrets/openstack_username))
+openstack_tenant_name: ((/secrets/openstack_region))

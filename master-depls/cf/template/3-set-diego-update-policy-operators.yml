@@ -1,0 +1,7 @@
+---
+- type: replace
+  path: /instance_groups?/name=diego-cell/update?
+  value:
+    canaries: 1
+    serial: false
+    max_in_flight: 20% #enable 1 cell on 5 to be upgraded in parallel per az

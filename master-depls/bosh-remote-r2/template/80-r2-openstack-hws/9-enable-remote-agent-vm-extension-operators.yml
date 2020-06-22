@@ -1,0 +1,8 @@
+- type: replace
+  path: /instance_groups/name=nats-relay/vm_extensions?/-
+  value: remote-bosh-agents-secgroup-extension
+
+  
+- type: replace
+  path: /instance_groups/name=blobstore-relay/vm_extensions?/-
+  value: remote-bosh-agents-secgroup-extension

@@ -1,0 +1,25 @@
+#--- Inject system_domain ssl certs and private key
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/tls_pem/0
+  value:
+    cert_chain: "((system_domain_certificate))"
+    private_key: "((system_domain_private_key))"
+
+#--- enable proxy protocol so originating ip are not lost par tcp relays
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/enable_proxy?
+  value: true
+
+#--- Specify which cipher-suite will be used for gorouter ssl endpoint
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/cipher_suites?
+  value: ((gorouter_cipher_ssl))
+
+#--- Configure cf gorouter for isolation segment
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/routing_table_sharding_mode?
+  value: all
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/consumes?/router/from
+  value: router_primary

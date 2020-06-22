@@ -1,0 +1,31 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value: {name: prometheus-addons, version: 3.1.1 }
+  
+#dashboards
+- type: replace
+  path: /instance_groups/name=grafana/jobs/-
+  value:
+    name: mysql_dashboards
+    release: prometheus-addons
+    
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=grafana/properties/grafana/prometheus/dashboard_folders/-
+  value:
+    name: MySQL
+    files:
+      - /var/vcap/jobs/mysql_dashboards/*.json
+
+#alerts
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: mysql_alerts
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/rule_files/-
+  value: "/var/vcap/jobs/mysql_alerts/*.alerts.yml"
+
+#scraping, using bosh inventory discovery comes from prmoetheus bosh-release

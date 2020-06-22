@@ -1,0 +1,123 @@
+---
+name: micro-depls
+releases:
+  backup-and-restore-sdk:
+    version: 1.17.4
+    sha1: 39a881258bd5e76808e557400a3b0eeb69948c09
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+  bosh:
+    version: 270.11.0
+    sha1: 45d15fa077318cf20edcb33fef355e6a46808116
+    repository: cloudfoundry/bosh
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.17.0
+    sha1: d514ab3ae376778e106e17c22b78a8705690ae1d
+  bosh-dns-aliases:
+    version: 0.0.3
+    repository: cloudfoundry/bosh-dns-aliases-release
+  bosh-openstack-cpi:
+    version: '41'
+    sha1: 1d65bb6502ca4eafde3c7fee0fd584c5dfc0b35b
+    repository: cloudfoundry/bosh-openstack-cpi-release
+  bosh-vsphere-cpi:
+    version: 52.1.0
+    sha1: 549ed1b14d76190dc0e5c5f206a80840a1cefbbe
+    repository: cloudfoundry/bosh-vsphere-cpi-release
+  bpm:
+    version: 1.1.8
+    sha1: c956394fce7e74f741e4ae8c256b480904ad5942
+  cfcr-etcd:
+    version: 1.11.0
+    repository: cloudfoundry-incubator/cfcr-etcd-release
+  concourse:
+    version: 5.8.1
+    repository: concourse/concourse-bosh-release
+  containerd:
+    version: '1'
+    repository: orange-cloudfoundry/containerd-boshrelease
+  credhub:
+    version: 2.5.11
+    repository: pivotal-cf/credhub-release
+  credhub-importer:
+    repository: cloudfoundry-community/credhub-importer-boshrelease
+    version: 1.1.0
+    tag_prefix: ''
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.0
+  docker:
+    version: 35.3.4
+    repository: cloudfoundry-incubator/docker-boshrelease
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  haproxy:
+    version: 10.0.0
+    repository: cloudfoundry-community/haproxy-boshrelease
+  helm-kubectl:
+    tag_prefix: ''
+    version: '23'
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+  kubo:
+    version: 0.42.1
+    repository: orange-cloudfoundry/kubo-release
+  minio:
+    version: 2019-06-27T21-13-50Z
+    repository: minio/minio-boshrelease
+  networking:
+    version: '9'
+    repository: cloudfoundry/networking-release
+  nginx:
+    version: 1.13.12
+    repository: cloudfoundry-community/nginx-release
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 4.2.0
+  node-exporter-boshrelease:
+    version: 4.2.0
+    sha1: b4ffebacc55fbb9934425ac792bb7179eed7e61c
+  ntp:
+    version: 4.2.8p12
+    repository: cloudfoundry-community/ntp-release
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    version: '1'
+    tag_prefix: ''
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 21.0.0
+    sha1: 7579a96515b265c6d828924bf4f5fae115798199
+  postgres:
+    version: '40'
+    repository: cloudfoundry/postgres-release
+  prometheus:
+    version: 26.2.0
+    repository: cloudfoundry-community/prometheus-boshrelease
+  routing:
+    version: 0.199.0
+    repository: cloudfoundry/routing-release
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+    version: 3.2.0
+  shield:
+    version: 8.7.2
+    repository: starkandwayne/shield-boshrelease
+  squid:
+    repository: cloudfoundry-community/squid-boshrelease
+    version: 1.0.1
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.6.0
+  turbulence:
+    repository: cppforlife/turbulence-release
+    version: 0.10.0
+  uaa:
+    version: 74.16.0
+    sha1: 991f8aca30ed1bada8a7a1a3582d0dea1ef8017e
+    repository: cloudfoundry/uaa-release
+  weave-scope:
+    repository: cloudfoundry-community/weavescope-boshrelease
+    version: 0.0.18
+stemcell:
+  version: '621.69'

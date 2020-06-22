@@ -1,0 +1,10 @@
+env_pf: k8s-master
+kubernetes.host: cfcr-api-k8s-master.internal.paas
+kubernetes-password: ((/bosh-master/cfcr/kubo-admin-password))
+kubernetes.cluster_ca_certificate: ((/bosh-master/cfcr/tls-kubernetes.ca))
+kubernetes.cluster_ca_certificate_key: ((/bosh-master/cfcr/tls-kubernetes.private_key))
+kubernetes.dashboard_cert: ((/bosh-master/cfcr/kubernetes-dashboard-ca.ca))
+kubernetes.dashboard_key: ((/bosh-master/cfcr/kubernetes-dashboard-ca.private_key))
+network: tf-net-cfcr-master
+prefix-deployment: ""
+docker_repository: ""

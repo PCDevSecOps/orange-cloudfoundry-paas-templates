@@ -1,0 +1,9 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: gitlab
+    chart:  gitlab/plantuml
+    namespace: gitlab
+    version: ((plantuml-version))
+    properties:

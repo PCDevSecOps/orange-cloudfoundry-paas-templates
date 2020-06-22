@@ -1,0 +1,13 @@
+---
+deployment:
+  minio-private-s3:
+    releases:
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease

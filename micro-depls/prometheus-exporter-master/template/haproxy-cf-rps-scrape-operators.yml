@@ -1,0 +1,9 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    #gin-efa black_box exporter
+    job_name: haproxy-cf-rps
+    static_configs:
+      - targets:
+        - localhost:9101        
+  

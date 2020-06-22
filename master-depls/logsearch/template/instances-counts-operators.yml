@@ -1,0 +1,10 @@
+---
+- type: replace
+  path: /instance_groups/name=elasticsearch_master/instances
+  value: ((elasticsearch_master_count))
+- type: replace
+  path: /instance_groups/name=elasticsearch_data/instances
+  value: ((elasticsearch_data_count))
+- type: replace
+  path: /instance_groups/name=ingestor/instances
+  value: ((ingestor_count))

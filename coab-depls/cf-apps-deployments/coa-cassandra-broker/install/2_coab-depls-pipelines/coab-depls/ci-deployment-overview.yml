@@ -1,0 +1,47 @@
+---
+ci-deployment:
+  coab-depls:
+    target_name: cw-pp-micro-for-coab-depls
+    terraform_config:
+      state_file_path: coab-depls/terraform-config
+    pipelines:
+      coab-depls-init-generated:
+        config_file: micro-depls/concourse-master/pipelines/coab-depls-init-generated.yml #Output
+        vars_files:
+        - micro-depls/concourse-micro/pipelines/credentials-auto-init.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-git-config.yml #Input
+
+      coab-depls-generated:
+        config_file: micro-depls/concourse-master/pipelines/coab-depls-generated.yml  #Output
+        vars_files:
+        - micro-depls/concourse-master/pipelines/credentials-coab-depls-pipeline.yml #Refers to bosh-coab (endpoint, credentials)
+        - micro-depls/concourse-micro/pipelines/credentials-auto-init.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-git-config.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-iaas-specific.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-s3-stemcell.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-s3-br.yml #Input
+        - coab-depls/coab-depls-versions.yml #Input => Refers to paas-templates
+
+      coab-depls-cf-apps-generated:
+        config_file: micro-depls/concourse-master/pipelines/coab-depls-cf-apps-generated.yml   #Output
+        vars_files:
+        - micro-depls/concourse-micro/pipelines/credentials-auto-init.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-git-config.yml #Input
+
+      coab-depls-s3-br-upload-generated:
+        team: upload
+        config_file: micro-depls/concourse-master/pipelines/coab-depls-s3-br-upload-generated.yml #Output
+        vars_files:
+        - coab-depls/coab-depls-versions.yml #Input => Refers to paas-templates
+        - micro-depls/concourse-micro/pipelines/credentials-auto-init.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-git-config.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-s3-br.yml #Input
+
+      coab-depls-s3-stemcell-upload-generated:
+        team: upload
+        config_file: micro-depls/concourse-master/pipelines/coab-depls-s3-stemcells-upload-generated.yml #Output
+        vars_files:
+        - coab-depls/coab-depls-versions.yml #Input => Refers to paas-templates
+        - micro-depls/concourse-micro/pipelines/credentials-auto-init.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-git-config.yml #Input
+        - micro-depls/concourse-micro/pipelines/credentials-s3-stemcell.yml #Input

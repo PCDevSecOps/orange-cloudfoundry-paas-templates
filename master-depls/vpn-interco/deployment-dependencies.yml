@@ -1,0 +1,16 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases:
+      openvpn:
+        base_location: https://bosh.io/d/github.com/
+        repository: dpb587/openvpn-bosh-release
+      networking:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/networking-release
+      os-conf:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/os-conf-release

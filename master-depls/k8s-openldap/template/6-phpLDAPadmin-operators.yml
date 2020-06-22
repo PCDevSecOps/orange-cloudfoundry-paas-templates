@@ -1,0 +1,59 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "sv-phpldapadmin"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        labels:
+          app: phpldapadmin
+        name: phpldapadmin
+        namespace: openldap
+      spec:
+        ports:
+        - port: 80
+        selector:
+          app: phpldapadmin
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "deploy-phpldapadmin"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: phpldapadmin
+        namespace: openldap
+        labels:
+          app: phpldapadmin
+
+      spec:
+        selector:
+          matchLabels:
+            app: phpldapadmin
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app: phpldapadmin
+              namespace: openldap
+          spec:
+            containers:
+            - name: phpldapadmin
+              image: osixia/phpldapadmin:((phpLDAPadmin-version))
+              ports:
+              - containerPort: 80
+              env:
+              - name: PHPLDAPADMIN_LDAP_HOSTS
+                value: "openldap.openldap.svc.cluster.local"
+              - name: PHPLDAPADMIN_HTTPS
+                value: "false"
+

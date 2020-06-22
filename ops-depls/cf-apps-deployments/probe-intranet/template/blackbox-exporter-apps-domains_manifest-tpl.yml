@@ -1,0 +1,10 @@
+---
+applications:
+- name: blackbox-exporter-apps-domains
+  instances: 2
+  path: blackbox_exporter
+  memory: 64M
+  stack: cflinuxfs3
+  buildpack: binary_buildpack
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  command: ./blackbox_exporter --web.listen-address=:$PORT --log.level=debug

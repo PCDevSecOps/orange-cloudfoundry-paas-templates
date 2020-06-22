@@ -1,0 +1,5 @@
+#Simulates what coab will generate for each deployment.
+deployment_name: "cassandra"
+plan_id: "cassandra-ondemand-plan"
+
+

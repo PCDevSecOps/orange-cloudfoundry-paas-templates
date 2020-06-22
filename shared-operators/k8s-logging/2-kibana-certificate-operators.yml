@@ -1,0 +1,21 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "certificate-kibana"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: cert-manager.io/v1alpha2
+      kind: Certificate
+      metadata:
+        name: certificate-kibana
+        namespace: kube-logging
+      spec:
+        secretName: secret-kibana-tls-cert
+        duration: 24h
+        renewBefore: 12h
+        commonName: kibana.kube-logging.svc.cluster.local
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer

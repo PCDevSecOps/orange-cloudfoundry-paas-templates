@@ -1,0 +1,7 @@
+---
+deployment:
+  intranet-interco-relay:
+    releases:
+      networking:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/networking-release

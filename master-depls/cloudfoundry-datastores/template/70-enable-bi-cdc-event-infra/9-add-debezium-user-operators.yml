@@ -1,0 +1,39 @@
+# add postgres user for debezium  for cloudfoundry databases
+
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=postgres/properties/databases/roles/-
+  value:
+    name: debezium
+    password: ((/cf/cloudfoundry_debezium_password)) #from shared/secrets + credhub seeder
+    tag: admin
+    permissions:
+    - "REPLICATION"
+    - "SUPERUSER " #required for select ??
+    
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=postgres/properties/databases/additional_config?
+  value:
+    wal_level: logical
+    max_wal_senders: 1
+    max_replication_slots: 1
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /cf/cloudfoundry_debezium_password
+    type: password
+
+
+# need to add specific remote replication instructions in pg_hba.conf
+# host    replication     debezium  0.0.0.0/0            trust
+# see https://github.com/cloudfoundry/postgres-release/issues/45
+- type: replace
+  path: /instance_groups/name=postgres/jobs/name=postgres/properties/databases/hooks?/pre_start?
+  value: |
+    #!/bin/bash
+    DATA_DIR="/var/vcap/store/postgres/postgres-11.5/"
+    PG_HBA="${DATA_DIR}/pg_hba.conf"
+    ls -ltra $PG_HBA
+    echo "local   replication    debezium                                   password" >> $PG_HBA
+    echo "host    replication    debezium             0.0.0.0/0             password" >> $PG_HBA
+

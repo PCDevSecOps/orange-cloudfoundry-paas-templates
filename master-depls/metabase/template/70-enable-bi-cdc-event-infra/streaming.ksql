@@ -1,0 +1,47 @@
+#RAM by organization
+SELECT
+  "organizations__via__organization_id"."name" AS "Organization",
+  sum("memory" * "instances") AS "Memory used (MB)"
+FROM "public"."processes"
+LEFT JOIN "public"."apps"          "apps__via__app_guid"                 ON "public"."processes"."app_guid"           = "apps__via__app_guid"."guid"
+LEFT JOIN "public"."spaces"        "spaces__via__space_guid"             ON "apps__via__app_guid"."space_guid"        = "spaces__via__space_guid"."guid"
+LEFT JOIN "public"."organizations" "organizations__via__organization_id" ON "spaces__via__space_guid"."organization_id" = "organizations__via__organization_id"."id"
+WHERE
+  "apps__via__app_guid"."desired_state" = 'STARTED'
+GROUP BY
+  "organizations__via__organization_id"."name"
+ORDER BY
+  "organizations__via__organization_id"."name" ASC
+LIMIT 20000;
+
+
+#SET 'auto.offset.reset'='earliest';
+
+CREATE TABLE organizations_table (
+id BIGINT,
+)
+WITH (KEY='id',KAFKA_TOPIC = 'organizations', VALUE_FORMAT = 'json');
+
+CREATE TABLE spaces_stream (
+id BIGINT,
+organization_id VARCHAR
+guid VARCHAR
+)
+WITH (KEY='id',KAFKA_TOPIC = 'spaces', VALUE_FORMAT = 'json');
+
+CREATE STREAM apps_stream (
+id BIGINT,
+app_guid VARCHAR,
+space_guid VARCHAR
+)
+WITH (KAFKA_TOPIC = 'apps', VALUE_FORMAT = 'json');
+
+
+CREATE STREAM processes_stream (
+id BIGINT,
+app_guid VARCHAR,
+memory BIGINT,
+instances BIGINT
+)
+WITH (KAFKA_TOPIC = 'processes', VALUE_FORMAT = 'json');
+

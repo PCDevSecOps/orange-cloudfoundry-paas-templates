@@ -1,0 +1,7 @@
+#force to skip SSL
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=grafana/properties/grafana/auth/generic_oauth/tls_skip_verify_insecure
+  value: true
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=grafana/properties/grafana/auth/generic_oauth/scopes
+  value: openid

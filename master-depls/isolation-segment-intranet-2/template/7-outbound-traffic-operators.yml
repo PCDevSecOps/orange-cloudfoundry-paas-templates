@@ -1,0 +1,55 @@
+#--- Define interco to-intranet relay
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: to-intranet
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: intranet-2-interco
+      default: [dns] #--- Use intranet DNS for resolution
+      static_ips:
+      - ((/secrets/intranet_interco_2/to_intranet))
+    jobs:
+    - {release: networking, name: routes}
+    - {release: haproxy, name: haproxy}
+    - {release: os-conf, name: sysctl}
+
+    properties:
+      sysctl:
+      #--- Enable linux tcp routing
+      - net.ipv4.ip_forward=1
+
+      #--- usefull? see http://engineering.pivotal.io/post/multi-homed-bosh-director/
+      - net.ipv4.conf.all.rp_filter=2
+      - net.ipv4.conf.default.rp_filter=2
+      - net.ipv4.conf.eth0.rp_filter=
+
+#--- Dns recursion chain to intranet-2 dns servers
+# See handler conf https://bosh.io/jobs/bosh-dns?source=github.com/cloudfoundry/bosh-dns-release#p%3dhandlers
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/-
+  value:
+    name: bosh-dns
+    release: bosh-dns
+    properties:
+      api:
+        server:
+          tls: ((/dns_api_server_tls))
+        client:
+          tls: ((/dns_api_client_tls))
+      #--- For intranet-2 dns domain request, use remote intranet-2 dns
+      recursors:
+      - ((/secrets/intranet_interco_2/to_intranet))
+      handlers:
+      - cache:
+          enabled: false
+        domain: internal.paas #split dns for paas hosted intranet 2 domains
+        source:
+          recursors:
+          - 192.168.116.156
+          - 192.168.116.166
+          type: dns
+

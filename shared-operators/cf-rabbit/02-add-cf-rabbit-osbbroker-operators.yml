@@ -1,0 +1,80 @@
+---
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: rmq-broker
+    instances: 1
+    jobs:
+    - name: cf-cli-6-linux
+      release: cf-cli
+    - name: rabbitmq-service-broker
+      release: cf-rabbitmq-multitenant-broker
+      properties:
+        cf:
+          domain: ((cfapi-domain))
+        rabbitmq-service-broker:
+          cc_endpoint: http://api.((cfapi-domain))
+          logging:
+            level: debug
+            print_stack_traces: false
+          rabbitmq:
+            administrator:
+              password: ((rabbitmq-broker-password))
+              username: ((rabbitmq-broker-username))
+            management:
+              username: ((rabbitmq-management-username))
+            management_domain: ((rabbitmq-management-hostname)).((management-domain))
+            regular_user_tags: "policymaker,management,monitoring"  #default is policymaker,management
+          route: ((rabbitmq-broker-hostname))
+          service:
+            username: ((multitenant-rabbitmq-broker-username))
+            password: ((broker-password))
+            name: ((product-name))
+            uuid: ((rabbitmq-broker-uuid))
+            plan_uuid: ((rabbitmq-broker-plan-uuid))
+            shareable: true
+
+    - name: route_registrar
+      release: routing
+      properties:
+        nats:
+          machines:
+            - 192.168.62.23
+          password: ((/bosh-master/osb-routing/nats_password))
+          port: 4222
+          user: nats
+
+        route_registrar:
+          routes:
+          - name: ((rabbitmq-broker-hostname))
+            port: 4567
+            registration_interval: 20s
+            uris:
+            - ((rabbitmq-broker-hostname)).((broker-domain))
+    - name: smoke-tests
+      release: cf-rabbitmq-smoke-tests
+      properties:
+        cf:
+          api_url: https://api.((cfapi-domain))
+          domain: ((cfapi-domain))
+          admin_username: ((cf-admin-username))
+          admin_password: ((cf-admin-password))
+        broker:
+          name: ((product-name))
+        smoke_tests:
+          org: system_domain
+          apps_domain: ((apps-domain))
+    vm_type: ((vm_type))
+    stemcell: default
+    azs:
+    - z1
+    - z2
+    networks:
+    - name: ((private_network))
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: broker-password
+    type: password
+

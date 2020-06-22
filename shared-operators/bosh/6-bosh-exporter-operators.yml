@@ -1,0 +1,44 @@
+#--- Add vsphere bosh exporter as docker container with dependance on uaa (fix director failed deployment)
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      #--- Set docker bridge network on "172.18" to allow bosh ssh access on "172.17.xxx" internal subnets
+      bridge: docker0
+      cidr_prefix: 172.18
+      log_driver: syslog
+      registry_mirrors:
+      - https://docker.jcr.((/secrets/cloudfoundry_ops_domain)) #---  Use platform docker registry proxy
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: containers
+    release: docker
+    properties:
+      containers:
+      - name: bosh_exporter
+        image: boshprometheus/bosh-exporter:v3.3.0
+        bind_ports:
+        - "9190:9190"
+        depends_on:
+        - uaa
+        volumes:
+        - /etc/ssl/certs:/etc/ssl/certs:ro                      #--- For reading ca cert file
+        - /var/vcap/store/bosh_exporter:/var/tmp/bosh_exporter  #--- For writing bosh_exporter dynamic service discovery output file
+        env_vars:
+        - "BOSH_EXPORTER_BOSH_URL=https://((internal_ip)):25555"
+        - "BOSH_EXPORTER_BOSH_UAA_CLIENT_ID=prometheus"
+        - "BOSH_EXPORTER_BOSH_UAA_CLIENT_SECRET=((/secrets/prometheus_password))"
+        - "BOSH_EXPORTER_BOSH_LOG_LEVEL=DEBUG"
+        - "BOSH_EXPORTER_BOSH_CA_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
+        - "BOSH_EXPORTER_METRICS_ENVIRONMENT=((/secrets/site))"
+        - "BOSH_EXPORTER_SD_FILENAME=/var/tmp/bosh_exporter/bosh_target_groups.json"

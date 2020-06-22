@@ -1,0 +1,11 @@
+---
+deployment:
+  bui:
+    stemcells:
+    releases:
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease

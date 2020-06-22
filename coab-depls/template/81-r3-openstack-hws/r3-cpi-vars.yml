@@ -1,0 +1,8 @@
+auth_url_3: ((/secrets/openstack_3_auth_url))
+openstack_username_3: ((/secrets/openstack_3_username))
+openstack_password_3: ((/secrets/openstack_3_password))
+openstack_domain_3: ((/secrets/openstack_3_domain))
+openstack_project_3: ((/secrets/openstack_3_project))
+region_3: ((/secrets/openstack_3_region))
+default_key_name_3: bosh
+default_security_groups_3: tf-default-sg-r3 #default sec group for remote-r3 tenant

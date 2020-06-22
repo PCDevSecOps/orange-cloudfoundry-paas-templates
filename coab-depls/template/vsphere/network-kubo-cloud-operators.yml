@@ -1,0 +1,37 @@
+#--- Add kubo network
+#- name: tf-net-kubo
+#  type: manual
+#  subnets:
+#    - range: 192.168.245.0/24
+#      gateway: 192.168.245.1
+#      dns: []
+#      azs:
+#       - z1
+#       - z2
+#       - z3
+#      reserved:
+#        - 192.168.245.1 - 192.168.245.150  # <-- exclude dhcp address (see terraform )
+#      static:
+#        - 192.168.245.151 - 192.168.245.200  # <-- all bosh static ip
+
+- type: replace
+  path: /networks/name=tf-net-kubo/subnets/0/cloud_properties?
+  value:
+    name: ((kubo-network-name))
+
+- type: replace
+  path: /networks/-
+  value:
+    name: tf-net-kubo
+    type: manual
+    subnets:
+      - range: 192.168.245.0/24
+        gateway: 192.168.245.1
+        dns: [192.168.116.156,192.168.116.166]
+        azs: [z1,z2,z3]
+        static:
+          - 192.168.245.151 - 192.168.245.200  # <-- all bosh static ip
+        reserved:
+          - 192.168.245.1 - 192.168.245.150  # <-- exclude dhcp address (see terraform )
+        cloud_properties:
+          name: ((kubo-network-name))

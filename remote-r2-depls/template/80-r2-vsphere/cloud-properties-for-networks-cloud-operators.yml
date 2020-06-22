@@ -1,0 +1,9 @@
+- type: replace
+  path: /networks/name=remote-r2-interco-network/subnets/0/cloud_properties?
+  value:
+    name: ((/secrets/multi_region_region_2_interco_network_id)) 
+
+- type: replace
+  path: /networks/name=net-bosh-remote-2/subnets/0/cloud_properties?
+  value:
+    name: ((/secrets/multi_region_region_2_bosh_network_id))

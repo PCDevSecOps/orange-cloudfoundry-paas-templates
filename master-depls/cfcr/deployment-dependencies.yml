@@ -1,0 +1,64 @@
+---
+deployment:
+  cfcr:
+    resources:
+      secrets: {}
+      templates:
+        extended_scan_path:
+        - submodules/kubo-deployment
+        - shared-operators/cfcr
+        - shared-operators/cfcr-common-master
+        - shared-operators/cfcr-common
+
+    stemcells:
+    releases:
+
+#      kubo-boshrelease:
+#        base_location: https://bosh.io/d/github.com/
+#        repository: cloudfoundry-incubator/kubo-release
+      containerd:
+        base_location: https://github.com/
+        repository: orange-cloudfoundry/containerd-boshrelease
+
+      kubo:
+        base_location: https://github.com/
+        repository: orange-cloudfoundry/kubo-release
+
+      helm-kubectl:
+        base_location: https://github.com
+        repository: orange-cloudfoundry/helm-kubectl-boshrelease
+
+
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+        
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+
+#      docker:
+#        base_location: https://bosh.io/d/github.com/
+#        repository: cloudfoundry-incubator/docker-boshrelease
+
+
+      cfcr-etcd:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/cfcr-etcd-release
+
+      backup-and-restore-sdk:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+
+    errands:
+      action:
+#      worker-action:
+      
+
+        
+
+

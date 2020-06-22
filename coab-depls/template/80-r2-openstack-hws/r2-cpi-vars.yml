@@ -1,0 +1,8 @@
+auth_url_2: ((/secrets/openstack_2_auth_url))
+openstack_username_2: ((/secrets/openstack_2_username))
+openstack_password_2: ((/secrets/openstack_2_password))
+openstack_domain_2: ((/secrets/openstack_2_domain))
+openstack_project_2: ((/secrets/openstack_2_project))
+region_2: ((/secrets/openstack_2_region))
+default_key_name_2: bosh
+default_security_groups_2: tf-default-sg-r2 #default sec group for remote-r2 tenant

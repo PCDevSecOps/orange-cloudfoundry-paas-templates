@@ -1,0 +1,46 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: 3
+
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=worker/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "post-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+        #leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=worker-persistent/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "post-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          echo "post-deploy !!"

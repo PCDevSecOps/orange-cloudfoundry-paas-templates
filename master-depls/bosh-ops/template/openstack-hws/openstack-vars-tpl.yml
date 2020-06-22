@@ -1,0 +1,14 @@
+#--- Openstack keystone v3
+auth_url: ((/secrets/openstack_auth_url))
+openstack_username: ((/secrets/openstack_username))
+openstack_password: ((/secrets/openstack_password))
+openstack_domain: ((/secrets/openstack_domain))
+openstack_project: ((/secrets/openstack_project))
+region: ((/secrets/openstack_region))
+
+#--- Director properties
+default_key_name: bosh
+default_security_groups: [tf-default-sg]
+
+#--- human readable vm are not compatible with cfcr / k8S
+human_readable_vm_names: true

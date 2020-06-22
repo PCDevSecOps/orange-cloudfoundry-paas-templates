@@ -1,0 +1,22 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "certificate-minios"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: cert-manager.io/v1alpha2
+      kind: Certificate
+      metadata:
+        name: certificate-minio
+        namespace: gitlab
+      spec:
+        secretName: secret-minio-tls-cert
+        duration: 24h
+        renewBefore: 12h
+        commonName: minio.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer

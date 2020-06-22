@@ -1,0 +1,44 @@
+---
+applications:
+- name: cf-sample-app-python
+  path: cf-sample-app-python
+  memory: 128M
+  stack: cflinuxfs3
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpack: python_buildpack
+
+- name: cf-default-app-ruby
+  path: cf-default-app-ruby
+  memory: 64M
+  stack: cflinuxfs3
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpack: ruby_buildpack
+
+- name: cf-sample-app-nodejs
+  path: cf-sample-app-nodejs
+  memory: 128M
+  domain: (( grab secrets.cloudfoundry.system_domain ))
+  stack: cflinuxfs3
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpack: nodejs_buildpack
+
+- name: cf-sample-app-php
+  path: cf-sample-app-php
+  memory: 128M
+  stack: cflinuxfs3
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpack: php_buildpack
+
+- name: cf-sample-app-go
+  path: cf-sample-app-go
+  memory: 64M
+  stack: cflinuxfs3
+  domain: (( grab secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpack: cached-go-buildpack
+  env:
+    GOVERSION: go1.12 

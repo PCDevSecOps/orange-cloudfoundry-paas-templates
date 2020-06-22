@@ -1,0 +1,20 @@
+---
+deployment:
+  bui:
+    stemcells:
+    releases:
+#      bui-boshrelease:
+#        base_location: https://bosh.io/d/github.com/
+#        repository: cloudfoundry-community/route-registrar-boshrelease
+    
+      route-registrar:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/route-registrar-boshrelease
+        
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+
+        
+
+

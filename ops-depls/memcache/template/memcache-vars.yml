@@ -1,0 +1,5 @@
+uris: "memcache-service.((/secrets/cloudfoundry_system_domain))"
+
+memcache_hazelcast:
+  host:
+    srv_api: "https://memcache-hazelcast.((/secrets/cloudfoundry_system_domain))"

@@ -1,0 +1,8 @@
+tenant_name: ops-depls
+deployment_name: postgresql-docker
+pg_port: "25432"
+pg_dir: shield-addon-postgres
+pg_user: postgres
+pg_password: ((/secrets/postgresql-docker_keeper_password))
+pg_version: "9.6"
+when: "daily 4:15"

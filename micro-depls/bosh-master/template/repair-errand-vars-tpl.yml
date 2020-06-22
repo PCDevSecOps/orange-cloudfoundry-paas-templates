@@ -1,0 +1,2 @@
+variables: (( grab secrets.repair.variables ))
+deployments: (( grab secrets.repair.deployments ))

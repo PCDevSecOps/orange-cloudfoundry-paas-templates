@@ -1,0 +1,53 @@
+---
+name: vpn-interco
+releases:
+- name: openvpn
+  version: latest
+- name: networking
+  version: latest
+- name: os-conf
+  version: latest
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+- name: openvpn-server
+  instances: 1
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1]
+  jobs:
+  - name: openvpn
+    release: openvpn
+    properties:
+      server: ((vpn_network)) ((vpn_network_netmask))
+      tls_server: ((server_key_pair))
+      dh_pem: ((dh_pem))
+  networks:
+  - name: tf-vpn-interco-net
+    static_ips:
+    - ((static_ip))
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
+
+variables:
+- name: ca
+  type: certificate
+  options:
+    is_ca: true
+    common_name: ca
+- name: server_key_pair
+  type: certificate
+  options:
+    ca: ca
+    common_name: openvpn
+    extended_key_usage:
+    - server_auth

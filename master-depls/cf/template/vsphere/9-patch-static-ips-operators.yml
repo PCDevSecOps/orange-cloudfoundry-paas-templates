@@ -1,0 +1,4 @@
+#--- Set private nic
+- type: replace
+  path: /instance_groups/name=api-relay/networks/name=tf-net-cf/static_ips?
+  value: [192.168.35.59]

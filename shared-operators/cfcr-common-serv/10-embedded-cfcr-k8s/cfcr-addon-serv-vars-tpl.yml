@@ -1,0 +1,9 @@
+env_pf: k8s-serv
+kubernetes.host: cfcr-api-k8s-serv.internal.paas
+kubernetes-password: ((/bosh-coab/10-cfcr/kubo-admin-password))
+kubernetes.cluster_ca_certificate: ((/bosh-coab/10-cfcr/tls-kubernetes.ca))
+kubernetes.dashboard_cert: ((/bosh-coab/10-cfcr/kubernetes-dashboard-ca.ca))
+kubernetes.dashboard_key: ((/bosh-coab/10-cfcr/kubernetes-dashboard-ca.private_key))
+network: tf-net-kubo
+prefix-deployment: "10-"
+docker_repository: ""

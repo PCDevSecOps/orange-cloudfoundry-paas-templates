@@ -1,0 +1,71 @@
+---
+name: kubo-depls
+releases:
+  backup-and-restore-sdk:
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+    version: 1.17.4
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    bosh-dns-version: 1.17.0
+    version: 1.17.0
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.8
+  bui:
+    repository: cloudfoundry-community/bui-boshrelease
+    version: 1.0.3
+  cfcr-etcd:
+    repository: cloudfoundry-incubator/cfcr-etcd-release
+    version: 1.11.0
+  containerd:
+    repository: orange-cloudfoundry/containerd-boshrelease
+    version: '1'
+  docker:
+    repository: cloudfoundry-incubator/docker-boshrelease
+    version: 35.3.4
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  haproxy:
+    version: 10.0.0
+    repository: cloudfoundry-community/haproxy-boshrelease
+  helm-kubectl:
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+    tag_prefix: ''
+    version: '23'
+  kubo:
+    repository: cloudfoundry-incubator/kubo-release
+    version: 0.42.1
+  nfs-volume:
+    repository: cloudfoundry/nfs-volume-release
+    version: 1.1.0
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 4.2.0
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    version: '1'
+    tag_prefix: ''
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 21.0.0
+  route-registrar:
+    version: '3'
+    repository: cloudfoundry-community/route-registrar-boshrelease
+  routing:
+    repository: cloudfoundry/routing-release
+    version: 0.199.0
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+    version: 3.2.0
+  shield:
+    repository: starkandwayne/shield-boshrelease
+    version: 8.6.3
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.6.0
+  weave-scope:
+    repository: cloudfoundry-community/weavescope-boshrelease
+    version: 0.0.18
+stemcell:
+  version: '621.69'

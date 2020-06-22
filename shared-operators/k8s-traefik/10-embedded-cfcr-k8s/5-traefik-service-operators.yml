@@ -1,0 +1,41 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikservice"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: traefik-service
+        namespace: traefik
+        labels:
+          k8s-app: traefik
+      spec:
+        selector:
+          k8s-app: traefik
+        type: NodePort
+        ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 8000
+          name: web
+          nodePort: 30726
+
+        - protocol: TCP
+          port: 443
+          targetPort: 8443
+          name: https
+          nodePort: 30725
+
+        - protocol: TCP
+          port: 8080
+          targetPort: 8080
+          name: metrics
+
+        - protocol: TCP
+          port: 5432
+          targetPort: 5432
+          name: postgresl

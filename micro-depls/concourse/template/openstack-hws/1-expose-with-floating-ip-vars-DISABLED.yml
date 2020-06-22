@@ -1,0 +1,1 @@
+public_bootstrap_ip: (( grab meta.concourse_micro.public.ip ))

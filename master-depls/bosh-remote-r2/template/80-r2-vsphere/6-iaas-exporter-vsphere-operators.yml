@@ -1,0 +1,16 @@
+#--- Add vsphere exporter as a docker container
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=containers/properties/containers/-
+  value:
+    name: vsphere_iaas_exporter
+    image: pryorda/vmware_exporter:v0.11.1
+    bind_ports:
+    - "9272:9272"
+    env_vars:
+    - "VSPHERE_USER=((/secrets/vsphere_2_vcenter_user))"
+    - "VSPHERE_PASSWORD=((/secrets/vsphere_2_vcenter_password))"
+    - "VSPHERE_HOST=((/secrets/vsphere_2_vcenter_ip))"
+    - "VSPHERE_IGNORE_SSL=True"
+    - "VSPHERE_SPECS_SIZE=2000"
+    - "https_proxy=http://intranet-http-proxy.internal.paas:3129"
+    - "http_proxy=http://intranet-http-proxy.internal.paas:3129"

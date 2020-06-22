@@ -1,0 +1,11 @@
+#set general alerting for bosh vms
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/rule_files?
+  value:
+  - /var/vcap/jobs/bosh_alerts/bosh_deployments.alerts.yml
+  - /var/vcap/jobs/bosh_alerts/bosh_jobs.alerts.yml
+  - /var/vcap/jobs/bosh_alerts/bosh_processes.alerts.yml
+  - /var/vcap/jobs/bosh_alerts/bosh_system.alerts.yml
+  - /var/vcap/jobs/bosh_alerts/bosh_system_predict.alerts.yml
+  - /var/vcap/jobs/bosh_alerts/prometheus_bosh_exporter.alerts.yml
+     

@@ -1,0 +1,33 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets: {}
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+    releases:
+      cf-cli:
+        base_location: https://bosh.io/d/github.com/
+        repository: bosh-packages/cf-cli-release
+      cf-redis:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/cf-redis-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+    errands:
+      import:
+        display-name: shield-provisioning
+    manual-errands:
+      deprecate-dedicated-vm-plan:
+      cleanup-metadata-if-dedicated-disabled:

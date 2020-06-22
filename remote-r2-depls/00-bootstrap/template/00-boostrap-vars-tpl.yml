@@ -1,0 +1,6 @@
+network: net-bosh-remote-2 #tf-net-osb-data-plane-dedicated-priv-r2 # #create vm on r2 network
+deployment_name: 00-bootstrap
+
+external_ip: ((/secrets/multi_region_region_2_vpn_interco_endpoint))
+
+vpn_port: 443 #51820 is wireguard default

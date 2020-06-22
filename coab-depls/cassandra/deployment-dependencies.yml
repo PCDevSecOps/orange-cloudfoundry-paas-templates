@@ -1,0 +1,20 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - coab-depls/cassandra
+    releases:
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      os-conf:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/os-conf-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
