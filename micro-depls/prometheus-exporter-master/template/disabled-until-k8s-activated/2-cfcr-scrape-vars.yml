@@ -1,0 +1,23 @@
+kubernetes_apiserver_scheme: https
+kubernetes_apiserver_ip: cfcr-api-k8s-micro.internal.paas
+kubernetes_apiserver_port: 443 
+
+kubernetes_bearer_token: ((/micro-bosh/cfcr/kubo-admin-password))
+skip_ssl_verify: true #check cfcr / kubo certs are based on /internalCA ?
+
+kubernetes_kubeconfig: |
+  apiVersion: v1
+  clusters:
+  - cluster:
+      certificate-authority-data: ((/micro-bosh/cfcr/tls-kubernetes.ca))
+      server: https://cfcr-api-k8s-micro.internal.paas
+    name: cfcr-micro
+  contexts:
+  - context:
+      cluster: cfcr-micro
+      user: cfcr-micro-admin
+    name: cfcr-micro
+  users:
+  - name: cfcr-micro-admin
+    user:
+      token: ((/micro-bosh/cfcr/kubo-admin-password))

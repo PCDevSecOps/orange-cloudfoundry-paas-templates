@@ -1,0 +1,5 @@
+fluentd-elasticsearch-version: 4.9.4
+falco-version: 1.0.5
+kibana-version: 7.2.0
+elasticsearch-version: 7.2.0
+elasticsearch-exporter-version: 1.9.0

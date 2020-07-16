@@ -1,0 +1,39 @@
+# create namespace
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: fluxcd
+
+# install helm operator
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value: 
+    type: helm_repo
+    name: fluxcd
+    url : https://charts.fluxcd.io
+
+# install helm operator
+# see https://docs.fluxcd.io/projects/helm-operator/en/stable/references/chart/
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: helm-operator
+    chart: fluxcd/helm-operator
+    namespace: fluxcd
+    version: 1.1.0
+    values_file_content:
+      helm:
+        versions: "v3"
+      #allowNamespace: "" global unless this is set
+      extraEnvs:
+      - name: https_proxy
+        value: ((https_proxy))
+      - name: no_proxy
+        value: ((no_proxy))
+      - name: http_proxy
+        value: ((http_proxy))
+
+

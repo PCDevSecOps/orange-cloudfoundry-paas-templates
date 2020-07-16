@@ -1,0 +1,5 @@
+# Allow fix the number of "default" workers created by CFCR deployment
+- type: replace
+  path: /instance_groups/name=worker/instances
+  value: ((nb_workers))
+

@@ -1,0 +1,20 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterservicebroker-pgo"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: servicecatalog.k8s.io/v1beta1
+      kind: ClusterServiceBroker
+      metadata:
+        name: osb
+      spec:
+        url: https://osb-cmdb-broker-0.((/secrets/cloudfoundry_ops_domain))
+        insecureSkipTLSVerify: true
+        authInfo:
+          basic:
+            secretRef:
+              namespace: ((namespace))
+              name: osb-cmdb-0-auth

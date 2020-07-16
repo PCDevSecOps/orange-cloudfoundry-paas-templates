@@ -1,0 +1,5 @@
+env_pf: k8s-micro
+kubernetes.host: cfcr-api-k8s-micro.internal.paas
+network: tf-net-cfcr-micro
+prefix-deployment: ""
+docker_repository: ""

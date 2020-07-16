@@ -1,0 +1,153 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: worker-persistent
+    azs: [z1,z2,z3]
+    env:
+      bosh:
+        swap_size: 0
+    instances: 3
+    jobs:
+    - name: flanneld
+      properties:
+        tls:
+          etcdctl:
+            ca: ((tls-etcdctl-flanneld.ca))
+            certificate: ((tls-etcdctl-flanneld.certificate))
+            private_key: ((tls-etcdctl-flanneld.private_key))
+      release: kubo
+    - name: docker
+      properties:
+        bridge: cni0
+        default_ulimits:
+        - nofile=1048576
+        env:
+          http_proxy: ((http_proxy))
+          https_proxy: ((https_proxy))
+          no_proxy: ((no_proxy))
+        flannel: true
+        ip_masq: false
+        iptables: false
+        live_restore: true
+        log_level: error
+        log_options:
+        - max-size=128m
+        - max-file=2
+        registry_mirrors:
+        - https://docker.jcr.((/secrets/cloudfoundry_ops_domain))
+        storage_driver: overlay2
+        store_dir: /var/vcap/data
+      release: docker
+    - name: kubernetes-dependencies
+      release: kubo
+    - name: kubelet
+      properties:
+        api-token: ((kubelet-password))
+        drain-api-token: ((kubelet-drain-password))
+        http_proxy: ((http_proxy))
+        https_proxy: ((https_proxy))
+        k8s-args:
+          cni-bin-dir: /var/vcap/jobs/kubelet/packages/cni/bin
+          container-runtime: docker
+          docker: unix:///var/vcap/sys/run/docker/docker.sock
+          docker-endpoint: unix:///var/vcap/sys/run/docker/docker.sock
+          kubeconfig: /var/vcap/jobs/kubelet/config/kubeconfig
+          network-plugin: cni
+          node-labels: node=openebs
+          register-with-taints: openebs=true:NoExecute
+          root-dir: /var/vcap/data/kubelet
+        kubectl-drain-timeout: 30s
+        kubelet-configuration:
+          apiVersion: kubelet.config.k8s.io/v1beta1
+          authentication:
+            anonymous:
+              enabled: false
+            x509:
+              clientCAFile: /var/vcap/jobs/kubelet/config/kubelet-client-ca.pem
+          authorization:
+            mode: Webhook
+          clusterDNS:
+          - 10.100.200.10
+          clusterDomain: cluster.local
+          failSwapOn: false
+          kind: KubeletConfiguration
+          serializeImagePulls: false
+          tlsCertFile: /var/vcap/jobs/kubelet/config/kubelet.pem
+          tlsPrivateKeyFile: /var/vcap/jobs/kubelet/config/kubelet-key.pem
+        kubelet-drain-force-node: true
+        no_proxy: ((no_proxy))
+        tls:
+          kubelet:
+            ca: ((tls-kubelet.ca))
+            certificate: ((tls-kubelet.certificate))((tls-kubelet.ca))
+            private_key: ((tls-kubelet.private_key))
+          kubelet-client-ca:
+            certificate: ((tls-kubelet-client.ca))
+          kubernetes:
+            ca: ((tls-kubernetes.ca))
+            certificate: ((tls-kubernetes.certificate))
+            private_key: ((tls-kubernetes.private_key))
+      release: kubo
+    - name: kube-proxy
+      properties:
+        api-token: ((kube-proxy-password))
+        kube-proxy-configuration:
+          apiVersion: kubeproxy.config.k8s.io/v1alpha1
+          clientConnection:
+            kubeconfig: /var/vcap/jobs/kube-proxy/config/kubeconfig
+          clusterCIDR: 10.200.0.0/16
+          iptables:
+            masqueradeAll: false
+            masqueradeBit: 14
+            minSyncPeriod: 0s
+            syncPeriod: 30s
+          kind: KubeProxyConfiguration
+          mode: iptables
+          portRange: ""
+        tls:
+          kubernetes:
+            ca: ((tls-kubernetes.ca))
+            certificate: ((tls-kubernetes.certificate))
+            private_key: ((tls-kubernetes.private_key))
+      release: kubo
+    - consumes:
+        nats:
+          instances:
+          - address: ops-routing-nats
+          properties:
+            nats:
+              password: ((/bosh-master/ops-routing/nats_password))
+              port: 4222
+              user: nats
+      name: route_registrar
+      properties:
+        route_registrar:
+          routes:
+          - name: ingress-((env_pf))-endpoint
+            port: 30726
+            registration_interval: 60s
+            server_cert_domain_san: ingress.((env_pf)).cfcr.internal
+            uris:
+            - '*.((env_pf)).((/secrets/cloudfoundry_ops_domain))'
+      release: routing
+    - name: open-iscsi-pkg-install
+      release: open-iscsi
+    - name: action
+      properties:
+        kubernetes:
+          cluster_ca_certificate: ((tls-kubernetes.ca))
+          host: cfcr-api-((env_pf)).internal.paas
+          password: ((kubo-admin-password))
+          port: 443
+      release: helm-kubectl
+    networks:
+    - cloud_properties:
+        security_groups:
+        - default
+      name: ((network))
+    persistent_disk_type: xxlarge-performant
+    stemcell: default
+    vm_extensions:
+    - 150GB_ephemeral_disk
+    vm_type: 2cpu-8g
+

@@ -1,0 +1,8 @@
+---
+deployment:
+  weave-scope:
+    releases:
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+

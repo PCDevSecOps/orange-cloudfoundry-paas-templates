@@ -1,0 +1,65 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: to-intranet
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: intranet-ha-interco
+      default: [dns] #--- Use intranet DNS for resolution
+      static_ips:
+      - ((to-intranet-ip))
+
+    jobs:
+    - {release: prometheus, name: blackbox_exporter }
+
+    - release: haproxy
+      name: haproxy
+      properties:
+        ha_proxy:
+          disable_http: true
+          log_level: debug
+          tcp:
+          - name: intranet_smtp_relay #--- tcp relay to intranet smtp
+            port: 25
+            backend_servers:
+            - ((intranet_smtp_server))
+          resolvers:
+          - intranet-dns-1: ((intranet_dns_1))
+          - intranet-dns-2: ((intranet_dns_2))
+          dns_hold: 60s
+
+    - name: squid
+      release: squid
+      properties:
+        port: 3129 #dedicated squid port
+
+        acl: |
+          #debug_options ALL,7
+          dns_nameservers ((intranet_dns_1)) ((intranet_dns_2))
+          acl localnet src 10.0.0.0/8     # RFC 1918 possible internal network
+          acl localnet src 172.16.0.0/12  # RFC 1918 possible internal network
+          acl localnet src 192.168.0.0/16 # RFC 1918 possible internal network
+          acl localnet src fc00::/7       # RFC 4193 local private network range
+          acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+
+          acl SSL_ports port 442 443 8442 8443
+          acl Safe_ports port 80          # http, soap http
+          acl Safe_ports port 442         # Soap https one way
+          acl Safe_ports port 443         # Soap https two way
+          acl Safe_ports port 8008        # Rest http
+          acl Safe_ports port 8442        # Rest https one way
+          acl Safe_ports port 8443        # Rest https two way
+          acl Safe_ports port 1025-65535  # Unregistered ports
+          acl CONNECT method CONNECT
+
+          # Deny requests to unsafe ports
+          http_access deny !Safe_ports
+
+          # Deny CONNECT to other than secure SSL ports
+          http_access deny CONNECT !SSL_ports
+
+          # Only allow cachemgr access from localhost
+          http_access allow localnet

@@ -1,0 +1,38 @@
+#!/bin/bash
+#===========================================================================
+# Log with credhub cli
+#===========================================================================
+
+#--- Colors and styles
+export RED='\033[1;31m'
+export GREEN='\033[1;32m'
+export STD='\033[0m'
+export BOLD='\033[1m'
+
+error() {
+  printf "\n%bERROR: %s.%b\n\n" "${REVERSE}${RED}" "$1" "${STD}"
+}
+
+#--- Test presence of referent credentials files
+if [ ! -s "${SHARED_SECRETS}" ] ; then
+  error "Credential file \"${SHARED_SECRETS}\" unknown"
+else
+  if [ ! -s "${INTERNAL_CA_CERT}" ] ; then
+    error "CA cert file \"${INTERNAL_CA_CERT}\" unknown"
+  else
+    #--- Credhub API Endpoint
+    export CREDHUB_SERVER="https://credhub.internal.paas:8844"
+    export CREDHUB_CLIENT="director_to_credhub"
+    export CREDHUB_CA_CERT="${INTERNAL_CA_CERT}"
+    export CREDHUB_SECRET=$(bosh int ${SHARED_SECRETS} --path /secrets/bosh_credhub_secrets)
+
+    #--- Login to credhub
+    credhub api > /dev/null 2>&1
+    credhub login
+    if [ $? = 1 ] ; then
+      printf "\n%bERROR : Connexion failed.%b\n\n" "${RED}" "${STD}"
+    else
+      printf "\n\n%bLogged to credhub%b\n" "${GREEN}${BOLD}" "${STD}"
+    fi
+  fi
+fi

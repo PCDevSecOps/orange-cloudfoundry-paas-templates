@@ -1,0 +1,46 @@
+---
+deployment-name: "remote-r3-depls"
+
+#--- Stemcell
+stemcell-version: "621.76"
+
+#--- Bosh releases
+bosh-dns-version: "1.11.0"
+bosh-dns-aliases-version: "0.0.3"
+bpm-version: "1.1.5"
+jumpbox-version: "4.6.4"
+generic-scripting-version: "3"
+shell-version: "3.2.0"
+os-conf-version: "21.0.0"
+
+releases:
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.17.0
+  bosh-dns-aliases:
+    repository: cloudfoundry/bosh-dns-aliases-release
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.8
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: "1.3.0"
+  generic-scripting:
+    reposiroty: orange-cloudfoundry/generic-scripting-release
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 4.2.0
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+  shield-addon-bbr:
+    repository: shieldproject/shield-addon-bbr-boshrelease
+    version: "0.2.1"
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: "11.6.0"
+  wireguard:
+    repository: orange-cloudfoundry/wireguard-boshrelease
+    version: "3"
+    tag_prefix: ""

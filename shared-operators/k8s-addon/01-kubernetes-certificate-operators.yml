@@ -1,0 +1,12 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: kubernetes-dashboard-certs-valid
+    namespace: kube-system
+    data:
+    - name: tls.crt
+      value: ((kubernetes.dashboard_cert))
+    - name: tls.key
+      value: ((kubernetes.dashboard_key))
+

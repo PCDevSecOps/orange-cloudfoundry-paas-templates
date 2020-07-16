@@ -1,0 +1,4 @@
+#--- apply vm_extension
+- type: replace
+  path: /instance_groups/name=lb/vm_extensions?/-
+  value: ((env_pf))-vrrp

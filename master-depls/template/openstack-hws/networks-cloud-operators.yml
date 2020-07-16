@@ -1,0 +1,61 @@
+#--- Add master-depls network Id and security group
+- type: replace
+  path: /networks/name=tf-net-exchange/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf_net_exchange_id))
+    security_groups:
+    - tf-default-sg
+
+#--- Add CF network Id and security group
+- type: replace
+  path: /networks/name=tf-net-cf/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf_net_cf_id))
+    security_groups:
+    - tf-default-sg
+
+- type: replace
+  path: /networks/name=tf-is-internet/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf_net_is_internet_id))
+    security_groups:
+    - tf-default-sg
+
+- type: replace
+  path: /networks/name=tf-vpn-interco-net/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf_vpn_interco_net_id))
+    security_groups:
+    - tf-default-sg
+
+#--- Add intranet-interco network Id and security groups
+- type: replace
+  path: /networks/name=intranet-ha-interco/subnets/0/cloud_properties?
+  value:
+    net_id: ((intranet_interco_ips_net_id))
+    security_groups:
+    - tf-default-sg
+    - tf-intranet-http-sg
+    - tf-intranet-https-sg
+
+#--- Add compilation network Id and security group
+- type: replace
+  path: /networks/name=compilation-network/subnets/0/cloud_properties?
+  value:
+    net_id: ((compilation_net_id))
+    security_groups:
+    - tf-default-sg
+
+#--- Add tcp-router-relay floating ip security group
+- type: replace
+  path: /networks/name=net-floating/cloud_properties?
+  value:
+    security_groups:
+    - tf-tcp-routing-sg
+
+- type: replace
+  path: /networks/name=tf-net-cfcr-master/subnets/0/cloud_properties?
+  value:
+    net_id: ((/tf/networks_net-cfcr-master)) #terraform generated
+    security_groups:
+    - tf-default-sg

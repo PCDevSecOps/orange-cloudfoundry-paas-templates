@@ -1,0 +1,26 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-prometheus-alert-rule-minio"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: alert-rules-minio
+        namespace: prometheus
+      data:
+        alert-rules-minio.yaml: |
+          groups:
+            - name: Minio
+              rules:
+                - alert: MinioDiskDown
+                  expr: minio_offline_disks > 0
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "Minio Disk down (instance {{ $labels.instance }})"
+                    description: "Minio Disk is down\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

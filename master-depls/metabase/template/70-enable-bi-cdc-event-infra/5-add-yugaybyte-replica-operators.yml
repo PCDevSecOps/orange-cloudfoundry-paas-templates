@@ -1,0 +1,217 @@
+# add yugabyte cluster for cloudfoundry databases replica
+# see https://docs.yugabyte.com/latest/deploy/docker/docker-compose/
+
+
+
+#define dns aliases
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value: 
+    domain: yb-master-1 #local alias
+    targets:
+    - query: '*'
+      instance_group: yb-master-1
+      deployment: metabase
+      network: tf-net-exchange
+      domain: bosh
+      
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value: 
+    domain: yb-master-2 #local alias
+    targets:
+    - query: '*'
+      instance_group: yb-master-2
+      deployment: metabase
+      network: tf-net-exchange
+      domain: bosh
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value: 
+    domain: yb-master-3 #local alias
+    targets:
+    - query: '*'
+      instance_group: yb-master-3
+      deployment: metabase
+      network: tf-net-exchange
+      domain: bosh
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value: 
+    domain: yb-tservers #local alias
+    targets:
+    - query: '*'
+      instance_group: yb-tserver
+      deployment: metabase
+      network: tf-net-exchange
+      domain: bosh
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: yb-master-1
+    instances: 1
+    stemcell: default
+    networks: [{name: tf-net-exchange}]
+    azs:
+    - z1
+    vm_type: 1cpu-2g
+    persistent_disk_type: large #70GB
+    jobs: &yugabyte_master_jobs
+    - name: docker
+      release: docker
+      properties:
+        store_dir: /var/vcap/data
+        registry_mirrors:
+        - https://docker.jcr.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy
+
+    - name: containers
+      release: docker
+      properties:
+        containers:
+          - name: ymaster
+            image: yugabytedb/yugabyte:((yugabyte-version))
+            bind_ports:
+            - 7000:7000
+            - 7100:7100 #RPC
+            bind_volumes:
+            - "/mnt/disk0"
+            volumes:
+            - "/etc/ssl/certs:/etc/ssl/certs:ro"
+            - "/var/vcap/data/scripting/yugabyte-flags:/home/yugabyte/yugabyte-flags"
+            net: host #direct container exposition on host to help master autodiscovery
+            command: "/home/yugabyte/bin/yb-master -flagfile /home/yugabyte/yugabyte-flags"
+
+    - name: scripting
+      release: generic-scripting
+      properties:
+        scripting:
+          pre-start-script: |
+            #reference: https://docs.yugabyte.com/latest/admin/yb-master/
+            echo "pre-start, generate yugabyte flags file"
+            local_az=$(cat /var/vcap/instance/az)
+            local_instance=$(cat /var/vcap/instance/name)
+            
+            cat - > /var/vcap/data/scripting/yugabyte-flags <<EOF
+            --fs_data_dirs=/mnt/disk0
+            --rpc_bind_addresses=${local_instance}:7100
+            --master_addresses=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100
+            --placement_zone=${local_az}
+            --placement_region=((region))
+            --logtostderr
+            EOF
+            
+            #prepare health check script for admin ui route registrar
+            cat - > /var/vcap/jobs/scripting/yugabyte-admin-healthcheck-script <<EOF
+            #!/bin/sh
+            curl -vvv --max-time 10  http://${local_instance}:7000
+            res=\$?
+            if [ \${res} != 0 ] ; then
+               echo "the curl command failed with: \${res}"
+               exit \${res}
+            fi
+            exit 0;
+            EOF
+            chmod ugo+rx /var/vcap/jobs/scripting/yugabyte-admin-healthcheck-script
+
+
+
+#master 2 (same jobs+custo)
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: yb-master-2
+    instances: 1
+    stemcell: default
+    networks: [{name: tf-net-exchange}]
+    azs:
+    - z2
+    vm_type: 1cpu-2g
+    persistent_disk_type: large #70GB
+    jobs: *yugabyte_master_jobs
+
+#master 3 (same jobs + custo)
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: yb-master-3
+    instances: 1
+    stemcell: default
+    networks: [{name: tf-net-exchange}]
+    azs:
+    - z2
+    vm_type: 1cpu-2g
+    persistent_disk_type: large #70GB
+    jobs: *yugabyte_master_jobs
+
+# yugabyte t servers
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: yb-tserver
+    instances: 3
+    stemcell: default
+    networks: [{name: tf-net-exchange}]
+    azs:
+    - z1
+    - z2
+    vm_type: 1cpu-2g
+    persistent_disk_type: xlarge #110GB
+    jobs:
+    - name: docker
+      release: docker
+      properties:
+        store_dir: /var/vcap/data
+        registry_mirrors:
+        - https://docker.jcr.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy
+
+    - name: scripting
+      release: generic-scripting
+      properties:
+        scripting:
+          pre-start-script: |
+            #!/bin/sh
+            #reference: https://docs.yugabyte.com/latest/admin/yb-master/
+            echo "pre-start, generate yugabyte flags file"
+            local_az=`cat /var/vcap/instance/az`
+            local_instance=`cat /var/vcap/instance/name`
+            local_instance_id=`cat /var/vcap/instance/id`
+            
+            #derive instance bosh dns 
+            instance_dns="$local_instance_id.yb-tserver.tf-net-exchange.metabase.bosh"
+             
+            #NB: 9100 is node exporter port
+            cat - > /var/vcap/data/scripting/yugabyte-flags <<EOF
+            --fs_data_dirs=/mnt/disk0
+            --start_pgsql_proxy
+            --rpc_bind_addresses=$instance_dns:19100
+            --tserver_master_addrs=yb-master-1:7100,yb-master-2:7100,yb-master-3:7100
+            --placement_zone=$local_az
+            --placement_region=((region))
+            --logtostderr
+            EOF
+
+    - name: containers
+      release: docker
+      properties:
+        containers:
+          - name: ytserver
+            image: yugabytedb/yugabyte:((yugabyte-version))
+            bind_ports:
+            - "9042:9042" #cql
+            - "6379:6379" #yedis
+            - "5433:5433" #ysql
+            - "9000:9000" #tserver
+            - "13000:13000" #ysql server
+            bind_volumes:
+            - "/mnt/disk0"
+            volumes:
+            - "/etc/ssl/certs:/etc/ssl/certs:ro"
+            - "/var/vcap/data/scripting/yugabyte-flags:/home/yugabyte/yugabyte-flags"
+            - "/var/vcap/sys/log/containers:/var/opt/gitlab"
+            #reference https://docs.yugabyte.com/latest/admin/yb-tserver/
+            command: "/home/yugabyte/bin/yb-tserver -flagfile /home/yugabyte/yugabyte-flags"
+            net: host #direct container exposition on host to help self private ip discovery
+

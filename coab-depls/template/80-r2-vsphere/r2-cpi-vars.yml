@@ -1,0 +1,10 @@
+vcenter_ip: ((/secrets/vsphere_2_vcenter_ip))
+vcenter_user: ((/secrets/vsphere_2_vcenter_user))
+vcenter_password: ((/secrets/vsphere_2_vcenter_password))
+vcenter_dc: ((/secrets/vsphere_2_vcenter_dc))
+vcenter_vms: ((/secrets/vsphere_2_vcenter_vms)) #vm_folder: 
+vcenter_templates: ((/secrets/vsphere_2_vcenter_templates)) #template_folder
+vcenter_ds: ((/secrets/vsphere_2_vcenter_ds)) # persistent_datastore_pattern
+vcenter_disks: ((/secrets/vsphere_2_vcenter_disks)) #disk_path
+vcenter_cluster: ((/secrets/vsphere_2_vcenter_cluster)) #cluster (single ?)
+vcenter_resource_pool: ((/secrets/vsphere_2_vcenter_resource_pool))

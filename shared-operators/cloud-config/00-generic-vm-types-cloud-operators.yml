@@ -1,0 +1,13 @@
+#---- Vms flavors
+- type: replace
+  path: /vm_types?
+  value:
+  - name: 1cpu-1g
+  - name: 1cpu-2g
+  - name: 1cpu-4g
+  - name: 2cpu-8g
+  - name: 4cpu-8g
+  - name: 4cpu-16g
+  - name: 8cpu-16g
+  - name: 8cpu-32g
+  - name: 16cpu-64g

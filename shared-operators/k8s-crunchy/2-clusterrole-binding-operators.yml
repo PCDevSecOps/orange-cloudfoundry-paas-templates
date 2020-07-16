@@ -1,0 +1,21 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterrolebinding-crunchy"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: pgo-deployer-crb
+        namespace: pgo
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: cluster-admin
+      subjects:
+      - apiGroup: rbac.authorization.k8s.io
+        kind: User
+        name: system:serviceaccount:pgo:pgo-deployer-sa

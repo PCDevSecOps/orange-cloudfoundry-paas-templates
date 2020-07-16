@@ -1,0 +1,7 @@
+#--- Osb data plane dedicated private (other information are hard-coded since it is a private network)
+osb-data-plane-dedicated-priv-2-network-name: (( grab secrets.multi_region.region_2.data_plane_dedicated_priv_network_id ))
+
+osb-data-plane-dedicated-pub-2-network-name: (( grab secrets.multi_region.region_2.data_plane_dedicated_public.net_id ))
+osb-data-plane-dedicated-pub-2-range: (( grab secrets.multi_region.region_2.data_plane_dedicated_public.range ))
+osb-data-plane-dedicated-pub-2-gateway: (( grab secrets.multi_region.region_2.data_plane_dedicated_public.gateway ))
+osb-data-plane-dedicated-pub-2-reserved-dhcp: (( grab secrets.multi_region.region_2.data_plane_dedicated_public.reserved_dhcp ))

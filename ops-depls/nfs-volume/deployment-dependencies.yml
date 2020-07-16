@@ -1,0 +1,13 @@
+---
+deployment:
+  nfs-volume:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases:
+      nfs-volume:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nfs-volume-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release

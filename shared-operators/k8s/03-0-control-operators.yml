@@ -1,0 +1,82 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name:      control
+    instances: 3
+    azs:       [z1,z2,z3]
+    vm_type: ((vm_type_node))
+    #disk_type: ((disk_type_control))
+    persistent_disk_type: ((persistent_disk_type_control))
+    vm_extensions:
+    - 150GB_ephemeral_disk
+    stemcell:  default
+    networks:
+    - name: ((network))
+      cloud_properties:
+        security_groups: [default]
+
+    jobs:
+    - name: control
+      release: k8s
+      properties:
+        cert-manager:
+          enabled: true
+          ca:
+            certificate: ((/internalCA.certificate))
+            key: ((/internalCA.private_key))
+
+        kubelet:
+          instance-groups:
+          - node.default
+          - node_persistent.default
+          - node_public.default
+          - control.default
+        apiserver:
+          additional-sans:
+          - 10.245.0.1
+          - ((virtual-ip))
+          - cfcr-api-((env_pf)).internal.paas
+          flags: []
+
+        cluster:
+          name: k8s
+          domain: cluster.local
+        encryption:
+          key: ((encryption-key))
+        tls:
+          ca:
+            certificate: ((tls-ca.certificate))
+            key:         ((tls-ca.private_key))
+          sa:
+            certificate: ((tls-sa.certificate))
+            key:         ((tls-sa.private_key))
+    - name: net-weave
+      release: k8s
+
+    - name: open-iscsi-pkg-install
+      release: open-iscsi
+
+    - name: runtime-runc
+      release: k8s
+      properties:
+        cni: weave
+        mirrors:
+          docker.io:
+            url: ((registry-mirrors))
+          quay.io:
+            url: ((registry-mirrors))
+          k8s.gcr.io:
+            url: ((registry-mirrors))
+          '*':
+            url: ((registry-mirrors))
+
+    - name: kubelet
+      release: k8s
+      properties:
+        apiserver: ((virtual-ip))
+        master: true
+
+    - name: jumpbox
+      release: k8s
+    - name: smoke-tests
+      release: k8s

@@ -1,0 +1,18 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: prometheus
+    version: latest
+
+
+  #postgres exporter to catch db metrics
+- type: replace
+  path: /instance_groups/name=postgres/jobs/-
+  value:
+    name: postgres_exporter
+    release: prometheus 
+    properties:
+      postgres_exporter:
+        datasource_name: "postgresql://uaaadmin:((/secrets/cloudfoundry_uaadb_password))@localhost:5524/postgres?sslmode=disable"
+      metrics:
+        environment: ((/secrets/site))

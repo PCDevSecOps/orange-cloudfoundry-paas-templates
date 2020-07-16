@@ -1,0 +1,1 @@
+../../osb-cmdb-broker/template/post-deploy.sh

@@ -1,0 +1,4 @@
+#operator to enable static ip mode
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=core/properties/domain
+  value: ((static_ip))

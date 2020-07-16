@@ -1,0 +1,18 @@
+virtual-ip: 192.168.244.150
+
+deployment_name: k8s
+
+# Nodes characteristics
+nb_node: 5
+
+# Nodes dedicated to persistent characteristics
+nb_node_persistent: 3
+
+# Nodes dedicated to exposition characteristics
+nb_node_public: 3
+
+# ETCD characteristics
+nb_etcd: 3
+
+
+

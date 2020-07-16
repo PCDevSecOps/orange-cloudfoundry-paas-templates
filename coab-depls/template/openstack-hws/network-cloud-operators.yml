@@ -1,0 +1,13 @@
+- type: replace
+  path: /networks/name=tf-net-coab-depls-instance/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf_net_coab_depls_instance)) #terraform generated
+    security_groups: [tf-default-sg]
+
+- type: replace
+  path: /networks/name=tf-net-coab-depls-compilation/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf_net_coab_depls_compilation)) #terraform generated
+    security_groups: [tf-default-sg]
+
+    

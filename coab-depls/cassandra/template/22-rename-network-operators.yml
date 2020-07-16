@@ -1,0 +1,16 @@
+---
+
+#adapt network : tf-net-coab-depls-instance
+# cassandra-servers and cassandra-servers
+- type: replace
+  path: /instance_groups/name=cassandra-seeds/networks
+  value: [{name: ((network_name))}]
+
+- type: replace
+  path: /instance_groups/name=cassandra-servers/networks
+  value: [{name: ((network_name))}]
+
+# errands
+- type: replace
+  path: /instance_groups/name=smoke-tests-vm/networks
+  value: [{name: ((network_name))}]

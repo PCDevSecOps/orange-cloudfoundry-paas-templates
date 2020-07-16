@@ -1,0 +1,13 @@
+---
+deployment:
+  k8s-service-catalog:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/cfcr-common
+        - shared-operators/cfcr-common-serv
+    stemcells:
+    releases:
+
+    errands:
+      action:

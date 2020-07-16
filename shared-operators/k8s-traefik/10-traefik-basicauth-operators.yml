@@ -1,0 +1,16 @@
+- type: replace
+  path: /variables?/-
+  value:
+    name: traefik_admin_password
+    type: password
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: basic_auth_secret
+    name: traefik
+    namespace: traefik
+    user: admin
+    password: ((traefik_admin_password))
+
+

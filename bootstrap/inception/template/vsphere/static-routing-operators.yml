@@ -1,0 +1,32 @@
+#--- Load networking release
+- type: replace
+  path: /releases/name=networking?
+  value:
+    name: networking
+    url: https://bosh.io/d/github.com/cloudfoundry/networking-release?v=((networking-release-version))
+    version: 9
+    sha1: ((networking-release-sha1))
+
+#--- Set routes for internal access
+- type: replace
+  path: /instance_groups/name=inception/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+          #--- paas-template network (through micro-bosh gw)
+          - net: 192.168.0.0
+            netmask: 255.255.0.0
+            gateway: 192.168.10.1
+
+          #--- shared services network (through micro-bosh gw)
+          - net: 172.16.0.0
+            netmask: 255.240.0.0
+            gateway: 192.168.10.1
+
+          #--- vsphere ESX network (through micro-bosh gw)
+          - net: 172.17.11.0
+            netmask: 255.255.255.0
+            gateway: 192.168.10.1

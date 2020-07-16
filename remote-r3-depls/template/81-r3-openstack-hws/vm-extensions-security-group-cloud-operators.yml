@@ -1,0 +1,9 @@
+#--- Enable bosh director port access from remote bosh agents
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: vpn-peer-secgroup-extension
+    cloud_properties:
+      security_groups:
+      - tf-enable-wireguard-r3
+      - tf-default-sg-r3 #seems vm extension override network security group. reapply

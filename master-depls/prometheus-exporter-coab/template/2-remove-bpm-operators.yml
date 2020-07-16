@@ -1,0 +1,5 @@
+- type: remove
+  path: /releases/name=bpm
+
+- type: remove
+  path: /instance_groups/name=nginx/jobs/name=bpm

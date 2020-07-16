@@ -1,0 +1,6 @@
+---
+deployment:
+  io-bench:
+    releases:
+    errands:
+      vm_to_benchmark:

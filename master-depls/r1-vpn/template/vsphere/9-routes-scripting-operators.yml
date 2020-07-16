@@ -1,0 +1,77 @@
+#--- Add generic scripting template
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: latest
+
+#--- Add/delete static route to vpn-r2 and vpn-r3
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=scripting?
+  value:
+    name: scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "pre-start !!"
+
+        post-start-script: |
+          #--- Skip errors and initialize logs
+          set +e
+          > /var/vcap/sys/log/scripting/post-start.stderr.log
+          > /var/vcap/sys/log/scripting/post-start.stdout.log
+
+          SUBNET_RANGE="((/secrets/multi_region_region_2_vpn_interco_endpoint))/32"
+          SUBNET_GW="((/secrets/intranet_interco_ips_gateway))"
+
+          CHECK_EXISTS="$(ip route list | grep "${SUBNET_RANGE} via ${SUBNET_GW}")"
+          if [ "${CHECK_EXISTS}" = "" ] ; then
+            sudo ip route add ${SUBNET_RANGE} via ${SUBNET_GW}
+            if [ $? = 0 ] ; then echo "- $(date): Add route to ${SUBNET_RANGE} via ${SUBNET_GW} succeeded."
+            else echo "- $(date): Add route to ${SUBNET_RANGE} via ${SUBNET_GW} failed." ; exit 1
+            fi
+          fi
+
+          SUBNET_RANGE="((/secrets/multi_region_region_3_vpn_interco_endpoint))/32"
+          SUBNET_GW="((/secrets/intranet_interco_ips_gateway))"
+
+          CHECK_EXISTS="$(ip route list | grep "${SUBNET_RANGE} via ${SUBNET_GW}")"
+          if [ "${CHECK_EXISTS}" = "" ] ; then
+            sudo ip route add ${SUBNET_RANGE} via ${SUBNET_GW}
+            if [ $? = 0 ] ; then echo "- $(date): Add route to ${SUBNET_RANGE} via ${SUBNET_GW} succeeded."
+            else echo "- $(date): Add route to ${SUBNET_RANGE} via ${SUBNET_GW} failed." ; exit 1
+            fi
+          fi
+
+        post-stop-script: |
+          #--- Skip errors and initialize logs
+          set +e
+          > /var/vcap/sys/log/scripting/post-stop.stderr.log
+          > /var/vcap/sys/log/scripting/post-stop.stdout.log
+
+          SUBNET_RANGE="((/secrets/multi_region_region_2_vpn_interco_endpoint))/32"
+          SUBNET_GW="((/secrets/intranet_interco_ips_gateway))"
+
+          CHECK_EXISTS="$(ip route list | grep "${SUBNET_RANGE} via ${SUBNET_GW}")"
+          if [ "${CHECK_EXISTS}" != "" ] ; then
+            sudo ip route delete ${SUBNET_RANGE} via ${SUBNET_GW}
+            if [ $? = 0 ] ; then echo "- $(date): Delete route to ${SUBNET_RANGE} via ${SUBNET_GW} succeeded."
+            else echo "- $(date): Delete route to ${SUBNET_RANGE} via ${SUBNET_GW} failed." ; exit 1
+            fi
+          fi
+
+          SUBNET_RANGE="((/secrets/multi_region_region_3_vpn_interco_endpoint))/32"
+          SUBNET_GW="((/secrets/intranet_interco_ips_gateway))"
+
+          CHECK_EXISTS="$(ip route list | grep "${SUBNET_RANGE} via ${SUBNET_GW}")"
+          if [ "${CHECK_EXISTS}" != "" ] ; then
+            sudo ip route delete ${SUBNET_RANGE} via ${SUBNET_GW}
+            if [ $? = 0 ] ; then echo "- $(date): Delete route to ${SUBNET_RANGE} via ${SUBNET_GW} succeeded."
+            else echo "- $(date): Delete route to ${SUBNET_RANGE} via ${SUBNET_GW} failed." ; exit 1
+            fi
+          fi
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+    release: generic-scripting

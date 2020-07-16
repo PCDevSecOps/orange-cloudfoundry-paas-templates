@@ -1,0 +1,2 @@
+#--- Osb data plane dedicated private (other information are hard-coded since it is a private network)
+tf-net-osb-data-plane-dedicated-priv-r3_id: ((/tf/networks_net-osb-data-plane-dedicated-priv-r3)) # <-- from terraform applied on remote-r3 root deployment

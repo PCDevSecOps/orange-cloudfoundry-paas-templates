@@ -1,0 +1,3 @@
+#--- Grafana dashboard json files
+vmware_stats_content: (( file "../../../additional-resource/master-depls/prometheus/template/additional-dashboards/vmware_stats.json" ))
+dedicated_services_general_view_content: (( file "../../../additional-resource/master-depls/prometheus/template/additional-dashboards/dedicated_services_general_view.json" ))

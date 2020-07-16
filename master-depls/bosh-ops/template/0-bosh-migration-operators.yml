@@ -1,0 +1,8 @@
+#--- Delete and replace old instance group "bosh-ops" by "bosh" (required for bosh-deployment template and operators)
+- type: remove
+  path: /instance_groups/name=bosh-ops?
+
+- type: replace
+  path: /instance_groups/name=bosh/migrated_from?
+  value:
+  - name: bosh-ops

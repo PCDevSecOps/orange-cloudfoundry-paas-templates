@@ -1,0 +1,20 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: catalog
+    chart: svc-cat/catalog
+    namespace: ((namespace))
+    version: ((catalog-version))
+    properties:
+    - name: controllerManager.resources.limits.cpu
+      value: 500m
+    - name: controllerManager.resources.limits.memory
+      value: 300Mi
+    - name: image
+      value: ((docker_repository))kubernetes-service-catalog/service-catalog:v0.3.0
+    - name: securityContext.runAsUser
+      value: 1001
+    - name: webhook.service.type
+      value: ClusterIP
+

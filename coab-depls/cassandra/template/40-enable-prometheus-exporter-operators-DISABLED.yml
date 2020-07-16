@@ -1,0 +1,37 @@
+---
+# add prometheus release to deployment manifest
+- type: replace
+  path: /releases/name=prometheus?
+  value:
+    name: prometheus
+    version: latest
+
+# add cassandra exporter properties
+- type: replace
+  path: /instance_groups/name=cassandra-seeds/jobs/name=cassandra_exporter?
+  value:
+    name: cassandra_exporter
+    release: prometheus
+    properties:
+      #cassandra_exporter:
+        cassandra:
+          uri: cassandra://cassandra:((!cassandra_admin_password))@localhost:27017?authSource=admin
+        web:
+          port: 9001  
+        collect_oplog: true
+        collect_replset: true
+
+# add cassandra exporter properties
+- type: replace
+  path: /instance_groups/name=cassandra-servers/jobs/name=cassandra_exporter?
+  value:
+    name: cassandra_exporter
+    release: prometheus
+    properties:
+      #cassandra_exporter:
+        cassandra:
+          uri: cassandra://cassandra:((!cassandra_admin_password))@localhost:27017?authSource=admin
+        web:
+          port: 9001  
+        collect_oplog: true
+        collect_replset: true

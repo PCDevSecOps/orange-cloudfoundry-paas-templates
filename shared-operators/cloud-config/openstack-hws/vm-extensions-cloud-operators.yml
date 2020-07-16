@@ -1,0 +1,83 @@
+#--- Flexible Engine Openstack VM extensions ephemeral disk size
+#    boot_from_volume: true => Required when ephemeral size exceeds base flavor disk size
+#    root_disk size must hold the swap size = mem size
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 50GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 50
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 100GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 100
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 150GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 150
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 200GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 200
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 300GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 300
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 400GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 400
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 500GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 500
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 600GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 600
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 800GB_ephemeral_disk
+    cloud_properties:
+      boot_from_volume: true
+      root_disk:
+        size: 800

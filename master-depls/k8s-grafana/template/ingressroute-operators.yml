@@ -1,0 +1,27 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "grafana-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: grafana-ingressroute
+        namespace: grafana
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`grafana.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: grafana
+            namespace: grafana
+            port: 80

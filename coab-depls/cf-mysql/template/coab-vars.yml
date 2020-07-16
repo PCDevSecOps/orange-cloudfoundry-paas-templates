@@ -1,0 +1,4 @@
+#Simulates what coab will generate for each deployment.
+deployment_name: "cf-mysql"
+plan_id: "plan-coab-mariadb-small"
+

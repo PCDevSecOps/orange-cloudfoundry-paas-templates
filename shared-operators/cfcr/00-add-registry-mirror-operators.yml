@@ -1,0 +1,5 @@
+# Add registry mirror to avoid download on internet docker image
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=docker/properties/registry_mirrors?/-
+  value: ((registry-mirrors))

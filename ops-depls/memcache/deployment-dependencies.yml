@@ -1,0 +1,14 @@
+---
+deployment:
+  memcache:
+    resources:
+      secrets:
+        local_deployment_scan: false
+
+    releases:
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      memcache:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/memcache-release

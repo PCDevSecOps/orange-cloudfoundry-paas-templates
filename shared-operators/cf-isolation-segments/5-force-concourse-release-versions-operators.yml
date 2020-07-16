@@ -1,0 +1,37 @@
+- type: replace
+  path: /releases
+  value:
+  - name: bpm
+    version: latest
+  - name: cf-networking
+    version: latest
+  - name: silk
+    version: latest
+  - name: cflinuxfs3
+    version: latest
+  - name: cf-smoke-tests
+    version: latest
+  - name: cf-syslog-drain
+    version: latest
+  - name: diego
+    version: latest
+  - name: garden-runc
+    version: latest
+  - name: loggregator
+    version: latest
+  - name: nats
+    version: latest
+  - name: routing
+    version: latest
+  - name: statsd-injector
+    version: latest
+  - name: loggregator-agent
+    version: latest
+  - name: cf-cli
+    version: latest
+  - name: bosh-dns-aliases
+    version: latest
+  - name: haproxy
+    version: latest
+  - name: generic-scripting
+    version: latest
