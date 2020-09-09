@@ -1,0 +1,30 @@
+INTERNAL_CA_CERT: (( grab $INTERNAL_CA_CERT ))
+CREDHUB_CERTIFICATE: (( grab $CREDHUB_CERTIFICATE ))
+CREDHUB_PRIVATE_KEY: (( grab $CREDHUB_PRIVATE_KEY ))
+UAA_CERTIFICATE: (( grab $UAA_CERTIFICATE ))
+UAA_PRIVATE_KEY: (( grab $UAA_PRIVATE_KEY ))
+UAA_VERIFICATION_KEY: (( grab $UAA_VERIFICATION_KEY ))
+UAA_SIGNING_KEY: (( grab $UAA_SIGNING_KEY ))
+
+database_admin: (( grab secrets.database-admin ))
+director_to_credhub_secret: (( grab secrets.bosh_credhub_secrets ))
+
+ca_cert: (( file INTERNAL_CA_CERT ))
+
+credhub_cert: (( file CREDHUB_CERTIFICATE ))
+credhub_key: (( file CREDHUB_PRIVATE_KEY ))
+credhub_encryption_password: (( grab secrets.credhub-encryption-password))
+
+credhub_uaa_admin_client_secret: (( grab secrets.uaa-users-admin ))
+
+uaa_admin_client_secret: (( grab secrets.uaa-admin ))
+uaa_login_client_secret: (( grab secrets.uaa-login ))
+uaa_encryption_key_1: (( grab secrets.uaa_encryption_key_1 ))
+uaa_cert: (( file UAA_CERTIFICATE ))
+uaa_key: (( file UAA_PRIVATE_KEY ))
+uaa_saml_cert: (( file UAA_CERTIFICATE ))
+uaa_saml_key: (( file UAA_PRIVATE_KEY ))
+uaa_verification_key: (( file UAA_VERIFICATION_KEY ))
+uaa_signing_key: (( file UAA_SIGNING_KEY ))
+
+ldap_root_password: (( grab secrets.ldap.root.password ))

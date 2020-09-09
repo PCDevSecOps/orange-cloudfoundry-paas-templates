@@ -1,0 +1,5 @@
+#--- Set proxy for alertmanager
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/http_config?
+  value:
+    proxy_url: ((proxy_url))

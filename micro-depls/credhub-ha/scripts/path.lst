@@ -1,0 +1,13 @@
+/secrets/cloudfoundry_service_brokers_cassandra_password|/bosh-ops/cassandra/broker-password
+/secrets/cloudfoundry_service_brokers_p-rabbitmq_password|/bosh-ops/cf-rabbit/broker-password
+/secrets/cloudfoundry_service_brokers_p-redis_password|/bosh-ops/cf-redis/broker-password
+/secrets/cloudfoundry_service_brokers_p-mysql_password|/bosh-ops/cloudfoundry-mysql/broker-password
+/secrets/cloudfoundry_service_brokers_kafka_password|/bosh-ops/kafka/broker-password
+/secrets/cloudfoundry_service_brokers_memcache_password|/bosh-ops/memcache/broker-password
+/secrets/cloudfoundry_service_brokers_mongodb_password|/bosh-ops/mongodb/broker-password
+/secrets/cloudfoundry_service_brokers_neo4j-docker-broker_password|/bosh-ops/neo4j-docker/broker-password
+/secrets/cloudfoundry_service_brokers_nfsvolume_password|/bosh-ops/nfs-volume/broker-password
+/secrets/cloudfoundry_service_brokers_cassandra_password|/bosh-coab/cassandra/broker_password
+/secrets/cloudfoundry_service_brokers_p-rabbitmq_password|/bosh-coab/cf-rabbit/osb-password
+/secrets/cloudfoundry_service_brokers_p-mysql_password|/bosh-coab/cf-mysql/broker_password
+/secrets/cloudfoundry_service_brokers_mongodb_password|/bosh-coab/mongodb/broker_password

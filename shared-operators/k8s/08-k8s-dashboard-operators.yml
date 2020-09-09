@@ -1,0 +1,21 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: kubernetes-dashboard
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: kubernetes-dashboard
+    url: https://kubernetes.github.io/dashboard/
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kubernetes-dashboard
+    chart: kubernetes-dashboard/kubernetes-dashboard
+    namespace: kubernetes-dashboard
+    version: 2.2.0

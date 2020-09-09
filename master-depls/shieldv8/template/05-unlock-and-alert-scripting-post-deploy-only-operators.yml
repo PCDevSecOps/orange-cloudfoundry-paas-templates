@@ -1,0 +1,101 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=scripting/properties/scripting/post-deploy-script
+  value: |
+    #--- Initialize context
+    echo "- Start post-deploy"
+    > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+    > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+
+    #-------------------------------------
+    #--- Use shield cli in order to unlock
+    #-------------------------------------
+    echo "- Start unlock"
+
+    set +e
+    /var/vcap/packages/shield/bin/shield api -k https://((shield-alias)) ((shield-core))
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) init --master ((failsafe-password))
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master ((failsafe-password))
+
+    echo "- Unlock done"
+
+    #-------------------------------------
+    #--- Patch BBR CLI
+    #-------------------------------------
+    echo "- Start patch"
+
+    set +e
+    export http_proxy=((http_install_proxy))
+    export https_proxy=((http_install_proxy))
+    curl https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/download/v1.5.2/bbr-1.5.2-linux-amd64 -L -s -o /var/vcap/jobs/shield-addon-bbr/packages/bbr/bin/bbr
+    chmod 0755 /var/vcap/jobs/shield-addon-bbr/packages/bbr/bin/bbr
+    unset http_proxy
+    unset https_proxy
+    echo "- Patch done"
+
+    #-------------------------------------
+    #--- Create BBR buckets
+    #-------------------------------------
+    echo "- Create BBR buckets"
+    #--- Configure S3
+    set +e
+
+    export http_proxy=((http_proxy))
+    export https_proxy=((http_proxy))
+    export no_proxy=localhost,127.0.0.1,((shield-domain)),((shield-alias)),shield-s3.internal.paas
+
+    /var/vcap/packages/mc/mc config host add remote_s3 ((remote_s3_host)) ((remote_s3_access_key_id)) ((remote_s3_secret_access_key)) --api s3v4
+    if [ $? != 0 ] ; then echo "remote S3 target configuration failed\n" ; exit 0 ; fi
+
+    /var/vcap/packages/mc/mc config host add local_s3 ((local_s3_host)) ((local_s3_access_key_id)) ((local_s3_secret_access_key)) --api s3v4
+    if [ $? != 0 ] ; then echo "local S3 target configuration failed\n" ; exit 0 ; fi
+
+    #--- Create buckets for S3 (or assert if they already exists)
+    /var/vcap/packages/mc/mc mb remote_s3/((s3_bucket_prefix))-bbr --ignore-existing
+    if [ $? != 0 ] ; then echo "bucket creation failed in remote s3\n" ; exit 0 ; fi
+
+    /var/vcap/packages/mc/mc mb local_s3/((s3_bucket_prefix))-bbr --ignore-existing
+    if [ $? != 0 ] ; then echo "bucket creation failed in local s3\n" ; exit 0 ; fi
+
+    unset http_proxy
+    unset https_proxy
+    unset no_proxy
+
+    echo "- Create done"
+
+    #-------------------------------------------------------------
+    #--- Use shield cli to check status and to send an email alert
+    #-------------------------------------------------------------
+
+    #--- Msmtp install
+    echo "- Install msmtp"
+    sudo http_proxy=((http_install_proxy)) apt-get update
+    sudo http_proxy=((http_install_proxy)) apt-get install -y msmtp
+    echo "- Install done"
+
+    #--- Msmtp config
+    echo "- Configure msmtp"
+    sudo cat > /root/.msmtprc <<'EOF'
+    account default
+    host elpaaso-mail.internal.paas
+    from ((mailfrom))
+    auth off
+    EOF
+    echo "- Configure done"
+
+    #--- Alert based on shield status
+    echo "- Status alert"
+    /var/vcap/packages/shield/bin/shield --core ((shield-core)) status > /tmp/status
+    ligne=$(sed -n '/BACKUP JOB HEALTH/=' /tmp/status)
+    taille=$(cat /tmp/status | wc -l)
+    echo $taille
+    let "extract=$taille-$ligne+2"
+    echo $extract
+    tail -n ${extract} /tmp/status > /tmp/jobs
+    failing=$(grep 'FAILING' /tmp/jobs | wc -l)
+    sed -i "1i Subject:[((site))]${failing} jobs are failing on Shield v8" /tmp/jobs
+    cat /tmp/jobs | msmtp ((mailto))
+
+    echo "- Status alert done"

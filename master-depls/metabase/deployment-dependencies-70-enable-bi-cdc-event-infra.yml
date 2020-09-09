@@ -1,0 +1,20 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      kafka:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/kafka-boshrelease
+      zookeeper:
+        base_location: https://bosh.io/d/github.com/
+        repository: cppforlife/zookeeper-release
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+      docker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+        

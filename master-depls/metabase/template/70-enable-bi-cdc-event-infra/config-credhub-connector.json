@@ -1,0 +1,10 @@
+{
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "plugin.name": "wal2json",
+    "database.hostname": "192.168.99.70",
+    "database.port": "5524",
+    "database.user": "debezium",
+    "database.password": "d4f5b1YZ1Hq5p4r2elXlNukzWk0H5W",
+    "database.dbname" : "credhubdb",
+    "database.server.name": "cf"
+}

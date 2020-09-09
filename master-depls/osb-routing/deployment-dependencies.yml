@@ -1,0 +1,15 @@
+---
+deployment:
+  osb-routing:
+    releases:
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      nats:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nats-release
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+    errands:
+

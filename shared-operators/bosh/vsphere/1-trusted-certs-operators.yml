@@ -1,0 +1,4 @@
+#--- Add trusted certs to bosh-director
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/trusted_certs?
+  value: ((/secrets/certs/intranet-ca))((/internalCA.certificate))((/internalCA2.certificate))

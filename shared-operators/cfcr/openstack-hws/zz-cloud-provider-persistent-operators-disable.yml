@@ -1,0 +1,34 @@
+
+- type: replace
+  path: /instance_groups/name=worker-persistent/jobs/-
+  value:
+    name: cloud-provider
+    release: kubo
+    properties:
+      cloud-provider:
+        type: openstack
+      cloud-config:
+        Global:
+          auth-url: ((auth_url))
+          domain-id: ((openstack_domain))
+          password: ((openstack_password))
+          region: ((region))
+          tenant-id: ((openstack_project_id))
+          username: ((openstack_username))
+    provides:
+      cloud-provider: {as: worker-persistent-cloud-provider}
+
+- type: replace
+  path: /instance_groups/name=worker-persistent/jobs/name=kubelet/consumes?
+  value:
+    cloud-provider: {from: worker-persistent-cloud-provider}
+
+- type: replace
+  path: /instance_groups/name=worker-persistent/jobs/name=kubelet/properties/cloud-provider?
+  value: openstack
+
+- type: replace
+  path: /instance_groups/name=worker-persistent/jobs/name=kube-proxy/properties/cloud-provider?
+  value: openstack
+
+

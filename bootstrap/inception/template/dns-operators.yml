@@ -1,0 +1,99 @@
+#--- Load bosh-dns release
+- type: replace
+  path: /releases/name=bosh-dns?
+  value:
+    name: bosh-dns
+    version: ((bosh_dns_version))
+    url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-release?v=((bosh_dns_version))
+    sha1: ((bosh_dns_sha1))
+
+#--- Add bosh-dns job
+- type: replace
+  path: /instance_groups/name=inception/jobs/name=bosh-dns?
+  value:
+    name: bosh-dns
+    release: bosh-dns
+    properties:
+      cache:
+        enabled: true
+      health:
+        enabled: true
+        server:
+          tls: ((/dns_healthcheck_server_tls))
+        client:
+          tls: ((/dns_healthcheck_client_tls))
+      api:
+        server:
+          tls: ((/dns_api_server_tls))
+        client:
+          tls: ((/dns_api_client_tls))
+      aliases:
+        (( append ))
+
+      #--- Use dns-recursor for internal.paas domain
+      recursors:
+        - 192.168.116.156
+        - 192.168.116.166
+
+#--- For "~1", see escaping https://bosh.io/docs/cli-ops-files/#escaping
+- type: replace
+  path: /variables?/name=~1dns_healthcheck_tls_ca?
+  value:
+    name: /dns_healthcheck_tls_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: dns-healthcheck-tls-ca
+
+- type: replace
+  path: /variables?/name=~1dns_healthcheck_server_tls?
+  value:
+    name: /dns_healthcheck_server_tls
+    type: certificate
+    options:
+      ca: /dns_healthcheck_tls_ca
+      common_name: health.bosh-dns
+      extended_key_usage:
+        - server_auth
+
+- type: replace
+  path: /variables?/name=~1dns_healthcheck_client_tls?
+  value:
+    name: /dns_healthcheck_client_tls
+    type: certificate
+    options:
+      ca: /dns_healthcheck_tls_ca
+      common_name: health.bosh-dns
+      extended_key_usage:
+        - client_auth
+
+- type: replace
+  path: /variables?/name=~1dns_api_tls_ca?
+  value:
+    name: /dns_api_tls_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: dns-api-tls-ca
+
+- type: replace
+  path: /variables?/name=~1dns_api_server_tls?
+  value:
+    name: /dns_api_server_tls
+    type: certificate
+    options:
+      ca: /dns_api_tls_ca
+      common_name: api.bosh-dns
+      extended_key_usage:
+        - server_auth
+
+- type: replace
+  path: /variables?/name=~1dns_api_client_tls?
+  value:
+    name: /dns_api_client_tls
+    type: certificate
+    options:
+      ca: /dns_api_tls_ca
+      common_name: api.bosh-dns
+      extended_key_usage:
+        - client_auth

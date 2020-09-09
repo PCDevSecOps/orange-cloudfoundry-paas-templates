@@ -1,0 +1,4 @@
+#--- Replace default postgres listen 127.0.0.1 => 0.0.0.0 (enables external access)
+- type: replace
+  path: /instance_groups/name=vpn/vm_extensions?/-
+  value: vpn-peer-secgroup-extension

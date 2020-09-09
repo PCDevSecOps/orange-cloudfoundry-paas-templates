@@ -1,0 +1,41 @@
+---
+#replace deployment name
+- type: replace
+  path: /name
+  value: ((deployment_name))
+
+---
+#replace uris for broker
+#- type: replace
+#  path: /instance_groups/name=mongodb-broker/jobs/name=route_registrar/properties/route_registrar/routes/name=broker-endpoint/uris/-
+#  value: mongodb-broker-((deployment_name)).((/secrets/cloudfoundry_system_domain))
+
+---
+#replace cert domain
+#- type: replace
+#  path: /instance_groups/name=shield/jobs/name=route_registrar/properties/route_registrar/routes/name=shield-webui-coab-endpoint/server_cert_domain_san
+#  value: "shield-webui-((deployment_name)).((/secrets/cloudfoundry_ops_domain))"
+
+---
+#replace uris for shield ui
+#- type: replace
+#  path: /instance_groups/name=shield/jobs/name=route_registrar/properties/route_registrar/routes/name=shield-webui-coab-endpoint/uris/-
+#  value: shield-webui-((deployment_name)).((/secrets/cloudfoundry_ops_domain))
+
+---
+#replace provides link
+#- type: replace
+#  path: /instance_groups/name=shield/jobs/name=core/provides/shield
+#  value: {as: shield-((deployment_name))}
+
+---
+#replace consumes link on collocated agent
+#- type: replace
+#  path: /instance_groups/name=shield/jobs/name=shield-agent/consumes/shield
+#  value: {from: shield-((deployment_name))}
+
+---
+#replace consumes link on collocated agent
+#- type: replace
+#  path: /instance_groups/name=mongod/jobs/name=shield-agent/consumes/shield
+#  value: {from: shield-((deployment_name))}

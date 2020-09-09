@@ -1,0 +1,16 @@
+---
+#adapt stemcell
+- type: replace
+  path: /stemcells/alias=default
+  value:
+    alias: default
+    #  name: bosh-vsphere-esxi-ubuntu-xenial-go_agent
+    os: ubuntu-xenial
+    version: latest
+
+- type: replace
+  path: /stemcells/-
+  value:
+    alias: openstack-hws
+    name: bosh-openstack-kvm-ubuntu-xenial-go_agent
+    version: latest

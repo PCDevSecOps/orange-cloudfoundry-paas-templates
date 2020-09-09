@@ -1,0 +1,24 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "service-pgo-osb"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: Service
+      apiVersion: v1
+      metadata:
+        name: pgo-osb
+        namespace: ((namespace))
+        annotations:
+          service.alpha.openshift.io/serving-cert-secret-name: 'pgo-osb-ssl'
+        labels:
+          app: pgo-osb
+      spec:
+        selector:
+          app: pgo-osb
+        ports:
+        - protocol: TCP
+          port: 443
+          targetPort: 8443

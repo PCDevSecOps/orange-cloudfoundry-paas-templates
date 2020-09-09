@@ -1,0 +1,27 @@
+#squid exporter, as a docker container
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=containers/properties/containers/-
+  value:
+    name: system_internet_proxy_squid_exporter
+    image: boynux/squid-exporter:v1.6
+    bind_ports:
+    - "9301:9301"
+    env_vars:
+    - "SQUID_PORT=3128"
+    - "SQUID_HOSTNAME=system-internet-http-proxy.internal.paas"
+    - "SQUID_EXPORTER_LISTEN=:9301"
+    - "SQUID_LOGIN=prometheus"
+    - "SQUID_PASSWORD=xxx"
+
+
+#scrape squid exporter
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: internet-proxy
+    scrape_interval: 2m
+    scrape_timeout: 2m
+    static_configs:
+      - targets:
+        - localhost:9301
+

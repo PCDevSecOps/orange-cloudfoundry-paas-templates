@@ -1,0 +1,28 @@
+---
+# spec cf-mysql-release fixed by DBAHV
+#  -> Define variable in cf-mysql-vars-tpl.yml (spec-cf-mysql)
+# 
+# c_mysql.mysql.max_connections :
+#   . Maximum total number of database connections for node MySQL
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/max_connections?
+  value: ((spec-cf-mysql.max_connections))
+
+# cf_mysql.mysql.disable_auto_sst :
+#   . when disable_auto_sst is true, nodes unable to IST will be prevented from automatically deleting their data and performing an SST
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/disable_auto_sst?
+  value: ((spec-cf-mysql.disable_auto_sst))
+
+# cf_mysql.mysql.max_heap_table_size :
+#   . The maximum size (in rows) to which user-created MEMORY tables are permitted to grow
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/max_heap_table_size?
+  value: ((spec-cf-mysql.max_heap_table_size))
+
+# c_mysql.mysql.tmp_table_size :
+#   . The maximum size (in bytes) of internal in-memory temporary tables
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/tmp_table_size?
+  value: ((spec-cf-mysql.tmp_table_size))
+

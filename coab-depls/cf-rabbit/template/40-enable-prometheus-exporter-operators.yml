@@ -1,0 +1,23 @@
+---
+# add prometheus release to deployment manifest
+- type: replace
+  path: /releases/name=prometheus?
+  value:
+    name: prometheus
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=rmq/jobs/name=rabbitmq_exporter?/release
+  value: prometheus
+
+- type: replace
+  path: /instance_groups/name=rmq/jobs/name=rabbitmq_exporter/properties?
+  value:
+    rabbitmq_exporter:
+      log_level: DEBUG #Only log messages with the given severity or above. Valid levels: [debug, info, warn, error, fatal]
+      rabbitmq:
+        url: http://localhost:15672
+        user: ((rabbitmq-management-username))
+        password: ((rabbitmq-management-password))
+
+

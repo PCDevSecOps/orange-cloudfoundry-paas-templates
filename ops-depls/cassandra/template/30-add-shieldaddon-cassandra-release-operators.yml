@@ -1,0 +1,6 @@
+#add sshield-addon-cassandra
+- type: replace
+  path: /releases/name=shield-addon-cassandra?
+  value:
+    name: shield-addon-cassandra
+    version: 1.0.0

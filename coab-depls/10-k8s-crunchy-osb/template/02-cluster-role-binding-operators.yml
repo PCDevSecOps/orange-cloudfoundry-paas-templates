@@ -1,0 +1,41 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterrolebinding-pgo"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: ClusterRoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1beta1
+      metadata:
+        name: pgo-osb-client
+      subjects:
+      - kind: ServiceAccount
+        name: pgo-osb-client
+        namespace: pgo-osb
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: access-pgo-osb
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterrolebinding-pgo"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: ClusterRoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1beta1
+      metadata:
+        name: pgo-osb
+      subjects:
+      - kind: ServiceAccount
+        name: pgo-osb
+        namespace: pgo-osb
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: pgo-osb

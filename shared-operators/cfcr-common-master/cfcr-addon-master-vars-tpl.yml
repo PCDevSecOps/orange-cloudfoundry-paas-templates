@@ -1,0 +1,5 @@
+env_pf: k8s-master
+kubernetes.host: cfcr-api-k8s-master.internal.paas
+network: tf-net-cfcr-master
+prefix-deployment: ""
+docker_repository: ""

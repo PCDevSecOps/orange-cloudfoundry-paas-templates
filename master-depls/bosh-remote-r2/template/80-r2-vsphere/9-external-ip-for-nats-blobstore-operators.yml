@@ -1,0 +1,22 @@
+#use interco ips for registry, nats and blobstore coordinates for bosh agents.
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/agent/env/bosh/blobstores/0/options/endpoint
+  value: https://((blobstore_ip)):((blobstore_port))
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/agent/mbus
+  value: nats://nats:((nats_password))@((nats_ip)):((nats_port))
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/agent/nats?/address?
+  value: ((nats_ip))
+
+# certificate alt name with external ips
+- type: replace
+  path: /variables/name=nats_server_tls/options/alternative_names/-
+  value: ((nats_ip))
+
+- type: replace
+  path: /variables/name=blobstore_server_tls/options/alternative_names/-
+  value: ((blobstore_ip))

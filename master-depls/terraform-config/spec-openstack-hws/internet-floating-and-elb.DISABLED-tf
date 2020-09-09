@@ -1,0 +1,43 @@
+#allocate a floating ip, pool is external_network_name
+resource "openstack_networking_floatingip_v2" "internet-is-floating" {
+  pool   = "admin_external_net" #TODO: externalize
+}
+
+data "credhub_value" "openstack_vpc_id" {
+  name = "/secrets/openstack_vpc_id"
+}
+
+resource "flexibleengine_elb_loadbalancer" "elb" {
+  name = "elb"
+  type = "External"
+  description = "internet is elb"
+  vpc_id = "${data.credhub_value.openstack_vpc_id.value}"
+  admin_state_up = 1
+  bandwidth = 5
+}
+
+resource "flexibleengine_elb_listener" "lbaas_listener_internet_relay_https" {
+  name = "internet-elb-listener"
+  description = "internet isolation segment listener"
+  protocol = "TCP"
+  backend_protocol = "TCP"
+  protocol_port = 443
+  backend_port = 443
+  lb_algorithm = "roundrobin"
+  loadbalancer_id = "${flexibleengine_elb_loadbalancer.elb.id}"
+  timeouts {
+    create = "5m"
+    update = "5m"
+    delete = "5m"
+  }
+}
+
+
+
+
+resource "openstack_lb_pool_v2" "lbaas_pool_internet_relay_https" {
+  protocol    = "TCP"
+  lb_method   = "ROUND_ROBIN"
+  name        = "internet-rp-pool"  #this name must match vm_extension lb name
+  listener_id = "${flexibleengine_elb_listener.lbaas_listener_internet_relay_https.id}"
+}

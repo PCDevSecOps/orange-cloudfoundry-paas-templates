@@ -1,0 +1,95 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: openebs
+    url : https://openebs.github.io/charts/
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: openebs
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: openebs
+    chart: openebs/openebs
+    namespace: openebs
+    version: 1.11.1
+    properties:
+    - name: apiserver.replicas
+      value: 3
+    - name: apiserver.nodeSelector.node
+      value: openebs
+    - name: image.registry
+      value: ""
+
+
+    values_file_content:
+      apiserver:
+        tolerations:
+        - key: "openebs"
+          operator: "Exists"
+          effect: "NoExecute"
+        affinity:
+          podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                - key: component
+                  operator: In
+                  values:
+                  - apiserver
+              topologyKey: "kubernetes.io/hostname"
+      varDirectoryPath:
+        baseDir: "/var/vcap/data/openebs"
+
+      localprovisioner:
+        basePath: "/var/vcap/store/openebs/local"
+        tolerations:
+        - key: "openebs"
+          operator: "Exists"
+          effect: "NoExecute"
+
+      snapshotOperator:
+        nodeSelector:
+          node: openebs
+        tolerations:
+        - key: "openebs"
+          operator: "Exists"
+          effect: "NoExecute"
+        affinity: {}
+      ndm:
+        sparse:
+          path: "/var/vcap/store/openebs/sparse"
+          size: "322122547200" #(300Go)
+          count: "1"
+        filters:
+          excludePaths: "loop,fd0,sr0,/dev/ram,/dev/dm-,/dev/md,/dev/vdb"
+        nodeSelector:
+          node: openebs
+        tolerations:
+        - key: "openebs"
+          operator: "Exists"
+          effect: "NoExecute"
+      ndmOperator:
+        nodeSelector:
+          node: openebs
+        tolerations:
+        - key: "openebs"
+          operator: "Exists"
+          effect: "NoExecute"
+      webhook:
+        nodeSelector:
+          node: openebs
+        tolerations:
+        - key: "openebs"
+          operator: "Exists"
+          effect: "NoExecute"
+      jiva:
+        defaultStoragePath: "/var/vcap/store/openebs"

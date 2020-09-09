@@ -1,0 +1,25 @@
+---
+- type: replace
+  path: /instance_groups/name=proxy/networks/0
+  value:
+    name: ((public_network_name))
+
+- type: replace
+  path: /instance_groups/name=proxy/networks/-
+  value:
+    name: ((private_network_name))
+    default: [dns,gateway]
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar/properties/route_registrar/routes/name=cf-mysql-proxy
+  value:
+    name: cf-mysql-proxy
+    port: 8080
+    prepend_instance_index: true
+    registration_interval: 10s
+    uris:
+      - &proxy_base_uri proxy-((cf_mysql_external_host_ops))
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar?/properties/nats
+  value: ((nats_ops))

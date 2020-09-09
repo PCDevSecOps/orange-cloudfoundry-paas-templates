@@ -1,0 +1,30 @@
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: ingress
+    name: minio-ingress
+    namespace: gitlab
+    annotations:
+    - name: "ingress.kubernetes.io/protocol"
+      value: "http"
+    - name: "kubernetes.io/ingress.allow-http"
+      value: "false"
+    - name: "kubernetes.io/ingress.global-static-ip-name"
+      value: '""'
+
+    definition:
+      spec:
+        rules:
+        - host: minio.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: gitlab-minio
+                servicePort: 9000
+              path: /
+        tls:
+        - secretName: secret-minio-tls-cert
+          hosts:
+          - minio.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+

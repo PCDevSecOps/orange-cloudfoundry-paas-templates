@@ -1,0 +1,11 @@
+#--- Set inception releases versions
+bosh_cpi_version: (( grab $BOSH_CPI_VERSION ))
+bosh_cpi_sha1: (( grab $BOSH_CPI_SHA1 ))
+bosh_dns_version: (( grab $BOSH_DNS_VERSION ))
+bosh_dns_sha1: (( grab $BOSH_DNS_SHA1 ))
+
+#--- Stemcell
+url_stemcell: (( grab $URL_STEMCELL ))
+sha1_stemcell: (( grab $SHA1_STEMCELL ))
+
+vcap_password_sha512: (( grab $VCAP_PASSWORD_SHA512 ))

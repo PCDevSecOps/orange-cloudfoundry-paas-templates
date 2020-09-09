@@ -1,0 +1,23 @@
+---
+deployment:
+  k8s-prometheus:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/k8s-prometheus
+        - shared-operators/cfcr-common-micro
+        - shared-operators/cfcr-common
+    stemcells:
+    releases:
+      helm-kubectl:
+        base_location: https://github.com
+        repository: orange-cloudfoundry/helm-kubectl-boshrelease
+
+    errands:
+      action:
+
+    manual-errands:
+      cfcr-clean-prometheus:
+
+
+

@@ -1,0 +1,5 @@
+#as of v44, internet and intranet 2 is cf apps can bind shared apps_domain
+#intranet_is 1 gorouters must be able to route traffic to internet is hosted cf apps
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/routing_table_sharding_mode?
+  value: all

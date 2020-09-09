@@ -1,0 +1,69 @@
+- type: replace
+  path: /instance_groups/name=kafka-connect/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        post-start-script: |
+          #!/bin/sh
+          echo "poststart, use debezium connector api"
+
+          # add config.json
+          cat - > /var/vcap/data/scripting/config-cf-connector.json <<EOF
+          {
+              "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+              "plugin.name": "pgoutput",
+              "database.hostname": "192.168.99.70",
+              "database.port": "5524",
+              "database.user": "debezium",
+              "database.password": "((/cf/cloudfoundry_debezium_password))",
+              "database.dbname" : "ccdb",
+              "database.server.name": "cf",
+              "transforms": "unwrap,route",
+              "transforms.unwrap.type": "io.debezium.transforms.UnwrapFromEnvelope",
+              "transforms.route.type": "org.apache.kafka.connect.transforms.RegexRouter",
+              "transforms.route.regex": "([^.]+)\\\\.([^.]+)\\\\.([^.]+)",
+              "transforms.route.replacement": "\$3"
+          }
+          EOF
+          #escaping      #([^.]+)\\.([^.]+)\\.([^.]+), thks to http://dwaves.de/tools/escape/
+
+          #check container is ready, timeout 30s 
+          timeout 30 sh -c 'until nc -z $0 $1; do sleep 1; done' kafka-connect 8083
+
+
+          #see kafka connect rest api https://docs.confluent.io/current/connect/references/restapi.html
+          
+          curl -s -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" kafka-connect:8083/connectors/cf-connector/config -d @/var/vcap/data/scripting/config-cf-connector.json
+          
+          #disabled to start, wal limit is 1
+          #curl -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" kafka-connect:8083/connectors/uaa-connector/config -d @./config-uaa-connector.json
+          echo "debezium connector configured"           
+          curl -H "Accept:application/json" kafka-connect:8083/connectors/
+          
+          #add jdbc connect to postgres-cf-replica
+          #"connection.url": "jdbc:postgresql://postgres-cf-replica:5524/cf-replica?user=replica&password=cf-replica-password",
+          
+          cat - > /var/vcap/data/scripting/config-replica-connector.json <<EOF
+          {
+            "connector.class": "io.confluent.connect.jdbc.JdbcSinkConnector",
+            "tasks.max": "1",
+            "topics": "processes,apps,organizations,spaces,service_instances,service_plans,events",
+            "connection.url": "jdbc:postgresql://yb-tservers:5433/cf_replica",
+            "connection.user": "postgres",
+            "auto.create": "true",
+            "auto.evolve": "true",
+            "insert.mode": "upsert",
+            "pk.fields": "id",
+            "pk.mode": "record_value"
+          }
+          EOF
+          
+          #check container is ready, timeout 30s 
+          timeout 30 sh -c 'until nc -z $0 $1; do sleep 1; done' kafka-connect 8084
+          
+          
+          
+          curl -s -i -X PUT -H "Accept:application/json" -H "Content-Type:application/json" kafka-connect:8084/connectors/postgres-cf-replica/config -d @/var/vcap/data/scripting/config-replica-connector.json
+          echo "kafka connect jdbc configured"

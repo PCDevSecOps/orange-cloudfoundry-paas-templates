@@ -1,0 +1,5 @@
+cassandra-service-instances-branch: (( grab secrets.cassandra-service-instances-branch ))
+cf-mysql-service-instances-branch: (( grab secrets.cf-mysql-service-instances-branch ))
+cf-rabbit-service-instances-branch: (( grab secrets.cf-rabbit-service-instances-branch ))
+mongodb-service-instances-branch: (( grab secrets.mongodb-service-instances-branch ))
+redis-service-instances-branch: (( grab secrets.redis-service-instances-branch ))

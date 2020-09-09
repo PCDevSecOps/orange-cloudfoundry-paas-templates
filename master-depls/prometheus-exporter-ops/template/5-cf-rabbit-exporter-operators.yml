@@ -1,0 +1,18 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: cf-rabbit
+    file_sd_configs:
+    - files:
+      - "/var/vcap/store/bosh_exporter/bosh_target_groups.json"
+    relabel_configs:
+      - source_labels:
+        - __meta_bosh_job_process_name
+        regex: rabbitmq_exporter
+        action: keep
+      - source_labels:
+        - __address__
+        regex: "(.*)"
+        target_label: __address__
+        replacement: "${1}:9125"
+

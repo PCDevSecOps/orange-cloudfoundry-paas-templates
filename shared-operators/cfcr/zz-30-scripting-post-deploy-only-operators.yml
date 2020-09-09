@@ -1,0 +1,36 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=scripting/properties/scripting/post-deploy-script
+  value: |
+      #--- Initialize context
+      echo "- Start pre-start"
+      > /var/vcap/sys/log/scripting/pre-start.stderr.log
+      > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+      set +e
+
+      export http_proxy=((http_proxy))
+      export https_proxy=((http_proxy))
+      export no_proxy=((no_proxy))
+
+      sudo apt-get  -o Acquire::http::Proxy=((http_proxy)) -o Acquire::https::Proxy=((https_proxy)) update -y;\
+      apt-get -o Acquire::http::Proxy=((http_proxy)) -o Acquire::https::Proxy=((https_proxy)) install -y socat
+
+    #leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=worker-persistent/jobs/name=scripting/properties/scripting/post-deploy-script
+  value: |
+      #--- Initialize context
+      echo "- Start pre-start"
+      > /var/vcap/sys/log/scripting/pre-start.stderr.log
+      > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+      set +e
+
+      export http_proxy=((http_proxy))
+      export https_proxy=((http_proxy))
+      export no_proxy=((no_proxy))
+
+      sudo apt-get  -o Acquire::http::Proxy=((http_proxy)) -o Acquire::https::Proxy=((https_proxy)) update -y;\
+      apt-get -o Acquire::http::Proxy=((http_proxy)) -o Acquire::https::Proxy=((https_proxy)) install -y socat
+

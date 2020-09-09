@@ -1,0 +1,26 @@
+---
+ci-deployment:
+  coab-depls:
+    target_name: stg-micro-for-coab-depls
+    terraform_config:
+      state_file_path: coab-depls/terraform-config
+    pipelines:
+      coab-depls-update-generated:
+        vars_files:
+        - coa/config/credentials-auto-init.yml
+        - coa/config/credentials-git-config.yml
+        - coa/config/credentials-iaas-specific.yml
+      coab-depls-bosh-generated:
+        vars_files: []
+      coab-depls-init-generated:
+        vars_files: []
+      coab-depls-generated:
+        vars_files: []
+      coab-depls-cf-apps-generated:
+        vars_files: []
+      coab-depls-s3-br-upload-generated:
+        team: upload
+        vars_files: []
+      coab-depls-s3-stemcell-upload-generated:
+        team: upload
+        vars_files: []

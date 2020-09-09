@@ -1,0 +1,12 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kube-state-metrics
+    chart: stable/kube-state-metrics
+    namespace: monitoring
+    version: ((kube-state-metrics-version))
+    properties:
+    - name: image.repository
+      value: coreos/kube-state-metrics
+

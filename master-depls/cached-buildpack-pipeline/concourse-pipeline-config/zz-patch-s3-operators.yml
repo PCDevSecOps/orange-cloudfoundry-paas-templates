@@ -1,0 +1,14 @@
+#- type: replace
+#  path: /resources/name=buildpack-store/source/regexp?
+#  value: ((s3_endpoint))
+  
+#- name: route-registrar-boshrelease-s3
+#  type: s3
+#  source:
+#    access_key_id: private-s3
+#    bucket: bosh-releases
+#    endpoint: https://private-s3.@OPS_DOMAIN/
+#    regexp: cloudfoundry-community/route-registrar-boshrelease-(.*).tgz
+#    region_name: us-east-1
+#    secret_access_key: xxx
+#    skip_ssl_verification: true 

@@ -1,0 +1,37 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: cfcr-helm-addons
+    azs: [z1]
+    instances: 1
+    jobs:
+    - name: action
+      release: helm-kubectl
+      properties:
+        config: certificate
+        kubernetes:
+          host: cfcr-api-((env_pf)).internal.paas
+          port: 443
+          cluster_ca_certificate: ((tls-ca.certificate))
+          client_certificate: ((tls-admin.certificate))
+          client_key: ((tls-admin.private_key))
+        proxy:
+          https: ((https_proxy))
+          http: ((http_proxy))
+          noproxy: ((no_proxy))
+        repository_mirror:
+          enabled: true
+          url: https://jcr.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+        actions:
+        - type: helm_repo
+          name: stable
+          url: https://kubernetes-charts.storage.googleapis.com/
+
+
+    lifecycle: errand
+    networks:
+    - name: ((network))
+    stemcell: default
+    vm_type: 1cpu-1g
+
+

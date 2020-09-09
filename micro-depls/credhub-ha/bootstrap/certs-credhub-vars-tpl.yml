@@ -1,0 +1,8 @@
+#--- CA certs
+INTERNAL_CA_CERT: (( grab $INTERNAL_CA_CERT ))
+INTERNAL_CA_KEY: (( grab $INTERNAL_CA_KEY ))
+
+default_ca:
+  ca: (( file INTERNAL_CA_CERT ))
+  certificate: (( file INTERNAL_CA_CERT ))
+  private_key: (( file INTERNAL_CA_KEY ))

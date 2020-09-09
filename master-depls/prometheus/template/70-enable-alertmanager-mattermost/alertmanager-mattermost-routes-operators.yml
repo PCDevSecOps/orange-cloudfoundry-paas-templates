@@ -1,0 +1,8 @@
+#--- Set route to alertmanager for mattermost
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/route/routes?/-
+  value:
+    receiver: mattermost
+    continue: true
+    group_wait: ((mattermost_group_wait))
+    match_re: ((mattermost_match_re))

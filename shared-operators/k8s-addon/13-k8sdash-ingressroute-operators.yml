@@ -1,0 +1,28 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "k8sdash-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: k8sdash-ingressroute
+        namespace: kube-system
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`k8sdash.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: k8dash
+            namespace: kube-system
+            port: 80
+

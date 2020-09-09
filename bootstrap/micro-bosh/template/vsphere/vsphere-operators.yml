@@ -1,0 +1,73 @@
+#--- Set micro-bosh bosh-cpi version
+- type: replace
+  path: /releases/name=bosh-vsphere-cpi?
+  value:
+    name: bosh-vsphere-cpi
+    sha1: ((bosh_cpi_sha1))
+    url: https://bosh.io/d/github.com/cloudfoundry/bosh-vsphere-cpi-release?v=((bosh_cpi_version))
+    version: ((bosh_cpi_version))
+
+#--- add vcap ssh public key
+- path: /instance_groups/name=bosh/jobs/name=user_add/properties/users/-
+  type: replace
+  value:
+    name: vcap
+    public_key: ((public_key))
+
+#--- Vsphere credentials
+- type: replace
+  path: /cloud_provider/properties/vcenter?
+  value:
+    address: ((vcenter_ip))
+    password: ((vcenter_password))
+    user: ((vcenter_user))
+    datacenters:
+    - clusters:
+      - ((vcenter_cluster)):
+          resource_pool: ((vcenter_resource_pool))
+      name: ((vcenter_dc))
+      datastore_pattern: ((vcenter_ds))
+      persistent_datastore_pattern: ((vcenter_ds))
+      disk_path: ((vcenter_disks))
+      template_folder: ((vcenter_templates))
+      vm_folder: ((vcenter_vms))
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/vcenter?
+  value:
+    address: ((vcenter_ip))
+    password: ((vcenter_password))
+    user: ((vcenter_user))
+    datacenters:
+    - clusters:
+      - ((vcenter_cluster)):
+          resource_pool: ((vcenter_resource_pool))
+      name: ((vcenter_dc))
+      datastore_pattern: ((vcenter_ds))
+      persistent_datastore_pattern: ((vcenter_ds))
+      disk_path: ((vcenter_disks))
+      template_folder: ((vcenter_templates))
+      vm_folder: ((vcenter_vms))
+
+#--- Add local accounts
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/user_management?/local?/users?
+  value:
+    - {name: admin, password: ((admin_password))}
+    - {name: hm, password: ((hm_password))}
+
+#--- Disable generate passwords in order to ease debugging
+#- type: replace
+#  path: /instance_groups/name=bosh/properties/director/generate_vm_passwords?
+#  value: false
+
+#--- Keep unreachable vms in order to ease debugging
+#- type: replace
+#  path: /instance_groups/name=bosh/properties/director/debug?
+#  value:
+#    keep_unreachable_vms: true
+
+#--- CPI mode debug
+- type: replace
+  path: /cloud_provider/properties/vcenter/http_loging?
+  value: true

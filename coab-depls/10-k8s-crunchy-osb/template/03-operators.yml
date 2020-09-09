@@ -1,0 +1,15 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterservicebroker-pgo"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: servicecatalog.k8s.io/v1beta1
+      kind: ClusterServiceBroker
+      metadata:
+        name: pgo-osb
+      spec:
+        url: https://pgo-osb.((namespace)).svc.cluster.local:443
+        insecureSkipTLSVerify: true

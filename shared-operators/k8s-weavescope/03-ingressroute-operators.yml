@@ -1,0 +1,33 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "weavescopeingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: traefik
+        namespace: traefik
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`weave-scope-app.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && (PathPrefix(`/`) )
+          kind: Rule
+          middlewares:
+          - name: auth
+            namespace: weave
+          priority: 0
+          services:
+          - kind: Service
+            name: weave-scope-app
+            namespace: weave
+            port: 80
+
+
+

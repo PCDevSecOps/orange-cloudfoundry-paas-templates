@@ -1,0 +1,137 @@
+---
+applications:
+- name: coa-cassandra-broker
+  memory: 2GB
+  stack: cflinuxfs3
+  routes:
+    - route: (( concat "coa-cassandra-broker." secrets.cloudfoundry.system_domain ))
+  instances: 1
+  path: cf-ops-automation-bosh-broker.jar
+  timeout: 180
+  buildpacks:
+    - cached-java-buildpack
+  env:
+     JAVA_OPTS: (( grab secrets.coab.brokers_additional_flags || "" ))
+     # url to gitlab paas-secret
+     git.paas-secret.url: (( grab secrets.coa-cassandra-broker.git.paas-secret.url ))
+     # user that pushes commits in paas-secret
+     git.paas-secret.user: (( grab secrets.coa-cassandra-broker.git.paas-secret.user ))
+     # password of the git user that push commits in paas-secret
+     git.paas-secret.password: (( grab secrets.coa-cassandra-broker.git.paas-secret.password ))
+     # commit name of the git user that push commits in paas-secret
+     git.paas-secret.committerName: (( grab secrets.coa-cassandra-broker.git.paas-secret.committerName ))
+     # commit name of the git user that push commits in paas-secret
+     git.paas-secret.committerEmail: (( grab secrets.coa-cassandra-broker.git.paas-secret.committerEmail ))
+
+     # url to gitlab paas-template
+     git.paas-template.url: (( grab secrets.coa-cassandra-broker.git.paas-template.url ))
+     # user that pushes commits in paas-template
+     git.paas-template.user: (( grab secrets.coa-cassandra-broker.git.paas-template.user ))
+     # password of the git user that push commits in paas-template
+     git.paas-template.password: (( grab secrets.coa-cassandra-broker.git.paas-template.password ))
+     # commit name of the git user that push commits in paas-template
+     git.paas-template.committerName: (( grab secrets.coa-cassandra-broker.git.paas-template.committerName ))
+     # commit email of the git user that push commits in paas-template
+     git.paas-template.committerEmail: (( grab secrets.coa-cassandra-broker.git.paas-template.committerEmail ))
+
+     # createBranchIfMissing : target branch
+     git.paas-template.createBranchIfMissing: (( grab secrets.coa-cassandra-broker.git.paas-template.createBranchIfMissing ))
+     # checkOutRemoteBranch : source branch
+     git.paas-template.checkOutRemoteBranch: (( grab secrets.coa-cassandra-broker.git.paas-template.checkOutRemoteBranch ))
+
+
+     # broker basic auth user
+     spring.security.user.name: (( grab secrets.coa-cassandra-broker.name ))
+     # broker basic auth password
+     spring.security.user.password: "(( grab secrets.cloudfoundry.service_brokers.coa-cassandra-broker.password ))"
+
+     pipeline.maxExecutionDurationSeconds: (( grab secrets.coa-cassandra-broker.pipeline.maxExecutionDurationSeconds ))
+
+     pipeline.osbDelegateUser: (( grab secrets.coa-cassandra-broker.pipeline.osbDelegateUser ))
+     pipeline.osbDelegatePassword: (( grab secrets.coa-cassandra-broker.pipeline.osbDelegatePassword ))
+     pipeline.brokerUrlPattern: (( concat "https://cassandra-broker-c_{0}." secrets.cloudfoundry.system_domain ))
+
+     logging.level.org.springframework.cloud.servicebroker: debug
+     # Display COA generated bosh manifest file presence. Useful to detect mismatch between COAB and COA template
+     logging.level.com.orange.oss.cloudfoundry.broker.opsautomation.ondemandbroker.pipeline.PipelineCompletionTracker: debug
+
+      # Prefix used in deployment names. Useful to distinguish different deployment types (e.g. c for cassandra and m for mongo)
+     deployment.model-deployment-short-alias: "c"
+     # used in git commit to identity the broker
+     deployment.broker-display-name: Cassandra
+     # relative path to the paas-template deployment model (ie. bosh manifest files)
+     deployment.model-deployment: cassandra
+
+     # Override the default catalog
+     CATALOG_YML: |
+          servicebroker:
+            catalog:
+              services:
+              - id: cassandra-ondemand-service
+                name: cassandra-ondemand
+                description: "On demand Cassandra dedicated cluster"
+                bindable: true
+                plan_updateable: false
+                plans:
+                  - id: cassandra-ondemand-plan
+                    name: small
+                    description: Cassandra 3 nodes Cluster with 42GB (RF=3)data global storage and 8GB RAM/2CPU by node
+                    free: false
+                    metadata:
+                      bullets:
+                      - 42 GB storage
+                      - 3   nodes 
+                      costs:
+                        - amount:
+                            eur: 150.0
+                          unit: Monthly
+                      displayName: Medium Data 42GB - 8GB RAM/2CPU by cluster's node (x3)
+                  - id: plan-coab-cassandra-medium
+                    name: medium
+                    description: Cassandra 5 nodes Cluster with 162GB (RF=3)data global storage and 16GB RAM/4CPU by node
+                    free: false
+                    metadata:
+                      bullets:
+                      - 162 GB storage
+                      - 5   nodes 
+                      costs:
+                        - amount:
+                            eur: 550.0
+                          unit: Monthly
+                      displayName: Medium Data 162GB - 16GB RAM/4CPU by cluster's node (x5)
+                  - id: plan-coab-cassandra-large
+                    name: large
+                    description: Cassandra 9 nodes Cluster with 291GB (RF=3)data global storage and 16GB RAM/4CPU by node
+                    free: false
+                    metadata:
+                      bullets:
+                      - 291GB storage
+                      - 9 nodes
+                      costs:
+                        - amount:
+                            eur: 990.0
+                          unit: Monthly
+                      displayName: Large 291GB - 16GB RAM/4CPU by cluster's node (x9)'
+                  - id: plan-coab-cassandra-xlarge
+                    name: xlarge
+                    description: Cassandra 12 nodes Cluster with 388GB (RF=3)data global storage and 16GB RAM/4CPU by node
+                    free: false
+                    metadata:
+                      bullets:
+                      - 388GB storage
+                      - 9 nodes
+                      costs:
+                        - amount:
+                            eur: 1550.0
+                          unit: Monthly
+                      displayName: Xlarge 388GB - 16GB RAM/4CPU by cluster's node (x12)
+                tags:
+                  - cassandra
+                  - oriented Column
+                metadata:
+                  displayName: Cassandra ondemand dedicated cluster
+                  imageUrl: http://cassandra.apache.org/img/cassandra_logo.png
+                  longDescription: "A dedicated on-demand cassandra 3.11 cluster . Sizing is done by choising a plan."
+                  providerDisplayName: Orange
+                  documentationUrl: https://github.com/orange-cloudfoundry/cassandra-cf-service-boshrelease
+                  supportUrl: https://github.com/orange-cloudfoundry/cassandra-cf-service-boshrelease                  

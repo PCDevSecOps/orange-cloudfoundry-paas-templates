@@ -1,0 +1,4 @@
+- type: replace
+  path: /vm_types/name=1cpu-2g-os?/cloud_properties?
+  value:
+    instance_type: s3.medium.2

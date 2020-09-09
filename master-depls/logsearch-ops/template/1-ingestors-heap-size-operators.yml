@@ -1,0 +1,11 @@
+---
+- type: replace
+  path: /instance_groups/name=ingestor/jobs/name=ingestor_syslog/properties/logstash?
+  value:
+    heap_size: 3023460K
+
+- type: replace
+  path: /instance_groups/name=ingestor/jobs/name=elasticsearch/properties?
+  value:
+    elasticsearch:
+      heap_size: 3023460K

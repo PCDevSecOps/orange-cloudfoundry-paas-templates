@@ -1,0 +1,25 @@
+---
+# spec release cf-mysql  modifiable by project
+# # Define variable in cf-mysql-vars-tpl.yml (spec-cf-mysql)
+#
+# long_query_time : 
+#   . Threshold in seconds above which SQL queries get logged in the slow query log file
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/long_query_time?
+  value: ((spec-mysql.long_query_time))
+
+# server_audit_events :
+#  . enable audit logging and specify types of events that will be logged. If null, then logging is disabled
+#     - "" 
+#     - "connect,query_ddl,query_dml,query_dcl "
+#- type: replace
+#  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/server_audit_events?
+#  value: ((spec-mysql.server_audit_events))
+#
+# Server_audit_excluded_users
+#  . Additional database users to exclude from audit logging : 
+#    - roadmin use by mysql-exporter
+#- type: replace
+#  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/server_audit_excluded_users?
+#  value: null
+

@@ -1,0 +1,34 @@
+#--- Clean obsolete bosh directors tasks files and postgres tasks table
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=scripting/properties/scripting/post-deploy-script?
+  value: |
+    #--- Initialize logs
+    > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+    > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+    echo "- Set postgres clean tasks script."
+    cat > /var/vcap/jobs/director/bin/clean_tasks.sql <<'EOF'
+    delete from tasks where timestamp < now() - interval '60 days';
+    EOF
+
+    echo "- Set logs rotate script."
+    cat > /var/vcap/jobs/director/bin/task_logrotate <<'EOF'
+    #!/bin/bash
+    #--- Compress day-1 tasks files (usual bosh task)
+    echo "============================================================="
+    echo "$(date)"
+    cd /var/vcap/store/director/tasks
+    nb=$(find . -type f -mtime +1 -a -not -name "*.gz" | wc -l)
+    find . -type f -mtime +1 -a -not -name "*.gz" -exec gzip '{}' \; > /dev/null 2>&1
+    echo "- ${nb} tasks files compressed"
+
+    #--- Delete day-60 tasks files
+    nb=$(find . -type d -ctime +60 | wc -l)
+    find . -type d -ctime +60 -exec rm -fr {} \; > /dev/null 2>&1
+    echo "- ${nb} tasks files deleted"
+
+    #--- Cleanup day-60 tasks rows in postgres tasks table
+    echo "- postgres tasks table cleanup"
+    psql_binary=$(ps -ef | grep "postgres -h" | grep -v "grep" | awk '{print $8}' | sed -e "s+/bin/postgres+/bin/psql+")
+    ${psql_binary} -h 0.0.0.0 -p 5432 bosh postgres -a -f /var/vcap/jobs/director/bin/clean_tasks.sql
+    EOF

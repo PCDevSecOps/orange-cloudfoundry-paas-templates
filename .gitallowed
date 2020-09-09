@@ -1,0 +1,42 @@
+#secrets.patterns [A-Z0-9]{20}
+#secrets.patterns ("|')?(AWS|aws|Aws)?_?(SECRET|secret|Secret)?_?(ACCESS|access|Access)?_?(KEY|key|Key)("|')?\s*(:|=>|=)\s*("|')?[A-Za-z0-9/\+=]{40}("|')?
+#secrets.patterns ("|')?(AWS|aws|Aws)?_?(ACCOUNT|account|Account)_?(ID|id|Id)?("|')?\s*(:|=>|=)\s*("|')?[0-9]{4}\-?[0-9]{4}\-?[0-9]{4}("|')?
+#secrets.patterns \s*password:\s*.+
+#secrets.patterns .*client_(id|secret).*
+
+.*(client_id|CLIENT_ID)([[:blank:]])*(:|=)([[:blank:]]|")*(\(\(|\$\{).*
+.*(secret|Secret|SECRET)([[:blank:]])*(:|=)([[:blank:]]|")*(\(\(|\$\{).*
+.*(password|PASSWORD)([[:blank:]])*:([[:blank:]]|")*\(\(.*
+.*((username|USERNAME|user_name|USER_NAME))([[:blank:]])*(:|=)([[:blank:]]|")*(\(\(|\$\{).*
+
+([[:blank:]]|-)* name([[:blank:]])*(:|=)([[:blank:]]|")*(.*)(client|CLIENT)_(secret|SECRET)
+
+# to exclude /client_id?
+.*/(client|CLIENT)_(secret|SECRET)\?
+
+# to exclude tf vars
+variable([[:blank:]]|")*(.*)(client|CLIENT)_(secret|SECRET|id|ID)([[:blank:]]|")*{
+
+#to exclude gitlab-tpl
+password: 'will_be_set_bottom'
+
+# GF_AUTH_GENERIC_OAUTH_CLIENT_SECRET: (( grab secrets.app-with-metrics-influxdb.oauth.client_secret ))
+.*(:|=)([[:blank:]]|")*\(\([[:blank:]]*(grab).*\)\)/
+
+# allows sample
+( )*password: REPLACE_WITH_BROKER_PASSWORD
+( )*password: REPLACE_WITH_NATS_PASSWORD
+( )*password: YOUR_CF_NATS_PASSWORD
+( )*password: BROKER_PASSWORD
+
+# allows empty secret
+([[:blank:]])*(secret)([[:blank:]])*(:|=)([[:blank:]])*(""|'')
+
+# allows password: ~
+([[:blank:]])*(password)([[:blank:]])*(:|=)([[:blank:]])*(~)
+
+# allows credhub:
+*.(:|=).*\/(secret|secrets|username|password)\/.*
+
+# allows samples
+.*user:secret@mygit.mycompany.com.*

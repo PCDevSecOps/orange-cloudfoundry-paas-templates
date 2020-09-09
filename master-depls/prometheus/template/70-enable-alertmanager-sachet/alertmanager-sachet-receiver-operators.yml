@@ -1,0 +1,21 @@
+#--- Set alert manager receivers job with sachet properties
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/receivers/-
+  value:
+    name: astreinte-sms
+
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/receivers/name=astreinte-sms/webhook_configs?/-
+  value:
+    url: ((sachet_url))
+
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/receivers/-
+  value:
+    name: astreinte-call
+
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/receivers/name=astreinte-call/webhook_configs?/-
+  value:
+    url: ((sachet_url))
+    send_resolved: false

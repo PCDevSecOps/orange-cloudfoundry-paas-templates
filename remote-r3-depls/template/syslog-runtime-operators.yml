@@ -1,0 +1,27 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: syslog
+    version: 11.6.0
+
+- type: replace
+  path: /addons/-
+  value:
+    name: syslog
+    jobs:
+    - name: syslog_forwarder
+      release: syslog
+      properties:
+        syslog:
+          director: bosh-remote-r3
+          address: ls-router-ops.internal.paas
+          port: 5514
+          transport: tcp
+          heuristically_filter_debug_messages: true
+
+    exclude:
+      deployments:
+      - logsearch
+      - logsearch-ops
+      - cf-rps
+      - cf-internet-rps

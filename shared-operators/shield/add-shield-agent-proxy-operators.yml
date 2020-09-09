@@ -1,0 +1,7 @@
+#--- Add proxy usage
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env?
+  value:
+    http_proxy: ((http_proxy))
+    https_proxy: ((http_proxy))
+    no_proxy: localhost,127.0.0.1,((shield-domain)),((shield-alias)),shield-s3.internal.paas #no proxy to connect to shield server
