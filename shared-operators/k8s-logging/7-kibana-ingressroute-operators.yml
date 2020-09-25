@@ -1,0 +1,68 @@
+- type: replace
+  path: /variables?/-
+  value:
+    name: kibana_admin_password
+    type: password
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: basic_auth_secret
+    name: kibana
+    namespace: kube-logging
+    user: admin
+    password: ((kibana_admin_password))
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kibana-ingressroute-middleware"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((middleware_api_version))
+      kind: Middleware
+      metadata:
+        name: auth
+        namespace: kube-logging
+      spec:
+        basicAuth:
+          secret: kibana
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kibanaingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: kibana-ingress
+        namespace: kube-logging
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`kibana.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          middlewares:
+          - name: auth
+            namespace: kube-logging
+          priority: 0
+          services:
+          - kind: Service
+            name: kibana-kibana
+            namespace: kube-logging
+            port: 5601
+
+

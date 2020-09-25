@@ -1,0 +1,35 @@
+#!/bin/bash
+#===========================================================================
+# Log with openstack cli tools
+#===========================================================================
+
+#--- Colors and styles
+export RED='\033[1;31m'
+export GREEN='\033[1;32m'
+export STD='\033[0m'
+export BOLD='\033[1m'
+
+#--- Test presence of referent credentials files
+if [ ! -s "${SHARED_SECRETS}" ] ; then
+  printf "\n%bERROR: Credential file \"${SHARED_SECRETS}\" unknown.%b\n\n"
+else
+  case "${KEYSTONE}" in
+    3) #--- Specific keystone V3
+      export OS_IDENTITY_API_VERSION="3"
+      export OS_PROJECT_DOMAIN_NAME=$(bosh int ${SHARED_SECRETS} --path /secrets/openstack/domain/name)
+      export OS_PROJECT_NAME=$(bosh int ${SHARED_SECRETS} --path /secrets/openstack/project/name)
+      export OS_USER_DOMAIN_NAME="${OS_PROJECT_DOMAIN_NAME}" ;;
+
+    2) #--- Specific keystone V2
+      export OS_TENANT_NAME=$(bosh int ${SHARED_SECRETS} --path /secrets/openstack/tenant/name)
+      export OS_REGION_NAME=$(bosh int ${SHARED_SECRETS} --path /secrets/openstack/region/name) ;;
+  esac
+
+  #--- Common keystone V2/V3
+  export OS_AUTH_URL=$(bosh int ${SHARED_SECRETS} --path /secrets/openstack/auth_url)
+  export OS_USERNAME=$(bosh int ${SHARED_SECRETS} --path /secrets/openstack/username)
+  export OS_PASSWORD=$(bosh int ${SHARED_SECRETS} --path /secrets/openstack/password)
+
+  clear
+  printf "\n%bLogged to Openstack%b\n\n" "${GREEN}${BOLD}" "${STD}"
+fi

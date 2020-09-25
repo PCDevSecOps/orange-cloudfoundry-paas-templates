@@ -1,0 +1,22 @@
+- type: remove
+  path: /releases/name=concourse
+- type: remove
+  path: /releases/name=postgres
+- type: remove
+  path: /releases/name=bpm   #bpm is provided by runtime-config
+
+- type: remove
+  path: /instance_groups/name=web/jobs/name=bpm
+
+- type: replace
+  path: /releases/-
+  value:
+    name: concourse
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: postgres
+    version: latest
+

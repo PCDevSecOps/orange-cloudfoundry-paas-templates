@@ -1,0 +1,49 @@
+#--- Add scripting release
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+#--- Integrate additional grafana json dashboard
+- type: replace
+  path: /instance_groups/name=grafana/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/bash
+          #--- Initialize context
+          > /var/vcap/sys/log/scripting/pre-start.stderr.log
+          > /var/vcap/sys/log/scripting/pre-start.stdout.log
+          TARGET_DIR="/var/vcap/data/scripting/additional_dashboard"
+          rm -fr ${TARGET_DIR} > /dev/null 2>&1
+          mkdir -p ${TARGET_DIR} > /dev/null 2>&1
+
+          #--- Set "vmware stats" dashboard
+          cat > ${TARGET_DIR}/vmware_stats.json <<'EOF'
+          ((vmware_stats_content))
+          EOF
+
+          #--- Set "dedicated services general view" dashboard
+          cat > ${TARGET_DIR}/dedicated_services_general_view.json <<'EOF'
+          ((dedicated_services_general_view_content))
+          EOF
+
+          #--- Set "vmware stats" dashboard
+          cat > ${TARGET_DIR}/squid_stats.json <<'EOF'
+          ((squid_stats_content))
+          EOF
+
+          #--- Set "multi region vpn stats" dashboard
+          cat > ${TARGET_DIR}/multi-region-vpn-status.json <<'EOF'
+          ((multi_region_vpn_content))
+          EOF
+
+          #--- Reset "uid" property in all json files
+          for file in ${TARGET_DIR}/*.json ; do
+            echo "$(date +"%d/%m/%Y %H:%M") : Reset uid property and validate ${file}..."
+            sed -i -e 's+"uid":.*+"uid": null,+g' ${file}
+          done

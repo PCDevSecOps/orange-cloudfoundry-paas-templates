@@ -1,0 +1,23 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: blackbox
+    metrics_path: /metrics #/probe for bosh jobs blackbox
+    scheme: https #required to reach cf app, ops_domain is https only
+    params:
+      module: [http] #[http_2xx_example,dns_udp_example]  # Look for a HTTP 200 response.
+    static_configs:
+      - targets:
+        #via intranet
+        - "https://api.((/secrets/cloudfoundry_system_domain))" #probe for cf apis domain
+        - "https://uaa.((/secrets/cloudfoundry_system_domain))" #probe for cf apis domain              
+        - "https://admin-ui.((/secrets/cloudfoundry_system_domain))" #probe for cf apis domain
+        - "https://probe-apps-domains.((/secrets/cloudfoundry_apps_domain))" #probe for cf apps domain
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: "blackbox-exporter-proxy-intranet-domains.((/secrets/cloudfoundry_apps_domain))" #target is intranet-interco, use apps wildcard
+  

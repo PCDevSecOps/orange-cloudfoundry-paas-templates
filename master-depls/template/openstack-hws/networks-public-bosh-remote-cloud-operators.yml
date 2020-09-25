@@ -1,0 +1,14 @@
+#--- Add public vip network, with associated security group
+- type: replace
+  path: /networks/-
+  value:
+    name: public
+    type: vip
+#    subnets:
+#    - azs: [z1]
+#      cloud_properties:
+#        static:
+#        - 203.0.113.10
+#        - 203.0.113.12
+#        security_groups:
+#        - tf-enable-from-bosh-agent-r2

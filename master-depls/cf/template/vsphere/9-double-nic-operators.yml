@@ -1,0 +1,26 @@
+#--- Load networking release
+- type: replace
+  path: /releases/name=networking?
+  value:
+    name: networking
+    version: latest
+
+#--- Set private nic
+- type: replace
+  path: /instance_groups/name=api-relay/networks/0:before  #set private network first in list
+  value:
+    name: tf-net-cf
+    default: [dns,gateway]
+
+    #--- Set routes to public internal subnets
+- type: replace
+  path: /instance_groups/name=api-relay/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+        - net: 10.0.0.0
+          netmask: 255.0.0.0
+          gateway: ((interco_gateway))

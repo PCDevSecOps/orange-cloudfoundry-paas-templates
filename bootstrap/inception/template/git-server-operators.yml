@@ -1,0 +1,16 @@
+#--- Add git server for bootstrap before using gitlab
+- type: replace
+  path: /releases/-
+  value:
+    name: git-server
+    version: ((git_server_release))
+    sha1: ((git_server_sha1))
+    url: https://bosh.io/d/github.com/cloudfoundry-community/git-server-release?v=((git_server_release))
+
+- type: replace
+  path: /instance_groups/name=inception/jobs/name=git-server?
+  value:
+    release: git-server
+    name: git-server
+    properties:
+      repositories: [template, secrets, coa]

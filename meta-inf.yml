@@ -1,0 +1,5 @@
+---
+meta-inf:
+  versions:
+    paas-templates: 48.0.1
+    cf-ops-automation: v5.0.2

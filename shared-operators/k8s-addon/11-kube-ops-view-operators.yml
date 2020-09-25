@@ -1,0 +1,13 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kube-ops-view
+    chart: stable/kube-ops-view
+    namespace: monitoring
+    version: ((kube-obs-view-version))
+    properties:
+    - name: rbac.create
+      value: true
+    - name: securityContext.runAsUser
+      value: 1001

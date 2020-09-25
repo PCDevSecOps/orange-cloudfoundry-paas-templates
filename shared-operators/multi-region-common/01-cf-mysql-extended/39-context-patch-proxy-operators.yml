@@ -1,0 +1,124 @@
+---
+# add bpm release
+- type: replace
+  path: /releases/name=bpm?
+  value:
+    name: bpm
+    version: latest
+
+#--- Load os-conf release
+- type: replace
+  path: /releases/name=os-conf?
+  value:
+    name: os-conf
+    version: latest
+
+#--- Add scripting release to catch IP
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=proxy/networks/0
+  value:
+    name: ((public_network_name))
+
+- type: replace
+  path: /instance_groups/name=proxy/networks/-
+  value:
+    name: ((private_network_name))
+    default: [dns,gateway]
+
+
+
+#--- Set system flag in order to allow traffic incoming on eth0 (public ip) and outcoming on eth1 (private ip)
+- type: replace
+  path: /instance_groups/name=proxy/jobs/-
+  value:
+    release: os-conf
+    name: sysctl
+    properties:
+      sysctl:
+        - net.ipv4.conf.all.rp_filter=2 #https://access.redhat.com/solutions/53031
+
+
+#--- Set static routing in order to join proxy by using its public ip (eth0)
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=scripting?
+  value:
+    name: scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "pre-start !!"
+
+        post-start-script: |
+          #--- Skip errors and initialize logs
+          set +e
+          > /var/vcap/sys/log/scripting/post-start.stderr.log
+          > /var/vcap/sys/log/scripting/post-start.stdout.log
+          SUBNET_GW_R1="((osb_dedicated_gateway_r1_ip))"
+          SUBNET_GW_R2="((osb_dedicated_gateway_r2_ip))"
+
+          CHECK_EXISTS="$(ip route list | grep "10.0.0.0")"
+          if [ "${CHECK_EXISTS}" = "" ] ; then
+
+            IP=$(hostname -I | awk '{print $1}' | awk -F"." '{print $3}')
+            R1=$(echo ${SUBNET_GW_R1} | awk '{print $1}' | awk -F"." '{print $3}')
+            R2=$(echo ${SUBNET_GW_R2} | awk '{print $1}' | awk -F"." '{print $3}')
+
+            if [ "${IP}" = "${R1}" ] ; then
+              sudo route add -net 10.0.0.0 netmask 255.0.0.0 gw ${SUBNET_GW_R1}
+              if [ $? = 0 ] ; then echo "- $(date): Add route to 10.0.0.0/8 via ${SUBNET_GW_R1} succeeded."
+                else echo "- $(date): Add route to 10.0.0.0/8 via ${SUBNET_GW_R1} failed." ; exit 1
+              fi
+            fi
+
+            if [ "${IP}" = "${R2}" ] ; then
+              sudo route add -net 10.0.0.0 netmask 255.0.0.0 gw ${SUBNET_GW_R2}
+              if [ $? = 0 ] ; then echo "- $(date): Add route to 10.0.0.0/8 via ${SUBNET_GW_R2} succeeded."
+                else echo "- $(date): Add route to 10.0.0.0/8 via ${SUBNET_GW_R2} failed." ; exit 1
+              fi
+            fi
+
+          fi
+
+        post-stop-script: |
+          #--- Skip errors and initialize logs
+          set +e
+          > /var/vcap/sys/log/scripting/post-stop.stderr.log
+          > /var/vcap/sys/log/scripting/post-stop.stdout.log
+
+          SUBNET_GW_R1="((osb_dedicated_gateway_r1_ip))"
+          SUBNET_GW_R2="((osb_dedicated_gateway_r2_ip))"
+
+          CHECK_EXISTS="$(ip route list | grep "10.0.0.0")"
+          if [ "${CHECK_EXISTS}" = "" ] ; then
+
+            IP=$(hostname -I | awk '{print $1}' | awk -F"." '{print $3}')
+            R1=$(echo ${SUBNET_GW_R1} | awk '{print $1}' | awk -F"." '{print $3}')
+            R2=$(echo ${SUBNET_GW_R2} | awk '{print $1}' | awk -F"." '{print $3}')
+
+            if [ "${IP}" = "${R1}" ] ; then
+              sudo route del -net 10.0.0.0 netmask 255.0.0.0 gw ${SUBNET_GW_R1}
+              if [ $? = 0 ] ; then echo "- $(date): Delete route to 10.0.0.0/8 via ${SUBNET_GW_R1} succeeded."
+                else echo "- $(date): Delete route to 10.0.0.0/8 via ${SUBNET_GW_R1} failed." ; exit 1
+              fi
+            fi
+
+            if [ "${IP}" = "${R2}" ] ; then
+              sudo route del -net 10.0.0.0 netmask 255.0.0.0 gw ${SUBNET_GW_R2}
+              if [ $? = 0 ] ; then echo "- $(date): Delete route to 10.0.0.0/8 via ${SUBNET_GW_R2} succeeded."
+                else echo "- $(date): Delete route to 10.0.0.0/8 via ${SUBNET_GW_R2} failed." ; exit 1
+              fi
+            fi
+
+          fi
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+    release: generic-scripting
+

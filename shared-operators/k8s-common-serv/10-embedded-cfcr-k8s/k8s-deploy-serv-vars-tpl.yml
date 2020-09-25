@@ -1,0 +1,7 @@
+env_pf: k8s-serv
+kubernetes.host: k8s-serv-api.internal.paas
+network: tf-net-kubo
+prefix-deployment: "10-"
+docker_repository: ""
+
+

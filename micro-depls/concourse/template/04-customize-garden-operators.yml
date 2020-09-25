@@ -1,0 +1,6 @@
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=worker/properties/garden?/max_containers?
+  value: ((garden_max_containers))
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=worker/properties/garden?/network_pool?
+  value: ((garden_network_pool))

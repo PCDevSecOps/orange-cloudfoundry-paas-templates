@@ -1,0 +1,58 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikconfigmap"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: traefik-conf
+        namespace: traefik
+      data:
+        traefik.toml: |-
+          [global]
+            checkNewVersion = true
+            sendAnonymousUsage = false
+
+          [log]
+            level = "WARNING"
+
+          [api]
+            dashboard = true
+          [providers]
+             [providers.kubernetesingress]
+             [providers.kubernetescrd]
+
+          [entrypoints]
+            [entrypoints.web]
+              address = ":80"
+              [entryPoints.web.proxyProtocol]
+                 insecure = false
+              [entryPoints.web.forwardedHeaders]
+                 insecure = true
+            [entrypoints.https]
+              address = ":443"
+            [entryPoints.mysql]
+              address = ":3306"
+            [entryPoints.mongodb]
+              address = ":27017"
+            [entryPoints.postgres]
+              address = ":5432"
+
+          [tcp] # YAY!
+            [tcp.routers]
+               [tcp.routers.to-db-1]
+                   entrypoints = ["mongodb"]
+                   rule = "HostSNI(`*`)"
+                   service = "db-1"
+          [ping]
+
+          [accesslog]
+
+          [metrics]
+            [metrics.prometheus]
+               entryPoint = "traefik"
+               buckets=[0.1,0.3,1.2,5.0]

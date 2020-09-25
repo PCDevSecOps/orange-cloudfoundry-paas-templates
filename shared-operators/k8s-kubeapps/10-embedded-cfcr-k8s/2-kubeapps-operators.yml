@@ -1,0 +1,33 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kubeapps
+    chart:  bitnami/kubeapps
+    namespace: kubeapps
+    version: ((kubeapps-version))
+    debug: true
+    properties:
+    - name: useHelm3
+      value: true
+    values_file_content:
+      mongodb:
+        securityContext:
+          enabled: true
+          fsGroup: 1001
+          runAsUser: 1001
+        mongodbEnableIPv6: false
+      securityContext:
+        enabled: true
+        runAsUser: 1001
+      apprepository:
+        initialReposProxy:
+          enabled: true
+          http_proxy: ((http_proxy))
+          https_proxy: ((https_proxy))
+          no_proxy: ((no_proxy))
+        initialRepos:
+        - name: jcr
+          url: https://jcr.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+          source: https://github.com/kubernetes/charts/tree/master/stable
+          ca.crt: ((ca_cert))

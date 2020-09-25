@@ -1,0 +1,20 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: elastic
+    url: https://helm.elastic.co
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kibana
+    chart: elastic/kibana
+    namespace: kube-logging
+    version: ((kibana-version))
+    properties:
+    - name: image
+      value: "kibana/kibana"

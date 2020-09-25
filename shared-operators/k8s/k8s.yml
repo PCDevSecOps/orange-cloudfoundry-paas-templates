@@ -1,0 +1,86 @@
+name: ((deployment_name))
+
+instance_groups:
+- name: k8s-smoke-tests
+  azs: [z1]
+  vm_type: 1cpu-1g
+  lifecycle: errand
+  instances: 1
+  jobs:
+  - name: smoke-tests
+    release: k8s
+
+  stemcell: default
+  networks:
+  - name: ((network))
+    cloud_properties:
+      security_groups: [default]
+
+variables:
+- name: virtual-ip
+
+- name: tls-ca
+  type: certificate
+  options:
+    is_ca: yes
+    common_name: ca
+
+
+
+- name: tls-sa
+  type: certificate
+  options:
+    is_ca: yes
+    common_name: sa
+
+
+- name: tls-admin
+  type: certificate
+  options:
+    ca: tls-ca
+    common_name: kubernetes-admin
+    extended_key_usage:
+    - client_auth
+    organization: system:masters
+
+- name: kubernetes-dashboard-ca
+  options:
+    common_name: ca
+    is_ca: true
+  type: certificate
+
+- name: tls-kubernetes-dashboard
+  options:
+    alternative_names: []
+    ca: kubernetes-dashboard-ca
+    common_name: kubernetesdashboard.k8s.internal
+  type: certificate
+
+
+- name: encryption-key
+  type: password
+  options:
+    length: 32
+    include_special: yes
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: true
+  canary_watch_time: 1000-120000
+  update_watch_time: 1000-120000
+
+stemcells:
+- alias:   default
+  os:      ubuntu-xenial
+  version: latest
+
+releases:
+- name:    k8s
+  version: latest
+- name:    open-iscsi
+  version: latest
+- name:    routing
+  version: latest
+- name:    helm-kubectl
+  version: latest

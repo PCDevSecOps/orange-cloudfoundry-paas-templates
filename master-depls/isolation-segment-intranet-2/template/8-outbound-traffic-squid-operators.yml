@@ -1,0 +1,127 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=to-intranet/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      env:
+        #--- Set explicit proxy "internet-proxy" to get docker images
+        http_proxy: http://192.168.116.80:3128
+        https_proxy: http://192.168.116.80:3128
+        no_proxy: localhost,127.0.0.1
+      store_dir: /var/vcap/data
+
+- type: replace
+  path: /instance_groups/name=to-intranet/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/sh
+          echo "pre-start. Generate squid.conf"
+          cat - > /var/vcap/data/scripting/squid.conf <<EOF
+          #logfile_daemon /var/vcap/packages/squid/libexec/log_file_daemon
+          #access_log daemon:/var/vcap/sys/log/squid/access.log
+          cache_log  /dev/null
+          
+          http_port 3128
+          dns_nameservers ((/secrets/intranet_interco_2/intranet_dns_1)) ((/secrets/intranet_interco_2/intranet_dns_2))
+          
+          refresh_pattern ^ftp:           1440    20%    10080
+          refresh_pattern ^gopher:        1440     0%     1440
+          refresh_pattern -i (/cgi-bin/|\?)  0     0%        0
+          refresh_pattern .                  0    20%     4320
+          
+          acl manager url_regex -i ^cache_object:// +i ^https?://[^/]+/squid-internal-mgr/
+          acl localhost src 127.0.0.1/32 ::1
+          
+          http_access allow manager localhost
+          http_access deny manager
+          http_access allow localhost
+
+          #debug_options ALL,7
+          
+          #accepted inbound connections ----------------------------
+          #acl localnet src 10.0.0.0/8     # RFC 1918 possible internal network should not allow from intranet
+          #acl localnet src 172.16.0.0/12  # RFC 1918 possible internal network
+          acl localnet src 192.168.0.0/16 # RFC 1918 possible internal network
+          
+          acl localnet src fc00::/7       # RFC 4193 local private network range
+          acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+          #denied outbound connections ---------------------------- (no intranet access posssible with the proxy)
+          acl localdest dst 10.0.0.0/8     # RFC 1918 possible internal network should not allow access to intranet
+          acl localdest dst 172.16.0.0/12  # RFC 1918 possible internal network
+          acl localdest dst 192.168.0.0/16 # RFC 1918 possible internal network
+          acl Safe_CONNECT_ports port 442 443 80 8442 8443 8008
+          acl Safe_ports port 80          # http
+          acl Safe_ports port 443         # https
+          acl Safe_ports port 5281        # elk 
+          acl Safe_ports port 1025-65535  # Unregistered ports
+          acl CONNECT method CONNECT
+          #enable management
+          acl managerAdmin src 192.168.0.0/16 #allow manager access from platform priv network (prometheus)
+          http_access allow localhost manager
+          http_access allow managerAdmin manager
+          http_access deny manager
+          # Deny requests to unsafe ports
+          http_access deny !Safe_ports
+          # Deny CONNECT to other than secure SSL ports
+          http_access deny CONNECT !Safe_CONNECT_ports
+          # permit inbound from local networks
+          http_access allow localnet
+          
+          #http_access deny all
+          # never cache
+          cache deny all
+          #--- Transactions logging format
+          # ts  : Date of request, seconds since epoch
+          # tu  : Date of request, sub-second component
+          # tl  : Local time. Optional strftime format argument
+          # rm  : Request method
+          # ru  : Request URL, without the query string
+          # mt  : MIME type of the request
+          # >Hs : HTTP status code (200, 404, 407, etc)
+          # Ss  : Squid status code (TCP_HIT, TCP_MISS etc)
+          # tr  : Response time (milliseconds)
+          # >st : Total size of request
+          # <st : Total size of reply
+          # >a  : Client source IP address
+          # >p  : Client source port
+          # <a  : Server or peer IP address
+          # <p  : Server or peer port number
+          # un  : Authenticated user name or dash
+          # Sh  : Squid hierarchy code (FIRST_UP_PARENT, etc)
+          logformat http_squid %tl ACCESS_LOG_SQUID %rm %ru %mt %03>Hs (%Ss) %6tr %>st %<st %>a:%>p %<a:%<p %un
+          logformat squid %ts.%03tu %6tr %>a %Ss/%03>Hs %<st %rm %ru %[un %Sh/%<a %mt
+
+          EOF
+
+- type: replace
+  path: /instance_groups/name=to-intranet/jobs/-
+  value:
+    release: docker
+    name: containers
+    properties:
+      containers:
+      - name: squid
+        image: sameersbn/squid:3.5.27-1
+        #log_driver: syslog
+        memory: 800m
+        memory_swappiness: 0
+        bind_ports:
+        - "3128:3128"
+        bind_volumes:
+        - "/var/spool/squid"
+        volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"
+          - "/var/vcap/data/scripting/squid.conf:/etc/squid/squid.conf"
+          - "/var/vcap/sys/log/containers/squid:/var/log/squid"
+

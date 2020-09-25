@@ -1,0 +1,38 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "jaeger-instance"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: jaegertracing.io/v1
+      kind: "Jaeger"
+      metadata:
+        name: "my-jaeger"
+        namespace: jaeger
+      spec:
+        ingress:
+          enabled: false
+        strategy: allInOne
+        allInOne:
+          image: jaegertracing/all-in-one:1.13
+          options:
+            log-level: debug
+            query:
+              base-path: /jaeger
+        ui:
+          options:
+            dependencies:
+              menuEnabled: true
+            tracking:
+              gaID: UA-000000-2
+            menu:
+            - label: "About Jaeger"
+              items:
+              - label: "Documentation"
+                url: "https://www.jaegertracing.io/docs/latest"
+        storage:
+          options:
+            memory:
+              max-traces: 100000

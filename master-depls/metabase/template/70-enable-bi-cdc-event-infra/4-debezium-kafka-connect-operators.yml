@@ -1,0 +1,68 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+# add singleton instance group to hold kafka connect
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: kafka-connect
+    instances: 1
+    vm_type: 2cpu-8g
+    stemcell: default
+    azs: [z1]
+    networks:
+      - name: tf-net-exchange
+    persistent_disk_type: large
+    jobs:
+    - name: docker
+      release: docker
+      properties:
+        store_dir: /var/vcap/data
+        registry_mirrors:
+        - https://docker.jcr.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy
+
+    - name: containers
+      release: docker
+      properties:
+        containers:
+        - name: kafka_connect_debezium
+          image: debezium/connect:((debezium-version))
+          bind_ports:
+          - 8083:8083
+          env_vars:
+          - "GROUP_ID=1"
+          - "CONFIG_STORAGE_TOPIC=replica_connect_configs"
+          - "OFFSET_STORAGE_TOPIC=replica_connect_offsets"
+          - "STATUS_STORAGE_TOPIC=replica_connect_statuses"
+          - "LOG_LEVEL=INFO" #set DEBUG to troubleshoot
+          - "BOOTSTRAP_SERVERS=kafka:9092" #use bosh-dns alias to kafka instance group
+          volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"
+
+         #see env vars in 
+         # https://github.com/confluentinc/cp-helm-charts/blob/master/charts/cp-kafka-connect/templates/deployment.yaml#L32
+         # https://github.com/confluentinc/cp-demo/blob/5.2.1-post/docker-compose.yml#L143
+         # https://docs.confluent.io/current/installation/docker/config-reference.html#kafka-connect-configuration
+        - name: cp_kafka_connect
+          image: confluentinc/cp-kafka-connect:((cp-kafka-connect-version))
+          bind_ports:
+          - 8084:8083
+          env_vars:
+          - "CONNECT_LOG4J_ROOT_LOGLEVEL=INFO"
+          - "CONNECT_BOOTSTRAP_SERVERS=kafka:9092"  #use bosh-dns alias to kafka instance group
+          - "CONNECT_REST_PORT=8083"
+          - "CONNECT_GROUP_ID=replica"
+          - "CONNECT_CONFIG_STORAGE_TOPIC=replica_connect_configs"
+          - "CONNECT_OFFSET_STORAGE_TOPIC=replica_connect_offsets"
+          - "CONNECT_STATUS_STORAGE_TOPIC=replica_connect_statuses"
+          - "CONNECT_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter"
+          - "CONNECT_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter"
+          - "CONNECT_INTERNAL_KEY_CONVERTER=org.apache.kafka.connect.json.JsonConverter"
+          - "CONNECT_INTERNAL_VALUE_CONVERTER=org.apache.kafka.connect.json.JsonConverter"
+          - "CONNECT_REST_ADVERTISED_HOST_NAME=localhost"
+          - "CONNECT_PLUGIN_PATH=/usr/share/java"
+          volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"

@@ -1,0 +1,9 @@
+env_pf: k8s-serv
+kubernetes.host: ((/secret/cce-hostname))
+kubernetes-password: ((/secret/cce-kubo-admin-password))
+kubernetes.cluster_ca_certificate: ((/secret/cce-tls-kubernetes.ca))
+kubernetes.dashboard_cert: ((/secret/cce-kubokubernetes-dashboard-ca.ca))
+kubernetes.dashboard_key: ((/secret/cce-kubernetes-dashboard-ca.private_key))
+network: tf-net-kubo
+prefix-deployment: "10-"
+docker_repository: ""

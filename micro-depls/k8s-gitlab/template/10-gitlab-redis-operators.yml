@@ -1,0 +1,29 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: dandydev
+    url: https://dandydeveloper.github.io/charts
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: gitlab-redis
+    chart:  dandydev/redis-ha
+    namespace: gitlab
+    version: ((redis-ha-version))
+    properties:
+    - name: existingSecret
+      value: gitlab-redis-secret
+    - name: auth
+      value: true
+    - name: authKey
+      value: secret
+    - name: haproxy.enabled
+      value: true
+    - name: exporter.enabled
+      value: true
+    - name: persistentVolume.storageClass
+      value: longhorn
+

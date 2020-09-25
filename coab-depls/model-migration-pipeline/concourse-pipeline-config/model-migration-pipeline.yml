@@ -1,0 +1,494 @@
+---
+resources:
+  - name: paas-templates-wip
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((paas-templates-branch))
+      skip_ssl_verification: true
+      paths: ["coab-depls"]
+
+  - name: cassandra-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cassandra-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cassandra-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cassandra-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cassandra-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cassandra-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+
+groups:
+  - name: all
+    jobs:
+      - plan-coab-migration-on-wip-branch
+      - backup-cassandra-service-instances-branch
+      - apply-coab-migration-on-cassandra-service-instances-based-on-wip-branch
+      - backup-cf-mysql-service-instances-branch
+      - apply-coab-migration-on-cf-mysql-service-instances-based-on-wip-branch
+      - backup-mongodb-service-instances-branch
+      - apply-coab-migration-on-mongodb-service-instances-based-on-wip-branch
+      - backup-cf-rabbit-service-instances-branch
+      - apply-coab-migration-on-cf-rabbit-service-instances-based-on-wip-branch
+      - backup-redis-service-instances-branch
+      - apply-coab-migration-on-redis-service-instances-based-on-wip-branch
+
+  - name: plan-coab-migration-on-wip-branch
+    jobs:
+      - plan-coab-migration-on-wip-branch
+
+  - name: migration-on-cassandra
+    jobs:
+      - backup-cassandra-service-instances-branch
+      - apply-coab-migration-on-cassandra-service-instances-based-on-wip-branch
+
+  - name: migration-on-cf-mysql
+    jobs:
+      - backup-cf-mysql-service-instances-branch
+      - apply-coab-migration-on-cf-mysql-service-instances-based-on-wip-branch
+
+  - name: migration-on-mongodb
+    jobs:
+      - backup-mongodb-service-instances-branch
+      - apply-coab-migration-on-mongodb-service-instances-based-on-wip-branch
+
+  - name: migration-on-cf-rabbit
+    jobs:
+      - backup-cf-rabbit-service-instances-branch
+      - apply-coab-migration-on-cf-rabbit-service-instances-based-on-wip-branch
+
+  - name: migration-on-redis
+    jobs:
+      - backup-redis-service-instances-branch
+      - apply-coab-migration-on-redis-service-instances-based-on-wip-branch
+
+jobs:
+
+  - name: plan-coab-migration-on-wip-branch
+    serial: true
+    plan:
+    - in_parallel:
+      - get: paas-templates-wip
+        params: { submodules: none }
+        trigger: true
+
+    - task: plan-migration
+      input_mapping: { paas-templates: paas-templates-wip }
+
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((docker-registry-url))governmentpaas/bosh-cli-v2 #credhub var
+            tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+        inputs:
+          - name: paas-templates
+        outputs:
+          - name: paas-templates-output
+
+        run:
+          path: /bin/sh
+          args:
+            - -c
+            - |
+                  echo "cloning repository"
+                  OUTPUT_REPOSITORY=paas-templates-output
+                  git clone paas-templates ${OUTPUT_REPOSITORY}
+
+                  echo "starting coab migration pipeline"
+                  ${OUTPUT_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${OUTPUT_REPOSITORY} -a
+
+    - task: display-status-for-cassandra
+
+      config: &display-status-task
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((docker-registry-url))governmentpaas/bosh-cli-v2 #credhub var
+            tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+        inputs:
+          - name: paas-templates-output
+        run:
+          path: /bin/sh
+          args:
+            - -c
+            - |
+              echo "creating status script from BASH_SCRIPT_CONTENT environment variable"
+              printenv BASH_SCRIPT_CONTENT > script.sh
+              chmod +x script.sh
+              ./script.sh
+      params:
+        ALIAS: c_
+        BASH_SCRIPT_CONTENT: &display-status-script |
+          echo "displaying status"
+          OUTPUT_REPOSITORY=paas-templates-output
+          cd ${OUTPUT_REPOSITORY}
+          display=$(git status | grep "${ALIAS}")
+          if [ $? -eq 0 ]; then
+            git status | grep "${ALIAS}"
+          else
+            echo "no migration planned"
+          fi
+
+    - task: display-status-for-cf-mysql
+      config: *display-status-task
+      params:
+        ALIAS: y_
+        BASH_SCRIPT_CONTENT: *display-status-script
+
+    - task: display-status-for-cf-rabbit
+      config: *display-status-task
+      params:
+        ALIAS: r_
+        BASH_SCRIPT_CONTENT: *display-status-script
+
+    - task: display-status-for-mongodb
+      config: *display-status-task
+      params:
+        ALIAS: m_
+        BASH_SCRIPT_CONTENT: *display-status-script
+
+    - task: display-status-for-redis
+      config: *display-status-task
+      params:
+        ALIAS: e_
+        BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: backup-cassandra-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cassandra-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+      - put: cassandra-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cassandra-service-instances
+          force: true
+
+  - name: apply-coab-migration-on-cassandra-service-instances-based-on-wip-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-wip #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: cassandra-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cassandra-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-wip, service-instances-input: cassandra-service-instances}
+
+        config: &apply-migration-task
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: ((docker-registry-url))governmentpaas/bosh-cli-v2 #credhub var
+              tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+          inputs:
+            - name: paas-templates-model
+            - name: service-instances-input
+          outputs:
+            - name: service-instances-output
+
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+
+                INPUT_REPOSITORY=paas-templates-model
+                INPUT_INSTANCES=service-instances-input
+                OUTPUT_INSTANCES=service-instances-output
+
+                echo "cloning repository"
+                GIT_USER_NAME="Orange Cloud Foundry SKC CI Server" # credential_leak_validated
+                GIT_USER_EMAIL="codex.clara-cloud-ops@orange.com" # credential_leak_validated
+                GIT_COMMIT_MESSAGE="migration of dedicated services instances"
+
+                git config --global user.email "${GIT_USER_EMAIL}"
+                git config --global user.name "${GIT_USER_NAME}"
+
+                git clone ${INPUT_INSTANCES} ${OUTPUT_INSTANCES}
+
+                echo "apply migration"
+
+                echo "starting coab migration pipeline - building"
+                ${INPUT_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${INPUT_REPOSITORY} -b
+
+                echo "starting coab migration pipeline - migrating"
+                ${INPUT_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${OUTPUT_INSTANCES} -m
+
+                cd ${OUTPUT_INSTANCES}
+                git status
+
+                git add .
+                echo "Git Diff:"
+                git diff
+                CHANGE_DETECTED_COUNTER=$(git status --porcelain|wc -l)
+                if [ ${CHANGE_DETECTED_COUNTER} -gt 0 ]; then
+                echo "commiting"
+                #GIT_COMMIT_MESSAGE=$(eval echo $(echo $COMMIT_MESSAGE))
+                git commit --no-verify -a -m "$GIT_COMMIT_MESSAGE"
+                git --no-pager show HEAD
+                else
+                echo "No change detected, skip commit"
+                fi
+
+      - put: cassandra-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+  - name: backup-cf-mysql-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+      - put: cf-mysql-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-mysql-service-instances
+          force: true
+
+  - name: apply-coab-migration-on-cf-mysql-service-instances-based-on-wip-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-wip #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-mysql-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-wip, service-instances-input: cf-mysql-service-instances}
+
+        config: *apply-migration-task
+
+      - put: cf-mysql-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+  - name: backup-mongodb-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+      - put: mongodb-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: mongodb-service-instances
+          force: true
+
+  - name: apply-coab-migration-on-mongodb-service-instances-based-on-wip-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-wip #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-mongodb-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-wip, service-instances-input: mongodb-service-instances}
+
+        config: *apply-migration-task
+
+      - put: mongodb-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+
+  - name: backup-cf-rabbit-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+      - put: cf-rabbit-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-rabbit-service-instances
+          force: true
+
+  - name: apply-coab-migration-on-cf-rabbit-service-instances-based-on-wip-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-wip #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-rabbit-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-wip, service-instances-input: cf-rabbit-service-instances}
+
+        config: *apply-migration-task
+
+      - put: cf-rabbit-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+  - name: backup-redis-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+      - put: redis-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: redis-service-instances
+          force: true
+
+  - name: apply-coab-migration-on-redis-service-instances-based-on-wip-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-wip #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-redis-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-wip, service-instances-input: redis-service-instances}
+
+        config: *apply-migration-task
+
+      - put: redis-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true

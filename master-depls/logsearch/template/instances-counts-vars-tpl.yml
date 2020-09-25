@@ -1,0 +1,4 @@
+---
+elasticsearch_master_count: (( grab meta.logsearch.elasticsearch_master_instances_count ))
+elasticsearch_data_count: (( grab meta.logsearch.elasticsearch_data_instances_count ))
+ingestor_count: (( grab meta.logsearch.ingestor_instances_count ))

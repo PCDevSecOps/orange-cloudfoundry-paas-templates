@@ -1,0 +1,27 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: catalog
+    chart: svc-cat/catalog
+    namespace: ((namespace))
+    version: ((catalog-version))
+    properties:
+    - name: controllerManager.resources.limits.cpu
+      value: 500m
+    - name: controllerManager.resources.limits.memory
+      value: 300Mi
+    - name: image
+      value: ((docker_repository))kubernetes-service-catalog/service-catalog:v0.3.0
+    - name: securityContext.runAsUser
+      value: 1001
+    - name: webhook.service.type
+      value: ClusterIP
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "patch-svc"
+    cmd: "patch"
+    options: deployment -n catalog catalog-catalog-controller-manager -p '{"spec":{"volumes":[{"name":"run", "emptyDir":"{}"}],"containers":[{"name":"controller-manager", "volumeMounts":[{"mountPath":"/var/run", "name":"run"}]}]}}'

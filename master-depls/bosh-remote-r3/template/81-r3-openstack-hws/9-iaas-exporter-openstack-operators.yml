@@ -1,0 +1,36 @@
+#openstack exporter, as a docker container
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=scripting/properties/scripting/pre-start-script?
+  value: |
+    #!/bin/sh
+    echo "prestart, prepare openstack api config file"
+    # add config.json
+    cat - > /var/vcap/data/scripting/clouds.yaml <<EOF
+    clouds:
+     r3-openstack-cloud:
+       region_name: ((region))
+       identity_api_version: 3
+       identity_interface: internal
+       auth:
+         username: ((openstack_username))
+         password: ((openstack_password))
+         project_name: ((openstack_project))
+         project_domain_name: ((openstack_domain))
+         user_domain_name: ((openstack_domain))
+         auth_url: ((auth_url))
+         cacert: ""
+         verify: true #true | false  // disable || enable SSL certificate verification
+    EOF
+
+# disabled, waiting for https://github.com/openstack-exporter/openstack-exporter/issues/117
+#- type: replace
+#  path: /instance_groups/name=bosh/jobs/name=containers/properties/containers/-
+#  value:
+#    name: openstack_iaas_exporter
+#    image: quay.io/niedbalski/openstack-exporter-linux-amd64:v1.0.0
+#    bind_ports:
+#    - "9180:9180"
+#    volumes:
+#    - /var/vcap/data/scripting/clouds.yaml:/etc/openstack/clouds.yaml
+#    command: "r3-openstack-cloud"
+#

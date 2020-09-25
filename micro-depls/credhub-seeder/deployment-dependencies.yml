@@ -1,0 +1,10 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases:
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release

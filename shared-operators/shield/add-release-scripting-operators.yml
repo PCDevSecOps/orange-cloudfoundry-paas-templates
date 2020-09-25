@@ -1,0 +1,6 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: 3

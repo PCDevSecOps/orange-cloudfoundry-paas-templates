@@ -1,0 +1,3 @@
+# this operator remove effective commit to secrets repository
+- type: remove
+  path: /jobs/name=update-to-cf-ops-automation-((cf-ops-automation-version-static))/plan/put=secrets

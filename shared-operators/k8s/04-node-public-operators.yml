@@ -1,0 +1,67 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: node_public
+    instances: ((nb_node_public))
+    azs:       [z1,z2,z3]
+    vm_type: ((vm_type_node_public))
+    #disk_type: ((disk_type_node_public))
+    persistent_disk_type: ((persistent_disk_type_node_public))
+    vm_extensions:
+    - 150GB_ephemeral_disk
+    stemcell:  default
+    networks:
+    - name: ((network))
+      cloud_properties:
+        security_groups: [default]
+    jobs:
+    - name: open-iscsi-pkg-install
+      release: open-iscsi
+    - name: net-weave
+      release: k8s
+    - name: runtime-runc
+      release: k8s
+      properties:
+        cni: weave
+        mirrors:
+          docker.io:
+            url: ((registry-mirrors))
+          quay.io:
+            url: ((registry-mirrors))
+          k8s.gcr.io:
+            url: ((registry-mirrors))
+          '*':
+            url: ((registry-mirrors))
+
+    - name: kubelet
+      release: k8s
+      properties:
+        apiserver: ((virtual-ip))
+        taints:
+        - public=true:NoExecute
+        labels:
+          node: public
+
+    - name: route_registrar
+      release: routing
+      consumes:
+        nats:
+          instances:
+          - address: ops-routing-nats
+          properties:
+            nats:
+              port: 4222
+              user: nats
+              password: ((/bosh-master/ops-routing/nats_password))
+
+      properties:
+        route_registrar:
+          routes:
+
+          - name: ingress-((env_pf))-endpoint
+            registration_interval: 60s
+            port: 30726 # traefik ingress controller
+            server_cert_domain_san: "ingress.((env_pf)).k8s.internal"
+            uris:
+            - "*.((env_pf)).((/secrets/cloudfoundry_ops_domain))"
+

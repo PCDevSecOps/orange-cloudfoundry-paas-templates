@@ -1,0 +1,89 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - "submodules/cf-deployment"
+        - "shared-operators/cf-isolation-segments"
+
+    releases:
+      cflinuxfs3:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cflinuxfs3-release
+
+      cf-networking:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-networking-release
+
+      silk:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/silk-release
+
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+
+      cf-syslog-drain:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-syslog-drain-release
+
+      cf-smoke-tests:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-smoke-tests-release
+
+      diego:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/diego-release
+
+      garden-runc:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/garden-runc-release
+
+      nfs-volume:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nfs-volume-release
+
+      mapfs:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/mapfs-release	
+
+      loggregator:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/loggregator-release
+
+      loggregator-agent:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/loggregator-agent-release
+
+      nats:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nats-release
+
+      statsd-injector:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/statsd-injector-release
+      cf-cli:
+        base_location: https://bosh.io/d/github.com/
+        repository: bosh-packages/cf-cli-release
+
+      docker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+
+      bpm:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bpm-release
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+      metrics-discovery:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/metrics-discovery-release
+
+
+
+    errands:
+#      smoke_tests: FIXME: config smoke test to run on separate isolation segment

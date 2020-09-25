@@ -1,0 +1,91 @@
+---
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+# This is a legacy file, please update root-deployment.yml instead
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+
+deployment-name: ops-depls
+
+#--- Stemcell
+stemcell-version: "621.81"
+
+#--- Bosh releases
+bpm-version: "1.1.8"
+broker-registrar-version: "3.4.0"
+cf-cli-version: "1.5.0"
+cf-containers-broker-version: "1.0.3"
+cf-rabbitmq-version: "294.0.0"
+cf-rabbitmq-multitenant-broker-version: "67.0.0"
+cf-rabbitmq-smoke-tests-version: "47.0.0"
+cf-redis-version: "434.3.12"
+concourse-version: "6.5.1"
+cron-version: "1.3.0"
+docker-version: "35.3.4"
+generic-scripting-version: "3"
+haproxy-version: "10.0.0"
+kafka-version : "2.3.0"
+kafka-service-broker-version : "2.2.0"
+memcache-version: "6.0.0"
+minio-version: "2020-06-18T02-23-35Z"
+nfs-volume-version: "1.1.0" #old version for legacy broker compatibility
+os-conf-version: "21.0.0"
+postgres-version: "42"
+prometheus-version: "26.2.0"
+routing-version: "0.203.0"
+shield-version: "8.7.2"
+uaa-version: "17"
+zookeeper-version : "0.0.10"
+
+releases:
+  autosleep-boshrelease:
+    repository: cloudfoundry-community/autosleep-boshrelease
+    version: "1.0.2"
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.17.0
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.8
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 4.2.0
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: "11.6.0"
+
+  cassandra:
+    repository: orange-cloudfoundry/cassandra-cf-service-boshrelease
+    version: "12"
+  cf-containers-broker:
+    repository: cloudfoundry-community/cf-containers-broker-boshrelease
+  cf-mysql:
+    repository: orange-cloudfoundry/cf-mysql-release
+    version: 37.1.0
+    tag_prefix: ""
+  gobonniego:
+    repository: cunnie/gobonniego-release
+    version: "1.0.9"
+  prometheus-addons:
+    repository: orange-cloudfoundry/prometheus-addons-boshrelease/
+    version: 3.1.1
+  safe:
+      repository: cloudfoundry-community/safe-boshrelease
+      version: "0.2.0"
+  shield-addon-mongodb:
+    repository: shieldproject/shield-addon-mongodb-boshrelease
+    version: 1.0.0
+  squid:
+    repository: cloudfoundry-community/squid-boshrelease
+    version: "1.0.1"
+  cloudfoundry-operators-tools:
+    repository: orange-cloudfoundry/cloudfoundry-operators-tools-boshrelease
+    version: "2"
+  db-dumper-service:
+    repository: orange-cloudfoundry/db-dumper-service-release
+    version: "3"
+  mongodb-services:
+    repository: orange-cloudfoundry/mongodb-boshrelease
+    version: "12"
+    tag_prefix: ''
+

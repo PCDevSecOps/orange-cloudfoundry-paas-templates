@@ -1,0 +1,48 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "longhorn-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: longhorn-ingress
+        namespace: longhorn-system
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`longhorn.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          middlewares:
+          - name: svc-wss-headers
+            namespace: longhorn-system
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: longhorn-frontend
+            namespace: longhorn-system
+            port: 80
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "longhorn-middleware"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((middleware_api_version))
+      kind: Middleware
+      metadata:
+        name: svc-wss-headers
+        namespace: longhorn-system
+      spec:
+        headers:
+          customRequestHeaders:
+            X-Forwarded-Proto: "https"

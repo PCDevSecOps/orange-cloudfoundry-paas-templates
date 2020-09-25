@@ -1,0 +1,5 @@
+#--- Availability zones
+resource_pool: (( grab secrets.vsphere.vcenter_resource_pool ))
+az_1: (( grab secrets.vsphere.vcenter_cluster ))
+az_2: (( grab secrets.vsphere.vcenter_cluster ))
+az_3: (( grab secrets.vsphere.vcenter_cluster ))

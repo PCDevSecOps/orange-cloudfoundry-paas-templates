@@ -1,0 +1,6 @@
+# create namespace
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: fluxcd

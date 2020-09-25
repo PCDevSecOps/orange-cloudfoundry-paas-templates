@@ -1,0 +1,12 @@
+#--- Create directory for prometheus dynamic service discovery output file
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=scripting/properties/scripting/pre-start-script?
+  value: |
+    #--- Initialize logs
+    > /var/vcap/sys/log/scripting/pre-start.stderr.log
+    > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+    if [ ! -d /var/vcap/store/bosh_exporter ] ; then
+      echo "- Create directory for prometheus bosh_exporter."
+      sudo mkdir -p /var/vcap/store/bosh_exporter
+    fi

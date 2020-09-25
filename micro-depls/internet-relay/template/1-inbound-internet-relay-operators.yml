@@ -1,0 +1,28 @@
+#for iaas without lbaas v2 support, use a single vm with floating ip as tcp relay
+
+#set the floating ip
+- type: replace
+  path: /instance_groups/name=internet-relay/networks/-
+  value:
+    name: net-floating
+    static_ips:
+    - ((floating_ip))
+
+#add haproxy to cf-rps
+- type: replace
+  path: /instance_groups/name=internet-relay/jobs/-
+  value:
+    release: haproxy
+    name: haproxy
+    properties:
+      ha_proxy:
+        disable_http: true
+        log_level: debug
+        tcp:
+        - name: internet-https
+          port: 443
+          backend_servers:
+          - 192.168.99.130 #to cf-rp-internet
+        tcp_backend_config: |
+          default-server send-proxy-v2-ssl-cn
+

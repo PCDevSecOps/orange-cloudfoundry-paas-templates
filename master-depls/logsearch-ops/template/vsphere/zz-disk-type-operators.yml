@@ -1,0 +1,4 @@
+#--- change vm_disk for elasticsearch data
+- type: replace
+  path: /instance_groups/name=elasticsearch_data/persistent_disk_type
+  value: logsearch-ops-es-data

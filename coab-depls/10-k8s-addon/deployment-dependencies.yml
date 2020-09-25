@@ -1,0 +1,24 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/k8s-addon
+        - shared-operators/k8s-common
+        - shared-operators/k8s-common-serv
+    stemcells:
+    releases:
+      helm-kubectl:
+        base_location: https://github.com
+        repository: orange-cloudfoundry/helm-kubectl-boshrelease
+
+    errands:
+      action:
+
+    manual-errands:
+      cfcr-clean-kube-system:
+      cfcr-clean-monitoring:
+      cfcr-clean-openebs:
+
+

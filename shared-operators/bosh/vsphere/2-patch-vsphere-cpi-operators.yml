@@ -1,0 +1,26 @@
+#--- Force bosh-openstack-cpi release to concourse provided, no direct download
+- type: replace
+  path: /releases/name=bosh-vsphere-cpi?
+  value:
+    name: bosh-vsphere-cpi
+    version: latest
+
+#--- Vsphere credentials
+- path: /instance_groups/name=bosh/properties/vcenter?
+  type: replace
+  value:
+    http_logging: true
+    upgrade_hw_version: true
+    address: ((vcenter_ip))
+    password: ((vcenter_password))
+    user: ((vcenter_user))
+    datacenters:
+    - clusters:
+      - ((vcenter_cluster)):
+          resource_pool: ((vcenter_resource_pool))
+      name: ((vcenter_dc))
+      datastore_pattern: ((vcenter_ds))
+      persistent_datastore_pattern: ((vcenter_ds))
+      disk_path: ((vcenter_disks))
+      template_folder: ((vcenter_templates))
+      vm_folder: ((vcenter_vms))

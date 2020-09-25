@@ -1,0 +1,14 @@
+#--- Add network interface on master-depls subnet
+- type: replace
+  path: /instance_groups/name=bosh/networks/-
+  value:
+    name: intranet-ha-interco
+    static_ips:
+    - ((blobstore_ip))
+
+- type: replace
+  path: /instance_groups/name=nats-relay/networks/-
+  value:
+    name: tf-net-exchange
+    default: [dns,gateway]
+

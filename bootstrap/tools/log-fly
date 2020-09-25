@@ -1,0 +1,95 @@
+#!/bin/bash
+#===========================================================================
+# Log with fly (concourse) cli
+#===========================================================================
+
+#--- Colors and styles
+export RED='\033[1;31m'
+export YELLOW='\033[1;33m'
+export GREEN='\033[1;32m'
+export STD='\033[0m'
+export BOLD='\033[1m'
+export REVERSE='\033[7m'
+
+#--- Log to credhub
+flagError=0
+if [ ! -s "${SHARED_SECRETS}" ] ; then
+  printf "\n%bERROR : Credential file \"${SHARED_SECRETS}\" unknown.%b\n\n" "${RED}" "${STD}" ; flagError=1
+else
+  if [ ! -s "${INTERNAL_CA_CERT}" ] ; then
+    printf "\n%bERROR : CA cert file \"${INTERNAL_CA_CERT}\" unknown.%b\n\n" "${RED}" "${STD}" ; flagError=1
+  else
+    #--- Credhub API Endpoint
+    export CREDHUB_SERVER="https://credhub.internal.paas:8844"
+    export CREDHUB_CLIENT="director_to_credhub"
+    export CREDHUB_CA_CERT="${INTERNAL_CA_CERT}"
+    export CREDHUB_SECRET=$(bosh int ${SHARED_SECRETS} --path /secrets/bosh_credhub_secrets)
+
+    #--- Login to credhub
+    credhub api > /dev/null 2>&1
+    credhub login > /dev/null 2>&1
+    if [ $? = 1 ] ; then
+      printf "\n%bERROR : Connexion failed.%b\n\n" "${RED}" "${STD}" ; flagError=1
+    else
+      #--- Get user and password account for login
+      FLY_USER=$(credhub g -k "username" -n /micro-bosh/concourse/local_user 2> /dev/null)
+      if [ "${FLY_USER}" = "" ] ; then
+        printf "\n\n%bERROR : fly user credhub value unknown.%b\n\n" "${RED}" "${STD}" ; flagError=1
+      fi
+      FLY_PASSWORD=$(credhub g -k "password" -n /micro-bosh/concourse/local_user 2> /dev/null)
+      if [ "${FLY_PASSWORD}" = "" ] ; then
+        printf "\n\n%bERROR : fly password credhub value unknown.%b\n\n" "${RED}" "${STD}" ; flagError=1
+      fi
+    fi
+  fi
+fi
+
+#--- Choose concourse team
+if [ ${flagError} = 0 ] ; then
+  flag=0
+  while [ ${flag} = 0 ] ; do
+    flag=1
+    printf "\n%bTeam concourse :%b\n\n" "${REVERSE}${GREEN}" "${STD}"
+    printf "%b1%b : main\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b2%b : micro-depls\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b3%b : master-depls\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b4%b : ops-depls\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b5%b : coab-depls\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b6%b : remote-r2-depls\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b7%b : remote-r3-depls\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b8%b : cloudflare-depls\n" "${GREEN}${BOLD}" "${STD}"
+    printf "%b9%b : utils\n" "${GREEN}${BOLD}" "${STD}"
+    printf "\n%bYour choice :%b " "${GREEN}${BOLD}" "${STD}" ; read choice
+    case "${choice}" in
+      1) TEAM="main" ;;
+      2) TEAM="micro-depls" ;;
+      3) TEAM="master-depls" ;;
+      4) TEAM="ops-depls" ;;
+      5) TEAM="coab-depls" ;;
+      6) TEAM="remote-r2-depls" ;;
+      7) TEAM="remote-r3-depls" ;;
+      8) TEAM="cloudflare-depls" ;;
+      9) TEAM="utils" ;;
+      *) flag=0 ; clear ;;
+    esac
+  done
+
+  #--- Check if "bootstrap" or "standard" mode to use intranet interco external ip or ops relay domain
+  status=$(nc -vz 192.168.116.160 8080 2>&1 | grep "succeeded")
+  if [ "${status}" != "" ] ; then
+    export FLY_ENDPOINT="http://192.168.116.160:8080"
+  else
+    OPS_DOMAIN=$(grep "ops_domain" ${SHARED_SECRETS} | awk '{print $2}')
+    export FLY_ENDPOINT="https://elpaaso-concourse.${OPS_DOMAIN}"
+  fi
+
+  #--- Log to concourse and display builds
+  printf "\n"
+  fly login -c ${FLY_ENDPOINT} -u ${FLY_USER} -p ${FLY_PASSWORD} -n ${TEAM}
+  if [ $? = 0 ] ; then
+    fly workers
+    printf "\n"
+  else
+    printf "\n\n%bERROR : Fly login failed.%b\n\n" "${RED}" "${STD}"
+  fi
+fi

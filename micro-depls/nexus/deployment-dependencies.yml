@@ -1,0 +1,14 @@
+---
+deployment:
+  nexus:
+    releases:
+      docker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+      nginx:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/nginx-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+

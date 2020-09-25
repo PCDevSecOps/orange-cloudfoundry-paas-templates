@@ -1,0 +1,28 @@
+
+  #expose behind ops gorouters
+- type: replace
+  path: /instance_groups/name=jfrog-container-registry/jobs/-
+  value:
+    name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines:
+        - ops-routing-nats
+        password: ((/bosh-master/ops-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: jfrog-route
+          port: 8082
+          registration_interval: 20s
+          uris:
+          - jcr.((/secrets/cloudfoundry_ops_domain))
+        - name: jfrog-docker
+          port: 8081
+          registration_interval: 20s
+          uris:
+          - docker.jcr.((/secrets/cloudfoundry_ops_domain)) #specific subdomain for docker virtual repo access.
+
+

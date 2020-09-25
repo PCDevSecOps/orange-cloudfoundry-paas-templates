@@ -1,0 +1,36 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: false
+      templates:
+        extended_scan_path:
+        - submodules/bosh-deployment
+        - shared-operators/bosh
+        - shared-operators/shield
+    releases:
+      bosh:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh
+      uaa:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/uaa-release
+      backup-and-restore-sdk:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+      prometheus:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/prometheus-boshrelease
+      docker:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/docker-boshrelease
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+
+    manual-errands:
+        errand-scripting:

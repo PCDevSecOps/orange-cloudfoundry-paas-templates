@@ -1,0 +1,131 @@
+---
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+# This is a legacy file, please update root-deployment.yml instead
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+
+name: ops-depls
+releases:
+  autosleep-boshrelease:
+    repository: cloudfoundry-community/autosleep-boshrelease
+    version: 1.0.2
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.17.0
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.8
+  broker-registrar:
+    version: 3.4.0
+    repository: cloudfoundry-community/broker-registrar-boshrelease
+  cassandra:
+    repository: orange-cloudfoundry/cassandra-cf-service-boshrelease
+    version: '12'
+  cf-cli:
+    version: 1.5.0
+    repository: bosh-packages/cf-cli-release
+  cf-containers-broker:
+    repository: cloudfoundry-community/cf-containers-broker-boshrelease
+    version: 1.0.3
+  cf-mysql:
+    repository: orange-cloudfoundry/cf-mysql-release
+    version: 37.1.0
+    tag_prefix: ''
+  cf-rabbitmq:
+    version: 294.0.0
+    repository: pivotal-cf/cf-rabbitmq-release
+  cf-rabbitmq-multitenant-broker:
+    version: 67.0.0
+    repository: pivotal-cf/cf-rabbitmq-multitenant-broker-release
+  cf-rabbitmq-smoke-tests:
+    version: 47.0.0
+    repository: pivotal-cf/cf-rabbitmq-smoke-tests-release
+  cf-redis:
+    version: 434.3.12
+    repository: pivotal-cf/cf-redis-release
+  cloudfoundry-operators-tools:
+    repository: orange-cloudfoundry/cloudfoundry-operators-tools-boshrelease
+    version: '2'
+  concourse:
+    version: 6.5.1
+    repository: concourse/concourse-bosh-release
+  cron:
+    version: 1.3.0
+    repository: cloudfoundry-community/cron-boshrelease
+  db-dumper-service:
+    repository: orange-cloudfoundry/db-dumper-service-release
+    version: '3'
+  docker:
+    version: 35.3.4
+    repository: cloudfoundry-incubator/docker-boshrelease
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  gobonniego:
+    repository: cunnie/gobonniego-release
+    version: 1.0.9
+  haproxy:
+    version: 10.1.0
+    repository: cloudfoundry-community/haproxy-boshrelease
+  kafka:
+    version: 2.4.2
+    repository: cloudfoundry-community/kafka-boshrelease
+  kafka-service-broker:
+    version: 2.2.0
+    repository: cloudfoundry-community/kafka-service-broker-boshrelease
+  memcache:
+    version: 6.0.0
+    repository: cloudfoundry-community/memcache-release
+  minio:
+    version: 2020-06-18T02-23-35Z
+    repository: minio/minio-boshrelease
+  mongodb-services:
+    repository: orange-cloudfoundry/mongodb-boshrelease
+    version: '12'
+    tag_prefix: ''
+  nfs-volume:
+    version: 1.1.0
+    repository: cloudfoundry/nfs-volume-release
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 5.0.0
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 22.0.0
+  postgres:
+    version: '42'
+    repository: cloudfoundry/postgres-release
+  prometheus:
+    version: 26.2.0
+    repository: cloudfoundry-community/prometheus-boshrelease
+  prometheus-addons:
+    repository: orange-cloudfoundry/prometheus-addons-boshrelease/
+    version: 3.1.1
+  orange-prometheus-addons:
+    repository: orange-cloudfoundry/orange-prometheus-addons-boshrelease/
+    version: '1'
+  routing:
+    version: 0.206.0
+    repository: cloudfoundry/routing-release
+  safe:
+    repository: cloudfoundry-community/safe-boshrelease
+    version: 0.2.0
+  shield:
+    version: 8.7.2
+    repository: starkandwayne/shield-boshrelease
+  shield-addon-mongodb:
+    repository: shieldproject/shield-addon-mongodb-boshrelease
+    version: 1.0.0
+  squid:
+    repository: cloudfoundry-community/squid-boshrelease
+    version: 1.0.1
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.6.0
+  uaa:
+    version: '17'
+    repository: cloudfoundry/uaa-release
+  zookeeper:
+    version: 0.0.10
+    repository: cppforlife/zookeeper-release
+stemcell:
+  version: '621.81'

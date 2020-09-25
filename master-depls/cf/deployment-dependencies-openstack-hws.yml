@@ -1,0 +1,10 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      nfs-volume:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nfs-volume-release
+      mapfs:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/mapfs-release	

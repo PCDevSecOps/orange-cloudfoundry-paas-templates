@@ -1,0 +1,42 @@
+#base bosh-dns-aliases add-on, alias are added with separate operators
+- type: replace
+  path: /releases/-
+  value: 
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /addons?/-
+  value: 
+    name: bosh-dns-aliases
+    include:
+      stemcell:
+      - os: ubuntu-trusty
+      - os: ubuntu-xenial
+    jobs:
+    - name: bosh-dns-aliases
+      release: bosh-dns-aliases
+      properties:
+        aliases:
+        - domain: thanos-store-alias #local alias
+          targets:
+          - query: '*'
+            instance_group: thanos-store
+            deployment: prometheus
+            network: tf-net-exchange
+            domain: bosh
+        - domain: prometheus-coab #local alias
+          targets:
+          - query: '*'
+            instance_group: prometheus2
+            deployment: prometheus-exporter-coab
+            network: tf-net-exchange
+            domain: bosh
+        - domain: prometheus-ops #local alias
+          targets:
+          - query: '*'
+            instance_group: prometheus2
+            deployment: prometheus-exporter-ops
+            network: tf-net-exchange
+            domain: bosh
+

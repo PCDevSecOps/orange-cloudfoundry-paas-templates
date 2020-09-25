@@ -1,0 +1,5 @@
+#--- Set preferred api version to the lowest (openstack)
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/cpi?
+  value:
+    preferred_api_version: 1

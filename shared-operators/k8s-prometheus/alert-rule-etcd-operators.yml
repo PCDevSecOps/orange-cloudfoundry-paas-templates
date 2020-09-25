@@ -1,0 +1,124 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-prometheus-alert-rule-etcd"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: alert-rules-etcd
+        namespace: prometheus
+      data:
+        alert-rules-etcd.yaml: |
+          groups:
+            - name: etcd
+              rules:
+                - alert: InsufficientMembers
+                  expr: count(etcd_server_id) > (count(etcd_server_id) / 2 - 1)
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "Insufficient Members (instance {{ $labels.instance }})"
+                    description: "Etcd cluster should have an odd number of members\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+                - alert: NoLeader
+                  expr: etcd_server_has_leader == 0
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "No Leader (instance {{ $labels.instance }})"
+                    description: "Etcd cluster have no leader\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HighNumberOfFailedGrpcRequests
+                  expr: sum(rate(grpc_server_handled_total{grpc_code!="OK"}[5m])) BY (grpc_service, grpc_method) / sum(rate(grpc_server_handled_total[5m])) BY (grpc_service, grpc_method) > 0.01
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "High number of failed GRPC requests (instance {{ $labels.instance }})"
+                    description: "More than 1% GRPC request failure detected in Etcd for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HighNumberOfFailedGrpcRequests
+                  expr: sum(rate(grpc_server_handled_total{grpc_code!="OK"}[5m])) BY (grpc_service, grpc_method) / sum(rate(grpc_server_handled_total[5m])) BY (grpc_service, grpc_method) > 0.05
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "High number of failed GRPC requests (instance {{ $labels.instance }})"
+                    description: "More than 5% GRPC request failure detected in Etcd for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: GrpcRequestsSlow
+                  expr: histogram_quantile(0.99, sum(rate(grpc_server_handling_seconds_bucket{grpc_type="unary"}[5m])) by (grpc_service, grpc_method, le)) > 0.15
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "GRPC requests slow (instance {{ $labels.instance }})"
+                    description: "GRPC requests slowing down, 99th percentil is over 0.15s for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HighNumberOfFailedHttpRequests
+                  expr: sum(rate(etcd_http_failed_total[5m])) BY (method) / sum(rate(etcd_http_received_total[5m])) BY (method) > 0.01
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "High number of failed HTTP requests (instance {{ $labels.instance }})"
+                    description: "More than 1% HTTP failure detected in Etcd for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HighNumberOfFailedHttpRequests
+                  expr: sum(rate(etcd_http_failed_total[5m])) BY (method) / sum(rate(etcd_http_received_total[5m])) BY (method) > 0.05
+                  for: 5m
+                  labels:
+                    severity: error
+                  annotations:
+                    summary: "High number of failed HTTP requests (instance {{ $labels.instance }})"
+                    description: "More than 5% HTTP failure detected in Etcd for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HttpRequestsSlow
+                  expr: histogram_quantile(0.99, rate(etcd_http_successful_duration_seconds_bucket[5m])) > 0.15
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "HTTP requests slow (instance {{ $labels.instance }})"
+                    description: "HTTP requests slowing down, 99th percentil is over 0.15s for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: EtcdMemberCommunicationSlow
+                  expr: histogram_quantile(0.99, rate(etcd_network_peer_round_trip_time_seconds_bucket[5m])) > 0.15
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "Etcd member communication slow (instance {{ $labels.instance }})"
+                    description: "Etcd member communication slowing down, 99th percentil is over 0.15s for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HighNumberOfFailedProposals
+                  expr: increase(etcd_server_proposals_failed_total[1h]) > 5
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "High number of failed proposals (instance {{ $labels.instance }})"
+                    description: "Etcd server got more than 5 failed proposals past hour\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HighFsyncDurations
+                  expr: histogram_quantile(0.99, rate(etcd_disk_wal_fsync_duration_seconds_bucket[5m])) > 0.5
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "High fsync durations (instance {{ $labels.instance }})"
+                    description: "Etcd WAL fsync duration increasing, 99th percentil is over 0.5s for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"
+
+                - alert: HighCommitDurations
+                  expr: histogram_quantile(0.99, rate(etcd_disk_backend_commit_duration_seconds_bucket[5m])) > 0.25
+                  for: 5m
+                  labels:
+                    severity: warning
+                  annotations:
+                    summary: "High commit durations (instance {{ $labels.instance }})"
+                    description: "Etcd commit duration increasing, 99th percentil is over 0.25s for 5 minutes\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

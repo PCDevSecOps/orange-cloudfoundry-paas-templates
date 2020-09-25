@@ -1,0 +1,34 @@
+#- type: replace
+#  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env?
+#  value:
+#    auto: true
+#    libs:
+#      - /var/vcap/packages/cassandra/lib
+#    path:
+#      - /var/vcap/jobs/cassandra/bin
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env/auto?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env/libs?/-
+  value: /var/vcap/packages/cassandra/lib
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env/path?/-
+  value: /var/vcap/jobs/cassandra/bin
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/plugin_paths?/cassandra2?
+  value: /var/vcap/packages/shield-addon-cassandra-plugin/bin
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: shield-addon-cassandra-plugin
+    release: shield-addon-cassandra
+
+- type: replace
+  path: /instance_groups/name=shield/name
+  value: cassandra-servers

@@ -1,0 +1,8 @@
+tenant_name: master-depls
+deployment_name: metabase
+pg_port: "5432"
+pg_dir: postgres
+pg_user: vcap
+pg_password: ""
+pg_version: "11.9"
+when: "daily 3:15"

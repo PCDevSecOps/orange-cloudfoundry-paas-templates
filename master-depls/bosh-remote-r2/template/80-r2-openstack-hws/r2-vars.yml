@@ -1,0 +1,7 @@
+#--define exernal ip to let r3 vms joins r1 bosh director
+#port mapping enables firewall friendly communication for nats, blobstore and registry
+blobstore_ip: ((/secrets/multi_region_region_2_vpn_interco_blobstore_ip))
+blobstore_port: 443 #25550
+nats_ip: ((/secrets/multi_region_region_2_vpn_interco_nats_ip))
+nats_port: 443 #4222
+registry_port: 80 #2577

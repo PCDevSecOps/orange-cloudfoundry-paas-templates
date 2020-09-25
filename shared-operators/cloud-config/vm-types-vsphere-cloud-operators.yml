@@ -1,0 +1,120 @@
+#===============================================================================
+#--- Vsphere VM flavors (with default 40 Go system disk)
+#===============================================================================
+
+#1cpu-1g
+- type: replace
+  path: /vm_types/name=1cpu-1g/cloud_properties?/cpu?
+  value: 1
+
+- type: replace
+  path: /vm_types/name=1cpu-1g/cloud_properties?/ram?
+  value: 1024
+
+- type: replace
+  path: /vm_types/name=1cpu-1g/cloud_properties?/disk?
+  value: 40960
+
+#1cpu-2g
+- type: replace
+  path: /vm_types/name=1cpu-2g/cloud_properties?/cpu?
+  value: 1
+
+- type: replace
+  path: /vm_types/name=1cpu-2g/cloud_properties?/ram?
+  value: 2048
+
+- type: replace
+  path: /vm_types/name=1cpu-2g/cloud_properties?/disk?
+  value: 40960
+
+#1cpu-4g
+- type: replace
+  path: /vm_types/name=1cpu-4g/cloud_properties?/cpu?
+  value: 1
+
+- type: replace
+  path: /vm_types/name=1cpu-4g/cloud_properties?/ram?
+  value: 4024
+
+- type: replace
+  path: /vm_types/name=1cpu-4g/cloud_properties?/disk?
+  value: 40960
+
+#2cpu-8g
+- type: replace
+  path: /vm_types/name=2cpu-8g/cloud_properties?/cpu?
+  value: 2
+
+- type: replace
+  path: /vm_types/name=2cpu-8g/cloud_properties?/ram?
+  value: 8048
+
+- type: replace
+  path: /vm_types/name=2cpu-8g/cloud_properties?/disk?
+  value: 40960
+
+#4cpu-8g
+- type: replace
+  path: /vm_types/name=4cpu-8g/cloud_properties?/cpu?
+  value: 4
+
+- type: replace
+  path: /vm_types/name=4cpu-8g/cloud_properties?/ram?
+  value: 8048
+
+- type: replace
+  path: /vm_types/name=4cpu-8g/cloud_properties?/disk?
+  value: 40960
+
+#4cpu-16g
+- type: replace
+  path: /vm_types/name=4cpu-16g/cloud_properties?/cpu?
+  value: 4
+
+- type: replace
+  path: /vm_types/name=4cpu-16g/cloud_properties?/ram?
+  value: 16024
+
+- type: replace
+  path: /vm_types/name=4cpu-16g/cloud_properties?/disk?
+  value: 40960
+
+#8cpu-16g
+- type: replace
+  path: /vm_types/name=8cpu-16g/cloud_properties?/cpu?
+  value: 8
+
+- type: replace
+  path: /vm_types/name=8cpu-16g/cloud_properties?/ram?
+  value: 16024
+
+- type: replace
+  path: /vm_types/name=8cpu-16g/cloud_properties?/disk?
+  value: 40960
+
+#8cpu-32g
+- type: replace
+  path: /vm_types/name=8cpu-32g/cloud_properties?/cpu?
+  value: 8
+
+- type: replace
+  path: /vm_types/name=8cpu-32g/cloud_properties?/ram?
+  value: 32048
+
+- type: replace
+  path: /vm_types/name=8cpu-32g/cloud_properties?/disk?
+  value: 40960
+
+#16cpu-64g
+- type: replace
+  path: /vm_types/name=16cpu-64g/cloud_properties?/cpu?
+  value: 16
+
+- type: replace
+  path: /vm_types/name=16cpu-64g/cloud_properties?/ram?
+  value: 64096
+
+- type: replace
+  path: /vm_types/name=16cpu-64g/cloud_properties?/disk?
+  value: 40960

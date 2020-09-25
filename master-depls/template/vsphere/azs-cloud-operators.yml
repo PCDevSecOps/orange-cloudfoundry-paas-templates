@@ -1,0 +1,22 @@
+#--- map az to cluster
+- type: replace
+  path: /azs
+  value:
+  - name: z1
+    cloud_properties:
+      datacenters:
+      - clusters:
+        - ((az_1)):
+            resource_pool: ((resource_pool))
+  - name: z2
+    cloud_properties:
+      datacenters:
+      - clusters:
+        - ((az_2)):
+            resource_pool: ((resource_pool))
+  - name: z3
+    cloud_properties:
+      datacenters:
+      - clusters:
+        - ((az_3)):
+            resource_pool: ((resource_pool))

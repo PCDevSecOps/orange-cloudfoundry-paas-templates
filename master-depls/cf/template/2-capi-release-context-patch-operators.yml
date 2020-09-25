@@ -1,0 +1,57 @@
+#adapt for cc properties
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/app_bits_max_body_size?
+  value: 2048M
+
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/broker_client_default_async_poll_interval_seconds?
+  value: 30
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/client_max_body_size?
+  value: 2048M
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/db_logging_level?
+  value: debug
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_app_memory?
+  value: 512
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_app_disk_in_mb?
+  value: 512
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_running_security_groups?
+  value: ["public_networks", "dns"]
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/default_staging_security_groups?
+  value: ["public_networks", "dns"]
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/volume_services_enabled?
+  value: true
+
+
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/min_cli_version?
+  value: "6.47.2"
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/min_recommended_cli_version?
+  value: "6.47.2"
+
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/system_domain_organization?
+  value: ((system_domain_organization))
+
+# disable cross space domain path sharing see https://github.com/orange-cloudfoundry/paas-templates/issues/378  
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/properties/cc/disable_private_domain_cross_space_context_path_route_sharing?
+  value: true

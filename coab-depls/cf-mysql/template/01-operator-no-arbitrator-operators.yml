@@ -1,0 +1,11 @@
+---
+- type: remove
+  path: /instance_groups/name=arbitrator
+
+- type: replace
+  path: /instance_groups/name=mysql/instances
+  value: 3
+
+- type: replace
+  path: /instance_groups/name=mysql/azs/-
+  value: z3

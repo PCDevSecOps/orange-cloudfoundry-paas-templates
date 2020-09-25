@@ -1,0 +1,32 @@
+---
+#add shield release
+- type: replace
+  path: /releases/-
+  value:
+    name: shield
+    version: latest
+
+#add routing
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+- type: replace
+  path: /releases/name=bosh-dns-aliases?
+  value:
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /releases/name=minio?
+  value:
+    name: minio
+    version: latest
