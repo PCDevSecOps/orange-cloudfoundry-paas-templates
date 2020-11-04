@@ -1,0 +1,29 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+    releases:
+      app-autoscaler:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/app-autoscaler-release
+      postgres:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/postgres-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+    errands:
+      import:
+        display-name: shield-provisioning

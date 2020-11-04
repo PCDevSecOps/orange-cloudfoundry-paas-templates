@@ -1,0 +1,10 @@
+system_domain: ((/secrets/cloudfoundry_system_domain))
+uaa_clients_grafana_secret: ((/uaa/grafana-coab-client-secret)) #override uaa_clients_grafana_secret with credhub generated value (uaa scope)
+uaa_ssl.ca: ((/bosh-master/cf/uaa_ssl.ca)) #override uaa_ssl with credhub generated value (bosh-master/cf scope)
+uaa_ssl.certificate: ((/bosh-master/cf/uaa_ssl.certificate)) #override uaa_ssl with credhub generated value (bosh-master/cf scope)
+uaa_ssl.private_key: ((/bosh-master/cf/uaa_ssl.private_key)) #override uaa_ssl with credhub generated value (bosh-master/cf scope)
+#skip_ssl_verify_uaa: true
+
+
+
+

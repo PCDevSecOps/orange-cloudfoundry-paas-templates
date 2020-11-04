@@ -1,0 +1,19 @@
+- type: replace
+  path: /cpis/-
+  value:
+    name: region-2
+    type: vsphere
+    properties:
+      host: ((vcenter_ip))
+      datacenters:
+      - clusters:
+          - ((vcenter_cluster)):
+              resource_pool: ((vcenter_resource_pool))
+        datastore_pattern: ((vcenter_ds))
+        disk_path: ((vcenter_disks))
+        name: ((vcenter_dc))
+        persistent_datastore_pattern: ((vcenter_ds))
+        template_folder: ((vcenter_templates))
+        vm_folder: ((vcenter_vms))
+      password: ((vcenter_password))
+      user: ((vcenter_user))

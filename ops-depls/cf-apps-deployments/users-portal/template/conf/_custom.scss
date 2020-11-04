@@ -1,0 +1,26 @@
+h1, h2, h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+code {
+    color: #3B5FBC;
+    background-color: rgb(231, 231, 231);
+}
+
+.page-content {
+    a {
+        text-decoration: none;
+        color: #f16e00;
+    }
+    a.heading-anchor {
+        color: inherit;
+    }
+    a:hover {
+        text-decoration: underline;
+    }
+}
+
+.dropdown-menu {
+    min-width: 20rem;
+}

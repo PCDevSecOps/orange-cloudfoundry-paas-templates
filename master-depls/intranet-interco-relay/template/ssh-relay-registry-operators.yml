@@ -1,0 +1,10 @@
+#--- Configure docker
+- type: replace
+  path: /instance_groups/name=ops-relay/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      store_dir: /var/vcap/data
+      registry_mirrors:
+      - https://docker.jcr.((/secrets/cloudfoundry_ops_domain)) #use platform docker registry proxy

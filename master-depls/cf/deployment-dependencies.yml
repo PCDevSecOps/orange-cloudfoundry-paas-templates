@@ -1,0 +1,140 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path: ["submodules/cf-deployment"]
+    releases:
+      #cf
+      capi:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/capi-release
+
+      cf-networking:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-networking-release
+
+      silk:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/silk-release
+
+      loggregator:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/loggregator-release
+
+      loggregator-agent:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/loggregator-agent-release
+
+      statsd-injector:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/statsd-injector-release
+      #nats
+      nats:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nats-release
+      #uaa
+      uaa:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/uaa-release
+
+      #diego
+      diego:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/diego-release
+      cflinuxfs3:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cflinuxfs3-release
+      garden-runc:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/garden-runc-release
+      log-cache:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/log-cache-release
+      cf-cli:
+        base_location: https://bosh.io/d/github.com/
+        repository: bosh-packages/cf-cli-release
+
+      #others
+      cf-smoke-tests:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-smoke-tests-release
+      cf-syslog-drain:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-syslog-drain-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      credhub:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/credhub-release
+      cron:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/cron-boshrelease
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+
+
+      #buildpacks
+      go-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/go-buildpack-release
+      java-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/java-buildpack-release
+      dotnet-core-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/dotnet-core-buildpack-release
+      binary-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/binary-buildpack-release
+      nodejs-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nodejs-buildpack-release
+      php-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/php-buildpack-release
+      python-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/python-buildpack-release
+      ruby-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/ruby-buildpack-release
+      staticfile-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/staticfile-buildpack-release
+      nginx-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/nginx-buildpack-release
+      r-buildpack:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/r-buildpack-release
+
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+
+      bpm:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bpm-release
+
+      backup-and-restore-sdk:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+
+      metrics-discovery:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/metrics-discovery-release
+
+
+
+
+    errands:
+      post-bosh-deploy-errand:
+      smoke_tests: 

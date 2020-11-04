@@ -1,0 +1,8 @@
+---
+#adapt network : tf-net-coab-depls-instance
+#
+# redis
+#- type: replace
+#  path: /instance_groups/name=redis/networks
+#  value: [{name: ((network_name))}]
+

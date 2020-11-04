@@ -1,0 +1,85 @@
+---
+- type: replace
+  path: /releases/name=bosh-dns-aliases?
+  value:
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /addons?/-
+  value:
+    name: bosh-dns-aliases
+    include:
+      stemcell:
+        - os: ubuntu-trusty
+        - os: ubuntu-xenial
+    jobs:
+      - name: bosh-dns-aliases
+        release: bosh-dns-aliases
+        properties:
+          aliases:
+            - domain: ((shield-alias))
+              targets:
+                - query: '*'
+                  instance_group: shield
+                  deployment: shield
+                  network: tf-net-coab-depls-instance
+                  domain: bosh
+
+#- type: replace
+#  path: /variables/name=shield-tls/update_mode
+#  value: converge
+
+#- type: replace
+#  path: /variables/name=shield-tls/options/alternative_names/-
+#  value: ((shield-alias))
+
+- type: replace
+  path: /variables/name=shield-tls?
+  value:
+    name: shield-tls
+    update_mode: converge
+    type: certificate
+    options:
+      ca: shield-ca
+      common_name: shield
+      extended_key_usage:
+        - client_auth
+        - server_auth
+      alternative_names:
+        - 127.0.0.1
+        - "*.shield.default.shield.bosh"
+        - ((shield-alias))
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=core/properties/domain?
+  value: ((shield-alias))
+
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      shield-url: https://((shield-alias))
+      agent:
+        key: ((shield-agent-key.public_key))
+      core:
+        ca: ((shield-tls.ca))
+      log-level: ((log-level))
+      require-shield-core: false
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/domain
+  value: ((shield-alias))
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/core
+  value: https://((shield-alias))
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/ca?
+  value: ((shield-tls.ca))

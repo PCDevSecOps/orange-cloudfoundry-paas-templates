@@ -1,0 +1,31 @@
+---
+#adapt vm type and disk size
+
+
+# cassandra-seeds
+- type: replace
+  path: /instance_groups/name=cassandra-seeds/persistent_disk_type?
+  value: ((vm-cassandra-seeds.persistent_disk_type))
+
+- type: replace
+  path: /instance_groups/name=cassandra-seeds/vm_type?
+  value: ((vm-cassandra-seeds.vm_type))
+
+# cassandra-servers
+- type: replace
+  path: /instance_groups/name=cassandra-servers/persistent_disk_type?
+  value: ((vm-cassandra-servers.persistent_disk_type))
+
+- type: replace
+  path: /instance_groups/name=cassandra-servers/vm_type?
+  value: ((vm-cassandra-servers.vm_type))
+
+# broker
+#- type: replace
+#  path: /instance_groups/name=cassandra-brokers/vm_type
+#  value: ((vm-cassandra-broker.vm_type))
+
+# errands
+- type: replace
+  path: /instance_groups/name=smoke-tests-vm/vm_type
+  value: ((vm-smoke-tests-vm.vm_type))  

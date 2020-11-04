@@ -1,0 +1,59 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kubeapps
+    chart:  bitnami/kubeapps
+    namespace: kubeapps
+    version: ((kubeapps-version))
+    debug: true
+    properties:
+    - name: useHelm3
+      value: true
+    values_file_content:
+      mongodb:
+        securityContext:
+          enabled: true
+          fsGroup: 1001
+          runAsUser: 1001
+        mongodbEnableIPv6: false
+      securityContext:
+        enabled: true
+        runAsUser: 1001
+      apprepository:
+        initialReposProxy:
+          enabled: true
+          http_proxy: ((http_proxy))
+          https_proxy: ((https_proxy))
+          no_proxy: ((no_proxy))
+        initialRepos:
+        - name: stable
+          url: http://storage.googleapis.com/kubernetes-charts
+          source: https://github.com/kubernetes/charts/tree/master/stable
+        - name: incubator
+          url: https://kubernetes-charts-incubator.storage.googleapis.com
+          source: https://github.com/kubernetes/charts/tree/master/incubator
+        - name: svc-ca
+          url: https://svc-catalog-charts.storage.googleapis.com
+        - name: monocular
+          url: https://helm.github.io/monocular
+          source: https://github.com/helm/monocular/tree/master/charts
+        - name: appscode
+          url: https://charts.appscode.com/stable
+        - name: bitnami
+          url: https://charts.bitnami.com/bitnami
+        - name: suse
+          url: https://kubernetes-charts.suse.com
+        - name: openfaas
+          url: https://openfaas.github.io/faas-netes
+        - name: gitlab
+          url: https://charts.gitlab.io
+        - name: kiwigrid
+          url: https://kiwigrid.github.io
+        - name: stable-nginx
+          url: https://helm.nginx.com/stable
+        - name: jetstack
+          url: https://charts.jetstack.io
+        - name: harbor
+          url: https://helm.goharbor.io
+

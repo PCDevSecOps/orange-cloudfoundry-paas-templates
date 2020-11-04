@@ -1,0 +1,8 @@
+#--- Osb interco
+osb-interco-network-name: (( grab secrets.osb_interco.net_id ))
+osb_interco_gateway: (( grab secrets.osb_interco.gateway ))
+osb_interco_range: (( grab secrets.osb_interco.range ))
+osb_interco_osb: (( grab secrets.osb_interco.osb ))
+
+#--- Osb control plane (other information are hard-coded since it is a private network)
+osb-control-plane-network-name: (( grab secrets.networks.tf-net-osb-control-plane ))

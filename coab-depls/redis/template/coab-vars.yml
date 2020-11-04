@@ -1,0 +1,4 @@
+#Simulates what coab will generate for each deployment.
+deployment_name: "redis"
+plan_id: "plan-coab-redis-small"
+

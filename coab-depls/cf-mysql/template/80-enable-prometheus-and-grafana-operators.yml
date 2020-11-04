@@ -1,0 +1,203 @@
+---
+#releases
+- type: replace
+  path: /releases/name=prometheus-addons?
+  value:
+    name: prometheus-addons
+    version: 3.1.1
+
+#variables
+- type: replace
+  path: /variables?/-
+  value:
+    name: prometheus_password
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: grafana_password
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: grafana_secret_key
+    type: password
+
+#jobs on shield instance group
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: prometheus2
+    release: prometheus
+    properties:
+      prometheus:
+        rule_files:
+          - /var/vcap/jobs/prometheus_alerts/*.alerts.yml
+        scrape_configs:
+          - job_name: node_exporter
+            scrape_interval: 5m
+            scrape_timeout: 1m
+            file_sd_configs: #service discovery usage
+              - files:
+                  - "/var/vcap/store/bosh_exporter/bosh_target_groups.json"
+            relabel_configs:
+              - source_labels:
+                  - __meta_bosh_deployment
+                regex: "((deployment_name))" #filter only on deployment nodes (required because service discovery returns all coab deployments...)
+                action: keep
+              - source_labels:
+                  - __address__
+                regex: "(.*)"
+                target_label: __address__
+                replacement: "${1}:9100"
+
+          - job_name: prometheus
+            scrape_interval: 5m
+            scrape_timeout: 1m
+            static_configs:
+              - targets:
+                  - localhost:9090
+
+          - job_name: bosh
+            scrape_interval: 30m #should be more
+            scrape_timeout: 1m
+            static_configs:
+              - targets:
+                  - localhost:9190
+
+          - job_name: mysql
+            scrape_interval: 5m
+            scrape_timeout: 1m
+            file_sd_configs: #service discovery usage
+                - files:
+                  - "/var/vcap/store/bosh_exporter/bosh_target_groups.json"
+            relabel_configs:
+              - source_labels:
+                  - __meta_bosh_deployment
+                regex: "((deployment_name))" #filter only on deployment nodes (required because service discovery returns all coab deployments...)
+                action: keep
+              - source_labels:
+                  - __meta_bosh_job_process_name
+                regex: mysqld_exporter
+                action: keep
+              - source_labels:
+                  - __address__
+                regex: "(.*)"
+                target_label: __address__
+                replacement: "${1}:9104"
+              - source_labels:
+                  - __scheme__
+                regex: "(.*)"
+                target_label: osb_client_organization
+                replacement: "((parameters.x-osb-cmdb.labels.brokered_service_context_organization_guid))"
+              - source_labels:
+                  - __scheme__
+                regex: "(.*)"
+                target_label: osb_client_space
+                replacement: "((parameters.x-osb-cmdb.labels.brokered_service_context_space_guid))"
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: grafana
+    release: prometheus
+    properties:
+      grafana:
+        security:
+          admin_user: admin
+          admin_password: ((grafana_password))
+          secret_key: ((grafana_secret_key))
+        auth:
+          disable_login_form: true
+          anonymous:
+            enabled: true
+            org_name: Main Org.
+            org_role: Viewer
+        dashboards:
+        prometheus:
+          dashboard_folders:
+            - name: Grafana
+              files:
+                - /var/vcap/jobs/grafana_dashboards/*.json
+            - name: Prometheus
+              files:
+                - /var/vcap/jobs/prometheus_dashboards/*.json
+            - name: MySQL
+              files:
+                - /var/vcap/jobs/mysql_dashboards/*.json
+            - name: System
+              files:
+                - /var/vcap/jobs/system_dashboards/*.json
+            - name: BOSH
+              files:
+                - /var/vcap/jobs/bosh_dashboards/bosh*.json
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: grafana_dashboards
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: prometheus_dashboards
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: bosh_dashboards
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: mysql_dashboards
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: system_dashboards
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: grafana-webui-coab-endpoint
+    registration_interval: 10s
+    port: 3000
+    uris:
+      - grafana-((parameters.x-osb-cmdb.labels.brokered_service_instance_guid)).((/secrets/cloudfoundry_system_domain))
+#      - grafana-((deployment_name)).((/secrets/cloudfoundry_system_domain))
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: prometheus-webui-coab-endpoint
+    registration_interval: 10s
+    port: 9090
+    uris:
+      - prometheus-((parameters.x-osb-cmdb.labels.brokered_service_instance_guid)).((/secrets/cloudfoundry_system_domain))
+#      - prometheus-((deployment_name)).((/secrets/cloudfoundry_system_domain))
+
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: bosh_exporter
+    release: prometheus
+    properties:
+      bosh_exporter:
+        bosh:
+          url: "((bosh_url))"
+          ca_cert: "((bosh_ca_cert))"
+          uaa:
+            client_id: "((bosh_username))"
+            client_secret: "((bosh_password))"
+        metrics:
+          environment: "((metrics_environment))"
+

@@ -1,0 +1,10 @@
+---
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+# This is a legacy file, please update root-deployment.yml instead
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+
+deployment-name: cloudflare-depls
+
+#--- Stemcell
+stemcell-name: bosh-openstack-kvm-ubuntu-xenial-go_agent
+stemcell-version: "621.55"

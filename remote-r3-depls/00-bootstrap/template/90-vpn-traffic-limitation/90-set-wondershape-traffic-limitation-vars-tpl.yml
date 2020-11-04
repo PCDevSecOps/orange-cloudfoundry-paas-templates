@@ -1,0 +1,3 @@
+# max speed
+max_upload_speed_kbps: 1000
+max_download_speed_kbps: 1000

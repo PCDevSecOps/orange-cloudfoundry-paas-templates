@@ -1,0 +1,29 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: bosh-dns
+    version: latest
+
+
+#add a dedicated bosh-dns instance preconfigured to recurse to intranet
+- type: replace
+  path: /instance_groups/name=to-intranet/jobs/-
+  value:
+    name: bosh-dns
+    release: bosh-dns
+    properties:
+      address: 0.0.0.0 #force a public dns
+      override_nameserver: false #do  not modify local /etc/resolv.conf
+      api:
+        server:
+          tls: ((/dns_api_server_tls))
+        client:
+          tls: ((/dns_api_client_tls))
+      recursors:
+      - ((/secrets/intranet_interco_2/intranet_dns_1))
+      - ((/secrets/intranet_interco_2/intranet_dns_2))
+      
+      cache:
+        enabled: false
+      aliases: 
+        intranet-2-proxy.internal.paas: [((/secrets/intranet_interco_2/to_intranet))] #dns alias for http proxy

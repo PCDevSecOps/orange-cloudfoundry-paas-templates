@@ -1,0 +1,4 @@
+---
+elasticsearch_master_vm_type: (( grab meta.logsearch.elasticsearch_master_instances_vm_type ))
+elasticsearch_data_vm_type: (( grab meta.logsearch.elasticsearch_data_instances_vm_type ))
+ingestor_vm_type: (( grab meta.logsearch.ingestor_instances_vm_type ))

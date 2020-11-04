@@ -1,0 +1,9 @@
+#for iaas without lbaas v2 support, use a single vm with floating ip as tcp relay
+
+#set the floating ip
+- type: replace
+  path: /instance_groups/name=to-public-s3/networks/-
+  value:
+    name: net-floating
+    static_ips:
+    - ((public-s3-floating-ip))

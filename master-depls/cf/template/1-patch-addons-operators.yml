@@ -1,0 +1,14 @@
+---
+#patch metrics-discovery-registrar (disable following v13.x nats 34 issue)
+- type: replace
+  path: /addons/name=metrics-discovery-registrar/exclude/jobs/-
+  value:
+    name: nats
+    release: nats
+
+- type: replace
+  path: /addons/name=metrics-discovery-registrar/exclude/jobs/-
+  value:
+    name: nats
+    release: nats
+    

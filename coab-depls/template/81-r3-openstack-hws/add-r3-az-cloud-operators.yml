@@ -1,0 +1,7 @@
+- type: replace
+  path: /azs/-
+  value:
+    name: r3-z1
+    cpi: region-3
+    cloud_properties:
+      availability_zone: ((/secrets/openstack_3_availability_zone))

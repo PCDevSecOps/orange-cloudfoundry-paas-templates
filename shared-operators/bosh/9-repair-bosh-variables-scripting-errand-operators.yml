@@ -1,0 +1,31 @@
+#errand leveraging scripting release (errand script) to repair bosh variables/variaable set unconsistency
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          echo "Launching repair Errand"
+
+          export variables="((variables))"
+          export deployments="((deployments))"
+
+          for variable in $(echo ${variables} | tr "|" " "); do
+            echo ${variable} ;
+            substitution=${variable//\//-}
+              for deployment in $(echo ${deployments} | tr "|" " "); do
+                echo ${deployment} ;
+
+                cat - > /var/vcap/data/errand-scripting/repair_${substitution}_${deployment}.sql <<EOF
+                \set ON_ERROR_STOP on
+                insert into variables (variable_id, variable_name, variable_set_id) select (SELECT variable_id FROM variables WHERE variable_name = '${variable}' ORDER BY id DESC LIMIT 1), '${variable}', id from variable_sets vs where vs.deployment_id = (select id from deployments where name = '${deployment}') and not exists (select * from variables v where vs.id = v. variable_set_id and v.variable_name = '${variable}');
+          EOF
+
+                /var/vcap/packages/postgres-10/bin/psql  -h 127.0.0.1 -U vcap -d bosh -a -f /var/vcap/data/errand-scripting/repair_${substitution}_${deployment}.sql
+              done
+          done
+
+          echo "Done repair Errand"

@@ -1,0 +1,63 @@
+#--- Vsphere VM extensions ephemeral disk size
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 50GB_ephemeral_disk
+    cloud_properties:
+      disk: 50000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 100GB_ephemeral_disk
+    cloud_properties:
+      disk: 100000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 150GB_ephemeral_disk
+    cloud_properties:
+      disk: 150000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 200GB_ephemeral_disk
+    cloud_properties:
+      disk: 200000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 300GB_ephemeral_disk
+    cloud_properties:
+      disk: 300000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 400GB_ephemeral_disk
+    cloud_properties:
+      disk: 400000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 500GB_ephemeral_disk
+    cloud_properties:
+      disk: 500000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 600GB_ephemeral_disk
+    cloud_properties:
+      disk: 600000
+
+- type: replace
+  path: /vm_extensions/-
+  value:
+    name: 800GB_ephemeral_disk
+    cloud_properties:
+      disk: 800000

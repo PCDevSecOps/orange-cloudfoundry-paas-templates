@@ -1,0 +1,19 @@
+- type: replace
+  path: /jobs/name=detect-previous-versions?
+  value:
+    name: detect-previous-versions
+    plan:
+      - aggregate:
+          - get: weekday-morning
+            trigger: true
+      - put: fly
+        params:
+          options:  |
+            check-resource -r $BUILD_PIPELINE_NAME/php-bp-release --from ref:v((releases.php-buildpack.version))
+            check-resource -r $BUILD_PIPELINE_NAME/go-bp-release --from ref:v((releases.go-buildpack.version))
+            check-resource -r $BUILD_PIPELINE_NAME/ruby-bp-release --from ref:v((releases.ruby-buildpack.version))
+            check-resource -r $BUILD_PIPELINE_NAME/python-bp-release --from ref:v((releases.python-buildpack.version))
+            check-resource -r $BUILD_PIPELINE_NAME/binary-bp-release --from ref:v((releases.binary-buildpack.version))
+            check-resource -r $BUILD_PIPELINE_NAME/staticfile-bp-release --from ref:v((releases.staticfile-buildpack.version))
+            check-resource -r $BUILD_PIPELINE_NAME/java-bp-release --from ref:v((releases.java-buildpack.version))
+            check-resource -r $BUILD_PIPELINE_NAME/nodejs-bp-release --from ref:v((releases.nodejs-buildpack.version))

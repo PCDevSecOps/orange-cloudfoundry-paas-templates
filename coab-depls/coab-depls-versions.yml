@@ -1,0 +1,108 @@
+---
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+# This is a legacy file, please update root-deployment.yml instead
+# /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\ /!\
+
+deployment-name: coab-depls
+
+#--- Stemcell
+stemcell-version: "621.69"
+
+#--- Bosh releases
+backup-and-restore-sdk-version: "1.17.2"
+bosh-dns-version: "1.17.0"
+bosh-dns-aliases-version: "0.0.3"
+bpm-version: "1.1.8"
+cfcr-etcd-version: "1.11.0"
+cf-cli-version: "1.26.0"
+cf-mysql-version: "36.19.0"
+cf-rabbitmq-version: "279.0.0"
+cf-rabbitmq-multitenant-broker-version: "59.0.0"
+cf-rabbitmq-smoke-tests-version: "37.0.0"
+containerd-version: "1"
+docker-version: "35.3.4"
+docker-registry-version: "3.5.2"
+generic-scripting-version: "3"
+haproxy-version: "10.0.0"
+minio-version: "2019-06-27T21-13-50Z"
+nginx-version: "1.17.0"
+helm-kubectl-version: "25"
+jumpbox-version: "4.6.4"
+minio-version: "2020-06-18T02-23-35Z"
+os-conf-version: "21.0.0"
+postgres-version: "40"
+prometheus-version: "26.2.0"
+routing-version: "0.203.0"
+shell-version: "3.2.0"
+shield-version: "8.7.2"
+
+
+releases:
+  #--- Http bosh releases
+  bpm:
+    repository: cloudfoundry/bpm-release
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 4.2.0
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: "11.6.0"
+
+  bui:
+    repository: cloudfoundry-community/bui-boshrelease
+    version: "1.0.3"
+  cassandra:
+    repository: orange-cloudfoundry/cassandra-cf-service-boshrelease
+    version: "12"
+  docker:
+    repository: cloudfoundry-incubator/docker-boshrelease
+  docker-registry:
+    repository: cloudfoundry-community/docker-registry-boshrelease
+  helm-kubectl:
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+    tag_prefix: ""
+  jumpbox:
+    repository: cloudfoundry-community/jumpbox-boshrelease
+  k3s:
+    repository: orange-cloudfoundry/k3s-boshrelease
+    version: "3"
+  mongodb-services:
+    repository: orange-cloudfoundry/mongodb-boshrelease
+    version: "10"
+    tag_prefix: ""
+  nginx:
+    repository: cloudfoundry-community/nginx-release
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    version: "1"
+    tag_prefix: ""
+  redis-service:
+    repository: orange-cloudfoundry/redis-orange
+    version: "3"
+  rke:
+    repository: orange-cloudfoundry/rke-boshrelease
+    version: "5"
+  shield-addon-mongodb:
+    repository: shieldproject/shield-addon-mongodb-boshrelease
+    version: 1.0.0
+  prometheus-addons:
+    repository: orange-cloudfoundry/prometheus-addons-boshrelease
+    version: 3.1.1
+  elasticsearch:
+    repository: bosh-elastic-stack/elasticsearch-boshrelease
+    version: 0.23.2
+  logstash:
+    repository: bosh-elastic-stack/logstash-boshrelease
+    version: "0.15.2"
+  kibana:
+    repository: bosh-elastic-stack/kibana-boshrelease
+    version: 0.16.3
+  curator:
+    repository: bosh-elastic-stack/curator-boshrelease
+    version: 0.3.1

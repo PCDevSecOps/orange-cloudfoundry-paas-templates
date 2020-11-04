@@ -1,0 +1,36 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - coab-depls/01-cf-mysql-extended
+          - submodules/cf-mysql-deployment
+          - shared-operators/multi-region-common/01-cf-mysql-extended
+    releases:
+      cf-mysql:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/cf-mysql-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      prometheus:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/prometheus-boshrelease
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+    manual-errands:
+      bootstrap:
+    errands:
+      import:
+        display-name: provisioning

@@ -1,0 +1,23 @@
+---
+deployment:
+  k8s-addon:
+    resources:
+      templates:
+        extended_scan_path:
+        - "shared-operators/k8s-addon"
+        - "shared-operators/k8s-common-master"
+        - "shared-operators/k8s-common"
+
+    stemcells:
+    releases:
+      helm-kubectl:
+        base_location: https://github.com
+        repository: orange-cloudfoundry/helm-kubectl-boshrelease
+
+    errands:
+      action:
+
+
+
+
+

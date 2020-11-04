@@ -1,0 +1,13 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    # scrape prometheus internal metrics
+    job_name: prometheus
+    static_configs:
+      - targets:
+        - localhost:9090
+    relabel_configs:
+      - source_labels: [instance]
+        target_label: instance
+        replacement: "exporter-master"
+  

@@ -1,0 +1,23 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/multi-region-common/r1
+        - shared-operators/multi-region-common/r3
+
+    releases:
+      jumpbox:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/jumpbox-boshrelease
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+      os-conf:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/os-conf-release
+      wireguard:
+
+    errands:
+

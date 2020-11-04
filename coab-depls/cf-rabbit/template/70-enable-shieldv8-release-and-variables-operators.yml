@@ -1,0 +1,78 @@
+---
+#add shield release
+- type: replace
+  path: /releases/-
+  value:
+    name: shield
+    version: latest
+
+#add shield variables
+- type: replace
+  path: /variables?/-
+  value:
+    name: shield-agent-key
+    type: ssh
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: ((shield-alias-prefix))uaa-client-secret
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: shield-ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: shieldca
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: shield-tls
+    update_mode: converge
+    type: certificate
+    options:
+      ca: shield-ca
+      common_name: shield
+      extended_key_usage:
+        - client_auth
+        - server_auth
+      alternative_names:
+        - 127.0.0.1
+        - "*.shield.default.shield.bosh"
+        - ((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: vault-ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: vaultca
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: vault-tls
+    type: certificate
+    options:
+      ca: vault-ca
+      common_name: vault
+      extended_key_usage:
+        - client_auth
+        - server_auth
+      alternative_names:
+        - 127.0.0.1
+        - "*.vault.default.shield.bosh"
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: token_name
+    type: password
+
+

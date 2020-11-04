@@ -1,0 +1,67 @@
+---
+
+- path: /instance_groups/-
+  type: replace
+  value:
+    name: cassandra-brokers
+    instances: 1
+    azs: [ z1, z2 ]
+    jobs:
+      - name: broker
+        release: &cassandra_release cassandra
+        consumes:
+          seeds: { from: cassandra_seeds_list }
+        properties:
+          broker:
+            user: cassandra-broker
+            password: ((cassandra_broker_password))
+            truststore_password: ((cassandra_key_store_pass))
+    stemcell: trusty
+    vm_type: small
+    networks: [ name: ((network_name)) ]
+
+- path: /instance_groups/-
+  type: replace
+  value:
+    name: smoke-tests-vm
+    instances: 1
+    lifecycle: errand
+    azs: [ z1 ]
+    jobs:
+      - name: broker-smoke-tests
+        release: *cassandra_release
+        properties:
+          cf:
+            api:
+              url: ((cf.api.url))
+            admin:
+              username: ((cf.admin.username))
+              password: ((cf.admin.password))
+            skip:
+              ssl:
+                validation: ((cf.skip_ssl_validation))
+            org: service-sandbox
+            space: cassandra-smoke-tests
+            cassandra:
+              appdomain: ((cf.cassandra.appdomain))
+              servicename: cassandra
+              serviceplan: default
+              serviceinstancename: cassandra-instance
+    stemcell: trusty
+    vm_type: small
+    networks: [ name: ((network_name)) ]
+
+- path: /variables/-
+  type: replace
+  value:
+    name: cassandra_broker_password
+    type: password
+
+
+- path: /releases/name=route-registrar?
+  type: replace
+  value:
+    name: route-registrar
+    version: latest
+
+

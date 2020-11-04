@@ -1,0 +1,27 @@
+#--- add haproxy release
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+#--- configure keepalived
+- type: replace
+  path: /instance_groups/name=haproxy/jobs/-
+  value:
+    release: haproxy
+    name: keepalived
+    properties:
+      keepalived:
+        vip: ((haproxy_vip)) #eserved in cloud-config
+        virtual_router_id: 200
+
+#--- patch for 2 vrrp haproxy
+- type: replace
+  path: /instance_groups/name=haproxy/instances
+  value: 2
+
+#--- add dns host
+- type: replace
+  path: /instance_groups/name=rmq-broker/jobs/name=rabbitmq-service-broker/properties/rabbitmq-service-broker/rabbitmq/dns_host?
+  value: ((haproxy_vip))

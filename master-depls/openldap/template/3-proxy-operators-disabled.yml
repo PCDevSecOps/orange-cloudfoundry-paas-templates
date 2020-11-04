@@ -1,0 +1,14 @@
+#--- Replace nexus docker registry with http proxy for docker images upload (for bootstrap dependencies)
+- type: remove
+  path: /instance_groups/name=openldap/jobs/name=docker
+
+- type: replace
+  path: /instance_groups/name=openldap/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      env:
+        http_proxy: http://system-internet-http-proxy.internal.paas:3128
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: localhost,127.0.0.1

@@ -1,0 +1,28 @@
+#--- Override osb-data-plane-shared-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-shared-priv/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf-net-osb-data-plane-shared-priv_id))
+    security_groups:
+    - tf-default-sg
+
+- type: replace
+  path: /networks/-
+  value:
+    name: tf-net-osb-data-plane-shared-pub
+    type: manual
+    subnets:
+      - range: ((osb_data_plane_shared_public_range))
+        gateway: ((osb_data_plane_shared_public_gateway))
+        dns: ((dns))
+        azs: [z1,z2]
+        reserved:
+          - ((osb_data_plane_shared_public_reserved_dhcp))
+          - ((osb_data_plane_shared_public_reserved_vrrp))
+        static:
+          - ((osb_data_plane_shared_public_static))
+        cloud_properties:
+          net_id: ((tf-net-osb-data-plane-shared-pub_id))
+          security_groups:
+            - tf-default-sg
+            - tf-osb-sg

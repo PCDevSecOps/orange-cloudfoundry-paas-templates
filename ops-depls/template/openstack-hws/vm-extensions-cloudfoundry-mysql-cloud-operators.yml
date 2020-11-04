@@ -1,0 +1,8 @@
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: proxy-cloudfoundry-mysql-vrrp
+    cloud_properties:
+      #--- vrrp config ops-depls/cloudfoundry-mysql/proxy (see https://github.com/cloudfoundry-incubator/bosh-openstack-cpi-release/pull/98)
+      allowed_address_pairs: 192.168.30.245 #--- #--- ip for port mapped to ops-depls/cloudfoundry-mysql/proxy
+      #--- NOTE: port must be reserved in openstack by terraform rules (required by bosh cpi to retrieve port id from allowed ip)

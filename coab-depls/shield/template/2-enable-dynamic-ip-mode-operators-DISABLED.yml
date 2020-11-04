@@ -1,0 +1,18 @@
+#operator to enable dynamic ip mode
+#remove static_ip
+- type: remove
+  path: /instance_groups/name=shield/networks/name=tf-net-coab-depls-instance/static_ips
+
+#remove static_ip
+- type: remove
+  path: /variables/name=shield-tls/options/alternative_names/1
+
+#ca on agent job
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/core/ca
+  value: ((ops-cert))
+
+#domain on core jobs
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=core/properties/domain
+  value: ((shield-domain))

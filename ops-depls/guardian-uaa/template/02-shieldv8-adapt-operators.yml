@@ -1,0 +1,4 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=guardian_uaa_qa/name
+  value: shield

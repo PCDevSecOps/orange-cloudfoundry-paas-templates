@@ -1,0 +1,17 @@
+instance_groups:
+- name: bosh
+  properties:
+    director:
+       user_management:
+          local:
+            users:
+              - {name: poblin, password: <>}
+              - {name: gberche, password: <>}
+              - {name: szaouam, password: <>}
+              - {name: beyler, password: <>}
+              - {name: ogrand, password: <>}
+              - {name: jclosapio, password: <>}
+              - {name: health-manager, password: <>}
+              - {name: concourse, password: <>}
+              - {name: chaos, password: <>}
+              - {name: anynine, password: <>}

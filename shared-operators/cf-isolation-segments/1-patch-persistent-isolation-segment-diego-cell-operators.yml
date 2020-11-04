@@ -1,0 +1,138 @@
+---
+
+- type: replace
+  path: /instance_groups/name=diego-cell/instances
+  value: ((number_of_cell))
+
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_type
+  value: 8cpu-32g
+
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_extensions?
+  value: [100GB_ephemeral_disk]
+
+- type: replace
+  path: /instance_groups/name=diego-cell/stemcell
+  value: default
+
+
+- type: replace
+  path: /instance_groups/name=diego-cell/networks
+  value:
+  - name: ((is_network_name)) 
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=rep/properties/diego/rep/placement_tags?
+  value:
+  - ((isolation_segment))
+
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?/nats?
+  value:
+    from: nats
+    deployment: cf
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/consumes?/nats-tls?
+  value:
+    from: nats-tls
+    deployment: cf
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=silk-daemon/consumes?/cf_network?
+  value:
+    from: cf_network
+    deployment: cf 
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=silk-cni/consumes?/cf_network?
+  value:
+    from: cf_network
+    deployment: cf
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=vxlan-policy-agent/consumes?/cf_network?
+  value:
+    from: cf_network
+    deployment: cf
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=garden-cni/consumes?/cloud_controller_container_networking_info?
+  value:
+    from: cloud_controller_container_networking_info
+    deployment: cf
+
+
+- type: replace
+  path: /addons/name=loggregator_agent/jobs/name=loggregator_agent/consumes?/doppler?
+  value:
+    from: doppler
+    deployment: cf
+
+- type: replace
+  path: /addons/name=prom_scraper/jobs/name=prom_scraper/consumes?/loggregator?
+  value:
+    from: loggregator
+    deployment: cf
+
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=loggr-udp-forwarder/consumes?/cloud_controller?
+  value:
+    from: cloud_controller
+    deployment: cf
+
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=bosh-dns-adapter?
+  value:
+    name: bosh-dns-adapter
+    properties:
+      internal_domains: ["apps.internal."]
+      dnshttps:
+        client:
+          tls: ((cf_app_sd_client_tls))
+        server:
+          ca: ((cf_app_sd_client_tls.ca))
+    release: cf-networking
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/internal_routes?
+  value:
+    enabled: true
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=bosh-dns-adapter?
+  value:
+    name: bosh-dns-adapter
+    properties:
+      internal_domains: ["apps.internal."]
+      dnshttps:
+        client:
+          tls: ((cf_app_sd_client_tls))
+        server:
+          ca: ((cf_app_sd_client_tls.ca))
+    release: cf-networking
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=route_emitter/properties/internal_routes?
+  value:
+    enabled: true
+
+#add cross deployment bosh link to cf
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=bosh-dns-adapter/consumes?/service-discovery-controller?
+  value:
+    from: service-discovery-controller
+    deployment: cf
+
+- type: replace
+  path: /instance_groups/name=diego-cell/jobs/name=bosh-dns-adapter/consumes?/cloud_controller_container_networking_info
+  value:
+    from: cloud_controller_container_networking_info
+    deployment: cf
+
+

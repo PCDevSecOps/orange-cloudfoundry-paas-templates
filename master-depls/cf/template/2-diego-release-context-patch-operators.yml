@@ -1,0 +1,4 @@
+#bbs
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=bbs/properties/diego/bbs/auctioneer/require_tls?
+  value: true

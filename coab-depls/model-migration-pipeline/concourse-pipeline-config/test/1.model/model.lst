@@ -1,0 +1,16 @@
+D|/tmp/coab-depls/cf-mysql
+F|/tmp/coab-depls/cf-mysql/deployment-dependencies.yml
+D|/tmp/coab-depls/cf-mysql/template
+F|/tmp/coab-depls/cf-mysql/template/cf-mysql.yml
+F|/tmp/coab-depls/cf-mysql/template/new-operators.yml
+F|/tmp/coab-depls/cf-mysql/template/coab-vars.yml
+D|/tmp/coab-depls/cf-mysql/template/vsphere
+F|/tmp/coab-depls/cf-mysql/template/vsphere/vsphere-operators.yml
+F|/tmp/coab-depls/cf-mysql/template/vsphere/vsphere-new-operators.yml
+D|/tmp/coab-depls/cf-mysql/template/openstack-hws
+F|/tmp/coab-depls/cf-mysql/template/openstack-hws/openstack-hws-operators.yml
+D|/tmp/coab-depls/cf-mysql/template/new-profile
+F|/tmp/coab-depls/cf-mysql/template/new-profile/new-profile-operators.yml
+D|/tmp/coab-depls/cf-mysql/template/new-profile2
+F|/tmp/coab-depls/cf-mysql/template/new-profile2/new-profile2-operators.yml
+T|/tmp/coab-depls/cf-mysql

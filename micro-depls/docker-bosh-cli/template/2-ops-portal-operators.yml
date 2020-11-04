@@ -1,0 +1,49 @@
+#--- Add routing release
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+#--- Add ops_portal container (don't use "-" in container name, and escape every "$" with "\$" in dockerfile)
+- type: replace
+  path: /instance_groups/name=docker-cli/jobs/name=containers/properties/containers/-
+  value:
+    name: ops_portal
+    hostname: ops-portal.((/secrets/cloudfoundry_ops_domain))
+    image: "paas/ops_portal:((template_version))"
+    bind_ports:
+    - "80:80"
+    volumes:
+    - "/var/vcap/data/tmp/ops-portal:/var/tmp/ops-portal:ro"
+    command: "/usr/local/bin/nginx.sh"
+    dockerfile: |
+      FROM alpine:3.9.4
+      RUN export http_proxy=http://system-internet-http-proxy.internal.paas:3128 && export https_proxy=http://system-internet-http-proxy.internal.paas:3128 && export no_proxy=localhost,127.0.0.1 && \
+      apk -U add nginx && \
+      mkdir /var/www/htdocs && \
+      printf '#!/bin/sh\n' > /usr/local/bin/nginx.sh && \
+      printf 'cp /var/tmp/ops-portal/nginx.conf /etc/nginx/\ncp /var/tmp/ops-portal/default.conf /etc/nginx/conf.d/\n' >> /usr/local/bin/nginx.sh && \
+      printf 'cp /var/tmp/ops-portal/index.html /var/www/htdocs/\ncp /var/tmp/ops-portal/code.js /var/www/htdocs/\ncp /var/tmp/ops-portal/common.css /var/www/htdocs/\ncp /var/tmp/ops-portal/light.css /var/www/htdocs/\ncp /var/tmp/ops-portal/dark.css /var/www/htdocs/\nchown -R nginx:nginx /var/www/htdocs\n/usr/sbin/nginx' >> /usr/local/bin/nginx.sh && \
+      chmod 755 /usr/local/bin/nginx.sh
+
+#--- Add route for ops-portal webui
+- type: replace
+  path: /instance_groups/name=docker-cli/jobs/-
+  value:
+    name: route_registrar
+    release: routing
+
+    properties:
+      nats:
+        machines: [ops-routing-nats]
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+        - name: ops-portal-webui
+          port: 80
+          registration_interval: 20s
+          uris:
+          - "ops-portal.((/secrets/cloudfoundry_ops_domain))"

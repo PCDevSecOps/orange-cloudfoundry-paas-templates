@@ -1,0 +1,2 @@
+thanos_version: v0.14.0
+thanos-metrics-retention-days: 365

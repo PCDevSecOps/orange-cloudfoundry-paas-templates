@@ -1,0 +1,8 @@
+#--- Add network interface on master-depls subnet
+- type: replace
+  path: /instance_groups/name=vpn/networks/-
+  value:
+    name: tf-net-exchange
+    default: [dns,gateway]
+    static_ips: [192.168.99.45]     #set a fixed ip for R1 static routing ?
+

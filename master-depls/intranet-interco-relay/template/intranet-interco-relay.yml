@@ -1,0 +1,23 @@
+---
+name: intranet-interco-relay
+
+releases:
+- {name: networking, version: latest}
+- {name: haproxy, version: latest}
+- {name: prometheus, version: latest}
+- {name: os-conf, version: latest}
+- {name: squid, version: "1.0.1"} #--- Target repository tag version "v1.0.1" doesn't allow using deployment-dependencies
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
+
+instance_groups: []

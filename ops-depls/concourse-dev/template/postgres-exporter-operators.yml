@@ -1,0 +1,18 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: prometheus
+    version: latest
+
+
+  #postgres exporter to catch concourse db metrics
+- type: replace
+  path: /instance_groups/name=db/jobs/-
+  value:
+    name: postgres_exporter
+    release: prometheus 
+    properties:
+      postgres_exporter:
+        datasource_name: "postgresql://atc:((postgres_password))@localhost:5432/?sslmode=disable"
+      metrics:
+        environment: ((/secrets/site))

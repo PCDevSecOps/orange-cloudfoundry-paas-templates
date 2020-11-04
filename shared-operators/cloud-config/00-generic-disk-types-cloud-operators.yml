@@ -1,0 +1,30 @@
+#---- Persistents disks flavors
+- type: replace
+  path: /disk_types?
+  value:
+  - name: default
+    disk_size: 3000
+  - name: small
+    disk_size: 3000
+  - name: small_disk
+    disk_size: 3000
+  - name: medium
+    disk_size: 10_240
+  - name: large
+    disk_size: 70_000
+  - name: xlarge
+    disk_size: 110_000
+  - name: xlarge-performant
+    disk_size: 200_000
+  - name: xxlarge-performant
+    disk_size: 400_000
+  - name: database
+    disk_size: 40_000
+  - name: x3large-performant
+    disk_size: 300_000
+  - name: datawarehouse
+    disk_size: 800_000
+  - name: logsearch-es-data
+    disk_size: 6_000_000
+  - name: logsearch-ops-es-data
+    disk_size: 6_000_000

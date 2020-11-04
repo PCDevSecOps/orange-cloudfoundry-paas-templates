@@ -1,0 +1,33 @@
+#--- Load Balancer Openstack v2 http pool
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: haproxy-api-relay-extension
+    cloud_properties:
+      loadbalancer_pools:
+        - name: API Relay Pool SSH
+          port: 80
+        - name: API Relay Pool HTTPS
+          port: 443
+
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: haproxy-apps-relay-extension
+    cloud_properties:
+      loadbalancer_pools:
+        - name: Apps Relay Pool HTTP
+          port: 80
+        - name: Apps Relay Pool HTTPS
+          port: 443
+
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: haproxy-ops-relay-extension
+    cloud_properties:
+      loadbalancer_pools:
+        - name: Ops Relay Pool SSH
+          port: 80
+        - name: Ops Relay Pool HTTPS
+          port: 443

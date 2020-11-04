@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/0/config/exclude?
+  value: .s.PGSQL.5432

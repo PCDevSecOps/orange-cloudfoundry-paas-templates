@@ -1,0 +1,17 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name:      etcd
+    instances: ((nb_etcd))
+    azs:       [z1,z2,z3]
+    vm_type: ((vm_type_etcd))
+    disk_type: ((disk_type_etcd))
+    persistent_disk_type: ((persistent_disk_type_etcd))
+    stemcell:  default
+    networks:
+    - name: ((network))
+      cloud_properties:
+        security_groups: [default]
+    jobs:
+    - name: etcd
+      release: k8s
