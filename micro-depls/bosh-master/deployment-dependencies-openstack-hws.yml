@@ -1,0 +1,7 @@
+---
+deployment:
+  bosh-master:
+    releases:
+      bosh-openstack-cpi:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-openstack-cpi-release

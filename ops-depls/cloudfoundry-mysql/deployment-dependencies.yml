@@ -1,0 +1,26 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets: {}
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+          - submodules/orange-cf-mysql-deployment
+    releases:
+#      cf-mysql:
+#        base_location: https://bosh.io/d/github.com/
+#        repository: cloudfoundry/cf-mysql-release
+      bpm:
+      routing:
+      prometheus:
+      haproxy:
+      shield:
+      minio:
+      generic-scripting:
+    errands:
+      smoke-tests:
+      import:
+        display-name: shield-provisioning
+    manual-errands:
+      bootstrap:

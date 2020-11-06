@@ -1,0 +1,5 @@
+#--- Add compilation network name
+- type: replace
+  path: /networks/name=compilation-network/subnets/0/cloud_properties?
+  value:
+    name: ((compilation-network-name))

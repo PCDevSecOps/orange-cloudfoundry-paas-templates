@@ -1,0 +1,12 @@
+#base bosh-dns-aliases add-on, alias are added with separate operators
+
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value: 
+    domain: jumpbox #local alias
+    targets:
+    - query: '*'
+      instance_group: agents
+      deployment: rundeck
+      network: tf-net-exchange
+      domain: bosh

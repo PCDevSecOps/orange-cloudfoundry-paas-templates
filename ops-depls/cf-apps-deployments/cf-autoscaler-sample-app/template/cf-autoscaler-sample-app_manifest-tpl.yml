@@ -1,0 +1,16 @@
+applications:
+- name: cf-autoscaler-sample-app
+  instances: 2
+  memory: 100m
+  stack: cflinuxfs3
+  path: ./cf-autoscaler-sample-app
+
+# Note that the start command is specified in a Procfile in the etherpad-lite-cf distribution
+  routes:
+  - route: (( concat "dora-autoscaler." secrets.cloudfoundry.system_domain ))
+
+  buildpacks:
+    - ruby_buildpack
+  timeout: 180
+  services:
+  - sample-autoscaler-service

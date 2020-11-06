@@ -1,0 +1,56 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "prometheus-server-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: prometheus-server-ingressroute
+        namespace: prometheus
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`prometheus.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/prometheus-server`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: prometheus-server
+            namespace: prometheus
+            port: 80
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "prometheus-alertmanager-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: IngressRoute
+      metadata:
+        name: prometheus-alertmanager-ingressroute
+        namespace: prometheus
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`prometheus.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/prometheus-alertmanager`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: prometheus-alertmanager
+            namespace: prometheus
+            port: 80
+

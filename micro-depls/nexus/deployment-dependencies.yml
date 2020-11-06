@@ -1,0 +1,8 @@
+---
+deployment:
+  nexus:
+    releases:
+      docker:
+      nginx:
+      routing:
+

@@ -1,0 +1,16 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+    releases:
+      routing:
+      postgres:
+      shield:
+      minio:
+      generic-scripting:
+    errands:
+      import:
+        display-name: shield-provisioning

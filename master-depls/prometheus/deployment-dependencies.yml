@@ -1,0 +1,20 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - submodules/prometheus-boshrelease
+        - shared-operators/docker-images
+    releases:
+      routing:
+      prometheus:
+      docker:
+      bosh-dns-aliases:
+      generic-scripting:
+    errands:
+
+
+

@@ -1,0 +1,4 @@
+tenant_name: ops-depls
+deployment_name: mongodb
+mongodb_password: ((mongo_root_password))
+when: "daily 4:15"

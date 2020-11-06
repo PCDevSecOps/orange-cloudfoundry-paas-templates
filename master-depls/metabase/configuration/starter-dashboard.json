@@ -1,0 +1,2234 @@
+{
+  "collections": [
+    {
+      "id": 1,
+      "name": "services",
+      "slug": "services",
+      "description": null,
+      "color": "#9CC177",
+      "archived": false
+    },
+    {
+      "id": 2,
+      "name": "Apps",
+      "slug": "apps",
+      "description": null,
+      "color": "#509EE3",
+      "archived": false
+    }
+  ],
+  "dashboards": [
+    {
+      "id": 1,
+      "name": "CF apps",
+      "archived": false,
+      "description": null,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "parameters": [],
+      "ordered_cards": [
+        {
+          "id": 1,
+          "col": 0,
+          "row": 20,
+          "sizeX": 5,
+          "sizeY": 4,
+          "card_id": 3,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 2,
+          "col": 7,
+          "row": 16,
+          "sizeX": 6,
+          "sizeY": 4,
+          "card_id": 4,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 3,
+          "col": 5,
+          "row": 20,
+          "sizeX": 5,
+          "sizeY": 4,
+          "card_id": 5,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 4,
+          "col": 0,
+          "row": 16,
+          "sizeX": 7,
+          "sizeY": 4,
+          "card_id": 6,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 5,
+          "col": 0,
+          "row": 0,
+          "sizeX": 4,
+          "sizeY": 4,
+          "card_id": 7,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 6,
+          "col": 0,
+          "row": 8,
+          "sizeX": 9,
+          "sizeY": 4,
+          "card_id": 14,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 7,
+          "col": 0,
+          "row": 12,
+          "sizeX": 13,
+          "sizeY": 4,
+          "card_id": 16,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 8,
+          "col": 4,
+          "row": 0,
+          "sizeX": 12,
+          "sizeY": 8,
+          "card_id": 25,
+          "parameter_mappings": [],
+          "visualization_settings": {
+            "table.column_widths": [
+              469
+            ],
+            "card.title": "app buildpack usage"
+          },
+          "series": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "CF services dasboard",
+      "archived": false,
+      "description": null,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "parameters": [],
+      "ordered_cards": [
+        {
+          "id": 1,
+          "col": 0,
+          "row": 5,
+          "sizeX": 13,
+          "sizeY": 5,
+          "card_id": 12,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 2,
+          "col": 0,
+          "row": 10,
+          "sizeX": 13,
+          "sizeY": 5,
+          "card_id": 13,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 3,
+          "col": 5,
+          "row": 0,
+          "sizeX": 6,
+          "sizeY": 5,
+          "card_id": 17,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 4,
+          "col": 0,
+          "row": 0,
+          "sizeX": 5,
+          "sizeY": 5,
+          "card_id": 18,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 5,
+          "col": 0,
+          "row": 15,
+          "sizeX": 13,
+          "sizeY": 8,
+          "card_id": 27,
+          "parameter_mappings": [],
+          "visualization_settings": {
+            "table.column_widths": [],
+            "card.title": "service plan usage by org"
+          },
+          "series": []
+        },
+        {
+          "id": 6,
+          "col": 11,
+          "row": 0,
+          "sizeX": 7,
+          "sizeY": 5,
+          "card_id": 28,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 7,
+          "col": 13,
+          "row": 5,
+          "sizeX": 5,
+          "sizeY": 4,
+          "card_id": 29,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "CF users",
+      "archived": false,
+      "description": null,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "parameters": [],
+      "ordered_cards": [
+        {
+          "id": 1,
+          "col": 0,
+          "row": 5,
+          "sizeX": 10,
+          "sizeY": 4,
+          "card_id": 9,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 2,
+          "col": 4,
+          "row": 0,
+          "sizeX": 13,
+          "sizeY": 4,
+          "card_id": 10,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 3,
+          "col": 0,
+          "row": 0,
+          "sizeX": 4,
+          "sizeY": 4,
+          "card_id": 15,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Weekly news",
+      "archived": false,
+      "description": "What is new in our CF instance ?",
+      "enable_embedding": false,
+      "embedding_params": null,
+      "parameters": [],
+      "ordered_cards": [
+        {
+          "id": 1,
+          "col": 0,
+          "row": 0,
+          "sizeX": 5,
+          "sizeY": 6,
+          "card_id": 21,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 2,
+          "col": 5,
+          "row": 8,
+          "sizeX": 12,
+          "sizeY": 4,
+          "card_id": 22,
+          "parameter_mappings": [],
+          "visualization_settings": {
+            "table.columns": [
+              {
+                "name": "id",
+                "enabled": false
+              },
+              {
+                "name": "name",
+                "enabled": true
+              },
+              {
+                "name": "auth_password",
+                "enabled": false
+              },
+              {
+                "name": "auth_username",
+                "enabled": false
+              },
+              {
+                "name": "broker_url",
+                "enabled": true
+              },
+              {
+                "name": "created_at",
+                "enabled": true
+              },
+              {
+                "name": "guid",
+                "enabled": false
+              },
+              {
+                "name": "salt",
+                "enabled": false
+              },
+              {
+                "name": "space_id",
+                "enabled": true
+              },
+              {
+                "name": "updated_at",
+                "enabled": false
+              }
+            ]
+          },
+          "series": []
+        },
+        {
+          "id": 3,
+          "col": 0,
+          "row": 8,
+          "sizeX": 5,
+          "sizeY": 4,
+          "card_id": 23,
+          "parameter_mappings": [],
+          "visualization_settings": {},
+          "series": []
+        },
+        {
+          "id": 4,
+          "col": 5,
+          "row": 0,
+          "sizeX": 13,
+          "sizeY": 6,
+          "card_id": 24,
+          "parameter_mappings": [],
+          "visualization_settings": {
+            "table.column_widths": [],
+            "table.columns": [
+              {
+                "name": "id",
+                "enabled": true
+              },
+              {
+                "name": "active",
+                "enabled": false
+              },
+              {
+                "name": "authorities",
+                "enabled": false
+              },
+              {
+                "name": "created",
+                "enabled": true
+              },
+              {
+                "name": "email",
+                "enabled": true
+              },
+              {
+                "name": "external_id",
+                "enabled": false
+              },
+              {
+                "name": "familyname",
+                "enabled": true
+              },
+              {
+                "name": "givenname",
+                "enabled": true
+              },
+              {
+                "name": "identity_zone_id",
+                "enabled": false
+              },
+              {
+                "name": "lastmodified",
+                "enabled": false
+              },
+              {
+                "name": "legacy_verification_behavior",
+                "enabled": false
+              },
+              {
+                "name": "origin",
+                "enabled": false
+              },
+              {
+                "name": "passwd_lastmodified",
+                "enabled": false
+              },
+              {
+                "name": "password",
+                "enabled": false
+              },
+              {
+                "name": "phonenumber",
+                "enabled": false
+              },
+              {
+                "name": "salt",
+                "enabled": false
+              },
+              {
+                "name": "username",
+                "enabled": true
+              },
+              {
+                "name": "verified",
+                "enabled": false
+              },
+              {
+                "name": "version",
+                "enabled": false
+              }
+            ],
+            "card.title": "New CF user registrations (past 30 days)"
+          },
+          "series": []
+        }
+      ]
+    }
+  ],
+  "cards": [
+    {
+      "id": 1,
+      "description": "compte des buildpacks par catégorie",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Build Pack Receipt Build Pack",
+          "name": "buildpack_receipt_buildpack"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Droplets, Count, Grouped by Build Pack Receipt Build Pack",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", \"public\".\"droplets\".\"buildpack_receipt_buildpack\" AS \"buildpack_receipt_buildpack\"\nFROM \"public\".\"droplets\"\nGROUP BY \"public\".\"droplets\".\"buildpack_receipt_buildpack\"\nORDER BY \"public\".\"droplets\".\"buildpack_receipt_buildpack\" ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 2,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "ID",
+          "name": "id"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Act Ee",
+          "name": "actee"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Act Ee Name",
+          "name": "actee_name"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Act Ee Type",
+          "name": "actee_type"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Actor",
+          "name": "actor"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Actor Name",
+          "name": "actor_name"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Actor Type",
+          "name": "actor_type"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Actor Username",
+          "name": "actor_username"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created At",
+          "name": "created_at"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "GUID",
+          "name": "guid"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Metadata",
+          "name": "metadata"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Organization GUID",
+          "name": "organization_guid"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Space GUID",
+          "name": "space_guid"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Timestamp",
+          "name": "timestamp"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Type",
+          "name": "type"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Updated At",
+          "name": "updated_at"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Events, Raw data",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"events\".\"id\" AS \"id\", \"public\".\"events\".\"actee\" AS \"actee\", \"public\".\"events\".\"actee_name\" AS \"actee_name\", \"public\".\"events\".\"actee_type\" AS \"actee_type\", \"public\".\"events\".\"actor\" AS \"actor\", \"public\".\"events\".\"actor_name\" AS \"actor_name\", \"public\".\"events\".\"actor_type\" AS \"actor_type\", \"public\".\"events\".\"actor_username\" AS \"actor_username\", \"public\".\"events\".\"created_at\" AS \"created_at\", \"public\".\"events\".\"guid\" AS \"guid\", \"public\".\"events\".\"metadata\" AS \"metadata\", \"public\".\"events\".\"organization_guid\" AS \"organization_guid\", \"public\".\"events\".\"space_guid\" AS \"space_guid\", \"public\".\"events\".\"timestamp\" AS \"timestamp\", \"public\".\"events\".\"type\" AS \"type\", \"public\".\"events\".\"updated_at\" AS \"updated_at\"\nFROM \"public\".\"events\"\nLIMIT 2000\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "id",
+            "enabled": true
+          },
+          {
+            "name": "actee",
+            "enabled": false
+          },
+          {
+            "name": "actee_name",
+            "enabled": true
+          },
+          {
+            "name": "actee_type",
+            "enabled": true
+          },
+          {
+            "name": "actor",
+            "enabled": true
+          },
+          {
+            "name": "actor_name",
+            "enabled": true
+          },
+          {
+            "name": "actor_type",
+            "enabled": true
+          },
+          {
+            "name": "created_at",
+            "enabled": true
+          },
+          {
+            "name": "guid",
+            "enabled": true
+          },
+          {
+            "name": "organization_guid",
+            "enabled": false
+          },
+          {
+            "name": "space_guid",
+            "enabled": false
+          },
+          {
+            "name": "timestamp",
+            "enabled": false
+          },
+          {
+            "name": "type",
+            "enabled": true
+          },
+          {
+            "name": "updated_at",
+            "enabled": false
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "description": "Repartition of app desired state.",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Desired State",
+          "name": "desired_state"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Repartition of app desired state",
+      "display": "pie",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", \"public\".\"apps\".\"desired_state\" AS \"desired_state\"\nFROM \"public\".\"apps\"\nGROUP BY \"public\".\"apps\".\"desired_state\"\nORDER BY \"public\".\"apps\".\"desired_state\" ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "pie.dimension": "desired_state",
+        "pie.metric": "count"
+      }
+    },
+    {
+      "id": 4,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/Date",
+          "display_name": "Created At",
+          "name": "created_at"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Count App Usage Events per day",
+      "display": "line",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", CAST(\"public\".\"app_usage_events\".\"created_at\" AS date) AS \"created_at\"\nFROM \"public\".\"app_usage_events\"\nGROUP BY CAST(\"public\".\"app_usage_events\".\"created_at\" AS date)\nORDER BY CAST(\"public\".\"app_usage_events\".\"created_at\" AS date) ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "graph.dimensions": [
+          "created_at"
+        ],
+        "graph.metrics": [
+          "count"
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "State",
+          "name": "state"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "last known app state ?",
+      "display": "pie",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT app_usage.state, count(*) AS \"count\"\nFROM (SELECT DISTINCT ON (\"public\".\"app_usage_events\".\"app_guid\")\n       \"public\".\"app_usage_events\".\"app_guid\" , \"public\".\"app_usage_events\".\"app_name\", CAST(\"public\".\"app_usage_events\".\"created_at\" AS date), \"public\".\"app_usage_events\".\"state\" \nFROM \"public\".\"app_usage_events\"\nWHERE (\"public\".\"app_usage_events\".state = 'STOPPED' OR \"public\".\"app_usage_events\".state = 'STARTED')\nORDER BY \"public\".\"app_usage_events\".\"app_guid\", CAST(\"public\".\"app_usage_events\".\"created_at\" AS date) DESC) AS app_usage\nGROUP BY app_usage.state\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 6,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "App GUID",
+          "name": "app_guid"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "App Name",
+          "name": "app_name"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "count App Usage Events per app",
+      "display": "line",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", \"public\".\"app_usage_events\".\"app_guid\" AS \"app_guid\", \"public\".\"app_usage_events\".\"app_name\" AS \"app_name\"\nFROM \"public\".\"app_usage_events\"\nGROUP BY \"public\".\"app_usage_events\".\"app_guid\", \"public\".\"app_usage_events\".\"app_name\"\nORDER BY \"public\".\"app_usage_events\".\"app_guid\" ASC, \"public\".\"app_usage_events\".\"app_name\" ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "graph.dimensions": [
+          "app_guid"
+        ],
+        "graph.metrics": [
+          "count"
+        ],
+        "graph.y_axis.auto_range": false
+      }
+    },
+    {
+      "id": 7,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Count of Apps",
+      "display": "scalar",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\" \nFROM \"public\".\"apps\"\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 8,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Space GUID",
+          "name": "space_guid"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "mon nom",
+      "display": "bar",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", \"public\".\"apps\".\"space_guid\" AS \"space_guid\"\nFROM \"public\".\"apps\"\nGROUP BY \"public\".\"apps\".\"space_guid\"\nORDER BY \"public\".\"apps\".\"space_guid\" ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": [],
+        "graph.dimensions": [
+          "space_guid"
+        ],
+        "graph.metrics": [
+          "count"
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created At",
+          "name": "created_at"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "How many users joined per months ?",
+      "display": "line",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", date_trunc('month', CAST(\"public\".\"users\".\"created_at\" AS timestamp)) AS \"created_at\"\nFROM \"public\".\"users\"\nGROUP BY date_trunc('month', CAST(\"public\".\"users\".\"created_at\" AS timestamp))\nORDER BY date_trunc('month', CAST(\"public\".\"users\".\"created_at\" AS timestamp)) ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "graph.dimensions": [
+          "created_at"
+        ],
+        "graph.metrics": [
+          "count"
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created At",
+          "name": "created_at"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Cumulative count of Users in the platform",
+      "display": "area",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", date_trunc('month', CAST(\"public\".\"users\".\"created_at\" AS timestamp)) AS \"created_at\"\nFROM \"public\".\"users\"\nGROUP BY date_trunc('month', CAST(\"public\".\"users\".\"created_at\" AS timestamp))\nORDER BY date_trunc('month', CAST(\"public\".\"users\".\"created_at\" AS timestamp)) ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 11,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/*",
+          "display_name": "Label",
+          "name": "label"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "count all service bindings per service",
+      "display": "bar",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"services\".\"label\", count(*) AS \"count\"\nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nGROUP BY \"public\".\"services\".\"id\"\nORDER BY \"public\".\"services\".\"id\" ASC",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 12,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Service Broker",
+          "name": "service broker"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Label",
+          "name": "service label"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Plan",
+          "name": "service plan"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Service Bindings Count",
+          "name": "service_bindings_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "service plans usage summary statistics",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"service_brokers\".\"name\" AS \"service broker\",\"public\".\"services\".\"label\" AS \"service label\", \"public\".\"service_plans\".\"name\" AS \"service plan\",  count(*) AS \"service_bindings_count\"\nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nGROUP BY \"public\".\"service_brokers\".\"id\", \"public\".\"services\".\"id\", \"public\".\"service_plans\".\"id\"\nORDER BY \"public\".\"service_brokers\".\"name\", \"public\".\"services\".\"label\", \"public\".\"service_plans\".\"name\" ASC",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 13,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Service Broker",
+          "name": "service broker"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Label",
+          "name": "service label"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Plan",
+          "name": "service plan"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Org",
+          "name": "org"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space",
+          "name": "space"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Service Bindings Count",
+          "name": "service_bindings_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "service plans usage detailed statistics",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"service_brokers\".\"name\" AS \"service broker\",\"public\".\"services\".\"label\" AS \"service label\", \"public\".\"service_plans\".\"name\" AS \"service plan\",  \"public\".\"organizations\".\"name\" AS \"org\", \"public\".\"spaces\".\"name\" AS \"space\", count(*) AS \"service_bindings_count\"\nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\", \"public\".\"apps\", \"public\".\"organizations\", \"public\".\"spaces\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nAND \"public\".\"service_bindings\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"apps\".\"space_guid\" = \"public\".\"spaces\".\"guid\"\nAND \"public\".\"spaces\".\"organization_id\" = \"public\".\"organizations\".\"id\"\nGROUP BY \"public\".\"service_brokers\".\"id\", \"public\".\"services\".\"id\", \"public\".\"service_plans\".\"id\", \"public\".\"organizations\".\"id\", \"public\".\"spaces\".\"id\"\nORDER BY \"public\".\"service_brokers\".\"name\", \"public\".\"services\".\"label\", \"public\".\"service_plans\".\"name\", \"public\".\"organizations\".\"name\", \"public\".\"spaces\".\"name\" ASC",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 14,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created At",
+          "name": "created_at"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Cumulative count of Apps in the platform",
+      "display": "area",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", date_trunc('month', CAST(\"public\".\"apps\".\"created_at\" AS timestamp)) AS \"created_at\"\nFROM \"public\".\"apps\"\nGROUP BY date_trunc('month', CAST(\"public\".\"apps\".\"created_at\" AS timestamp))\nORDER BY date_trunc('month', CAST(\"public\".\"apps\".\"created_at\" AS timestamp)) ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 15,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Count of Users",
+      "display": "scalar",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\"\nFROM \"public\".\"users\"\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 16,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created At",
+          "name": "created_at"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "How many Apps created per months ?",
+      "display": "area",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\", date_trunc('month', CAST(\"public\".\"apps\".\"created_at\" AS timestamp)) AS \"created_at\"\nFROM \"public\".\"apps\"\nGROUP BY date_trunc('month', CAST(\"public\".\"apps\".\"created_at\" AS timestamp))\nORDER BY date_trunc('month', CAST(\"public\".\"apps\".\"created_at\" AS timestamp)) ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "graph.dimensions": [
+          "created_at"
+        ],
+        "graph.metrics": [
+          "count"
+        ]
+      }
+    },
+    {
+      "id": 17,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Service Broker",
+          "name": "service broker"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Label",
+          "name": "service label"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Plan",
+          "name": "service plan"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Service Bindings Count",
+          "name": "service_bindings_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Top 5 service plan usage in the platform",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"service_brokers\".\"name\" AS \"service broker\",\"public\".\"services\".\"label\" AS \"service label\", \"public\".\"service_plans\".\"name\" AS \"service plan\",  count(*) AS \"service_bindings_count\"\nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nGROUP BY \"public\".\"service_brokers\".\"id\", \"public\".\"services\".\"id\", \"public\".\"service_plans\".\"id\"\nORDER BY \"service_bindings_count\" DESC,  \"public\".\"service_brokers\".\"name\", \"public\".\"services\".\"label\", \"public\".\"service_plans\".\"name\" ASC\nLIMIT 5",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 18,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Service Broker",
+          "name": "service broker"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Label",
+          "name": "service label"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Service Bindings Count",
+          "name": "service_bindings_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Top 5 service usage in the platform",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"service_brokers\".\"name\" AS \"service broker\",\"public\".\"services\".\"label\" AS \"service label\",  count(*) AS \"service_bindings_count\"\nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nGROUP BY \"public\".\"service_brokers\".\"id\", \"public\".\"services\".\"id\"\nORDER BY \"service_bindings_count\" DESC,  \"public\".\"service_brokers\".\"name\", \"public\".\"services\".\"label\" ASC\nLIMIT 5",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 19,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "ID",
+          "name": "id"
+        },
+        {
+          "base_type": "type/Boolean",
+          "display_name": "Active",
+          "name": "active"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Authorities",
+          "name": "authorities"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created",
+          "name": "created"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Email",
+          "name": "email"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "External ID",
+          "name": "external_id"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Family Name",
+          "name": "familyname"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Given Name",
+          "name": "givenname"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Identity Zone ID",
+          "name": "identity_zone_id"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Last Log On Success Time",
+          "name": "last_logon_success_time"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Last Modified",
+          "name": "lastmodified"
+        },
+        {
+          "base_type": "type/Boolean",
+          "display_name": "Legacy Verification Behavior",
+          "name": "legacy_verification_behavior"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Origin",
+          "name": "origin"
+        },
+        {
+          "base_type": "type/Boolean",
+          "display_name": "Pass Wd Change Required",
+          "name": "passwd_change_required"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Pass Wd Last Modified",
+          "name": "passwd_lastmodified"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Password",
+          "name": "password"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Phone Number",
+          "name": "phonenumber"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Previous Log On Success Time",
+          "name": "previous_logon_success_time"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Salt",
+          "name": "salt"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Username",
+          "name": "username"
+        },
+        {
+          "base_type": "type/Boolean",
+          "display_name": "Verified",
+          "name": "verified"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Version",
+          "name": "version"
+        }
+      ],
+      "database_id": 3,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "cloudfoundry Users - from uaadb",
+      "display": "table",
+      "dataset_query": {
+        "database": 3,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"users\".\"id\" AS \"id\", \"public\".\"users\".\"active\" AS \"active\", \"public\".\"users\".\"authorities\" AS \"authorities\", \"public\".\"users\".\"created\" AS \"created\", \"public\".\"users\".\"email\" AS \"email\", \"public\".\"users\".\"external_id\" AS \"external_id\", \"public\".\"users\".\"familyname\" AS \"familyname\", \"public\".\"users\".\"givenname\" AS \"givenname\", \"public\".\"users\".\"identity_zone_id\" AS \"identity_zone_id\", \"public\".\"users\".\"last_logon_success_time\" AS \"last_logon_success_time\", \"public\".\"users\".\"lastmodified\" AS \"lastmodified\", \"public\".\"users\".\"legacy_verification_behavior\" AS \"legacy_verification_behavior\", \"public\".\"users\".\"origin\" AS \"origin\", \"public\".\"users\".\"passwd_change_required\" AS \"passwd_change_required\", \"public\".\"users\".\"passwd_lastmodified\" AS \"passwd_lastmodified\", \"public\".\"users\".\"password\" AS \"password\", \"public\".\"users\".\"phonenumber\" AS \"phonenumber\", \"public\".\"users\".\"previous_logon_success_time\" AS \"previous_logon_success_time\", \"public\".\"users\".\"salt\" AS \"salt\", \"public\".\"users\".\"username\" AS \"username\", \"public\".\"users\".\"verified\" AS \"verified\", \"public\".\"users\".\"version\" AS \"version\"\nFROM \"public\".\"users\"\nLIMIT 2000\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.columns": [
+          {
+            "name": "id",
+            "enabled": false
+          },
+          {
+            "name": "active",
+            "enabled": false
+          },
+          {
+            "name": "authorities",
+            "enabled": false
+          },
+          {
+            "name": "created",
+            "enabled": false
+          },
+          {
+            "name": "email",
+            "enabled": true
+          },
+          {
+            "name": "external_id",
+            "enabled": false
+          },
+          {
+            "name": "familyname",
+            "enabled": false
+          },
+          {
+            "name": "givenname",
+            "enabled": false
+          },
+          {
+            "name": "identity_zone_id",
+            "enabled": false
+          },
+          {
+            "name": "lastmodified",
+            "enabled": false
+          },
+          {
+            "name": "legacy_verification_behavior",
+            "enabled": false
+          },
+          {
+            "name": "origin",
+            "enabled": false
+          },
+          {
+            "name": "passwd_lastmodified",
+            "enabled": false
+          },
+          {
+            "name": "password",
+            "enabled": false
+          },
+          {
+            "name": "phonenumber",
+            "enabled": false
+          },
+          {
+            "name": "salt",
+            "enabled": false
+          },
+          {
+            "name": "username",
+            "enabled": false
+          },
+          {
+            "name": "verified",
+            "enabled": false
+          },
+          {
+            "name": "version",
+            "enabled": false
+          }
+        ],
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 20,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Given Name",
+          "name": "givenname"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Family Name",
+          "name": "familyname"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Email",
+          "name": "email"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Username",
+          "name": "username"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created",
+          "name": "created"
+        }
+      ],
+      "database_id": 3,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "New CF user registrations (past week)",
+      "display": "table",
+      "dataset_query": {
+        "database": 3,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"users\".\"givenname\" AS \"givenname\", \"public\".\"users\".\"familyname\" AS \"familyname\", \"public\".\"users\".\"email\" AS \"email\", \"public\".\"users\".\"username\" AS \"username\", \"public\".\"users\".\"created\" AS \"created\"\n\nFROM \"public\".\"users\"\nWHERE (date_trunc('week', (\"public\".\"users\".\"created\" + INTERVAL '1 day')) - INTERVAL '1 day') = (date_trunc('week', ((NOW() + INTERVAL '-1 week') + INTERVAL '1 day')) - INTERVAL '1 day')\nLIMIT 2000",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 21,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        }
+      ],
+      "database_id": 3,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "CF user registrations (count since 30 days)",
+      "display": "scalar",
+      "dataset_query": {
+        "database": 3,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\"\nFROM \"public\".\"users\"\nWHERE CAST(\"public\".\"users\".\"created\" AS date) BETWEEN CAST((NOW() + INTERVAL '-30 day') AS date)\n   AND CAST((NOW() + INTERVAL '-1 day') AS date)\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 22,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Name",
+          "name": "name"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space ID",
+          "name": "space_id"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created At",
+          "name": "created_at"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Broker URL",
+          "name": "broker_url"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "New service brokers (since 30 days)",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT  \"public\".\"service_brokers\".\"name\" AS \"name\", \n\"public\".\"service_brokers\".\"space_id\" AS \"space_id\",\n\"public\".\"service_brokers\".\"created_at\" AS \"created_at\", \n\"public\".\"service_brokers\".\"broker_url\" AS \"broker_url\"\nFROM \"public\".\"service_brokers\"\nWHERE CAST(\"public\".\"service_brokers\".\"created_at\" AS date) BETWEEN CAST((NOW() + INTERVAL '-30 day') AS date)\n   AND CAST((NOW() + INTERVAL '-1 day') AS date)\nLIMIT 2000",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 23,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "New service brokers (count since 30 days)",
+      "display": "scalar",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(*) AS \"count\" \nFROM \"public\".\"service_brokers\" \nWHERE CAST(\"public\".\"service_brokers\".\"created_at\" AS date) BETWEEN CAST((NOW() + INTERVAL '-30 day') AS date)\n   AND CAST((NOW() + INTERVAL '-1 day') AS date)\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 24,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Username",
+          "name": "username"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Given Name",
+          "name": "givenname"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Family Name",
+          "name": "familyname"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Email",
+          "name": "email"
+        },
+        {
+          "base_type": "type/DateTime",
+          "display_name": "Created",
+          "name": "created"
+        }
+      ],
+      "database_id": 3,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "CF user registrations (since 30 days)",
+      "display": "table",
+      "dataset_query": {
+        "database": 3,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"users\".\"username\" AS \"username\", \n\"public\".\"users\".\"givenname\" AS \"givenname\", \n\"public\".\"users\".\"familyname\" AS \"familyname\", \n\"public\".\"users\".\"email\" AS \"email\", \n\"public\".\"users\".\"created\" AS \"created\"\nFROM \"public\".\"users\"\nWHERE CAST(\"public\".\"users\".\"created\" AS date) BETWEEN CAST((NOW() + INTERVAL '-30 day') AS date)\n   AND CAST((NOW() + INTERVAL '-1 day') AS date)\nLIMIT 2000",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 25,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Integer",
+          "display_name": "Count",
+          "name": "count"
+        },
+        {
+          "base_type": "type/Text",
+          "display_name": "Build Pack Receipt Build Pack",
+          "name": "buildpack_receipt_buildpack"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "app buildpacks",
+      "display": "pie",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT count(\"public\".\"apps\".\"id\"), \n\"public\".\"droplets\".\"buildpack_receipt_buildpack\" AS \"buildpack_receipt_buildpack\"\nFROM \"public\".\"apps\", \"public\".\"droplets\"\nWHERE \"public\".\"apps\".\"droplet_guid\" = \"public\".\"droplets\".\"guid\"\nGROUP BY \"public\".\"droplets\".\"buildpack_receipt_buildpack\"\nORDER BY count(\"public\".\"apps\".\"id\") DESC \nLIMIT 2000",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": [],
+        "pie.dimension": "buildpack_receipt_buildpack",
+        "pie.metric": "count"
+      }
+    },
+    {
+      "id": 26,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/*",
+          "display_name": "Updated At",
+          "name": "updated_at"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Tags",
+          "name": "tags"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Sy Slog Drain URL",
+          "name": "syslog_drain_url"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space ID",
+          "name": "space_id"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Plan ID",
+          "name": "service_plan_id"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Salt",
+          "name": "salt"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Route Service URL",
+          "name": "route_service_url"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Name",
+          "name": "name"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Is Gateway Service",
+          "name": "is_gateway_service"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "ID",
+          "name": "id"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "GUID",
+          "name": "guid"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Gateway Name",
+          "name": "gateway_name"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Gateway Data",
+          "name": "gateway_data"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Dashboard URL",
+          "name": "dashboard_url"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Credentials",
+          "name": "credentials"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Created At",
+          "name": "created_at"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "orange-private-sandboxes service instances",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"service_instances\".\"updated_at\" AS \"updated_at\", \"public\".\"service_instances\".\"tags\" AS \"tags\", \"public\".\"service_instances\".\"syslog_drain_url\" AS \"syslog_drain_url\", \"public\".\"service_instances\".\"space_id\" AS \"space_id\", \"public\".\"service_instances\".\"service_plan_id\" AS \"service_plan_id\", \"public\".\"service_instances\".\"salt\" AS \"salt\", \"public\".\"service_instances\".\"route_service_url\" AS \"route_service_url\", \"public\".\"service_instances\".\"name\" AS \"name\", \"public\".\"service_instances\".\"is_gateway_service\" AS \"is_gateway_service\", \"public\".\"service_instances\".\"id\" AS \"id\", \"public\".\"service_instances\".\"guid\" AS \"guid\", \"public\".\"service_instances\".\"gateway_name\" AS \"gateway_name\", \"public\".\"service_instances\".\"gateway_data\" AS \"gateway_data\", \"public\".\"service_instances\".\"dashboard_url\" AS \"dashboard_url\", \"public\".\"service_instances\".\"credentials\" AS \"credentials\", \"public\".\"service_instances\".\"created_at\" AS \"created_at\"\nFROM \"public\".\"service_instances\"\nLEFT JOIN \"public\".\"spaces\" \"spaces__via__space_id\" ON \"public\".\"service_instances\".\"space_id\" = \"spaces__via__space_id\".\"id\"\nWHERE \"spaces__via__space_id\".\"organization_id\" = 40\nLIMIT 2000",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 27,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "Service Broker",
+          "name": "service broker"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Label",
+          "name": "service label"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Plan",
+          "name": "service plan"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Org",
+          "name": "org"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Service Bindings Count",
+          "name": "service_bindings_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "service plan usage by org (bindings)",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"service_brokers\".\"name\" AS \"service broker\",\"public\".\"services\".\"label\" AS \"service label\", \"public\".\"service_plans\".\"name\" AS \"service plan\",  \"public\".\"organizations\".\"name\" AS \"org\", count(*) AS \"service_bindings_count\"\nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\", \"public\".\"apps\", \"public\".\"organizations\", \"public\".\"spaces\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nAND \"public\".\"service_bindings\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"apps\".\"space_guid\" = \"public\".\"spaces\".\"guid\"\nAND \"public\".\"spaces\".\"organization_id\" = \"public\".\"organizations\".\"id\"\n[[AND \"public\".\"organizations\".\"name\" = {{organization}}]]\nGROUP BY \"public\".\"service_brokers\".\"id\", \"public\".\"services\".\"id\", \"public\".\"service_plans\".\"id\", \"public\".\"organizations\".\"id\"\nORDER BY \"public\".\"service_brokers\".\"name\", \"public\".\"services\".\"label\", \"public\".\"service_plans\".\"name\", \"public\".\"organizations\".\"name\" ASC",
+          "collection": null,
+          "template_tags": {
+            "organization": {
+              "id": "6d3eebe8-7334-5e4e-3065-4c88c44fba12",
+              "name": "organization",
+              "display_name": "organization",
+              "type": "text",
+              "required": false,
+              "default": null
+            }
+          }
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 28,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/*",
+          "display_name": "Organization",
+          "name": "Organization"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space",
+          "name": "Space"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service",
+          "name": "Service"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Plan",
+          "name": "Service plan"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Number Of Instances",
+          "name": "Number of instances"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": 1,
+      "name": "Service instances by Spaces",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT\n  \"organizations__via__organization_id\".\"name\" AS \"Organization\",\n  \"spaces__via__space_id\".\"name\" AS \"Space\",\n  \"services__via__service_id\".\"label\" AS \"Service\",\n  \"service_plans__via__service_pl\".\"name\" AS \"Service plan\",\n  count(*) AS \"Number of instances\"\nFROM \"public\".\"service_instances\"\nLEFT JOIN \"public\".\"service_plans\" \"service_plans__via__service_pl\" ON \"public\".\"service_instances\".\"service_plan_id\" = \"service_plans__via__service_pl\".\"id\"\nLEFT JOIN \"public\".\"services\" \"services__via__service_id\" ON \"service_plans__via__service_pl\".\"service_id\" = \"services__via__service_id\".\"id\"\nLEFT JOIN \"public\".\"spaces\" \"spaces__via__space_id\" ON \"public\".\"service_instances\".\"space_id\" = \"spaces__via__space_id\".\"id\"\nLEFT JOIN \"public\".\"organizations\" \"organizations__via__organization_id\" ON \"spaces__via__space_id\".\"organization_id\" = \"organizations__via__organization_id\".\"id\"\nGROUP BY\n  \"organizations__via__organization_id\".\"name\",\n  \"spaces__via__space_id\".\"name\",\n  \"service_plans__via__service_pl\".\"name\",\n  \"services__via__service_id\".\"label\"\nORDER BY\n  \"organizations__via__organization_id\".\"name\" ASC,\n  \"spaces__via__space_id\".\"name\" ASC,\n  \"service_plans__via__service_pl\".\"name\" ASC\nLIMIT 20000;",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 29,
+      "description": null,
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/*",
+          "display_name": "Organization",
+          "name": "Organization"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service",
+          "name": "Service"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Service Plan",
+          "name": "Service plan"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Number Of Instances",
+          "name": "Number of instances"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": 1,
+      "name": "Service instances by Organizations",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT\n  \"organizations__via__organization_id\".\"name\" AS \"Organization\",\n  \"services__via__service_id\".\"label\" AS \"Service\",\n  \"service_plans__via__service_pl\".\"name\" AS \"Service plan\",\n  count(*) AS \"Number of instances\"\nFROM \"public\".\"service_instances\"\nLEFT JOIN \"public\".\"service_plans\" \"service_plans__via__service_pl\" ON \"public\".\"service_instances\".\"service_plan_id\" = \"service_plans__via__service_pl\".\"id\"\nLEFT JOIN \"public\".\"services\" \"services__via__service_id\" ON \"service_plans__via__service_pl\".\"service_id\" = \"services__via__service_id\".\"id\"\nLEFT JOIN \"public\".\"spaces\" \"spaces__via__space_id\" ON \"public\".\"service_instances\".\"space_id\" = \"spaces__via__space_id\".\"id\"\nLEFT JOIN \"public\".\"organizations\" \"organizations__via__organization_id\" ON \"spaces__via__space_id\".\"organization_id\" = \"organizations__via__organization_id\".\"id\"\nGROUP BY\n  \"organizations__via__organization_id\".\"name\",\n  \"service_plans__via__service_pl\".\"name\",\n  \"services__via__service_id\".\"label\"\nORDER BY\n  \"organizations__via__organization_id\".\"name\" ASC,\n  \"service_plans__via__service_pl\".\"name\" ASC\nLIMIT 20000;",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 30,
+      "description": "Return RAM used for desired \"STARTED\" apps.",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/*",
+          "display_name": "Organization",
+          "name": "Organization"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Memory Used (mb)",
+          "name": "Memory used (MB)"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": 2,
+      "name": "RAM used by Organizations",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT\n  \"organizations__via__organization_id\".\"name\" AS \"Organization\",\n  sum(\"memory\" * \"instances\") AS \"Memory used (MB)\"\nFROM \"public\".\"processes\"\nLEFT JOIN \"public\".\"apps\"          \"apps__via__app_guid\"                 ON \"public\".\"processes\".\"app_guid\"           = \"apps__via__app_guid\".\"guid\"\nLEFT JOIN \"public\".\"spaces\"        \"spaces__via__space_guid\"             ON \"apps__via__app_guid\".\"space_guid\"        = \"spaces__via__space_guid\".\"guid\"\nLEFT JOIN \"public\".\"organizations\" \"organizations__via__organization_id\" ON \"spaces__via__space_guid\".\"organization_id\" = \"organizations__via__organization_id\".\"id\"\nWHERE\n  \"apps__via__app_guid\".\"desired_state\" = 'STARTED'\nGROUP BY\n  \"organizations__via__organization_id\".\"name\"\nORDER BY\n  \"organizations__via__organization_id\".\"name\" ASC\nLIMIT 20000;\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 31,
+      "description": "Return RAM used for desired \"STARTED\" apps.",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/*",
+          "display_name": "Organization",
+          "name": "Organization"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space",
+          "name": "Space"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Memory Used (mb)",
+          "name": "Memory used (MB)"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": 2,
+      "name": "RAM used by Spaces",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT\n  \"organizations__via__organization_id\".\"name\" AS \"Organization\",\n  \"spaces__via__space_guid\".\"name\" AS \"Space\",\n  sum(\"memory\" * \"instances\") AS \"Memory used (MB)\"\nFROM \"public\".\"processes\"\nLEFT JOIN \"public\".\"apps\"          \"apps__via__app_guid\"                 ON \"public\".\"processes\".\"app_guid\"           = \"apps__via__app_guid\".\"guid\"\nLEFT JOIN \"public\".\"spaces\"        \"spaces__via__space_guid\"             ON \"apps__via__app_guid\".\"space_guid\"        = \"spaces__via__space_guid\".\"guid\"\nLEFT JOIN \"public\".\"organizations\" \"organizations__via__organization_id\" ON \"spaces__via__space_guid\".\"organization_id\" = \"organizations__via__organization_id\".\"id\"\nWHERE\n  \"apps__via__app_guid\".\"desired_state\" = 'STARTED'\nGROUP BY\n  \"organizations__via__organization_id\".\"name\",\n  \"spaces__via__space_guid\".\"name\"\nORDER BY\n  \"organizations__via__organization_id\".\"name\" ASC,\n  \"spaces__via__space_guid\".\"name\" ASC\nLIMIT 20000;\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 32,
+      "description": "Applications using mySQL, sorted by application usage events count",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "App GUID",
+          "name": "app_guid"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Name",
+          "name": "name"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Org",
+          "name": "org"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space",
+          "name": "space"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Usage Count",
+          "name": "usage_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Applications using mySQL",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"app_usage_events\".\"app_guid\" AS \"app_guid\", \"public\".\"apps\".\"name\" AS \"name\" , \"public\".\"organizations\".\"name\" AS \"org\", \"public\".\"spaces\".\"name\" AS \"space\", count(*) AS \"usage_count\"  \nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\", \"public\".\"apps\", \"public\".\"app_usage_events\",  \"public\".\"organizations\", \"public\".\"spaces\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nAND \"public\".\"service_bindings\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"app_usage_events\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"apps\".\"space_guid\" = \"public\".\"spaces\".\"guid\"\nAND \"public\".\"spaces\".\"organization_id\" = \"public\".\"organizations\".\"id\"\nAND \"public\".\"service_brokers\".\"name\"='p-mysql'\nAND \"public\".\"apps\".\"desired_state\" = 'STARTED'\nGROUP BY \"public\".\"app_usage_events\".\"app_guid\", \"public\".\"apps\".\"name\", \"public\".\"organizations\".\"name\" , \"public\".\"spaces\".\"name\"\nORDER BY \"usage_count\" DESC, \"name\" ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 33,
+      "description": "list of active applications using Mongo, sorted by app event counts",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "App GUID",
+          "name": "app_guid"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Name",
+          "name": "name"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Org",
+          "name": "org"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space",
+          "name": "space"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Usage Count",
+          "name": "usage_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Applications using Mongodb",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"app_usage_events\".\"app_guid\" AS \"app_guid\", \"public\".\"apps\".\"name\" AS \"name\" , \"public\".\"organizations\".\"name\" AS \"org\", \"public\".\"spaces\".\"name\" AS \"space\", count(*) AS \"usage_count\"  \nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\", \"public\".\"apps\", \"public\".\"app_usage_events\",  \"public\".\"organizations\", \"public\".\"spaces\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nAND \"public\".\"service_bindings\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"app_usage_events\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"apps\".\"space_guid\" = \"public\".\"spaces\".\"guid\"\nAND \"public\".\"spaces\".\"organization_id\" = \"public\".\"organizations\".\"id\"\nAND \"public\".\"service_brokers\".\"name\"='p-mongodb'\nAND \"public\".\"apps\".\"desired_state\" = 'STARTED'\nGROUP BY \"public\".\"app_usage_events\".\"app_guid\", \"public\".\"apps\".\"name\", \"public\".\"organizations\".\"name\" , \"public\".\"spaces\".\"name\"\nORDER BY \"usage_count\" DESC, \"name\" ASC\n\n\n\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {
+        "table.column_widths": []
+      }
+    },
+    {
+      "id": 34,
+      "description": "Applications using Cassandra, sorted by app event counts",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "App GUID",
+          "name": "app_guid"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Name",
+          "name": "name"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Org",
+          "name": "org"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space",
+          "name": "space"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Usage Count",
+          "name": "usage_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Applications using Cassandra",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"app_usage_events\".\"app_guid\" AS \"app_guid\", \"public\".\"apps\".\"name\" AS \"name\" , \"public\".\"organizations\".\"name\" AS \"org\", \"public\".\"spaces\".\"name\" AS \"space\", count(*) AS \"usage_count\"  \nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\", \"public\".\"apps\", \"public\".\"app_usage_events\",  \"public\".\"organizations\", \"public\".\"spaces\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nAND \"public\".\"service_bindings\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"app_usage_events\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"apps\".\"space_guid\" = \"public\".\"spaces\".\"guid\"\nAND \"public\".\"spaces\".\"organization_id\" = \"public\".\"organizations\".\"id\"\nAND \"public\".\"service_brokers\".\"name\" LIKE '%cassandra%'\nAND \"public\".\"apps\".\"desired_state\" = 'STARTED'\nGROUP BY \"public\".\"app_usage_events\".\"app_guid\", \"public\".\"apps\".\"name\", \"public\".\"organizations\".\"name\" , \"public\".\"spaces\".\"name\"\nORDER BY \"usage_count\" DESC, \"name\" ASC\n\n",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    },
+    {
+      "id": 35,
+      "description": "Active Applications using Cassandra, sorted by app event counts",
+      "archived": false,
+      "result_metadata": [
+        {
+          "base_type": "type/Text",
+          "display_name": "App GUID",
+          "name": "app_guid"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Name",
+          "name": "name"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Org",
+          "name": "org"
+        },
+        {
+          "base_type": "type/*",
+          "display_name": "Space",
+          "name": "space"
+        },
+        {
+          "base_type": "type/Integer",
+          "display_name": "Usage Count",
+          "name": "usage_count"
+        }
+      ],
+      "database_id": 2,
+      "enable_embedding": false,
+      "embedding_params": null,
+      "collection_id": null,
+      "name": "Applications using Cassandra",
+      "display": "table",
+      "dataset_query": {
+        "database": 2,
+        "type": "native",
+        "native": {
+          "query": "SELECT \"public\".\"app_usage_events\".\"app_guid\" AS \"app_guid\", \"public\".\"apps\".\"name\" AS \"name\" , \"public\".\"organizations\".\"name\" AS \"org\", \"public\".\"spaces\".\"name\" AS \"space\", count(*) AS \"usage_count\"  \nFROM \"public\".\"service_bindings\", \"public\".\"service_instances\", \"public\".\"service_plans\", \"public\".\"services\", \"public\".\"service_brokers\", \"public\".\"apps\", \"public\".\"app_usage_events\",  \"public\".\"organizations\", \"public\".\"spaces\"\nWHERE \"public\".\"service_bindings\".\"service_instance_guid\" = \"public\".\"service_instances\".\"guid\"\nAND \"public\".\"service_instances\".\"service_plan_id\" = \"public\".\"service_plans\".\"id\"\nAND \"public\".\"service_plans\".\"service_id\" = \"public\".\"services\".\"id\"\nAND \"public\".\"services\".\"service_broker_id\" = \"public\".\"service_brokers\".\"id\"\nAND \"public\".\"service_bindings\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"app_usage_events\".\"app_guid\" = \"public\".\"apps\".\"guid\"\nAND \"public\".\"apps\".\"space_guid\" = \"public\".\"spaces\".\"guid\"\nAND \"public\".\"spaces\".\"organization_id\" = \"public\".\"organizations\".\"id\"\nAND \"public\".\"service_brokers\".\"name\" like '%cassandra%'\nAND \"public\".\"apps\".\"desired_state\" = 'STARTED'\nGROUP BY \"public\".\"app_usage_events\".\"app_guid\", \"public\".\"apps\".\"name\", \"public\".\"organizations\".\"name\" , \"public\".\"spaces\".\"name\"\nORDER BY \"usage_count\" DESC, \"name\" ASC",
+          "collection": null,
+          "template_tags": null
+        }
+      },
+      "visualization_settings": {}
+    }
+  ]
+}

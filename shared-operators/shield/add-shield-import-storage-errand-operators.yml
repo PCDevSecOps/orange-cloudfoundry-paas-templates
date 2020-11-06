@@ -1,0 +1,30 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/storage?/-
+  value:
+    name: remote-((deployment_name))-(ip)
+    summary: |
+      Remote S3 storage
+    agent:  (ip):5444
+    plugin: s3
+    config:
+      s3_host: ((remote_s3_host))
+      s3_port: "443"
+      access_key_id: ((remote_s3_access_key_id))
+      secret_access_key: ((remote_s3_secret_access_key))
+      bucket: ((s3_bucket_prefix))-((deployment_name)) #pre-requisite
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/storage?/-
+  value:
+    name: local-((deployment_name))-(ip)
+    summary: |
+      Local S3 storage
+    agent:  (ip):5444
+    plugin: s3
+    config:
+      s3_host: ((local_s3_host))
+      s3_port: "443"
+      access_key_id: ((local_s3_access_key_id))
+      secret_access_key: ((local_s3_secret_access_key))
+      bucket: ((s3_bucket_prefix))-((deployment_name)) #pre-requisite

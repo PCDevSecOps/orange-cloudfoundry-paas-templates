@@ -1,0 +1,6 @@
+---
+deployment:
+  weave-scope:
+    releases:
+      routing:
+

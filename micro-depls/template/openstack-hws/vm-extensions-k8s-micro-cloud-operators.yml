@@ -1,0 +1,7 @@
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: k8s-micro-vrrp
+    cloud_properties:
+      allowed_address_pairs: 192.168.243.150 #--- ip for port mapped to master-depls/logsearch-ops/ls-router
+      #--- NOTE: port must be reserved in openstack by terraform rules (required by bosh cpi to retrieve port id from allowed ip)

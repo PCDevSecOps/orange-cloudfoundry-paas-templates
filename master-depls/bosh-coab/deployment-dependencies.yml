@@ -1,0 +1,15 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - submodules/bosh-deployment
+        - shared-operators/bosh
+    releases:
+      bosh:
+      uaa:
+      backup-and-restore-sdk:
+      generic-scripting:

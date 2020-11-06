@@ -1,0 +1,4 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value: {name: prometheus-addons, version: 3.1.1 }

@@ -1,0 +1,27 @@
+#--- Internet isolation segment
+number_of_router: (( grab meta.isolation_segment.gorouter_instances_count ))
+number_of_cell: (( grab meta.isolation_segment.diego_cell_instances_count ))
+
+#vars to cf (for bosh dns aliases)
+deployment_name: cf
+network_name: tf-net-cf
+
+#--- Properties used by cf deployment
+system_domain: ((/secrets/cloudfoundry_system_domain))
+
+#local vars
+isolation_segment: internet_isolation_segment
+number_of_tcp_router: 2
+
+is_deployment_name: isolation-segment-internet
+is_network_name: tf-is-internet
+
+router_ssl.certificate: ((/secrets/certs/internet.certificate))
+router_ssl.private_key: ((/secrets/certs/internet.private_key))
+router_domain: ((/secrets/cloudfoundry_apps_internet_domain))
+
+internet_proxy_floating_ip_1: (( grab meta.isolation_segment.internet_proxy_floating_ip_1 ))
+internet_proxy_floating_ip_2: (( grab meta.isolation_segment.internet_proxy_floating_ip_2 ))
+
+# TCP routing haproxy
+prometheus_password: (( grab secrets.prometheus.password ))

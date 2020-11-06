@@ -1,0 +1,12 @@
+# certificate for https access to cf domain
+- type: replace
+  path: /variables?/-
+  value:
+    name: private_cert
+    type: certificate
+    options:
+      ca: /internalCA
+      common_name: internal-controlplane-cf.paas
+      alternative_names:
+      - internal-controlplane-cf.paas
+      - "*.internal-controlplane-cf.paas"

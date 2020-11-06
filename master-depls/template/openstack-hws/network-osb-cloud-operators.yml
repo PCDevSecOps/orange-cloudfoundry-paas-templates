@@ -1,0 +1,17 @@
+#--- Add osb-interco network Id and security group
+- type: replace
+  path: /networks/name=tf-net-osb-interco/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf-net-osb-interco))
+    security_groups:
+    - tf-default-sg
+    - tf-intranet-http-sg
+    - tf-intranet-https-sg
+
+#--- Add osb-control-plane network Id and security group
+- type: replace
+  path: /networks/name=tf-net-osb-control-plane/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf-net-osb-control-plane))
+    security_groups:
+    - tf-default-sg

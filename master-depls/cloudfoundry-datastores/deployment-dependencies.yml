@@ -1,0 +1,16 @@
+---
+deployment:
+  cloudfoundry-datastores:
+    resources:
+      templates:
+        extended_scan_path:
+        - "submodules/cf-mysql-deployment"
+    releases:
+      cf-mysql:
+      minio:
+      postgres:
+      haproxy:
+      cron:
+      prometheus:
+    errands:
+      smoke-tests:

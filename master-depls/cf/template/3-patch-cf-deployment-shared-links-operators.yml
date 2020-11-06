@@ -1,0 +1,51 @@
+#adapt bosh links to be shared, so it can be consumed from isolation segments deployment.
+
+#primary go router
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/provides?
+  value:
+    gorouter:
+      as: router_primary
+      shared: true
+
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=routing-api/provides?
+  value:
+    routing_api:
+      as: routing_api
+      shared: true
+
+#silk
+- type: replace
+  path: /instance_groups/name=diego-api/jobs/name=silk-controller/provides?
+  value:
+    cf_network:
+      as: cf_network
+      shared: true
+
+- type: replace
+  path: /instance_groups/name=api/jobs/name=cloud_controller_ng/provides?
+  value:
+    cloud_controller_container_networking_info:
+      as: cloud_controller_container_networking_info
+      shared: true
+    cloud_controller:
+      as: cloud_controller
+      shared: true
+
+#loggregator for prom_scraper on doppler
+- type: replace
+  path: /instance_groups/name=doppler/jobs/name=doppler/provides?/loggregator?
+  value:
+    as: loggregator
+    shared: true
+
+    
+#binding_cache from loggr-syslog-binding-cache on scheduler
+- type: replace
+  path: /instance_groups/name=scheduler/jobs/name=loggr-syslog-binding-cache/provides?/binding_cache?
+  value:
+    as: binding_cache
+    shared: true
+

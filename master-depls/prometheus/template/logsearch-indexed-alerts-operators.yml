@@ -1,0 +1,15 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/custom_rules?/-
+  value:
+    name: cluster
+    rules:
+    - alert: ElasticIndexingStopped
+      expr: sum by(instance) (irate(elasticsearch_indices_indexing_index_total{instance=~"^logsearch.*",name=~"elasticsearch_data/.+"}[10m])) == 0
+      for: 30m
+      labels:
+        service: elasticsearch
+        severity: critical
+      annotations:
+        description: Elasticsearch cluster `{{$labels.instance}}` has stopped indexing
+          for the last 30m
+        summary: Elasticsearch cluster `{{$labels.instance}}` doesn't index anything

@@ -1,0 +1,2 @@
+namespace: catalog
+deployment_name: k8s-service-catalog

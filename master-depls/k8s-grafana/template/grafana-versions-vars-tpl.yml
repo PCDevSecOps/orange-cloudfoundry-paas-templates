@@ -1,0 +1,2 @@
+deployment_name: k8s-grafana
+dashboard_etcd: ((file "../../../additional-resource/master-depls/k8s-grafana/template/dashboard/etcd-dashboard.json"))

@@ -1,0 +1,44 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikservice"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: traefik-service
+        namespace: traefik
+        annotation:
+          metallb.universe.tf/address-pool: default
+        labels:
+          k8s-app: traefik
+      spec:
+        selector:
+          k8s-app: traefik
+        type: LoadBalancer
+        loadBalancerIP: 10.101.48.6
+        ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 8000
+          name: web
+
+
+        - protocol: TCP
+          port: 443
+          targetPort: 8443
+          name: https
+
+
+        - protocol: TCP
+          port: 8080
+          targetPort: 8080
+          name: metrics
+
+        - protocol: TCP
+          port: 5432
+          targetPort: 5432
+          name: postgresl

@@ -1,0 +1,20 @@
+---
+deployment:
+  k8s-logging:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/k8s-logging
+        - shared-operators/k8s-common-master
+        - shared-operators/k8s-common
+    stemcells:
+    releases:
+      helm-kubectl:
+
+    errands:
+      action:
+
+    manual-errands:
+
+
+

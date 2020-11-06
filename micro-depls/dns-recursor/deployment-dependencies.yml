@@ -1,0 +1,9 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases:
+      ntp:
+#      bosh-dns:

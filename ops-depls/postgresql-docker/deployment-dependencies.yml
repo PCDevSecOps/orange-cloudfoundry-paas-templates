@@ -1,0 +1,18 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/docker-images
+          - shared-operators/shield
+    releases:
+      docker:
+      prometheus:
+      shield:
+      shield-addon-postgres:
+      minio:
+      generic-scripting:
+    errands:
+      import:
+        display-name: shield-provisioning

@@ -1,0 +1,15 @@
+---
+applications:
+- name: cf-networking-sample-backend-a
+  memory: 32M
+  stack: cflinuxfs3
+  disk_quota: 32M
+  buildpacks:
+  - cached-go-buildpack
+  path: cf-networking-examples/backend-a
+  env:
+    GOPACKAGENAME: example-apps/cats-and-dogs-with-service-discovery/backend-a
+    CATS_PORTS: 7007,7008,7009
+    UDP_PORTS: 9001,9002,9003
+  routes:
+  - route: backend-a.apps.internal

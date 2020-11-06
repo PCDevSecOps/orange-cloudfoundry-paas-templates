@@ -1,0 +1,21 @@
+#--- Adapt deployment name
+- type: replace
+  path: /name
+  value: ((is_deployment_name))
+
+#adapt vm_type for every instance
+- type: replace
+  path: /instance_groups/name=router/vm_type?
+  value: 1cpu-4g
+
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_type?
+  value: 8cpu-32g
+
+- type: replace
+  path: /instance_groups/name=diego-cell/vm_extensions?
+  value: [100GB_ephemeral_disk]
+
+- type: replace
+  path: /stemcells/0/version
+  value: latest

@@ -1,0 +1,100 @@
+---
+name: jcr
+
+releases:
+  - name: docker
+    version: latest
+  - name: routing
+    version: latest
+  - name: generic-scripting
+    version: latest
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time: 30000-240000
+  max_in_flight: 32
+  serial: false
+
+instance_groups:
+- name: jfrog-container-registry
+  instances: 1
+  vm_type: 1cpu-4g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    default: [dns, gateway]
+  persistent_disk_type: xlarge
+  jobs:
+  - name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/bash
+          > /var/vcap/sys/log/scripting/pre-start.stderr.log
+          > /var/vcap/sys/log/scripting/pre-start.stdout.log
+          echo "$(date): Initializing empty /var/vcap/store/containers/jfrog_container_registry if needed"
+          mkdir -p /var/vcap/store/containers/jfrog_container_registry
+          mkdir -p /var/vcap/store/containers/jfrog_container_registry/access
+          mkdir -p /var/vcap/store/containers/jfrog_container_registry/backup
+          mkdir -p /var/vcap/store/containers/jfrog_container_registry/data
+          mkdir -p /var/vcap/store/containers/jfrog_container_registry/etc
+          mkdir -p /var/vcap/store/containers/jfrog_container_registry/metadata
+          mkdir -p /var/vcap/data/scripting/
+          echo "- $(date): ensure chmod on mount points"
+          chmod -R ugo+rwx /var/vcap/store/containers/jfrog_container_registry
+          echo "- $(date): Generate jfrog config"
+          cat - > /var/vcap/data/scripting/jfrog.conf <<EOF
+          EOF
+
+  - name: docker
+    release: docker
+    properties:
+      debug: true
+      #log_driver: syslog
+      store_dir: /var/vcap/data
+      env:
+        http_proxy: http://system-internet-http-proxy.internal.paas:3128
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: localhost,127.0.0.1
+      registry_mirrors:
+      - https://docker.bintray.io
+
+  - name: containers
+    release: docker
+    properties:
+      containers:
+      - name: jfrog_container_registry
+        image: jfrog/artifactory-jcr:((jfrog/artifactory-jcr))
+        #log_driver: syslog
+        memory: 3500m
+        memory_swappiness: 0
+        ulimits:
+        - nofile=32000:32000 #--- Required to raise by jcr
+        bind_ports:
+        - "8081:8081"
+        - "8082:8082"
+        - "8045:8045"
+        env_vars:
+        - "ARTIFACTORY_USER_ID=1000" #--- 1000 is bosh vcap user
+        volumes:
+        - "/etc/ssl/certs:/etc/ssl/certs:ro"
+        - '/var/vcap/data/scripting/jfrog.conf:/artifactory_extra_conf/jfrog.conf.test' #--- artifactory extra conf is copied on artifactory/etc at startup
+        - '/var/vcap/store/containers/jfrog_container_registry/etc:/var/opt/jfrog/artifactory/etc'
+        - '/var/vcap/store/containers/jfrog_container_registry/data:/var/opt/jfrog/artifactory/data'
+        - '/var/vcap/store/containers/jfrog_container_registry/metadata:/var/opt/jfrog/artifactory/metadata'
+        - '/var/vcap/store/containers/jfrog_container_registry/backup:/var/opt/jfrog/artifactory/backup'
+        - '/var/vcap/store/containers/jfrog_container_registry/access:/var/opt/jfrog/artifactory/access'
+        #- '/var/vcap/sys/log/containers/logs:/var/opt/jfrog/artifactory/logs'
+        restart: always
+
+variables:
+  - name: jcr_admin_password #--- Jfrog Registry admin password  (to set manually in jfrog ui)
+    type: password

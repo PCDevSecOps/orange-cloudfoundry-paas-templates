@@ -1,0 +1,5 @@
+crt0: ((file "../../shared/certs/intranet-ca.crt"))
+crt1: ((file "../../shared/certs/intranet-1-certs/server.crt"))
+crt3: ((file "../../shared/certs/internal_paas-ca/server-ca.crt"))
+crt4: ((file "../../shared/certs/internal_paas-ca-2/server-ca.crt"))
+crt5: ((file "../../shared/certs/ops-certs/server.crt"))

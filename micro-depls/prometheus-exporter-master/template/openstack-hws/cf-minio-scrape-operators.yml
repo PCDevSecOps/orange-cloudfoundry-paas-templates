@@ -1,0 +1,9 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: cf_minio_exporter #cloudfoundry-datastore minio s3 metrics
+    metrics_path: "/minio/prometheus/metrics"
+    static_configs:
+    - targets:
+      - cf-datastores.internal.paas:80
+

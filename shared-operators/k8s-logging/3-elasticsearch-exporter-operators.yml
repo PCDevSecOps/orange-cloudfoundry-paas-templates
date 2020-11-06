@@ -1,0 +1,12 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: elasticsearch-exporter
+    chart: stable/elasticsearch-exporter
+    namespace: kube-logging
+    version: ((helm_elasticsearch_exporter))
+    properties:
+    - name: es.uri
+      value: http://elasticsearch-master.kube-logging.svc.cluster.local:9200

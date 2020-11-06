@@ -1,0 +1,9 @@
+---
+- type: replace
+  path: /instance_groups/name=ls-router/jobs/name=route_registrar/properties/route_registrar/routes/name=kibana/uris
+  value:
+  - "logsearch.((system_domain))"
+
+- type: replace
+  path: /instance_groups/name=create-uaa-client/jobs/name=create-uaa-client/properties/create-uaa-client/kibana_host?
+  value: logsearch

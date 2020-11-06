@@ -1,0 +1,11 @@
+---
+applications:
+- name: probe-internet-apps-domains
+  instances: 2
+  path: .
+  memory: 64M
+  stack: cflinuxfs3
+  buildpacks:
+    - php_buildpack
+  routes:
+    - route: (( concat "probe-internet-apps-domains." secrets.internet_interco.apps_domain ))

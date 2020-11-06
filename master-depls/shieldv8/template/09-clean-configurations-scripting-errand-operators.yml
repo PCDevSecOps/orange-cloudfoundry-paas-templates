@@ -1,0 +1,41 @@
+#errand leveraging scripting release (errand script) to clean shield v8 configuration in database
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          echo "Cleaning configuration errand"
+
+          #Database cleaning
+          set +e #skip errors (database is locked)
+          CONFIGURATIONS_TO_CLEAN="((configurations-to-clean))"
+          for configuration in $(echo ${CONFIGURATIONS_TO_CLEAN} | tr "|" " "); do
+              echo "cleaning ${configuration}"
+              /var/vcap/packages/sqlite3/bin/sqlite3 /var/vcap/store/shield/shield.db <<END_SQL
+              DELETE FROM jobs WHERE name LIKE '${configuration}%' OR name LIKE 'bbr-cfcr-micro%' OR name LIKE 'bosh-remote%';
+              DELETE FROM jobs WHERE keep_n = 20 or keep_n = 21;
+              DELETE FROM jobs WHERE name LIKE 'mysql%';
+              DELETE FROM jobs WHERE name LIKE 'shieldv8-meta-%';
+              DELETE FROM jobs WHERE name LIKE 'shieldv8-192%';
+              DELETE FROM stores WHERE name LIKE 'local-${configuration}%' OR name LIKE 'remote-${configuration}%' OR name LIKE 'bosh-remote%';
+              DELETE FROM targets WHERE name LIKE '${configuration}%' OR name LIKE 'bbr-cfcr-micro%' OR name LIKE 'local-bosh-remote%' OR name LIKE 'remote-bosh-remote%';
+              DELETE FROM targets WHERE name LIKE 'shieldv8-meta-%';
+              DELETE FROM targets WHERE name LIKE 'shieldv8-192%';
+              DELETE FROM agents WHERE name LIKE '${configuration}%';
+          END_SQL
+          done
+
+          echo "cleaning cfcr"
+              /var/vcap/packages/sqlite3/bin/sqlite3 /var/vcap/store/shield/shield.db <<END_SQL
+              DELETE FROM jobs WHERE name LIKE ' bbr-cfcr-full-daily' OR name LIKE ' bbr-cfcr-coab-full-daily';
+              DELETE FROM stores WHERE name LIKE 'local-bbr-cfcr-%';
+              DELETE FROM targets WHERE name LIKE 'bbr-cfcr-%';
+          END_SQL
+
+
+
+          echo "Cleaning configuration errand"

@@ -1,0 +1,2 @@
+vpn_ip: ((/secrets/multi_region_region_1_vpn_endpoint))
+vpn_port: 443

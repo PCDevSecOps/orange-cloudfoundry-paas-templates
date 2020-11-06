@@ -1,0 +1,16 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: false
+      templates:
+        extended_scan_path:
+        - shared-operators/multi-region-common/r2
+        - shared-operators/multi-region-common/r3
+    releases:
+      os-conf:
+      prometheus:
+      wireguard:
+    manual-errands:
+    errands:

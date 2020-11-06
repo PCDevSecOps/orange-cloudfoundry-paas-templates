@@ -1,0 +1,27 @@
+#--- Set interco network
+- type: replace
+  path: /instance_groups/name=to-intranet/networks/-
+  value:
+    name: tf-net-exchange
+    default: [gateway]
+    static_ips: [192.168.99.34]
+
+#--- Set routes on interco network
+- type: replace
+  path: /instance_groups/name=to-intranet/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+        #--- Route to FED smtp relay
+        - host: ((intranet_smtp_host))
+          gateway: ((interco_gateway))
+         #--- Route to S3 DIF : enabling global 10.0.0.0 because of GTM
+        - net: 10.0.0.0
+          netmask: 255.0.0.0
+          gateway: ((interco_gateway))
+        - net: ((dedicated_pub_net)) #dedicated pub network pour mongo
+          netmask: ((dedicated_pub_netmask))
+          gateway: 192.168.99.1 #tf-net-exchange gateway

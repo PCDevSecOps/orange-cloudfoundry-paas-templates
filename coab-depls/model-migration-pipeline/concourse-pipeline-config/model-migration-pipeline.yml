@@ -1,0 +1,608 @@
+---
+resource_types:
+  - name: cron-resource
+    type: docker-image
+    source:
+      repository: ((docker-registry-url))cftoolsmiths/cron-resource # use latest as no other recent tag available
+resources:
+  - name: daily
+    type: cron-resource
+    source:
+      expression: "0 23 * * *"
+      location: "Europe/Paris"
+      fire_immediately: true
+  - name: paas-templates-reference
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((paas-templates-reference-branch))
+      skip_ssl_verification: true
+      paths: ["coab-depls"]
+
+  - name: cf-mysql-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-extended-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-extended-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-mysql-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-extended-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+
+groups:
+  - name: all
+    jobs:
+      - backup-cf-mysql-service-instances-branch
+      - plan-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+      - backup-cf-mysql-extended-service-instances-branch
+      - plan-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+      - backup-mongodb-service-instances-branch
+      - plan-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+      - backup-cf-rabbit-service-instances-branch
+      - plan-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+      - backup-redis-service-instances-branch
+      - plan-coab-migration-on-redis-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-redis-service-instances-based-on-reference-branch
+
+  - name: migration-on-cf-mysql
+    jobs:
+      - backup-cf-mysql-service-instances-branch
+      - plan-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+
+  - name: migration-on-cf-mysql-extended
+    jobs:
+      - backup-cf-mysql-extended-service-instances-branch
+      - plan-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+
+  - name: migration-on-mongodb
+    jobs:
+      - backup-mongodb-service-instances-branch
+      - plan-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+
+  - name: migration-on-cf-rabbit
+    jobs:
+      - backup-cf-rabbit-service-instances-branch
+      - plan-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+
+  - name: migration-on-redis
+    jobs:
+      - backup-redis-service-instances-branch
+      - plan-coab-migration-on-redis-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-redis-service-instances-based-on-reference-branch
+
+jobs:
+
+  - name: backup-cf-mysql-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: cf-mysql-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-mysql-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-service-instances }
+
+        config: &plan-migration-task
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: ((docker-registry-url))governmentpaas/bosh-cli-v2 #credhub var
+              tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+          inputs:
+            - name: paas-templates-model
+            - name: service-instances-input
+          outputs:
+            - name: service-instances-output
+
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+
+                MODEL_REPOSITORY=paas-templates-model
+                INPUT_INSTANCES=service-instances-input
+                OUTPUT_INSTANCES=service-instances-output
+
+                echo "begin cloning repository"
+                git clone ${INPUT_INSTANCES} ${OUTPUT_INSTANCES}
+                echo "end cloning repository"
+
+                echo "begin coab migration pipeline - building"
+                ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${MODEL_REPOSITORY} -b > /tmp/migrate_coab_pipeline_build.log 2>&1
+                cat /tmp/migrate_coab_pipeline_build.log
+                echo "end coab migration pipeline - building"
+
+                echo "begin coab migration pipeline - migrating"
+                ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${OUTPUT_INSTANCES} -m > /tmp/migrate_coab_pipeline_migrate.log 2>&1
+                cat /tmp/migrate_coab_pipeline_migrate.log
+                echo "end coab migration pipeline - migrating"
+
+      - task: display-status
+
+        config: &display-status-task
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: ((docker-registry-url))governmentpaas/bosh-cli-v2 #credhub var
+              tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+          inputs:
+            - name: service-instances-output
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                echo "creating status script from BASH_SCRIPT_CONTENT environment variable"
+                printenv BASH_SCRIPT_CONTENT > script.sh
+                chmod +x script.sh
+                ./script.sh
+        params:
+          ALIAS: y_
+          BASH_SCRIPT_CONTENT: &display-status-script |
+            echo "displaying status"
+            OUTPUT_INSTANCES=service-instances-output
+            cd ${OUTPUT_INSTANCES}
+            display=$(git status | grep "coab-depls/${ALIAS}")
+            if [ $? -eq 0 ]; then
+              git status | grep "coab-depls/${ALIAS}"
+            else
+              echo "no migration planned"
+            fi
+
+  - name: apply-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-mysql-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-service-instances}
+
+        config: &apply-migration-task
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: ((docker-registry-url))governmentpaas/bosh-cli-v2 #credhub var
+              tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+          inputs:
+            - name: paas-templates-model
+            - name: service-instances-input
+          outputs:
+            - name: service-instances-output
+
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+
+                MODEL_REPOSITORY=paas-templates-model
+                INPUT_INSTANCES=service-instances-input
+                OUTPUT_INSTANCES=service-instances-output
+
+                echo "begin cloning repository"
+                GIT_USER_NAME="Orange Cloud Foundry SKC CI Server" # credential_leak_validated
+                GIT_USER_EMAIL="codex.clara-cloud-ops@orange.com" # credential_leak_validated
+                GIT_COMMIT_MESSAGE="migration of dedicated services instances"
+                git config --global user.email "${GIT_USER_EMAIL}"
+                git config --global user.name "${GIT_USER_NAME}"
+                git clone ${INPUT_INSTANCES} ${OUTPUT_INSTANCES}
+                echo "end cloning repository"
+
+                echo "begin coab migration pipeline - building"
+                ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${MODEL_REPOSITORY} -b > /tmp/migrate_coab_pipeline_build.log 2>&1
+                cat /tmp/migrate_coab_pipeline_build.log
+                echo "end coab migration pipeline - building"
+
+                echo "begin coab migration pipeline - migrating"
+                ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${OUTPUT_INSTANCES} -m > /tmp/migrate_coab_pipeline_migrate.log 2>&1
+                cat /tmp/migrate_coab_pipeline_migrate.log
+                echo "end coab migration pipeline - migrating"
+
+                echo "begin display status"
+                cd ${OUTPUT_INSTANCES}
+                git status
+
+                git add .
+                echo "Git Diff:"
+                git diff
+                CHANGE_DETECTED_COUNTER=$(git status --porcelain|wc -l)
+                if [ ${CHANGE_DETECTED_COUNTER} -gt 0 ]; then
+                echo "commiting"
+                git commit --no-verify -a -m "$GIT_COMMIT_MESSAGE"
+                git --no-pager show HEAD
+                else
+                echo "No change detected, skip commit"
+                fi
+
+      - put: cf-mysql-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+  - name: backup-cf-mysql-extended-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-mysql-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: cf-mysql-extended-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-mysql-extended-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-mysql-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-extended-service-instances }
+
+        config: *plan-migration-task
+
+      - task: display-status
+
+        config: *display-status-task
+
+        params:
+          ALIAS: t_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: cf-mysql-extended-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-mysql-extended-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-extended-service-instances}
+
+        config: *apply-migration-task
+
+      - put: cf-mysql-extended-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+  - name: backup-mongodb-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: mongodb-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: mongodb-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: mongodb-service-instances }
+
+        config: *plan-migration-task
+
+      - task: display-status
+
+        config: *display-status-task
+
+        params:
+          ALIAS: m_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-mongodb-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: mongodb-service-instances}
+
+        config: *apply-migration-task
+
+      - put: mongodb-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+  - name: backup-cf-rabbit-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: cf-rabbit-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-rabbit-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-rabbit-service-instances }
+        config: *plan-migration-task
+
+      - task: display-status
+        config: *display-status-task
+        params:
+          ALIAS: r_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-rabbit-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-rabbit-service-instances}
+        config: *apply-migration-task
+
+      - put: cf-rabbit-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true
+
+  - name: backup-redis-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: redis-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: redis-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-redis-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: redis-service-instances }
+        config: *plan-migration-task
+
+      - task: display-status
+        config: *display-status-task
+        params:
+          ALIAS: e_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-redis-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-redis-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: redis-service-instances}
+        config: *apply-migration-task
+
+      - put: redis-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: true

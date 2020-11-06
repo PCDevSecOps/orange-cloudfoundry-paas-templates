@@ -1,0 +1,1 @@
+pwm_schema_ldif: (( file "../../../additional-resource/master-depls/openldap/pwm.schema.ldif" ))

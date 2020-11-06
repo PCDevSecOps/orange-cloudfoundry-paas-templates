@@ -1,0 +1,9 @@
+---
+deployment:
+  osb-routing:
+    releases:
+      routing:
+      nats:
+      haproxy:
+    errands:
+

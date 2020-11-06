@@ -1,0 +1,4 @@
+#operators to adapt the community manifest to paas-templates context
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env/no_proxy
+  value: localhost,127.0.0.1,((static_ip)),((shield-domain)),((shield-alias)),shield-s3.internal.paas,192.168.0.0/16 #no proxy to connect to shield server

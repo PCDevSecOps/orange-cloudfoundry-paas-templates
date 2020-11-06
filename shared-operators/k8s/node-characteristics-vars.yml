@@ -1,0 +1,23 @@
+# Nodes characteristics
+vm_type_node: 4cpu-16g
+persistent_disk_type_node: xlarge
+
+# Nodes dedicated to persistent characteristics
+vm_type_node_persistent: 4cpu-16g
+persistent_disk_type_node_persistent: xxlarge-performant
+
+# Nodes dedicated to exposition characteristics
+vm_type_node_public: 4cpu-16g
+persistent_disk_type_node_public: xlarge
+
+# ETCD characteristics
+vm_type_etcd: 4cpu-16g
+disk_type_etcd: xlarge
+persistent_disk_type_etcd: xlarge
+
+vm_type_lb: 1cpu-1g
+disk_type_lb: small
+
+vm_type_control: 4cpu-16g
+disk_type_control: small
+persistent_disk_type_control: large

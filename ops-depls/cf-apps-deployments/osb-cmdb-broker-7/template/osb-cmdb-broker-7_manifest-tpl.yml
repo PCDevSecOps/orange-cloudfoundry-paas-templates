@@ -1,0 +1,54 @@
+---
+applications:
+  - name: osb-cmdb-broker-7
+    memory: 1GB
+    stack: cflinuxfs3
+    routes:
+      - route: (( concat "osb-cmdb-broker-7." secrets.cloudfoundry.system_domain ))
+    instances: 2
+    path: osb-cmdb.jar
+    timeout: 180
+    buildpacks:
+      - java_buildpack
+    env:
+      # broker basic auth user used by OSB clients to access OSB API
+      spring.security.user.name: (( grab secrets.osb-cmdb-broker.name ))
+      # broker basic auth password. Declaration controlled in credhub-var-broker-password.json dynamically file
+      spring.security.user.password: "((broker-password))" # credhub namespaced into /${root_deployment}/cf-apps-deployments/${deployment}
+
+      # broker admin password used by paas-templates operator to access sensitive actuactor endpoints
+      osbcmdb.admin.user: "admin"
+      # broker admin basic auth password. Declaration controlled in credhub-var-admin-broker-password.json dynamically file
+      osbcmdb.admin.password: "((broker-admin-password))" # credhub namespaced into /${root_deployment}/cf-apps-deployments/${deployment}
+
+      # set as version if backing service has no maintenance_info.version, merged through addition otherwise
+      osbcmdb.maintenanceinfo.version: 1.1.0
+      # set as description if backing service has no maintenance_info.description, merged through string concat with LF otherwise
+      osbcmdb.maintenanceinfo.description: "osb-cmdb now propagates dashboard url (instant upgrade, no downtime)"
+
+      logging.level.org.springframework.cloud.appbroker: debug
+      logging.level.org.springframework.cloud.appbroker.deployer.cloudfoundry: debug
+
+      logging.level.com.orange.oss.osbcmdb: info
+      logging.level.com.orange.oss.osbcmdb.serviceinstance: info
+      logging.level.com.orange.oss.osbcmdb.catalog: info
+
+      logging.level.org.springframework.cloud.servicebroker: debug # for incoming OSB API traces
+      logging.level.cloudfoundry-client: debug
+      logging.level.cloudfoundry-client.operations: debug
+
+#      DEBUG: true # Springboot debugging mdoe when context fails to load
+      logging.level.org.springframework.cloud.appbroker.autoconfigure: info #Dynamic catalog logging
+
+      # CloudFoundry CC api host
+      spring.cloud.appbroker.deployer.cloudfoundry.api-host: "api.((/concourse-micro/main/cloudfoundry_system_domain))"
+      spring.cloud.appbroker.deployer.cloudfoundry.api-port: 443
+      spring.cloud.appbroker.deployer.cloudfoundry.username: "coa-cf" # credential_leak_validated. no yet credhub secret for it.
+      spring.cloud.appbroker.deployer.cloudfoundry.password: "((/concourse-micro/main/coa_cf_password))"
+      spring.cloud.appbroker.deployer.cloudfoundry.default-org: (( grab secrets.osb-cmdb-broker.default-org || "system_domain" ))
+      spring.cloud.appbroker.deployer.cloudfoundry.default-space: (( grab secrets.osb-cmdb-broker.default-space || "osb-cmdb-services" ))
+      spring.cloud.appbroker.deployer.cloudfoundry.properties.memory: 1G
+      spring.cloud.appbroker.deployer.cloudfoundry.properties.health-check: http
+      spring.cloud.appbroker.deployer.cloudfoundry.properties.health-check-http-endpoint: health
+      spring.cloud.appbroker.deployer.cloudfoundry.properties.health-check-timeout: 180
+

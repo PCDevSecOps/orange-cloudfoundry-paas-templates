@@ -1,0 +1,130 @@
+---
+name: nexus 
+
+releases:
+  - name: nginx
+    version: latest
+  - name: docker
+    version: latest
+  - name: routing
+    version: latest
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 32
+  serial: false
+
+instance_groups:
+- name: nexus
+  instances: 1
+  vm_type: 1cpu-4g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    default: [dns, gateway]
+  
+  persistent_disk_type: xlarge 
+  jobs:
+  - name: docker
+    release: docker
+    properties:
+      debug: true
+      env:
+        http_proxy: http://system-internet-http-proxy.internal.paas:3128
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: localhost,127.0.0.1
+      store_dir: /var/vcap/data
+
+  - name: containers
+    release: docker
+    properties:
+      containers:
+        - name: nexus
+          image: "sonatype/nexus3:((nexus-version))"
+          bind_ports:
+          - "8081:8081"
+          - "5000:5000" #docker registry connector
+          bind_volumes:
+            - "/nexus-data"
+          ulimits:
+          - nofile=90000:90000 #required by sonatype nexus
+
+# nginx front end.
+# permits a single listen ports to be dispatched to nexus-ui or docker registry port
+# https://stackoverflow.com/questions/42766349/run-nexus3-with-docker-in-kubernetes-cluster        
+  - name: nginx
+    release: nginx
+    properties:
+      nginx_conf: |
+        worker_processes auto;
+        
+        events {
+          worker_connections 1024;
+        }
+        
+        http {
+          error_log /var/vcap/sys/log/nginx/error.log warn;
+          access_log  /var/vcap/sys/log/nginx/access.log;
+          proxy_intercept_errors off;
+          proxy_send_timeout 120;
+          proxy_read_timeout 300;
+        
+          upstream nexus {
+            server 127.0.0.1:8081;
+          }
+        
+          upstream registry {
+            server 127.0.0.1:5000;
+          }
+        
+          server {
+            listen 8080;
+            server_name elpaaso-nexus.((/secrets/cloudfoundry_ops_domain));
+        
+            keepalive_timeout  5 5;
+            proxy_buffering    off;
+        
+            # allow large uploads
+            client_max_body_size 1G;
+        
+            location / {
+            # redirect to docker registry
+            # for concourse, who presents agent Go-http-client/1.1
+            if ($http_user_agent ~* (docker|go|containerd) ) {
+              proxy_pass http://registry;
+            }
+            
+            proxy_pass http://nexus;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto "https";
+            }
+          }
+        }          
+
+  #expose behind cf gorouters
+  - name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines:
+        - ops-routing-nats
+        password: ((/bosh-master/ops-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: nexus-route
+          port: 8080
+          registration_interval: 20s
+          uris:
+          - elpaaso-nexus.((/secrets/cloudfoundry_ops_domain))

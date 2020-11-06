@@ -1,0 +1,45 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value:
+    name: k3s
+    version: latest
+
+#k3s token
+- type: replace
+  path: /variables/-
+  value:
+    name: k3s_token
+    type: password
+
+
+# master node. colocated only with jumpbox release
+- type: replace
+  path: /addons/-
+  value:
+    name: 10-add-servers
+    jobs: []
+    include:
+      jobs: []
+    exclude:
+      jobs: []
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: k3s-server
+    release: k3s
+    properties:
+      k3s:
+        cluster_name: ((cluster_name))
+        token: ((k3s_token))
+        
+      containerd_registry:
+        mirrors:
+          docker.io:
+            endpoint:
+            - https://docker.jcr.((/secrets/cloudfoundry_ops_domain))
+          quay.io:
+            endpoint:
+            - https://quay-io.jcr.((/secrets/cloudfoundry_ops_domain))
+

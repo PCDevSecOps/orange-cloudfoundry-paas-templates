@@ -1,0 +1,56 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: longhorn
+    chart: longhorn/longhorn
+    namespace: longhorn-system
+    version: ((helm_longhorn))
+    properties:
+    - name: defaultSettings.backupTarget
+      value: s3://((s3_bucket_prefix))-((env_pf))-((deployment_name))@us-east-1/
+
+    - name: defaultSettings.backupTargetCredentialSecret
+      value: s3-secret
+
+    - name: defaultSettings.createDefaultDiskLabeledNodes
+      value: true
+
+    - name: defaultSettings.defaultDataPath
+      value: /var/vcap/store/longhorn/
+
+    - name: defaultSettings.replicaSoftAntiAffinity
+      value: false
+
+    - name: defaultSettings.storageOverProvisioningPercentage
+      value: 200
+
+    - name: defaultSettings.storageMinimalAvailablePercentage
+      value: 15
+
+    - name: defaultSettings.upgradeChecker
+      value: false
+    #- name: defaultSettings.defaultReplicaCount: 2
+
+    - name: defaultSettings.defaultLonghornStaticStorageClass
+      value: longhorn-static
+
+    - name: defaultSettings.backupstorePollInterval
+      value: 500
+
+    - name: defaultSettings.taintToleration
+      value: persistence=true:NoExecute
+
+
+
+
+# This will update the bucket
+# as setup by helm only works on first install
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterrolebinding-crunchy"
+    cmd: "patch settings.longhorn.io -n longhorn-system backup-target"
+    options: " --type=\"json\" -p='[{\"op\": \"replace\", \"path\": \"/value\", \"value\":\"s3://((s3_bucket_prefix))-((env_pf))-((deployment_name))@us-east-1/\"}]'"

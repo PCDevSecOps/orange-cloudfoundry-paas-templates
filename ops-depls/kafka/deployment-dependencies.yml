@@ -1,0 +1,10 @@
+---
+deployment:
+  kafka:
+    releases:
+      routing:
+      kafka:
+      kafka-service-broker:
+      zookeeper:
+    errands:
+#    - sanity-test => hard-coded service name => always red in Concourse

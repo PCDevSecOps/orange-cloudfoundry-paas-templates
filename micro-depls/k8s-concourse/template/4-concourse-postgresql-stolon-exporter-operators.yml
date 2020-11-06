@@ -1,0 +1,19 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: concourse-postgresql-exporter
+    chart:  stable/prometheus-postgres-exporter
+    namespace: concourse
+    version: ((prometheus-postgres-exporter-version))
+    properties:
+    - name: config.datasource.host
+      value: concourse-postgresql-stolon-proxy.concourse.svc
+    - name: config.datasource.user
+      value: postgres
+    - name: config.datasource.password
+      value: ((concourse-postgres-password))
+    - name: config.datasource.database
+      value: atc
+
+

@@ -1,0 +1,39 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gitlab-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: gitlab-ingressroute
+        namespace: gitlab
+
+      spec:
+        entryPoints:
+        - web
+        routes:
+        - match: Host(`gitlab-gitlab.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: gitlab-unicorn
+            namespace: gitlab
+            port: 8181
+
+        - match: Host(`gitlab-gitlab.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/admin/sidekiq`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: gitlab-unicorn
+            namespace: gitlab
+            port: 8080
+
+
+
+

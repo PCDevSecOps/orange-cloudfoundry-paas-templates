@@ -1,0 +1,9 @@
+## base on https://github.com/operator-framework/operator-lifecycle-manager/releases/tag/0.16.1
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "olm-crd"
+    cmd: "apply"
+    options: "-f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/0.16.1/crds.yaml"

@@ -1,0 +1,8 @@
+---
+deployment:
+  bosh-deployment:
+    releases: 
+      minio:
+      haproxy:
+    errands:
+      bucket-seeding:

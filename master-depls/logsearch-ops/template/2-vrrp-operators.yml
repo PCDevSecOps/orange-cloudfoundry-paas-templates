@@ -1,0 +1,18 @@
+#add haproxy release
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+#--- Configure keepalived
+- type: replace
+  path: /instance_groups/name=ls-router/jobs/-
+  value:
+    release: haproxy
+    name: keepalived
+    properties:
+      keepalived:
+        vip: ((ls_router_vip)) #ls-router port ip, defined in private dns, reserved in cloud-config
+#       interface: eth0 bug. default is auto, interface has bug in haproxy bosh release 8.0.5
+        virtual_router_id: 200

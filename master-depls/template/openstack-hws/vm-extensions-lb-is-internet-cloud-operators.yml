@@ -1,0 +1,10 @@
+#--- Load Balancer Openstack v2 http pool
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: internet-is-lb-extension
+    cloud_properties:
+      loadbalancer_pools:
+        - name: internet-rp-pool
+          port: 443
+

@@ -1,0 +1,53 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: prometheus
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: prometheus2
+    release: prometheus
+    properties:
+      prometheus:
+        external_labels:
+          bosh: bosh-remote-r2
+        storage:
+          local:
+            engine: persisted
+            retention: 30m 
+        web:
+          external_url: "https://elpaaso-prometheus-exporter-remote-r2.((/secrets/cloudfoundry_ops_domain))"
+        rule_files: []
+        scrape_configs:
+        - job_name: bosh
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          static_configs:
+          - targets:
+            - localhost:9190 #bosh exporter
+        #leverage bosh inventory for discovery of the node exporters to scrape
+        - job_name: node_exporter
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          file_sd_configs:
+            - files:
+              - /var/vcap/store/bosh_exporter/bosh_target_groups.json
+          relabel_configs:
+            - source_labels: [__meta_bosh_job_process_name]
+              regex: node_exporter
+              action: keep
+            - source_labels: [__address__]
+              regex: "(.*)"
+              target_label: __address__
+              replacement: "${1}:9100"
+        # scrape prometheus internal metrics
+        - job_name: prometheus
+          static_configs:
+            - targets:
+              - localhost:9090
+          relabel_configs:
+            - source_labels: [instance]
+              target_label: instance
+              replacement: "exporter-remote-r2"
