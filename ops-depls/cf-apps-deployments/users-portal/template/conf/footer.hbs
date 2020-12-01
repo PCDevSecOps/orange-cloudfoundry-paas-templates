@@ -1,0 +1,28 @@
+        <footer class="o-footer" role="contentinfo">
+            <h1 class="sr-only">footer - site map & informations</h1>
+            <div class="o-footer-body">
+                <div class="container">
+                    <p><a href="{{site.url}}">{{site.title}}</a> is maintained by {{site.maintainer}}.</p>
+                    <ul class="nav">
+                        <li class="nav-item"><a class="nav-link" href="{{site.contactUsEmail}}"><span class="icon-email"></span> Contact us</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{site.discussUrl}}" target="_blank"><span class="icon-Comments"></span> Discuss on Plazza</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{{site.rss}}" target="_blank"><span class="icon-Comments"></span> Discuss on Mattermost</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="o-footer-bottom">
+                <div class="container">
+                    <ul class="nav">
+                        <li class="nav-item"><span class="nav-link">© Orange 2018</span></li>
+                        <li class="nav-item"><span class="nav-link">version {{pkg.version}} ({{gitBranch}} branch)</span></li>
+                        <li class="nav-item"><span class="nav-link">built on {{dateFormat date ""}}</span></li>
+                    </ul>
+                </div>
+            </div>
+        </footer>
+
+        <a href="#" class="o-scroll-up" title="back to top"><span class="o-scroll-up-text d-none d-sm-inline-block">Back to top</span><span class="o-scroll-up-icon" aria-hidden="true"></span></a>
+
+        <script src="/{{fingerprint.[js/app.min.js]}}"></script>
+    </body>
+</html>

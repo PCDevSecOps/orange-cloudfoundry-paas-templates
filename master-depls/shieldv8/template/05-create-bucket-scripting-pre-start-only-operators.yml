@@ -1,0 +1,61 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=scripting/properties/scripting/pre-start-script
+  value: |
+      #--- Initialize context
+      echo "- Start pre-start"
+      > /var/vcap/sys/log/scripting/pre-start.stderr.log
+      > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+      #-------------------------------------
+      #--- Use minio cli in order to create bucket
+      #-------------------------------------
+      echo "- Start bucket creation"
+
+      #--- Configure S3
+      set +e
+
+      /var/vcap/packages/mc/mc config host add remote_s3 ((remote_s3_host)) ((remote_s3_access_key_id)) ((remote_s3_secret_access_key)) --api s3v4
+      if [ $? != 0 ] ; then echo "remote S3 target configuration failed\n" ; exit 0 ; fi
+
+      /var/vcap/packages/mc/mc config host add local_s3 ((local_s3_host)) ((local_s3_access_key_id)) ((local_s3_secret_access_key)) --api s3v4
+      if [ $? != 0 ] ; then echo "local S3 target configuration failed\n" ; exit 0 ; fi
+
+      #--- Create buckets for S3 (or assert if they already exists)
+      /var/vcap/packages/mc/mc mb local_s3/((s3_bucket_prefix))-((deployment_name)) --ignore-existing
+      if [ $? != 0 ] ; then echo "bucket creation failed in local s3\n" ; exit 0 ; fi
+
+      IP=$(hostname -I | awk '{print $1}' | awk -F"." '{print $1}')
+      if [ "${IP}" -eq 192 ]; then #node is hosted on a private IP, i.e intranet proxy is required in order to connect to remote S3
+
+          export http_proxy=((http_proxy))
+          export https_proxy=((http_proxy))
+          export no_proxy=localhost,127.0.0.1,((shield-domain)),((shield-alias)),shield-s3.internal.paas
+
+          /var/vcap/packages/mc/mc mb remote_s3/((s3_bucket_prefix))-((deployment_name)) --ignore-existing
+          if [ $? != 0 ] ; then echo "bucket creation failed in remote s3\n" ; exit 0 ; fi
+
+          unset http_proxy
+          unset https_proxy
+          unset no_proxy
+      elif [ "${IP}" -eq 10 ]; then #node is hosted on a public IP, i.e remote S3 can be connected without proxy
+          unset http_proxy
+          unset https_proxy
+          unset no_proxy
+
+          /var/vcap/packages/mc/mc mb remote_s3/((s3_bucket_prefix))-((deployment_name)) --ignore-existing
+          if [ $? != 0 ] ; then echo "bucket creation failed in remote s3\n" ; exit 0 ; fi
+      fi
+
+      echo "- Bucket creation done"
+
+      #-------------------------------------
+      #--- Use sqlite cli in order to purge old tasks (greater than 10 days i.e 864000 seconds)
+      #-------------------------------------
+      echo "- Start old tasks purge"
+      cp /var/vcap/store/shield/shield.db /var/vcap/store/shield/shield.db.backup #keep a copy before purge and shrink
+      /var/vcap/packages/sqlite3/bin/sqlite3 /var/vcap/store/shield/shield.db <<END_SQL
+      DELETE FROM tasks WHERE strftime('%s','now') - requested_at > 864000;
+      END_SQL
+      /var/vcap/packages/sqlite3/bin/sqlite3 /var/vcap/store/shield/shield.db 'VACUUM;'  #shrink database in order to save space
+      echo "- Old tasks purge done"

@@ -1,0 +1,55 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kube-ops-view-cert"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((certificate_api_version))
+      kind: Certificate
+      metadata:
+        name: kube-ops-view-tls
+        namespace: monitoring
+      spec:
+        secretName: kube-ops-view-tls
+        duration: ((cert_duration))
+        renewBefore: ((cert_renew_before))
+        commonName: kube-ops-view.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kube-ops-view-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: kube-ops-view-ingress
+        namespace: monitoring
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - websecure
+        tls:
+          secretName: kube-ops-view-tls
+        routes:
+        - match: Host(`kube-ops-view.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          middlewares:
+          - name: auth-by-uaa
+            namespace: traefik
+          priority: 0
+          services:
+          - kind: Service
+            name: kube-ops-view
+            namespace: monitoring
+            port: 80
+

@@ -1,0 +1,6 @@
+- type: replace
+  path: /instance_groups/name=maintenance/jobs/name=curator/properties?
+  value:
+    curator:
+      purge_logs:
+        retention_period: ((retention_days))

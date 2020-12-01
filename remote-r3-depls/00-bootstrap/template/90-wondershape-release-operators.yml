@@ -1,0 +1,8 @@
+#COA 5 does not support per profile bosh release dependency. Adding globally
+
+- type: replace
+  path: /releases/-
+  value:
+    name: wondershaper
+    version: latest
+

@@ -1,0 +1,65 @@
+#===============================================================================
+#--- Vsphere VM flavors (with default 40 Go system disk)
+#===============================================================================
+- type: replace
+  path: /vm_types/name=1cpu-1g/cloud_properties?
+  value:
+    cpu: 1
+    ram: 1024
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=1cpu-2g/cloud_properties?
+  value:
+    cpu: 1
+    ram: 2048
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=1cpu-4g/cloud_properties?
+  value:
+    cpu: 1
+    ram: 4024
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=2cpu-8g/cloud_properties?
+  value:
+    cpu: 2
+    ram: 8048
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=4cpu-8g/cloud_properties?
+  value:
+    cpu: 4
+    ram: 8048
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=4cpu-16g/cloud_properties?
+  value:
+    cpu: 4
+    ram: 16024
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=8cpu-16g/cloud_properties?
+  value:
+    cpu: 8
+    ram: 16024
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=8cpu-32g/cloud_properties?
+  value:
+    cpu: 8
+    ram: 32048
+    disk: 40960
+
+- type: replace
+  path: /vm_types/name=16cpu-64g/cloud_properties?
+  value:
+    cpu: 16
+    ram: 64096
+    disk: 40960

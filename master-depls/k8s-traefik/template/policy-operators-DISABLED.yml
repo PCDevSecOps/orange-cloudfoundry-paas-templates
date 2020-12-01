@@ -1,0 +1,45 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikpodsecuritypolicy"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: policy/v1beta1
+      kind: PodSecurityPolicy
+      metadata:
+        name: traefik-ingress-controller
+      spec:
+        allowedCapabilities:
+        - NET_BIND_SERVICE
+        privileged: false
+        allowPrivilegeEscalation: true
+        # Allow core volume types.
+        volumes:
+        - 'configMap'
+        - 'secret'
+        hostNetwork: true
+        hostIPC: false
+        hostPID: false
+        runAsUser:
+          # Require the container to run without root privileges.
+          rule: 'MustRunAsNonRoot'
+        supplementalGroups:
+          rule: 'MustRunAs'
+          ranges:
+          # Forbid adding the root group.
+          - min: 1
+            max: 65535
+        fsGroup:
+          rule: 'MustRunAs'
+          ranges:
+          # Forbid adding the root group.
+          - min: 1
+            max: 65535
+        readOnlyRootFilesystem: false
+        seLinux:
+          rule: 'RunAsAny'
+        hostPorts:
+        - max: 65535
+          min: 1

@@ -1,0 +1,25 @@
+- type: replace
+  path: /variables/-
+  value:
+    name: rundeck_node_ssh_key
+    type: ssh
+
+- type: replace
+  path: /releases/-
+  value: 
+    name: jumpbox
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=agents/jobs/-
+  value:
+    name: jumpbox
+    release: jumpbox
+    properties:
+      jumpbox:
+        one_time_setup: false
+        users:
+        - name: rundeck
+          shell: /bin/bash
+          ssh_keys:
+            - ((rundeck_node_ssh_key.public_key))

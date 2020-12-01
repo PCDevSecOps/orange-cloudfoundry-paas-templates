@@ -1,0 +1,15 @@
+#--- Internal isolation segment
+
+isolation_segment: internal_isolation_segment #--- must match terraform configured name
+
+is_org: internal 
+is_deployment_name: isolation-segment-internal
+is_network_name: tf-net-cf
+
+router_ssl.certificate: ((private_cert.certificate))
+router_ssl.private_key: ((private_cert.private_key))
+
+apps_ip: 192.168.35.50
+apps_network: tf-net-cf
+
+trusted_cert_for_apps.ca: ((/secrets/certs/intranet-ca))

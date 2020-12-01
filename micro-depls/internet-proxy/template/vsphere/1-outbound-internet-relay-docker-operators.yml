@@ -1,0 +1,122 @@
+#--- Add docker release
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+#--- Add docker job
+- type: replace
+  path: /instance_groups/name=system-internet-relay/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      debug: true
+      registry_mirrors:
+      - https://docker.jcr.((ops_domain))
+      store_dir: /var/vcap/data
+      env:
+        http_proxy: http://((target-proxy-auth))@((target-proxy-host)):((target-proxy-port))
+        https_proxy: http://((target-proxy-auth))@((target-proxy-host)):((target-proxy-port))
+        no_proxy: localhost,127.0.0.1,docker.jcr.((ops_domain))
+
+#--- Add squid container job
+- type: replace
+  path: /instance_groups/name=system-internet-relay/jobs/-
+  value:
+    release: docker
+    name: containers
+    properties:
+      containers:
+      - name: internetsquid
+        image: sameersbn/squid:((sameersbn/squid))
+        #log_driver: syslog
+        memory: 800m
+        memory_swappiness: 0
+        bind_ports:
+        - "3128:3128"
+        bind_volumes:
+        - "/var/spool/squid"
+        volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"
+          - "/var/vcap/data/scripting/squid.conf:/etc/squid/squid.conf"
+          - "/var/vcap/sys/log/containers/squid:/var/log/squid"
+
+#--- Add scripting release
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+#--- Add squid configuration job
+- type: replace
+  path: /instance_groups/name=system-internet-relay/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/sh
+          echo "- Generate squid.conf"
+          cat - > /var/vcap/data/scripting/squid.conf <<EOF
+          http_port 3128
+          dns_nameservers 192.168.116.156 192.168.116.166
+          #debug_options ALL,7
+
+          #--- Disable caching and log cache
+          cache deny all
+          cache_log /dev/null
+
+          #--- Deny connect from unsafe ports
+          acl Safe_CONNECT_ports port 80 442 443
+          acl CONNECT method CONNECT
+          http_access deny CONNECT !Safe_CONNECT_ports
+
+          #--- Deny requests to unsafe ports
+          acl Safe_ports port 80            # http
+          acl Safe_ports port 443           # https
+          acl Safe_ports port 5281          # elk
+          acl Safe_ports port 1025-65535    # Unregistered ports
+          http_access deny !Safe_ports
+
+          #--- Allow paas-template access for prometheus manager metrics collection 
+          acl prometheus src 192.168.0.0/16
+          http_access allow manager prometheus
+
+          #--- Allow localhost connections
+          acl localhost src 127.0.0.1/32
+          http_access allow localhost
+
+          #--- Allow inbound connections
+          acl localnet src 192.168.0.0/16                                   # Paas-template internal network
+          acl localnet src ((intranet_interco_ips_ops))/32                  # Acces from ops_relay vms (uses docker)
+          http_access allow localnet
+          http_access deny all
+
+          #--- Relay to a corporate internet proxy
+          cache_peer ((target-proxy-host)) parent ((target-proxy-port)) 0 proxy-only no-query ((target-proxy-auth))
+          never_direct allow all
+
+          #--- Log format
+          # ts  : Date of request, seconds since epoch
+          # tu  : Date of request, sub-second component
+          # tl  : Local time. Optional strftime format argument
+          # rm  : Request method
+          # ru  : Request URL, without the query string
+          # mt  : MIME type of the request
+          # >Hs : HTTP status code (200, 404, 407, etc)
+          # Ss  : Squid status code (TCP_HIT, TCP_MISS etc)
+          # tr  : Response time (milliseconds)
+          # >st : Total size of request
+          # <st : Total size of reply
+          # >a  : Client source IP address
+          # >p  : Client source port
+          # <a  : Server or peer IP address
+          # <p  : Server or peer port number
+          # un  : Authenticated user name or dash
+          # Sh  : Squid hierarchy code (FIRST_UP_PARENT, etc)
+          logformat squid %ts.%03tu %6tr %>a %Ss/%03>Hs %<st %rm %ru %[un %Sh/%<a %mt
+          EOF

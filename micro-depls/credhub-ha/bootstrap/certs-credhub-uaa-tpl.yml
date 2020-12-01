@@ -1,0 +1,16 @@
+variables:
+- name: credhub-certs
+  type: certificate
+  options:
+    ca: default_ca
+    common_name: credhub.internal.paas
+    alternative_names:
+    - credhub.internal.paas
+
+- name: uaa-certs
+  type: certificate
+  options:
+    ca: default_ca
+    common_name: uaa-credhub.internal.paas
+    alternative_names:
+    - uaa-credhub.internal.paas

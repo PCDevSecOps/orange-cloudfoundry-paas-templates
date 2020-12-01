@@ -1,0 +1,8 @@
+---
+- type: replace
+  path: /instance_groups/name=arbitrator/networks
+  value: [{name: ((private_network_name))}]
+
+- type: replace
+  path: /instance_groups/name=arbitrator/vm_type
+  value: ((vm-arbitrator.vm_type))

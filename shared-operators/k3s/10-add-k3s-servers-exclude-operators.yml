@@ -1,0 +1,6 @@
+- type: replace
+  path: /addons/name=10-add-servers/exclude/jobs/-
+  value:
+    release: ((server_addon_exclude_release))
+    name: ((server_addon_exclude_job))
+

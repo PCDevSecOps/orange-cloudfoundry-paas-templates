@@ -1,0 +1,5 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      bosh-vsphere-cpi:

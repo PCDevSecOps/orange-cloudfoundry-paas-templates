@@ -1,0 +1,36 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: import
+    release: shield
+    properties:
+      generate_token: true
+      token_name: (deployment)-(name)-(index)-((token_name))
+      core: ((shield-core))
+      domain: ((shield-alias))
+      password: ((failsafe-password))
+      import:
+        ca: ((/bosh-master/shieldv8/shield-tls.ca))
+        core: https://((shield-alias))
+        tenants:
+          - name: ((tenant_name))
+            systems:
+              - name: ((deployment_name))-mariabackup-(ip)
+                agent: (ip):5444
+                plugin: xtrabackup
+                config:
+                  mysql_datadir: "/var/vcap/store/mysql"
+                  mysql_user: root
+                  mysql_password: ((cf_mysql_mysql_admin_password))
+                  mysql_xtrabackup: "/var/vcap/packages/mariadb/bin/mariabackup"
+                  mysql_socket: "/var/vcap/sys/run/mysql/mysqld.sock"
+                  mysql_temp_targetdir: "/var/vcap/store/backups"
+                summary: "Full MySQL MariaBackup"
+                jobs:
+                  - name: ((deployment_name))-mariabackup-(index)-full-daily
+                    when: ((when))
+                    policy: four-days-term
+                    retain: 3
+                    storage: local-((deployment_name))-(ip)
+                    paused:  false

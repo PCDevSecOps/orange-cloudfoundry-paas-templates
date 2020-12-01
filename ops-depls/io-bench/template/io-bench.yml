@@ -1,0 +1,33 @@
+---
+name: io-bench
+
+releases:
+- name: gobonniego
+  version: 1.0.9
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 2
+  max_in_flight: 1
+  canary_watch_time: 5000-60000
+  update_watch_time: 5000-60000
+
+instance_groups:
+- name: vm_to_benchmark
+  azs: [z1]
+  lifecycle: errand
+  instances: 1
+  jobs:
+  - name: gobonniego
+    release: gobonniego
+    properties:
+      args: -v -size 0.5 -iops-duration 1.0
+      dir: /var/vcap/data
+  vm_type: 1cpu-2g
+  stemcell: default
+  networks:
+  - name: tf-net-osb-data-plane-shared-priv

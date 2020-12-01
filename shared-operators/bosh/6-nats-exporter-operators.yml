@@ -1,0 +1,16 @@
+#--- Add prometheus bosh release
+- type: replace
+  path: /releases/-
+  value:
+    name: prometheus
+    version: latest
+
+#--- Add nats exporter
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: nats_exporter
+    release: prometheus
+    properties:
+      nats_exporter:
+        addr: "http://localhost:8222"

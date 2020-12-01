@@ -1,0 +1,28 @@
+# agents. not colocated with jumpbox release
+- type: replace
+  path: /addons/-
+  value:
+    name: 20-add-agents
+    jobs: []
+    exclude:
+      jobs: []
+    include:
+      jobs: []
+
+- type: replace
+  path: /addons/name=20-add-agents/jobs/-
+  value:
+    name: k3s-agent
+    release: k3s
+    properties:
+      k3s:
+        cluster_name: ((cluster_name)
+        token: ((k3s_token))
+      containerd_registry:
+        mirrors:
+          docker.io:
+            endpoint:
+            - https://docker.jcr.((/secrets/cloudfoundry_ops_domain))
+          quay.io:
+            endpoint:
+            - https://quay-io.jcr.((/secrets/cloudfoundry_ops_domain))

@@ -1,0 +1,1 @@
+../../../common-broker-scripts/coab-post-deploy-defaults.bash

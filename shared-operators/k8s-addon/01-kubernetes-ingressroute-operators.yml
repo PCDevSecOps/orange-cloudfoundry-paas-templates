@@ -1,0 +1,53 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "dashboard-cert"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((certificate_api_version))
+      kind: Certificate
+      metadata:
+        name: dashboard-tls
+        namespace: kubernetes-dashboard
+      spec:
+        secretName: dashboard-tls
+        duration: ((cert_duration))
+        renewBefore: ((cert_renew_before))
+        commonName: dashboard.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "k8singressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: dashboard-ingress
+        namespace: kubernetes-dashboard
+      spec:
+        entryPoints:
+        - websecure
+        tls:
+          secretName: dashboard-tls
+        routes:
+        - match: Host(`dashboard.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          middlewares:
+          - name: middleware-https
+            namespace: kube-system
+          priority: 0
+          services:
+          - kind: Service
+            name: kubernetes-dashboard
+            namespace: kubernetes-dashboard
+            port: 443
+

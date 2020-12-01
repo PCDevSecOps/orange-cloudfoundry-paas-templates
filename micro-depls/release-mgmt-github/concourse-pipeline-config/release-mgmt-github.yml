@@ -1,0 +1,1164 @@
+---
+resource_types:
+  - name: slack-notification
+    type: docker-image
+    source:
+      repository: ((docker-registry-url))cfcommunity/slack-notification-resource
+  - name: meta
+    type: docker-image
+    source:
+      repository: ((docker-registry-url))olhtbr/metadata-resource
+      tag: 2.0.1
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: ((docker-registry-url))teliaoss/github-pr-resource
+
+
+resources:
+  - name: paas-templates-pull-request
+    icon: source-pull
+    type: pull-request
+    source:
+      repository: ((github-repo))
+      access_token: ((paas-templates-git-password))
+      base_branch: develop
+      skip_ssl_verification: false
+      disable_forks: true
+  - name: develop
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      username: ((paas-templates-git-username))
+      password: ((paas-templates-git-password))
+      branch: develop
+      skip_ssl_verification: ((paas-templates-skip-ssl-verification))
+
+  - name: paas-templates-wip
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      username: ((paas-templates-git-username))
+      password: ((paas-templates-git-password))
+      branch: ((paas-templates-wip-branch))
+      skip_ssl_verification: ((paas-templates-skip-ssl-verification))
+
+  - name: paas-templates-wip-sanitized
+    type: git
+    source:
+      uri: ((paas-templates-sanitized-uri))
+      username: ((paas-templates-git-username))
+      password: ((paas-templates-git-password))
+      branch: publication-review-((paas-templates-wip-branch))
+      skip_ssl_verification: ((paas-templates-sanitized-skip-ssl-verification))
+
+  - name: paas-templates-default-sanitized
+    type: git
+    source:
+      uri: ((paas-templates-sanitized-uri))
+      username: ((paas-templates-git-username))
+      password: ((paas-templates-git-password))
+      branch: publication-review-((paas-templates-branch))
+      skip_ssl_verification: ((paas-templates-sanitized-skip-ssl-verification))
+
+  - name: paas-templates-github-stable
+    type: git
+    source:
+      uri: https://github.com/orange-cloudfoundry/paas-templates
+      branch: manual-drop
+      username: ((github-username))
+      password:  ((github-password))
+
+  - name: paas-templates-github-dev
+    type: git
+    source:
+      uri: https://github.com/orange-cloudfoundry/paas-templates
+      branch: manual-drop-dev
+      username: ((github-username))
+      password:  ((github-password))
+
+
+  - name: each-hour
+    type: time
+    source:
+      interval: 1h
+      location: Europe/Paris
+      start: 9:00
+      stop: 19:00
+      days: [ Monday, Tuesday, Wednesday, Thursday, Friday ]
+
+  - name: failure-alert
+    type: slack-notification
+    source:
+      url: ((slack-webhook))
+      proxy: ((slack-proxy))
+      proxy_https_tunnel: ((slack-proxy-https-tunnel))
+      disable: ((slack-disable))
+
+  - name: concourse-meta
+    type: meta
+
+  - name: version
+    type: semver
+    source:
+      driver: git
+      uri: ((paas-templates-uri))
+      username: ((paas-templates-git-username))
+      password: ((paas-templates-git-password))
+      branch: version
+      initial_version: 0.0.0
+      file: version
+
+  - name: cf-ops-automation
+    type: git
+    source:
+      uri: https://github.com/orange-cloudfoundry/cf-ops-automation/
+      branch: master
+
+
+  - name: diod-gitlab
+    type: git
+    source:
+      uri: https://gitlab.tech.orange/cloudfoundry-skc/paas-templates.git
+      username: ((diod-gitlab-username))
+      password: ((diod-gitlab-password))
+      branch: develop
+      skip_ssl_verification: ((diod-gitlab-skip-ssl-verification))
+      git_config:
+        - name: http.proxy
+          value: http://intranet-http-proxy.internal.paas:3129
+        - name: advice.detachedHead
+          value: false
+
+  - name: orange-forge-gitlab
+    type: git
+    source:
+      uri: ((orange-forge-uri))
+      username: ((orange-forge-username))
+      password: ((orange-forge-password))
+      branch: develop
+      skip_ssl_verification: ((orange-forge-skip-ssl-verification))
+      git_config:
+        - name: http.proxy
+          value: http://intranet-http-proxy.internal.paas:3129
+
+
+  - name: metadata-bump
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      username: ((paas-templates-git-username))
+      password: ((paas-templates-git-password))
+      branch: feature-bump-metadata-release-info
+      skip_ssl_verification: ((paas-templates-skip-ssl-verification))
+
+  - name: metadata-latest
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      username: ((paas-templates-git-username))
+      password: ((paas-templates-git-password))
+      branch: feature-bump-metadata-to-latest
+      skip_ssl_verification: ((paas-templates-skip-ssl-verification))
+
+jobs:
+- name: create-new-major-release
+  on_failure: &notify_on_failure
+    put: failure-alert
+    params:
+      channel: ((slack-channel))
+      text: Failed to run [[$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME ($BUILD_NAME)]($ATC_EXTERNAL_URL/teams/main/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME)].
+      icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+      username: Concourse   # credential_leak_validated
+  serial_groups: [version]
+  plan:
+    - get: version
+      params: {bump: major}
+    - put: version
+      params: {file: version/version}
+
+- name: create-new-minor-release
+  on_failure: *notify_on_failure
+  serial_groups: [version]
+  plan:
+    - get: version
+      params: {bump: minor}
+    - put: version
+      params: {file: version/version}
+
+- name: create-new-patch-release
+  on_failure: *notify_on_failure
+  serial_groups: [version]
+  plan:
+    - get: version
+      params: {bump: patch}
+    - put: version
+      params: {file: version/version}
+
+
+- name: ensure-develop-could-be-sanitized
+  serial: true
+  on_failure: *notify_on_failure
+  plan:
+    - get: develop
+      params: { submodules: none}
+      trigger: true
+    - task: sanitize
+      input_mapping: {paas-templates: develop}
+      config:
+        platform: linux
+        image_resource: &bosh_cli_v2
+          type: docker-image
+          source:
+            repository: ((docker-registry-url))governmentpaas/bosh-cli-v2
+            tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+        inputs:
+          - name: paas-templates
+        outputs:
+          - name: sanitized-repo
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              git config --global user.email "$GIT_USER_EMAIL"
+              git config --global user.name "$GIT_USER_NAME"
+              export TERM=xterm-256color
+              FINAL_RELEASE_REPO=sanitized-repo
+
+              git clone paas-templates ${FINAL_RELEASE_REPO}
+
+              cd paas-templates
+              echo "Generating git submodule status"
+              set +e
+              git submodule status > ../${FINAL_RELEASE_REPO}/submodules.status
+              set -e
+              cd ..
+
+              cd ${FINAL_RELEASE_REPO}
+              cd bin
+              ./install-git-secrets.sh
+              ./security-check.sh || ./sanitized.sh -f
+              ./security-check.sh
+              source load-git-secrets-env.sh
+              cd ..
+              rm .git-secret-config.sh
+              git add submodules.status
+              git commit --no-verify -a -m "sanitized repository"
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+      on_failure:
+        task: update-sanitize-script-helper
+        input_mapping: {paas-templates: develop}
+        config: &sanitize_job_failure
+          platform: linux
+          image_resource: *bosh_cli_v2
+          inputs:
+            - name: paas-templates
+          run:
+            path: bash
+            args:
+              - -ce
+              - |
+                export TERM=xterm-256color
+                FINAL_RELEASE_REPO=sanitized-repo
+
+                git clone paas-templates ${FINAL_RELEASE_REPO}
+
+                cd ${FINAL_RELEASE_REPO}
+                cd bin
+                ./install-git-secrets.sh
+                ./sanitized.sh -f
+                ./update-sanitize-helper.sh
+                exit 1
+
+
+- name: ensure-metadatas-are-valids
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+      - put: concourse-meta
+      - get: cf-ops-automation
+        params: { submodules: none}
+      - get: version
+        params: {bump: final}
+        trigger: true
+      - get: develop
+        params: { submodules: none}
+        trigger: true
+    - task: check-meta-inf
+      input_mapping: {paas-templates: develop}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: paas-templates
+          - name: cf-ops-automation
+          - name: version
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              export TERM=xterm-256color
+              ERROR_MESSAGES=""
+              echo "Checking Paas-Templates"
+              export EXPECTED_PAAS_TEMPLATE_VERSION=$(cat version/version)
+              echo "EXPECTED_PAAS_TEMPLATE_VERSION: $EXPECTED_PAAS_TEMPLATE_VERSION"
+              PAAS_TEMPLATES_VERSION=$(grep -e '[ ]*paas-templates:' paas-templates/meta-inf.yml|cut -d':' -f2|tr -d [:blank:])
+              echo "PAAS_TEMPLATES_VERSION: $PAAS_TEMPLATES_VERSION"
+              if [[ ${PAAS_TEMPLATES_VERSION} = ${EXPECTED_PAAS_TEMPLATE_VERSION} ]];then
+                echo "Paas-Templates is fine"
+              else
+                ERROR_MESSAGES="$ERROR_MESSAGES\n\t- Unexpected Paas-Templates version: expected <${EXPECTED_PAAS_TEMPLATE_VERSION}>, found <${PAAS_TEMPLATES_VERSION}>"
+              fi
+
+
+              echo "Checking Cf-Ops-Automation"
+              COA_VERSION=$(grep -e '[ ]*cf-ops-automation:' paas-templates/meta-inf.yml|cut -d':' -f2|tr -d [:blank:])
+              echo "COA_VERSION: $COA_VERSION"
+              cd cf-ops-automation
+              if COA_VERSION_FOUND=$(git tag --list|grep $COA_VERSION);then
+                echo "COA version is fine"
+              else
+                ERROR_MESSAGES="$ERROR_MESSAGES\n\t- Unexpected COA version: expected <$COA_VERSION>, found <$COA_VERSION_FOUND>"
+              fi
+
+              if [[ -n "${ERROR_MESSAGES}" ]];then
+                echo "================================="
+                echo -e "${ERROR_MESSAGES}"
+                exit 1
+              fi
+
+- name: ensure-upgrade-is-ready
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - put: concourse-meta
+        - get: version
+          params: {bump: final}
+          trigger: true
+        - get: develop
+          params: { submodules: none}
+          trigger: true
+    - task: check-release-directory
+      input_mapping: {paas-templates: develop}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: paas-templates
+          - name: version
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              export TERM=xterm-256color
+              ERROR_MESSAGES=""
+              echo "Checking Paas-Templates upgrade release directory"
+              export EXPECTED_PAAS_TEMPLATE_VERSION=$(cat version/version)
+              export EXPECTED_UPGRADE_VERSION="upgrade/releases/v${EXPECTED_PAAS_TEMPLATE_VERSION}"
+              if [[ -e "paas-templates/${EXPECTED_UPGRADE_VERSION}" ]];then
+                echo "Paas-Templates upgrade is fine (${EXPECTED_UPGRADE_VERSION})"
+              else
+                ERROR_MESSAGES="$ERROR_MESSAGES\n\t- Missing upgrade link: expect <${EXPECTED_UPGRADE_VERSION}> to exist."
+              fi
+
+              if [[ -n "${ERROR_MESSAGES}" ]];then
+                echo "================================="
+                echo -e "${ERROR_MESSAGES}"
+                exit 1
+              fi
+
+
+- name: create-branch-for-upgrade-bump
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - put: concourse-meta
+        - get: version
+          params: {bump: final}
+          trigger: true
+        - get: develop
+          params: { submodules: none}
+
+    - task: create-branch
+      input_mapping: {paas-templates: develop}
+      output_mapping: {updated-paas-templates: develop-updated}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: version
+          - name: paas-templates
+        outputs:
+          - name: updated-paas-templates
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              set -e
+              git config --global user.email "$GIT_USER_EMAIL"
+              git config --global user.name "$GIT_USER_NAME"
+              export NEXT_PAAS_TEMPLATE_VERSION=$(cat version/version)
+              CI_COMMIT_REF_NAME="feature-release-$NEXT_PAAS_TEMPLATE_VERSION"
+              git clone paas-templates updated-paas-templates
+              cd updated-paas-templates
+              ruby -ryaml -e 'yaml_file="meta-inf.yml"; puts "processing #{yaml_file}"; yaml = YAML.load_file(yaml_file); yaml["meta-inf"]["versions"]["paas-templates"] = ENV["NEXT_PAAS_TEMPLATE_VERSION"]; puts "rewriting #{yaml_file}\n#{yaml.to_yaml}"; File.open(yaml_file, "w") { |file| file.write(yaml.to_yaml) }'
+              SEMVER_PATCH=$(echo ${NEXT_PAAS_TEMPLATE_VERSION}|sed -e 's/^[[:digit:]][[:digit:]]*\.[[:digit:]][[:digit:]]*\.*//g')
+              if [ ${SEMVER_PATCH} = "0" ]; then
+                echo "no symlink required"
+              else
+                echo "creating symlink"
+                cd upgrade/releases
+                SEMVER_MAJOR_MINOR=$(echo ${NEXT_PAAS_TEMPLATE_VERSION}|sed -e 's/[[:digit:]][[:digit:]]*$//g')
+                ln -sv "v${SEMVER_MAJOR_MINOR}0" "v${NEXT_PAAS_TEMPLATE_VERSION}"
+                git add .
+                cd ../..
+              fi
+              git commit -a -m"release($NEXT_PAAS_TEMPLATE_VERSION): metadata bump"
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+    - put: metadata-bump
+      get_params: {submodules: none}
+      params:
+        repository: develop-updated
+        force: true
+
+- name: ship-it
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+      - put: concourse-meta
+      - get: version
+        params: { bump: final }
+        passed: [ ensure-metadatas-are-valids ]
+      - get: develop
+        params: { submodules: none}
+        passed: [ ensure-develop-could-be-sanitized, ensure-metadatas-are-valids, ensure-upgrade-is-ready ]
+    - put: develop
+      get_params: {submodules: none}
+      params:
+        repository: develop
+        only_tag: true
+        tag: version/version
+
+
+- name: create-branch-for-latest-bump
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - put: concourse-meta
+        - get: develop
+          params: { submodules: none}
+          passed: [ ship-it ]
+          trigger: true
+
+    - task: create-branch
+      input_mapping: {paas-templates: develop}
+      output_mapping: {updated-paas-templates: develop-updated}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: paas-templates
+        outputs:
+          - name: updated-paas-templates
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              set -e
+              git config --global user.email "$GIT_USER_EMAIL"
+              git config --global user.name "$GIT_USER_NAME"
+              export NEXT_PAAS_TEMPLATE_VERSION="latest"
+              git clone paas-templates updated-paas-templates
+              cd updated-paas-templates
+              ruby -ryaml -e 'yaml_file="meta-inf.yml"; puts "processing #{yaml_file}"; yaml = YAML.load_file(yaml_file); yaml["meta-inf"]["versions"]["paas-templates"] = ENV["NEXT_PAAS_TEMPLATE_VERSION"]; puts "rewriting #{yaml_file}\n#{yaml.to_yaml}"; File.open(yaml_file, "w") { |file| file.write(yaml.to_yaml) }'
+              git add --all
+              echo "Git Diff:"
+              git diff
+              CHANGE_DETECTED_COUNTER=$(git status --porcelain|wc -l)
+              if [ ${CHANGE_DETECTED_COUNTER} -gt 0 ]; then
+                GIT_COMMIT_MESSAGE=$(eval echo $(echo $COMMIT_MESSAGE))
+                git commit --no-verify -a -m "$GIT_COMMIT_MESSAGE"
+                git --no-pager show HEAD
+              else
+                echo "No change detected, skip commit"
+              fi
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+          COMMIT_MESSAGE: "metadata bump for release $NEXT_PAAS_TEMPLATE_VERSION"
+    - put: metadata-latest
+      get_params: {submodules: none}
+      params:
+        repository: develop-updated
+        force: true
+
+- name: create-and-approve-pull-request-to-latest
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - put: concourse-meta
+        - get:  metadata-latest
+          passed: [ create-branch-for-latest-bump ]
+          params: { submodules: none}
+          trigger: true
+
+    - task: create-and-approve-pull-request
+      input_mapping: {paas-templates: metadata-latest}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: paas-templates
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              set -e
+              apt-get -qq update
+              apt-get -qq install -y --no-install-recommends curl jq
+              curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.2
+              cp bin/hub /usr/local/bin
+              export NEXT_PAAS_TEMPLATE_VERSION="latest"
+              cd paas-templates
+              git config --global hub.protocol https
+              export CI_COMMIT_REF_NAME=$(ls .git/refs/heads)
+              echo "Detected merge request branch (source branch): ${CI_COMMIT_REF_NAME}"
+
+              TARGET_BRANCH=$(hub api /repos/$GITHUB_REPO |jq -r '.default_branch')
+              echo "Detected merge request BASE branch (target branch): ${TARGET_BRANCH}"
+
+              COUNTBRANCHES=$(hub pr list -b ${TARGET_BRANCH} -h ${CI_COMMIT_REF_NAME} -f "%I%n" | wc -l)
+              # No PR found, let's create a new one
+              if [ ${COUNTBRANCHES} -eq "0" ]; then
+                # DESCRIPTION_TEMPLATE_NAME=${DESCRIPTION_TEMPLATE_NAME:-Merge_Request.md}
+                PR_DESCRIPTION="Temporary setting Paas-Templates release to 'latest'"
+                hub pull-request -b ${TARGET_BRANCH} -h ${CI_COMMIT_REF_NAME} -m "${CI_COMMIT_REF_NAME}" -m "${PR_DESCRIPTION}" -l "${LABELS}"
+
+                PR_NUMBER=$(hub pr list -b ${TARGET_BRANCH} -h ${CI_COMMIT_REF_NAME} -f "%I%n")
+                echo "Opened a new merge request: $CI_COMMIT_REF_NAME - #${PR_NUMBER}"
+
+                echo "{ \"merge_method\": \"rebase\" }" > .git/auto-approve-msg.json
+                echo "Auto approve PR#{$PR_NUMBER}"
+                hub api -X PUT /repos/orange-cloudfoundry/paas-templates-private/pulls/${PR_NUMBER}/merge --input .git/auto-approve-msg.json
+                # comment as automatic branch deletion is enabled on github # echo "Deleting branch ${CI_COMMIT_REF_NAME}"
+                # comment as automatic branch deletion is enabled on github # hub api -X DELETE /repos/orange-cloudfoundry/paas-templates-private/git/refs/heads/${CI_COMMIT_REF_NAME}
+              else
+                echo "No new merge request opened";
+              fi
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+          GITHUB_TOKEN: ((paas-templates-git-password))
+          LABELS: "auto-approved"
+          GITHUB_REPO: ((github-repo))
+
+- name: publish-to-diod-gitlab
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - get: develop
+          params: { submodules: none}
+          passed: [ ship-it ]
+          trigger: true
+        - get: diod-gitlab
+          params: { submodules: none}
+    - put: diod-gitlab
+      get_params: {submodules: none}
+      params:
+        repository: develop
+    - put: diod-gitlab
+      get_params: {submodules: none}
+      params:
+        repository: develop
+        only_tag: true
+
+- name: publish-to-orange-forge-gitlab
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - get: develop
+          params: { submodules: none}
+          passed: [ ship-it ]
+          trigger: true
+        - get: orange-forge-gitlab
+          params: { submodules: none}
+    - put: orange-forge-gitlab
+      get_params: {submodules: none}
+      params:
+        repository: develop
+    - put: orange-forge-gitlab
+      get_params: {submodules: none}
+      params:
+        repository: develop
+        only_tag: true
+
+
+- name: create-pull-request-for-upgrade
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - put: concourse-meta
+        - get: version
+          params: {bump: final}
+          trigger: true
+          passed: [ create-branch-for-upgrade-bump ]
+        - get:  metadata-bump
+          passed: [ create-branch-for-upgrade-bump ]
+          params: { submodules: none}
+
+    - task: create-pull-request
+      input_mapping: {paas-templates: metadata-bump}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: version
+          - name: paas-templates
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              set -e
+              apt-get -qq update
+              apt-get -qq install -y --no-install-recommends curl jq
+              curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.2
+              cp bin/hub /usr/local/bin
+
+              #set -x
+              export NEXT_PAAS_TEMPLATE_VERSION=$(cat version/version)
+
+              cd paas-templates
+              export CI_COMMIT_REF_NAME=$(ls .git/refs/heads)
+              echo "Detected merge request branch (source branch): ${CI_COMMIT_REF_NAME}"
+
+              TARGET_BRANCH=$(hub api /repos/$GITHUB_REPO |jq -r '.default_branch')
+              echo "Detected merge request BASE branch (target branch): ${TARGET_BRANCH}"
+
+              COUNTBRANCHES=$(hub pr list -b ${TARGET_BRANCH} -h ${CI_COMMIT_REF_NAME} -f "%I%n" | wc -l)
+              # No PR found, let's create a new one
+              if [ ${COUNTBRANCHES} -eq "0" ]; then
+                PR_DESCRIPTION="Release $NEXT_PAAS_TEMPLATE_VERSION - Please use an appropriate merge request templates"
+                hub pull-request -b ${TARGET_BRANCH} -h ${CI_COMMIT_REF_NAME} -m "${CI_COMMIT_REF_NAME}" -m "${PR_DESCRIPTION}" -l "${LABELS}"
+
+                echo "Opened a new merge request: WIP: ${CI_COMMIT_REF_NAME}";
+              else
+                echo "No new merge request opened";
+              fi
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+          GITHUB_TOKEN: ((paas-templates-git-password))
+          LABELS: "\"short term\""
+          GITHUB_REPO: ((github-repo))
+
+- name: create-missing-pull-request
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - in_parallel:
+        - get: each-hour
+          trigger: true
+        - get: develop
+          params: { submodules: none}
+
+    - task: create-pull-requests
+      input_mapping: {paas-templates: develop}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: paas-templates
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              set -e
+              apt-get -qq update
+              apt-get -qq install -y --no-install-recommends curl
+              curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.2
+              cp bin/hub /usr/local/bin
+              #set -x
+              cd paas-templates
+
+              export TARGET_BRANCH=$(ls .git/refs/heads)
+              echo "Detected merge request BASE branch (target branch): ${TARGET_BRANCH}"
+
+              if [ "$SKIP_SSL_VERIFICATION" = "true" ]; then
+                export GIT_SSL_NO_VERIFY=true
+                echo "Skipping ssl verification"
+              else
+                echo "Ssl checks enabled"
+              fi
+              URI=$(git remote get-url origin)
+              hub pr list -b ${TARGET_BRANCH} -f "pr: %I, source_branch: %H%n" > /tmp/pull-requests.csv
+              git config --global credential.helper store
+              echo "https://$GIT_AUTHENTICATED_USERNAME:$GIT_AUTHENTICATED_PASSWORD@${URI##https://}" > ~/.git-credentials  # credential_leak_validated
+              GIT_BRANCHE_NAMES=$(git ls-remote -h "$URI" ${GIT_BRANCH_FILTER} | sed 's/refs\/heads\///' | awk '{print $2}' | sort)
+              echo "Checking each branch has an associated merge request"
+              PULL_REQUEST_MESSAGE_FILE=".git/current-pr-message.md"
+              merge_request_count=0
+              for CI_COMMIT_REF_NAME in ${GIT_BRANCHE_NAMES}; do
+                echo "Detected merge request branch (source branch): ${CI_COMMIT_REF_NAME}"
+                if [[ ${CI_COMMIT_REF_NAME} =~ .*-serviceinstances$ ]];then
+                  echo "$CI_COMMIT_REF_NAME branch is mark as excluded, SKIPPING!"
+                  continue
+                fi
+                COUNTBRANCHES=`cat /tmp/pull-requests.csv | grep -o "source_branch: ${CI_COMMIT_REF_NAME}" | wc -l`;
+                # No MR found, let's create a new one
+                set +e
+                if [ ${COUNTBRANCHES} -eq "0" ]; then
+                  {
+                    echo -e "${CI_COMMIT_REF_NAME}\n"
+                    echo -e "## ${CI_COMMIT_REF_NAME}"
+                    cat .github/pull_request_template.md|sed -e "s/## feature-xxx//"
+                  } > ${PULL_REQUEST_MESSAGE_FILE}
+                  hub pull-request -b ${TARGET_BRANCH} -h ${CI_COMMIT_REF_NAME} -F ${PULL_REQUEST_MESSAGE_FILE} -l "${LABELS}" > /tmp/last-pr.log 2>&1
+                  if [ $? -ne 0 ];then
+                    IGNORE_ERROR=$(grep "No commits between ${TARGET_BRANCH} and ${CI_COMMIT_REF_NAME}" /tmp/last-pr.log |wc -l)
+                    if [ ${IGNORE_ERROR} -eq 1 ]; then
+                      echo "Ignoring ${CI_COMMIT_REF_NAME} PR creation"
+                      cat /tmp/last-pr.log
+                    else
+                      echo "Error creating PR: ${CI_COMMIT_REF_NAME}"
+                      cat /tmp/last-pr.log
+                      exit 1
+                    fi
+                  else
+                    echo "Opened a new merge request ($((merge_request_count++))): ${CI_COMMIT_REF_NAME}";
+                  fi
+                else
+                  echo "No new merge request opened";
+                fi
+                set -e
+              done
+              echo "Merge request created: $merge_request_count"
+
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"    # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"     # credential_leak_validated
+          GIT_AUTHENTICATED_USERNAME: ((paas-templates-git-username))
+          GIT_AUTHENTICATED_PASSWORD: ((paas-templates-git-password))
+          SKIP_SSL_VERIFICATION: ((paas-templates-skip-ssl-verification))
+          GITHUB_TOKEN: ((paas-templates-git-password))
+          LABELS: "ORPHAN"
+          GIT_BRANCH_FILTER: WIP-* wip-* feature-* Feature-*
+
+- name: sanitize-develop
+  serial: true
+  on_failure: &notify_on_failure
+    put: failure-alert
+    params:
+      channel: ((slack-channel))
+      text: Failed to run [[$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME ($BUILD_NAME)]($ATC_EXTERNAL_URL/teams/main/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME)].
+      icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+      username: Concourse     # credential_leak_validated
+  plan:
+    - in_parallel:
+      - get: version
+        passed: [ ship-it ]
+      - get: develop
+        params: { submodules: none}
+        trigger: true
+        passed: [ ship-it ]
+
+    - task: sanitize
+      input_mapping: {paas-templates: develop}
+      config: &sanitize_job
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: ((docker-registry-url))concourse/bosh-cli}
+        inputs:
+          - name: paas-templates
+        outputs:
+          - name: sanitized-repo
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              git config --global user.email "$GIT_USER_EMAIL"
+              git config --global user.name "$GIT_USER_NAME"
+              export TERM=xterm-256color
+              FINAL_RELEASE_REPO=sanitized-repo
+
+              git clone paas-templates ${FINAL_RELEASE_REPO}
+
+              cd paas-templates
+              echo "Generating git submodule status"
+              set +e
+              git submodule status |cut -d'(' -f1 > ../${FINAL_RELEASE_REPO}/submodules.status
+              set -e
+              cd ..
+              echo "Submodules snapshot:"
+              cat ${FINAL_RELEASE_REPO}/submodules.status
+              cd ${FINAL_RELEASE_REPO}
+              cd bin
+              ./install-git-secrets.sh
+              ./security-check.sh || ./sanitized.sh -f
+              ./security-check.sh
+              source load-git-secrets-env.sh
+              cd ..
+              rm .git-secret-config.sh
+              git add submodules.status
+              git commit --no-verify -a -m "sanitized repository"
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+    - task: squash-repo
+      input_mapping: {paas-templates: develop}
+      config: &github_task
+        platform: linux
+        image_resource:
+          type: docker-image
+          source: {repository: ((docker-registry-url))concourse/bosh-cli}
+        inputs:
+          - name: sanitized-repo
+          - name: paas-templates
+        outputs:
+          - name: squashed-repo
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              git clone sanitized-repo squashed-repo
+              cd squashed-repo
+              echo "removing git metadatas"
+              rm -rf .git
+              echo "creating new git repository"
+              git init
+              git config --global user.name "${GIT_USER_NAME}"
+              git config --global user.email "${GIT_USER_EMAIL}"
+              bin/restore-git-submodules.sh
+              git add .
+              echo "extract last commit id and message from paas-templates"
+              LAST_COMMIT_REF=$(cat ../paas-templates/.git/ref)
+              LAST_COMMIT_MSG=$(cat ../paas-templates/.git/commit_message)
+              echo "Drop from commit ${LAST_COMMIT_REF}" > .git/new-commit-message
+              {
+              echo ""
+              echo "${LAST_COMMIT_MSG}"
+              } >> .git/new-commit-message
+              git commit -F .git/new-commit-message
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+    - put: paas-templates-default-sanitized
+      get_params: {submodules: none}
+      params:
+        repository: squashed-repo
+        force: true
+        tag: version/version
+        tag_prefix: sanitized_
+
+- name: validate-release-publication
+  serial: true
+  plan:
+    - get: paas-templates-default-sanitized
+      params: { submodules: none}
+      passed: [sanitize-develop]
+
+- name: publish-release-to-github
+  serial: true
+  plan:
+    - get: paas-templates-default-sanitized
+      params: { submodules: none}
+      trigger: true
+      passed: [validate-release-publication]
+    - put: paas-templates-github-stable
+      params:
+        repository: paas-templates-default-sanitized
+        force: true
+
+- name: sanitize-wip
+  serial: true
+  on_failure: *notify_on_failure
+  plan:
+    - get: paas-templates-wip
+      params: { submodules: none}
+      trigger: true
+
+    - task: sanitize-wip
+      input_mapping: {paas-templates: paas-templates-wip}
+      config: *sanitize_job
+      on_failure:
+        task: update-sanitize-script-helper
+        input_mapping: {paas-templates: paas-templates-wip}
+        config: *sanitize_job_failure
+    - task: squash-wip-repo
+      input_mapping: {sanitized-repo: sanitized-repo, paas-templates: paas-templates-wip}
+      output_mapping: {squashed-repo: squashed-wip-repo}
+      config: *github_task
+
+    - put: paas-templates-wip-sanitized
+      get_params: {submodules: none}
+      params:
+        repository: squashed-wip-repo
+        force: true
+
+- name: validate-wip-publication
+  serial: true
+  plan:
+    - get: paas-templates-wip-sanitized
+      params: { submodules: none}
+      passed: [sanitize-wip]
+
+- name: publish-wip-snapshot-to-github
+  serial: true
+  plan:
+    - get: paas-templates-wip-sanitized
+      params: { submodules: none}
+      trigger: true
+      passed: [validate-wip-publication]
+    - put: paas-templates-github-dev
+      params:
+        repository: paas-template-wip-sanitized
+        force: true
+
+
+- name: validate-pull-request
+  on_failure: *notify_on_failure
+  plan:
+    - get: paas-templates
+      resource: paas-templates-pull-request
+      version: every
+      trigger: true
+    - put: paas-templates-pull-request
+      params:
+        path: paas-templates
+        context: "credentials leak check"
+        status: pending
+    - task: sanitize-wip
+      input_mapping: {paas-templates: paas-templates}
+      config: *sanitize_job
+      on_failure:
+        do:
+          - put: paas-templates-pull-request
+            get_params:
+              skip_download: true
+            params:
+              path: paas-templates
+              context: "credentials leak check"
+              status: failure
+          - task: update-sanitize-script-helper
+            input_mapping: {paas-templates: paas-templates}
+            config: *sanitize_job_failure
+
+    - put: paas-templates-pull-request
+      get_params:
+        skip_download: true
+      params:
+        path: paas-templates
+        context: "credentials leak check"
+        status: success
+
+
+- name: migrate-gitlab-merge-request-to-github-pull-request
+  on_failure: *notify_on_failure
+  serial: true
+  plan:
+    - get: develop
+      params: { submodules: none}
+    - task: extract-merge-request
+      input_mapping: { paas-templates: metadata-bump }
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: ((docker-registry-url))governmentpaas/bosh-cli-v2
+            tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+        outputs:
+          - name: merge-requests
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              set -e
+              apt-get -qq update
+              apt-get -qq install -y --no-install-recommends curl jq
+              #curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.2
+              #cp bin/hub /usr/local/bin
+
+              #set -x
+              [[ $GITLAB_URL =~ ^https?://[^/]+ ]] && GITLAB_API_URL="${BASH_REMATCH[0]}/api/v4/projects/"
+              echo "Detected gitlab api url: $GITLAB_API_URL"
+
+              AVAILABLE_PROJECTS=$(curl --silent -S -k "${GITLAB_API_URL}" --header "PRIVATE-TOKEN:${PRIVATE_TOKEN}")
+              TARGET_BRANCH=$(echo ${AVAILABLE_PROJECTS}|jq -r ".[]|select(.id==$CI_PROJECT_ID)|.default_branch")
+              echo "Detected merge request BASE branch (target branch): ${TARGET_BRANCH}"
+              # Require a list of all the merge request and take a look if there is already
+              # one with the same source branch
+              LISTMR=`curl --silent -S -k "${GITLAB_API_URL}${CI_PROJECT_ID}/merge_requests?state=opened&target_branch=develop&per_page=100" --header "PRIVATE-TOKEN:${PRIVATE_TOKEN}"`;
+              echo "$LISTMR" > merge-requests.json
+              #set -x
+              cat merge-requests.json|jq -r '.[]|{"source_branch": .source_branch, "description": .description}' > descriptions.json
+              for i in $(cat descriptions.json|jq -r ".source_branch");do
+                echo "-------------"
+                echo "processing MR associated with branch $i"
+                $(cat descriptions.json|jq -r "select(.source_branch == \"$i\")|.description" > merge-requests/$i)
+              done
+              ls merge-requests/
+        params:
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server"   # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com"    # credential_leak_validated
+          GITLAB_URL: ((paas-templates-gitlab-uri))
+          PRIVATE_TOKEN: ((paas-templates-gitlab-token))
+          CI_PROJECT_ID: 21
+    - task: create-pull-requests
+      input_mapping: {paas-templates: develop}
+      config:
+        platform: linux
+        image_resource: *bosh_cli_v2
+        inputs:
+          - name: merge-requests
+          - name: paas-templates
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              set -e
+              apt-get -qq update
+              apt-get -qq install -y --no-install-recommends curl
+              curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.2
+              cp bin/hub /usr/local/bin
+              #set -x
+
+              cd merge-requests
+              MERGE_REQUESTS=$(ls)
+              cd ../paas-templates
+              export BASE_BRANCH=$(ls .git/refs/heads)
+              echo "Detected merge request BASE branch: ${BASE_BRANCH}"
+
+              PULL_REQUEST_MESSAGE_FILE=".git/current-pr-message.md"
+              pull_request_count=0
+              missing_pull_request_count=0
+              #set -x
+              for BRANCH_NAME in ${MERGE_REQUESTS}; do
+                echo "Processing MR: ${BRANCH_NAME}"
+                COUNTBRANCHES=$(hub pr list -b "${BASE_BRANCH}" -h "${BRANCH_NAME}" |wc -l)
+                set +e
+                BRANCH_EXISTS=$(hub api repos/${GITHUB_REPO}/branches/"${BRANCH_NAME}")
+                if [ $? -ne 0 ]; then
+                  echo "***WARNING*** ${BRANCH_NAME} does not exist, SKIPPING PR creation !"
+                  echo "${BRANCH_EXISTS}"
+                  echo $((missing_pull_request_count++))
+                  continue
+                fi
+                if [ ${COUNTBRANCHES} -eq "0" ]; then
+                  # No PR found, let's create a new one
+                  {
+                    echo -e "${BRANCH_NAME}\n"
+                    cat ../merge-requests/${BRANCH_NAME}
+                  } > ${PULL_REQUEST_MESSAGE_FILE}
+                  hub pull-request -b "${BASE_BRANCH}" -h "${BRANCH_NAME}" -F ${PULL_REQUEST_MESSAGE_FILE} -l "${LABELS}" > /tmp/last-pr.log 2>&1
+                  if [ $? -ne 0 ];then
+                    IGNORE_ERROR=$(grep "No commits between ${BASE_BRANCH} and ${BRANCH_NAME}" /tmp/last-pr.log |wc -l)
+                    if [ ${IGNORE_ERROR} -eq 1 ]; then
+                      echo "Ignoring ${BRANCH_NAME} PR creation"
+                      cat /tmp/last-pr.log
+                    else
+                      echo "Error creating PR: ${BRANCH_NAME}"
+                      cat /tmp/last-pr.log
+                      exit 1
+                    fi
+                  else
+                    echo "Opened a new pull request ($((pull_request_count++))): ${BRANCH_NAME}";
+                  fi
+                else
+                  echo "No new pull request opened";
+                fi
+                set -e
+              done
+              echo "Merge request created: $pull_request_count"
+              if [ $missing_pull_request_count -ne 0 ];then
+                echo "Missing pull requests (count: $missing_pull_request_count). Please check log"
+                exit $missing_pull_request_count
+              fi
+
+        params:
+          GITHUB_TOKEN: ((paas-templates-git-password))
+          LABELS: "Gitlab"
+          GITHUB_REPO: ((github-repo))
+
+groups:
+  - name: all
+    jobs:
+      - ensure-upgrade-is-ready
+      - ensure-metadatas-are-valids
+      - ensure-develop-could-be-sanitized
+      - ship-it
+      - publish-to-orange-forge-gitlab
+      - publish-to-diod-gitlab
+      - create-new-major-release
+      - create-new-minor-release
+      - create-new-patch-release
+      - create-pull-request-for-upgrade
+      - create-branch-for-upgrade-bump
+      - create-missing-pull-request
+      - validate-release-publication
+      - publish-release-to-github
+      - sanitize-develop
+      - validate-wip-publication
+      - publish-wip-snapshot-to-github
+      - sanitize-wip
+      - validate-pull-request
+      - create-and-approve-pull-request-to-latest
+      - create-branch-for-latest-bump
+  - name: create-new-release
+    jobs:
+      - create-new-major-release
+      - create-new-minor-release
+      - create-new-patch-release
+      - create-branch-for-upgrade-bump
+      - create-pull-request-for-upgrade
+  - name: publish-release
+    jobs:
+      - ensure-upgrade-is-ready
+      - ensure-metadatas-are-valids
+      - ensure-develop-could-be-sanitized
+      - ship-it
+      - publish-to-orange-forge-gitlab
+      - publish-to-diod-gitlab
+      - validate-release-publication
+      - publish-release-to-github
+      - sanitize-develop
+      - create-and-approve-pull-request-to-latest
+      - create-branch-for-latest-bump
+  - name: merge-requests
+    jobs:
+      - create-missing-pull-request
+      - validate-pull-request
+  - name: publish-wip
+    jobs:
+      - sanitize-wip
+      - validate-wip-publication
+      - publish-wip-snapshot-to-github
+  - name: github-migration
+    jobs:
+      - migrate-gitlab-merge-request-to-github-pull-request
+

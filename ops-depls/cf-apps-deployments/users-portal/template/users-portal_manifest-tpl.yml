@@ -1,0 +1,12 @@
+---
+applications:
+- name: users-portal
+  path: metalsmith/build
+  routes:
+    - route: (( concat "cap." secrets.cloudfoundry.system_domain ))
+  buildpacks:
+    - staticfile_buildpack
+  memory: 32M
+  stack: cflinuxfs3
+  env:
+    FORCE_HTTPS: (( grab meta.force_https ))

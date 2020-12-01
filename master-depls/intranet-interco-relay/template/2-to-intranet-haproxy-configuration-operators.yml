@@ -1,0 +1,13 @@
+#--- Add timeout retry and resolve_retries haproxy properties (fix haproxy dns resolution which failed when dns resolver switch)
+- type: replace
+  path: /instance_groups/name=to-intranet/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/sh
+          #--- Set retry and resolve_retries haproxy properties
+          printf "update haproxy config file.\n"
+          sed -i '/hold valid /a\    timeout retry 2s\n    resolve_retries 30' /var/vcap/jobs/haproxy/config/haproxy.config

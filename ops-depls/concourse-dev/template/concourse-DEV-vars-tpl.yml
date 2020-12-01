@@ -1,0 +1,26 @@
+network_name: tf-net-services-2
+external_url: (( concat "https://elpaaso-concourse-dev." secrets.ops_interco.ops_domain "/" ))
+web_vm_type: 1cpu-2g
+db_vm_type: 2cpu-8g
+db_persistent_disk_type: database
+worker_vm_type: 4cpu-8g
+deployment_name: concourse-dev
+
+prometheus_port: 9176
+worker_instances: 2
+web_instances: 1
+
+build_logs_default: 50
+build_logs_maximum: 50
+
+worker_swap_size: 0 # disable swap on workers
+
+credential-manager:
+  duration: 4m
+  purge_interval: 10m
+  retry_interval: 8s
+  retry_attempts: 7
+
+api_domain: (( grab secrets.cloudfoundry.system_domain ))
+azs:
+  - z1

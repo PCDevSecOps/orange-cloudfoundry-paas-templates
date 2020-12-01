@@ -1,0 +1,17 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/-
+  value:
+    name: ((system_name))-(ip)
+    agent:  (ip):5444
+    plugin: fs
+    config:
+      base_dir: ((system_base_dir))
+    summary: "FS backup"
+    jobs:
+      - name:    ((system_name))-full-daily
+        when:    ((when))
+        policy:  four-days-term
+        retain:  3
+        storage: local-((deployment_name))-(ip)
+        paused:  false

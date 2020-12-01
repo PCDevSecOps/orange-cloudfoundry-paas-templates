@@ -1,0 +1,27 @@
+---
+applications:
+- name: app-sso-prod-sample
+  timeout: 180
+  memory: 1G
+  stack: cflinuxfs3
+  routes:
+    - route: (( concat "app-sso-prod-sample." secrets.cloudfoundry.system_domain ))
+  path: app-sso-sample.jar
+  services:
+    - sso-prod-service
+  env:
+    SECURITY_OAUTH2_RESOURCE_SERVICE_ID: sso-prod-service
+    JAVA_OPTS: "-Djava.security.egd=file:///dev/urandom"
+
+- name: app-sso-qa-sample
+  timeout: 180
+  memory: 1G
+  stack: cflinuxfs3
+  path: app-sso-sample.jar
+  routes:
+    - route: (( concat "app-sso-qa-sample" secrets.cloudfoundry.system_domain ))
+  services:
+    - sso-qa-service
+  env:
+    SECURITY_OAUTH2_RESOURCE_SERVICE_ID: sso-qa-service
+    JAVA_OPTS: "-Djava.security.egd=file:///dev/urandom"

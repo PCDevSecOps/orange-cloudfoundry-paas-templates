@@ -1,0 +1,24 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-prometheus-alert-rule-gitlab"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: alert-rules-gitlab
+        namespace: prometheus
+      data:
+        alert-rules-gitlab.yaml: |
+          groups:
+          - name: GitLab
+            rules:
+            - alert: UnicornQueueing
+              expr: avg_over_time(unicorn_queued_connections[30m]) > 1
+              annotations:
+                description: Unicorn instance {{ $labels.instance }} is queueing requests with
+                  an average of {{ $value | printf "%.1f" }} over the last 30 minutes.
+                summary: Unicorn is queueing requests

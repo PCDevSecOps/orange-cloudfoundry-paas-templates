@@ -1,0 +1,1 @@
+All rego rule put inside a configmap inside the opa namespace are automatically loaded by deployment.

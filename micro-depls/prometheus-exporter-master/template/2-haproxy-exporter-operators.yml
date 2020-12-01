@@ -1,0 +1,10 @@
+#--- haproxy exporter
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: haproxy_exporter
+    release: prometheus
+    properties:
+      haproxy_exporter:
+        haproxy:
+          scrape_uri: "http://prometheus:((/secrets/prometheus_password))@192.168.99.169:9000//haproxy_stats?stats;csv"

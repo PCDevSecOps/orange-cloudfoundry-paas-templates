@@ -1,0 +1,7 @@
+env_pf: k8s-micro
+kubernetes.host: k8s-micro-api.internal.paas
+network: tf-net-cfcr-micro
+prefix-deployment: ""
+docker_repository: ""
+k8s_certificate: ((/micro-bosh/k8s/tls-ca.certificate))
+k8s_key: ((/micro-bosh/k8s/tls-ca.private_key))

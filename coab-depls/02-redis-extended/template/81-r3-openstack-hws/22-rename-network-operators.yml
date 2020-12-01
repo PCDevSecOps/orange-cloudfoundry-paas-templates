@@ -1,0 +1,26 @@
+---
+#this operators adapts the deployment in order to use tf-net-osb-data-plane-dedicated-pub and tf-net-osb-data-plane-dedicated-priv networks
+
+- type: replace
+  path: /instance_groups/name=redis-master/networks
+  value: [{name: ((private_network_name))}]
+
+- type: replace
+  path: /instance_groups/name=redis-sentinel/networks
+  value: [{name: ((private_network_name))}]
+
+- type: replace
+  path: /instance_groups/name=broker/networks
+  value: [{name: ((private_network_name))}]
+
+- type: replace
+  path: /instance_groups/name=proxy/networks/0
+  value:
+    name: tf-net-osb-data-plane-dedicated-pub
+
+- type: replace
+  path: /instance_groups/name=proxy/networks/-
+  value:
+    name: tf-net-osb-data-plane-dedicated-priv
+    default: [dns,gateway]
+

@@ -1,0 +1,28 @@
+#--- Add bosh-dns release
+- type: replace
+  path: /releases/-
+  value: 
+    name: bosh-dns-aliases
+    version: latest
+
+#--- bosh-dns-aliases add-on, alias are added with separate operators
+- type: replace
+  path: /addons?/-
+  value: 
+    name: bosh-dns-aliases
+    include:
+      stemcell:
+      - os: ubuntu-trusty
+      - os: ubuntu-xenial
+    jobs:
+    - name: bosh-dns-aliases
+      release: bosh-dns-aliases
+      properties:
+        aliases:
+        - domain: gitlab-alias #local alias
+          targets:
+          - query: '*'
+            instance_group: gitlab
+            deployment: gitlab
+            network: net-bosh-2
+            domain: bosh

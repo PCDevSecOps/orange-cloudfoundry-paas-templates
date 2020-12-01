@@ -1,0 +1,15 @@
+#--- Set alert manager receivers job with mattermost properties
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/receivers/-
+  value:
+    name: mattermost
+
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/receivers/name=mattermost/slack_configs?/-
+  value:
+    send_resolved: true
+    api_url: ((mattermost_url))
+    channel: null
+    text: ((mattermost_text))
+    title: ((mattermost_title))
+    username: ((mattermost_username))

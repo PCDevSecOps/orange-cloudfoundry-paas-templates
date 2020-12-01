@@ -1,0 +1,6 @@
+- type: replace
+  path: /azs/-
+  value:
+    name: r2-z1
+    cloud-properties:
+      availability_zone: ((/secrets/openstack_2_availability_zone))

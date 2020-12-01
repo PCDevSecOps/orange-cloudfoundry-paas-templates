@@ -1,0 +1,26 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - "shared-operators/k8s"
+        - "shared-operators/k8s-common-serv"
+        - "shared-operators/k8s-common"
+
+    stemcells:
+    releases:
+      k8s:
+      open-iscsi:
+      helm-kubectl:
+      routing:
+    errands:
+      action:
+      k8s-smoke-tests:
+
+
+
+
+

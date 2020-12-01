@@ -1,0 +1,8 @@
+stemcell-version: latest
+deployment_name: kafka
+vm_type: 1cpu-2g
+network: tf-net-services-2
+disk_type: xlarge
+broker-hostname: kafka-broker #OSB broker hostname, on system_domain
+bosh-domain: ((/secrets/cloudfoundry_system_domain)) #domain to expose the OSB broker.
+#broker-password: ((/secrets/cloudfoundry_service_brokers_kafka_password))

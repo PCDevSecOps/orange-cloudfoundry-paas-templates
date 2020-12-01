@@ -1,0 +1,6 @@
+deployment_name: k8s-concourse
+credhub_client_secret: (( grab secrets.bosh_credhub_secrets ))
+
+internal-ca-1: (( file "../../shared/certs/internal_paas-ca/server-ca.crt" ))
+internal-ca-2: (( file "../../shared/certs/internal_paas-ca-2/server-ca.crt" ))
+credhub_ca_cert: (( concat internal-ca-1 internal-ca-2 ))

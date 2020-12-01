@@ -1,0 +1,3 @@
+#--- Remove components for bootstrap
+- type: remove
+  path: /instance_groups/name=uaa-backend/jobs/name=uaa/properties/uaa/ldap

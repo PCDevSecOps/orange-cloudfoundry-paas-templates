@@ -1,0 +1,6 @@
+vcenter_dc: ((/secrets/vsphere_vcenter_dc))
+vcenter_ds: ((/secrets/vsphere_vcenter_ds))
+vcenter_vms: ((/secrets/vsphere_vcenter_vms))
+vcenter_ip: ((/secrets/vsphere_vcenter_ip))
+vcenter_master_password: ((/secrets/vsphere_vcenter_password))
+vcenter_master_user: ((/secrets/vsphere_vcenter_user))

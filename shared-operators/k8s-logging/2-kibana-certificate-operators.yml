@@ -1,0 +1,21 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kibana-cert"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((certificate_api_version))
+      kind: Certificate
+      metadata:
+        name: kibana-tls
+        namespace: kube-logging
+      spec:
+        secretName: kibana-tls
+        duration: ((cert_duration))
+        renewBefore: ((cert_renew_before))
+        commonName: kibana.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer

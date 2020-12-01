@@ -1,0 +1,7 @@
+paas-templates-reference-branch: (( grab secrets.paas-templates-reference-branch ))
+cf-mysql-service-instances-branch: (( grab secrets.cf-mysql-service-instances-branch ))
+cf-mysql-extended-service-instances-branch: (( grab secrets.cf-mysql-extended-service-instances-branch ))
+cf-rabbit-service-instances-branch: (( grab secrets.cf-rabbit-service-instances-branch ))
+mongodb-service-instances-branch: (( grab secrets.mongodb-service-instances-branch ))
+redis-service-instances-branch: (( grab secrets.redis-service-instances-branch ))
+noop-service-instances-branch: (( grab secrets.noop-service-instances-branch ))

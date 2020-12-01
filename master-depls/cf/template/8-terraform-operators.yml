@@ -1,0 +1,44 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: terraform
+    version: latest
+
+# activate the terraform apply
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: terraform
+    instances: 1
+    vm_type: 1cpu-1g
+    stemcell: default
+    azs: [z1]
+    persistent_disk: 1024 #1 Go minimum on openstack-hws
+    networks:
+    - name: tf-net-cf
+    jobs: []
+
+- type: replace
+  path: /instance_groups/name=terraform/jobs/-
+  value:
+    name: terraform-apply
+    release: terraform
+    properties:
+      terraform:
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: localhost,127.0.0.1,.((/secrets/cloudfoundry_system_domain))
+        vars:
+          api_url: https://api.((/secrets/cloudfoundry_system_domain))
+          password: ((/secrets/cloudfoundry_admin_password))
+          uaa_admin_client_secret: ((/bosh-master/cf/uaa_admin_client_secret))
+        specs:
+        - ((versioned-providers))
+        - ((cf))
+        - ((isolation-segment-cf))
+
+- type: replace
+  path: /instance_groups/name=terraform/jobs/-
+  value:
+    name: terraform-plan-only
+    release: terraform
+

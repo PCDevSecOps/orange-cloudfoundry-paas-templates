@@ -1,0 +1,15 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: false
+      templates:
+        extended_scan_path:
+          - shared-operators/docker-images
+    releases:
+      networking:
+      haproxy:
+      os-conf:
+      prometheus:
+      docker:

@@ -1,0 +1,17 @@
+#--- bosh-deployment expected props with credhub and secrets
+director_name: bosh-master
+bosh_network: net-bosh-2
+internal_ip: 192.168.116.158
+
+#--- Bosh-deployment misc dns
+internal_dns: [192.168.116.156, 192.168.116.166] #--- Internal powerdns instances
+
+#--- Intranet CA certs and Internal CA cert
+certs:
+  intranet: ((/secrets/certs/intranet-ca))
+  internal: ((/internalCA.certificate))
+
+openstack_ca_cert: (( concat certs.intranet certs.internal ))
+
+#--- Director alternative name
+director_alt_name: (( concat director_name ".internal.paas" ))

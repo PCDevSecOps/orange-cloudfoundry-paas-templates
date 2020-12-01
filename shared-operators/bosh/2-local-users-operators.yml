@@ -1,0 +1,16 @@
+#--- Add local accounts
+- type: replace
+  path: /instance_groups/name=bosh/properties/director/user_management?/local?/users?
+  value:
+    - {name: admin, password: ((admin_password))}
+    - {name: hm, password: ((hm_password))}
+
+#-- prometheus added as a client-id to enable long running session with token refresh
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=uaa/properties/uaa/clients/prometheus?
+  value:
+    authorities: bosh.admin
+    authorized-grant-types: client_credentials
+    override: true
+    scope: ""
+    secret: ((/secrets/prometheus_password))

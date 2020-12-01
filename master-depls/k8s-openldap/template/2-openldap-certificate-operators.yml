@@ -1,0 +1,27 @@
+
+##
+## need to have cert-manager already installed inside K8S to be able to generate certificate
+##
+
+
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "certificate-openldap"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((certificate_api_version))
+      kind: Certificate
+      metadata:
+        name: certificate-openldap
+        namespace: openldap
+      spec:
+        secretName: secret-openldap-tls-cert
+        duration: 24h
+        renewBefore: 12h
+        commonName: openldap.openldap.svc.cluster.local
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer

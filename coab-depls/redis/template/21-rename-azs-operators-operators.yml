@@ -1,0 +1,6 @@
+---
+#adapt AZ : [z1, z2, z3]
+# redis
+#- type: replace
+#  path: /instance_groups/name=redis/azs
+#  value: [z1, z2, z3]

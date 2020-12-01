@@ -1,0 +1,54 @@
+---
+#replace deployment name
+- type: replace
+  path: /name
+  value: ((deployment_name))
+
+#errand leveraging scripting release (errand script) to reset shield v8 password
+- type: replace
+  path: /instance_groups/name=broker/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          #--- Initialize context
+          > /var/vcap/sys/log/scripting/errand-scripting.stderr.log
+          > /var/vcap/sys/log/scripting/errand-scripting.stdout.log
+
+          echo "- Begin errand-scripting in order to reset shield admin password to failsafe password"
+
+          #deploy with failsafe password (done by manifest)
+
+          #delete admin user with SHIELD-CLI
+          echo "delete admin user"
+          /var/vcap/packages/shield/bin/shield api -k https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) ((shield-core))
+          set +e
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+          if [ $? -eq 1 ]; then
+            /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p shield
+          fi
+          set -e
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) delete-user admin -y
+
+          #stop shield core
+          echo "stop shield core and wait for 10 seconds"
+          sudo monit stop shieldd;sudo sleep 10
+
+          #start shield core
+          echo "start shield core and wait for 10 seconds"
+          sudo monit start shieldd;sudo sleep 10
+
+          #unlock shield
+          echo "unlock shield"
+          /var/vcap/packages/shield/bin/shield api -k https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) ((shield-core))
+          set +e
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master ((failsafe-password))
+          if [ $? -eq 1 ]; then
+            /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master shield
+          fi
+          set -e
+
+          echo "- End errand-scripting in order to reset shield admin password to failsafe password"

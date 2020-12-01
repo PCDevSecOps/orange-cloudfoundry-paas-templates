@@ -1,0 +1,6 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: longhorn
+    url : https://charts.longhorn.io

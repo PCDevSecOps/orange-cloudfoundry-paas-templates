@@ -1,0 +1,5 @@
+#--- Activate "concatenate_cas" propertie for CA concatenation when using transitional certificate
+- type: replace
+  path: /instance_groups/name=credhub-backend/jobs/name=credhub/properties/credhub/certificates?
+  value:
+    concatenate_cas: true

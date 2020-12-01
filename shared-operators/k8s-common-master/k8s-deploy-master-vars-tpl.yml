@@ -1,0 +1,7 @@
+env_pf: k8s-master
+kubernetes.host: k8s-master-api.internal.paas
+network: tf-net-cfcr-master
+prefix-deployment: ""
+docker_repository: ""
+k8s_certificate: ((/bosh-master/k8s/tls-ca.certificate))
+k8s_key: ((/bosh-master/k8s/tls-ca.private_key))
