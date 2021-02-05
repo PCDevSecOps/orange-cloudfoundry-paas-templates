@@ -1,0 +1,115 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: uaa-ssl
+    namespace: traefik
+    data:
+    - name: ca.crt
+      value: ((ca_cert))
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefik-forward-auth-ByUaa"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: traefik-forward-auth
+        namespace: traefik
+        labels:
+          app: traefik-forward-auth
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: traefik-forward-auth
+        strategy:
+          type: Recreate
+        template:
+          metadata:
+            labels:
+              app: traefik-forward-auth
+          spec:
+            terminationGracePeriodSeconds: 60
+            volumes:
+            - name: uaa-ssl
+              secret:
+                secretName: uaa-ssl
+            containers:
+            - image: thomseddon/traefik-forward-auth:v2.2.0
+              name: traefik-forward-auth
+              args:
+              - --default-provider=oidc
+              ports:
+              - containerPort: 4181
+                protocol: TCP
+                name: traefik-forward
+              volumeMounts:
+              - mountPath: "/etc/ssl/certs"
+                name: uaa-ssl
+                readOnly: true
+              resources:
+                limits:
+                  cpu: "200m"
+                  memory: "100Mi"
+
+              env:
+              - name: LOG_LEVEL
+                value: info
+
+              - name: SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: traefik-forward-auth-secrets
+                    key: traefik-forward-auth-oidc-client-secret
+
+              - name: DOMAIN
+                value: "orange.com"
+
+
+              - name: COOKIE_DOMAIN
+                value: "((env_pf)).((/secrets/cloudfoundry_ops_domain))"
+
+              - name: AUTH_HOST
+                value: "uaa.((/secrets/cloudfoundry_ops_domain))"
+
+              - name: PROVIDERS_OIDC_ISSUER_URL
+                valueFrom:
+                  secretKeyRef:
+                    name: traefik-forward-auth-secrets
+                    key: traefik-forward-auth-oidc-issuer-url
+
+              - name: PROVIDERS_OIDC_CLIENT_ID
+                valueFrom:
+                  secretKeyRef:
+                    name: traefik-forward-auth-secrets
+                    key: traefik-forward-auth-oidc-client-id
+
+              - name: PROVIDERS_OIDC_CLIENT_SECRET
+                valueFrom:
+                  secretKeyRef:
+                    name: traefik-forward-auth-secrets
+                    key: traefik-forward-auth-oidc-client-secret
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: traefik-forward-auth-secrets
+    namespace: traefik
+    data:
+    - name: traefik-forward-auth-oidc-issuer-url
+      value: https://uaa.((/secrets/cloudfoundry_ops_domain))/oauth/token
+    - name: traefik-forward-auth-oidc-client-id
+      value: k8s
+    - name: traefik-forward-auth-oidc-client-secret
+      value: ((/bosh-master/ops-routing/k8s-client-secret))
+

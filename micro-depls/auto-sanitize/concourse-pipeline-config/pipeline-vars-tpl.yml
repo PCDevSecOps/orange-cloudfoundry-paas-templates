@@ -1,0 +1,31 @@
+#TODO: check concourse credhub access ?
+paas-templates-uri: (( grab secrets.paas-templates-uri ))
+paas-templates-branch: (( grab secrets.paas-templates-branch ))
+paas-templates-skip-ssl-verification: (( grab secrets.paas-templates-uri ))
+paas-templates-wip-branch: (( grab secrets.paas-templates-wip-branch ))
+
+paas-templates-git-username: ((grab secrets.private-git.username))
+paas-templates-git-password: ((grab secrets.private-git.password))
+
+paas-templates-gitlab-token: ((grab secrets.private-git.api-token))
+
+paas-templates-sanitized-uri: (( grab secrets.paas-templates-uri ))
+paas-templates-sanitized-skip-ssl-verification: (( grab secrets.paas-templates-uri ))
+
+slack-webhook: ((grab secrets.slack.webhook))
+slack-channel: ((grab secrets.slack.channel))
+
+github-username: ((grab secrets.github.username))
+github-password: ((grab secrets.github.password))
+
+
+
+
+
+
+
+
+
+
+
+

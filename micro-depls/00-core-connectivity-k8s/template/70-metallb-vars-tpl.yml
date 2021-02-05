@@ -1,0 +1,4 @@
+#vars for metallb
+internet_proxy_private_vip: 192.168.116.15
+intranet_proxy_private_vip: 192.168.116.17
+

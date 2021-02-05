@@ -1,0 +1,4 @@
+#--- Disable hm vm recreation (not desirable with remote region provisionning)
+- type: replace
+  path: /instance_groups/name=bosh/properties/hm/resurrector_enabled
+  value: false

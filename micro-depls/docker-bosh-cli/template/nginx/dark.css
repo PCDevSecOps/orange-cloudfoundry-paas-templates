@@ -1,0 +1,37 @@
+/* Generic styles */
+body {
+  background-color: #555;
+}
+
+h3 {
+  color: white;
+}
+
+hr {
+  color: #666666;
+}
+
+/* Left menu tab */
+div.menu {
+  background-color: #404040;
+}
+
+/* Default button inside menu tab */
+div.menu button {
+  color: white;
+}
+
+/* Background button color on hover inside menu tab */
+div.menu button:hover {
+  background-color: #b3b3b3;
+}
+
+/* Active button inside menu tab */
+div.menu button.active {
+  background-color: #808080;
+}
+
+/* Right content tab */
+.content_tab {
+  background-color: #555;
+}

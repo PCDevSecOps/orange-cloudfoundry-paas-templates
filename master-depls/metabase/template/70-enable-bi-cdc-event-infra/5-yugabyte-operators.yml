@@ -1,0 +1,46 @@
+#crd install
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "yugabyte-crd"
+    cmd: "apply"
+    options: "-f https://raw.githubusercontent.com/yugabyte/yugabyte-operator/master/deploy/crds/yugabyte.com_ybclusters_crd.yaml"
+
+
+#operator install
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "yugabyte-operator"
+    cmd: "apply"
+    options: "-f https://raw.githubusercontent.com/yugabyte/yugabyte-operator/master/deploy/operator.yaml"
+
+#use the operator to create a yugabyte cluster
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "yugabyte-deploy"
+    cmd: "apply"
+    content:
+      apiVersion: yugabyte.com/v1alpha1
+      kind: YBCluster
+      metadata:
+        name: paas-templates-bi-ybcluster
+        namespace: yb-operator
+      spec:
+        replicationFactor: 3
+        master:
+          replicas: 3
+          storage:
+            size: 10Gi
+            storageClass: local-path
+        tserver:
+          replicas: 3
+          storage:
+            count: 1
+            size: 50Gi
+            storageClass: local-path
+

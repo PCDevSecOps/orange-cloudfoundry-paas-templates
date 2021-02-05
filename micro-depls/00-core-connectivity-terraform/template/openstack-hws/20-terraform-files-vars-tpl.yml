@@ -1,0 +1,6 @@
+#--- Terraform spec files
+flexible-engine-provider-r1-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/30-flexible-engine-provider-r1.tf" ))
+internet-proxy-vip-port-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/40-internet-proxy-vip-port.tf" ))
+intranet-proxy-vip-port-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/40-intranet-proxy-vip-port.tf" ))
+
+

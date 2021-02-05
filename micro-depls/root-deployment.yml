@@ -1,0 +1,146 @@
+---
+name: micro-depls
+releases:
+  backup-and-restore-sdk:
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+    sha1: 0ae9cde649b6c1eaf8f5782f8e46eed55a0b1519
+    version: 1.18.0
+  bosh:
+    repository: cloudfoundry/bosh
+    sha1: ab87db9f4f070b386c6ea493ec13151766b6da58
+    version: 271.2.0
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    sha1: bddeba4ec0b9493a2f36d0c50eb555788f6533ca
+    version: 1.27.0
+  bosh-dns-aliases:
+    repository: cloudfoundry/bosh-dns-aliases-release
+    version: 0.0.3
+  bosh-openstack-cpi:
+    repository: cloudfoundry/bosh-openstack-cpi-release
+    sha1: 1d65bb6502ca4eafde3c7fee0fd584c5dfc0b35b
+    version: '41'
+  bosh-vsphere-cpi:
+    repository: cloudfoundry/bosh-vsphere-cpi-release
+    sha1: 25c53531bf9efeb86d093c2acded62f638e12f0f
+    version: 54.1.0
+  bpm:
+    sha1: dcf0582d838a73de29da273552ae79ac3098ee8b
+    version: 1.1.9
+  cfcr-etcd:
+    repository: cloudfoundry-incubator/cfcr-etcd-release
+    version: 1.11.0
+  concourse:
+    repository: concourse/concourse-bosh-release
+    version: 6.7.2
+  containerd:
+    repository: orange-cloudfoundry/containerd-boshrelease
+    version: '1'
+  credhub:
+    repository: pivotal-cf/credhub-release
+    skip_branch_checkout: false
+    tag_prefix: ''
+    version: 2.8.0
+  credhub-importer:
+    repository: cloudfoundry-community/credhub-importer-boshrelease
+    tag_prefix: ''
+    version: 1.1.0
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.0
+  docker:
+    repository: cloudfoundry-incubator/docker-boshrelease
+    version: 35.3.4
+  generic-scripting:
+    repository: orange-cloudfoundry/generic-scripting-release
+    sha1: 3198161324c49c670282f5c64b471204a3c510bb
+    version: '3'
+  generic-taint-jobs:
+    repository: orange-cloudfoundry/generic-taint-jobs-release
+    version: '1'
+  haproxy:
+    repository: cloudfoundry-community/haproxy-boshrelease
+    version: 10.2.0
+  helm-kubectl:
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+    tag_prefix: ''
+    version: '32'
+  jumpbox:
+    repository: cloudfoundry-community/jumpbox-boshrelease
+    version: 4.6.4
+  k3s:
+    repository: orange-cloudfoundry/k3s-boshrelease
+    version: '12'
+  k8s:
+    repository: orange-cloudfoundry/k8s-boshrelease
+    tag_prefix: ''
+    version: 1.18.8-orange-7
+  minio:
+    repository: minio/minio-boshrelease
+    tag_prefix: RELEASE.
+    version: 2020-06-18T02-23-35Z
+  networking:
+    repository: cloudfoundry/networking-release
+    version: '9'
+  nginx:
+    repository: cloudfoundry-community/nginx-release
+    tag_prefix: ''
+    version: 1.13.12
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    sha1: cea1edc938873b7204b889173002e0e9fa813e54
+    version: 5.0.0
+  ntp:
+    repository: cloudfoundry-community/ntp-release
+    tag_prefix: ''
+    version: 4.2.8p12
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    tag_prefix: ''
+    version: '1'
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    sha1: 6946056ad69ae378cb89c9ef76daf66370a7dc6a
+    version: 22.0.0
+  postgres:
+    repository: cloudfoundry/postgres-release
+    version: '43'
+  prometheus:
+    repository: cloudfoundry-community/prometheus-boshrelease
+    sha1: 973ff5d23d10627b822520c728c10775d10e760d
+    version: 26.4.0
+  pxc:
+    repository: cloudfoundry-incubator/pxc-release
+    version: 0.31.0
+  routing:
+    repository: cloudfoundry/routing-release
+    version: 0.206.0
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+    version: 3.2.0
+  shield:
+    repository: starkandwayne/shield-boshrelease
+    version: 8.7.3
+  squid:
+    repository: cloudfoundry-community/squid-boshrelease
+    version: 1.0.1
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.6.0
+  terraform:
+    repository: orange-cloudfoundry/terraform-release
+    tag_prefix: ''
+    version: '3'
+  turbulence:
+    repository: cppforlife/turbulence-release
+    version: 0.10.0
+  uaa:
+    repository: cloudfoundry/uaa-release
+    sha1: 7137d5b137b48c0f56bd76b49169595a9f4a9467
+    version: 74.23.0
+  ulimit:
+    repository: pivotal-cf/ulimit-release/
+    version: '1'
+
+stemcell:
+  version: '621.99'

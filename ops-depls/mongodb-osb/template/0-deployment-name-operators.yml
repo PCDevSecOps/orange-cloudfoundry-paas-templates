@@ -1,0 +1,6 @@
+---
+#this operators adapts the deployment name
+
+- path: /name
+  type: replace
+  value: ((deployment_name))

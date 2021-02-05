@@ -1,0 +1,18 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: exec
+    cmd: |
+
+      cat << EOF > /var/vcap/data/action/kube_ops_view.yml
+      ((kube_ops_view_deployment))
+      ---
+      ((kube_ops_view_rbac))
+      ---
+      ((kube_ops_view_redis_deployment))
+      ---
+      ((kube_ops_view_redis_service))
+      ---
+      ((kube_ops_view_service))
+      EOF
+      kubectl apply -n monitoring -f  /var/vcap/data/action/kube_ops_view.yml

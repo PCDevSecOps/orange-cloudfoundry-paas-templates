@@ -1,0 +1,48 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "concourse-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: concourse-ingress
+        namespace: concourse
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - websecure
+        tls: {}
+        middlewares:
+        - test-compress
+        routes:
+        - match: Host(`concourse.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+          kind: Rule
+          priority: 0
+          services:
+          - kind: Service
+            name: concourse-web
+            namespace: concourse
+            port: 8080
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "concourse-middleware"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: Middleware
+      metadata:
+        name: test-compress
+        namespace: concourse
+      spec:
+        compress:
+          excludedContentTypes:
+          - text/event-stream

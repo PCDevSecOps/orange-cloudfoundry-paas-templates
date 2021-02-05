@@ -1,0 +1,86 @@
+      custom_exporter:
+        credentials:
+        - name: shell_root
+          type: bash
+          user: root
+        metrics:
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            list_instances
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_list_instances
+          separator: ' '
+          value_type: UNTYPED
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            count_connected_clients
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_count_connected_clients
+          separator: ' '
+          value_type: UNTYPED
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            database_keys_count
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_database_keys_count
+          separator: ' '
+          value_type: UNTYPED
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            get_used_memory
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_get_used_memory
+          separator: ' '
+          value_type: UNTYPED
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            get_maxmemory
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_get_maxmemory
+          separator: ' '
+          value_type: UNTYPED
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            get_evicted_keys
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_get_evicted_keys
+          separator: ' '
+          value_type: UNTYPED
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            instance_health
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_instance_health
+          separator: ' '
+          value_type: UNTYPED
+        - commands:
+          - /var/vcap/packages/custom_exporter/custom_monitoring_scripts/redis_shared_cluster_metrics.sh
+            get_no_ttl_keys
+          credential: shell_root
+          mapping:
+          - redis_instance_id
+          - redis_instance_port
+          name: redis_get_no_ttl_keys
+          separator: ' '
+          value_type: UNTYPED

@@ -1,0 +1,87 @@
+#--- bosh director prometheus scrape configs
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: prometheus2
+    release: prometheus
+    properties:
+      prometheus:
+        external_labels:
+          bosh: bosh-remote-r2
+        storage:
+          local:
+            engine: persisted
+            retention: 30m
+        web:
+          external_url: "https://elpaaso-prometheus-exporter-remote-r2.((/secrets/cloudfoundry_ops_domain))"
+        rule_files: []
+        scrape_configs:
+        #--- bosh exporter (dynamic inventory of the node exporters to scrape + bosh metrics)
+        - job_name: bosh
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          static_configs:
+          - targets:
+            - localhost:9190
+
+        #--- system metrics (cpu, ram, disk)
+        - job_name: node_exporter
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          file_sd_configs:
+            - files:
+              - /var/vcap/store/bosh_exporter/bosh_target_groups.json
+          relabel_configs:
+            - source_labels: [__meta_bosh_job_process_name]
+              regex: node_exporter
+              action: keep
+            - source_labels: [__address__]
+              regex: "(.*)"
+              target_label: __address__
+              replacement: "${1}:9100"
+
+        #--- bosh director api metrics server
+        - job_name: bosh-api-metrics-server
+          metrics_path: /api_metrics
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          scheme: https
+          tls_config:
+            ca_file: /var/vcap/data/scripting/metrics_server_ca.crt
+            cert_file: /var/vcap/data/scripting/metrics_server_cert.crt
+            key_file: /var/vcap/data/scripting/metrics_server_key.crt
+          static_configs:
+            - targets:
+              - ((internal_ip)):9091
+
+        #--- bosh director metrics server
+        - job_name: bosh-metrics-server
+          metrics_path: /metrics
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          scheme: https
+          tls_config:
+            ca_file: /var/vcap/data/scripting/metrics_server_ca.crt
+            cert_file: /var/vcap/data/scripting/metrics_server_cert.crt
+            key_file: /var/vcap/data/scripting/metrics_server_key.crt
+          static_configs:
+            - targets:
+              - ((internal_ip)):9091
+
+        #--- nats exporter
+        - job_name: nats-exporter
+          scrape_interval: 5m
+          scrape_timeout: 2m
+          static_configs:
+            - targets:
+              - localhost:9118
+
+        #--- prometheus metrics
+        - job_name: prometheus
+          static_configs:
+            - targets:
+              - localhost:9090
+          relabel_configs:
+            - source_labels: [instance]
+              target_label: instance
+              replacement: "exporter-remote-r2"

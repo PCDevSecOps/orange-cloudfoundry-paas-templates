@@ -1,0 +1,77 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-longhorn-driver-deployer"
+    cmd: "patch deployment -n longhorn-system longhorn-driver-deployer"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"longhorn-driver-deployer\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-csi-attacher"
+    cmd: "patch deployment -n longhorn-system  csi-attacher "
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"csi-attacher\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-csi-provisioner"
+    cmd: "patch deployment -n longhorn-system csi-provisioner "
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"csi-provisioner\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-csi-resizer"
+    cmd: "patch deployment -n longhorn-system csi-resizer "
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"csi-resizer\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-longhorn-ui"
+    cmd: "patch deployment -n longhorn-system longhorn-ui"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"longhorn-ui\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+## set limit CPU and Memory for Daemonset
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-longhorn-csi-plugin"
+    cmd: "patch daemonset -n longhorn-system longhorn-csi-plugin"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"longhorn-csi-plugin\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-longhorn-csi-plugin-node-driver-registrar"
+    cmd: "patch daemonset -n longhorn-system longhorn-csi-plugin"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"node-driver-registrar\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-longhorn-manager"
+    cmd: "patch daemonset -n longhorn-system longhorn-manager"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"longhorn-manager\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-longhorn-manager"
+    cmd: "patch daemonset -n longhorn-system engine-image-ei-ee18f965"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"engine-image-ei-ee18f965\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"128Mi\"}}}]}}}}'"
+
+
+

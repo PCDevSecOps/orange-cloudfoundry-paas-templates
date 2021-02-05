@@ -1,0 +1,70 @@
+- type: replace
+  path: /releases
+  value:
+  - name: binary-buildpack
+    version: latest
+  - name: bpm
+    version: latest
+  - name: capi
+    version: latest
+  - name: cf-networking
+    version: latest
+  - name: silk
+    version: latest
+  - name: cf-smoke-tests
+    version: latest
+  - name: cf-syslog-drain
+    version: latest
+  - name: cflinuxfs3
+    version: latest
+  - name: diego
+    version: latest
+  - name: dotnet-core-buildpack
+    version: latest
+  - name: garden-runc
+    version: latest
+  - name: go-buildpack
+    version: latest
+  - name: java-buildpack
+    version: latest
+  - name: loggregator
+    version: latest
+  - name: nats
+    version: latest
+  - name: nodejs-buildpack
+    version: latest
+  - name: php-buildpack
+    version: latest
+  - name: python-buildpack
+    version: latest
+  - name: routing
+    version: latest
+  - name: ruby-buildpack
+    version: latest
+  - name: staticfile-buildpack
+    version: latest
+  - name: statsd-injector
+    version: latest
+  - name: uaa
+    version: latest
+  - name: loggregator-agent
+    version: latest
+  - name: cf-cli
+    version: latest
+  - name: bosh-dns-aliases
+    version: latest
+  - name: log-cache
+    version: latest
+  - name: credhub
+    version: latest
+  - name: nginx-buildpack
+    version: latest
+  - name: r-buildpack
+    version: latest
+  - name: haproxy
+    version: latest
+  - name: cron
+    version: latest
+  - name: metrics-discovery
+    version: latest
+

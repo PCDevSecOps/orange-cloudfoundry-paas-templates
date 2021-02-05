@@ -1,0 +1,53 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-weave"
+    cmd: "patch daemonset -n kube-system weave-net"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"weave\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"200Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-weave-npc"
+    cmd: "patch daemonset -n kube-system weave-net"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"weave-npc\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"200Mi\"}}}]}}}}'"
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-kube-proxy"
+    cmd: "patch daemonset -n kube-system kube-proxy"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"kube-proxy\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"200Mi\"}}}]}}}}'"
+
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-certmanager"
+    cmd: "patch deployment -n cert-manager cert-manager"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"cert-manager\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"200Mi\"}}}]}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-cert-manager-cainjector"
+    cmd: "patch deployment -n cert-manager cert-manager-cainjector"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"cert-manager\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"200Mi\"}}}]}}}}'"
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "limitcpu-cert-manager-webhook"
+    cmd: "patch deployment -n cert-manager cert-manager-webhook"
+    options: " --patch '{\"spec\": {\"template\": {\"spec\": {\"containers\": [{\"name\": \"cert-manager\",\"resources\": {\"limits\":{\"cpu\":\"100m\",\"memory\":\"200Mi\"}}}]}}}}'"

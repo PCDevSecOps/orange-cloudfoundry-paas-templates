@@ -1,0 +1,139 @@
+---
+name: ops-depls
+releases:
+  autosleep-boshrelease:
+    repository: cloudfoundry-community/autosleep-boshrelease
+    version: 1.0.2
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.27.0
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.9
+  broker-registrar:
+    repository: cloudfoundry-community/broker-registrar-boshrelease
+    version: 3.4.0
+  cf-cli:
+    repository: bosh-packages/cf-cli-release
+    version: 1.5.0
+  cf-containers-broker:
+    repository: cloudfoundry-community/cf-containers-broker-boshrelease
+    version: 1.0.3
+  cf-mysql:
+    repository: orange-cloudfoundry/cf-mysql-release
+    version: 37.1.0
+    tag_prefix: ''
+  cf-rabbitmq:
+    repository: pivotal-cf/cf-rabbitmq-release
+    version: 326.0.0
+  cf-rabbitmq-multitenant-broker:
+    repository: pivotal-cf/cf-rabbitmq-multitenant-broker-release
+    version: 80.0.0
+  cf-rabbitmq-smoke-tests:
+    repository: pivotal-cf/cf-rabbitmq-smoke-tests-release
+    version: 66.0.0
+  cf-redis:
+    repository: pivotal-cf/cf-redis-release
+    version: 434.3.12
+  cloudfoundry-operators-tools:
+    repository: orange-cloudfoundry/cloudfoundry-operators-tools-boshrelease
+    version: '2'
+  concourse:
+    repository: concourse/concourse-bosh-release
+    version: 6.7.2
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.0
+  db-dumper-service:
+    repository: orange-cloudfoundry/db-dumper-service-release
+    version: '3'
+  docker:
+    repository: cloudfoundry-incubator/docker-boshrelease
+    version: 35.3.4
+  generic-scripting:
+    repository: orange-cloudfoundry/generic-scripting-release
+    version: '3'
+  generic-taint-jobs:
+    version: '1'
+    repository: orange-cloudfoundry/generic-taint-jobs-release
+  gobonniego:
+    repository: cunnie/gobonniego-release
+    version: 1.0.9
+  haproxy:
+    repository: cloudfoundry-community/haproxy-boshrelease
+    version: 10.2.0
+  kafka:
+    repository: cloudfoundry-community/kafka-boshrelease
+    version: 2.4.2
+  kafka-service-broker:
+    repository: cloudfoundry-community/kafka-service-broker-boshrelease
+    version: 2.2.0
+  memcache:
+    repository: cloudfoundry-community/memcache-release
+    version: 6.0.0
+  minio:
+    repository: minio/minio-boshrelease
+    version: 2020-06-18T02-23-35Z
+  mongodb-services:
+    repository: orange-cloudfoundry/mongodb-boshrelease
+    version: '12'
+    tag_prefix: ''
+  nfs-volume:
+    repository: cloudfoundry/nfs-volume-release
+    version: 1.1.0
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 5.0.0
+  orange-prometheus-addons:
+    repository: orange-cloudfoundry/orange-prometheus-addons-boshrelease/
+    version: '1'
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 22.0.0
+  postgres:
+    repository: cloudfoundry/postgres-release
+    version: '43'
+  prometheus:
+    repository: cloudfoundry-community/prometheus-boshrelease
+    version: 26.4.0
+  routing:
+    repository: cloudfoundry/routing-release
+    version: 0.206.0
+  safe:
+    repository: cloudfoundry-community/safe-boshrelease
+    version: 0.2.0
+  shared-redis:
+    repository: pivotal-cf/shared-redis-release
+    version: 437.0.15
+  shield:
+    repository: starkandwayne/shield-boshrelease
+    version: 8.7.3
+  shield-addon-mongodb:
+    repository: shieldproject/shield-addon-mongodb-boshrelease
+    version: 1.0.0
+  shield-addon-postgres:
+    repository: shieldproject/shield-addon-postgres-boshrelease
+    version: 1.0.0
+  squid:
+    repository: cloudfoundry-community/squid-boshrelease
+    version: 1.0.1
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.6.0
+  terraform:
+    repository: orange-cloudfoundry/terraform-release
+    version: '3'
+    tag_prefix: ''
+  uaa:
+    repository: cloudfoundry/uaa-release
+    version: '17'
+#  weave-scope:
+#    repository: cloudfoundry-community/weavescope-boshrelease
+#    version: "0.0.18"
+#    github-release-name: weave-scope.tgz
+  zookeeper:
+    repository: cppforlife/zookeeper-release
+    version: 0.0.10
+stemcell:
+  version: '621.99'
+

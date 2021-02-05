@@ -1,0 +1,6 @@
+#--- Add compilation network name
+- type: replace
+  path: /networks/name=tf-net-coab-depls-compilation/subnets/0/cloud_properties?
+  value:
+    name: ((compilation-network-name))
+    

@@ -1,0 +1,13 @@
+- type: replace
+  path: /addons/name=20-add-agents/jobs/-
+  value:
+    release: routing
+    name: route_registrar
+    properties:
+      nats:
+        machines: [ops-routing-nats] 
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes: []

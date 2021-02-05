@@ -1,0 +1,5 @@
+---
+ops_domain: ((/secrets/cloudfoundry_ops_domain))
+uaa_admin_client_secret: ((/bosh-master/cf/uaa_admin_client_secret))
+cf_admin_password: ((/secrets/cloudfoundry_admin_password))
+ls_router_vip: 192.168.99.245

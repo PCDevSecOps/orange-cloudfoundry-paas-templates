@@ -1,0 +1,18 @@
+---
+#this operators fixed the deployment for upgrade compatibility
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/networks
+  value:
+    - name: tf-net-services-2
+      static_ips:
+      - 192.168.31.162
+
+- type: replace
+  path: /instance_groups/name=mongod/networks
+  value:
+    - name: tf-net-services-2
+      static_ips:
+      - 192.168.31.163
+      - 192.168.31.169
+      - 192.168.31.170

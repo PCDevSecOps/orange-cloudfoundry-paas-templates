@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker/services/0/plans/name=10mb/free
+  value: true

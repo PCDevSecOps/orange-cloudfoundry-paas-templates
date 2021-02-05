@@ -1,0 +1,30 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: ops-ssl
+    secret_type: kubernetes.io/tls
+    namespace: traefik
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikssl"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: traefik.containo.us/v1alpha1
+      kind: TLSStore
+      metadata:
+        name: default
+        namespace: traefik
+      spec:
+        defaultCertificate:
+          secretName: ops-ssl

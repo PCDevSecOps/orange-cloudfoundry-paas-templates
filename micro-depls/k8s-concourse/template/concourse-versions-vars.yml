@@ -1,0 +1,3 @@
+concourse-version: 14.2.0
+stolon-version: 1.6.2
+prometheus-postgres-exporter-version: 1.3.0

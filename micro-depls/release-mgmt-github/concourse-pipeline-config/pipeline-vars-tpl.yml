@@ -1,0 +1,41 @@
+#TODO: check concourse credhub access ?
+paas-templates-uri: (( grab secrets.paas-templates-uri ))
+paas-templates-branch: (( grab secrets.paas-templates-branch ))
+paas-templates-skip-ssl-verification: (( grab secrets.paas-templates-skip-ssl-verification ))
+paas-templates-wip-branch: (( grab secrets.paas-templates-wip-branch ))
+
+paas-templates-git-username: ((grab secrets.private-git.username))
+paas-templates-git-password: ((grab secrets.private-git.password))
+
+paas-templates-sanitized-uri: (( grab secrets.paas-templates-uri ))
+paas-templates-sanitized-skip-ssl-verification: (( grab secrets.paas-templates-uri ))
+
+diod-gitlab-uri: (( grab secrets.diod.gitlab.uri ))
+diod-gitlab-username: (( grab secrets.diod.gitlab.username ))
+diod-gitlab-password: (( grab secrets.diod.gitlab.password ))
+diod-gitlab-skip-ssl-verification: (( grab secrets.diod.gitlab.skip-ssl-verification ))
+
+orange-forge-uri: (( grab secrets.orange-forge.gitlab.uri ))
+orange-forge-username: (( grab secrets.orange-forge.gitlab.username ))
+orange-forge-password: (( grab secrets.orange-forge.gitlab.password ))
+orange-forge-skip-ssl-verification: (( grab secrets.orange-forge.gitlab.skip-ssl-verification ))
+
+slack-webhook: ((grab secrets.slack.webhook))
+slack-channel: ((grab secrets.slack.channel))
+
+github-username: ((grab secrets.github.username))
+github-password: ((grab secrets.github.password))
+github-repo: ((grab secrets.github.repo))
+
+paas-templates-gitlab-token: ((grab secrets.gitlab.api-token))
+paas-templates-gitlab-uri: (( grab secrets.gitlab.paas-templates-uri ))
+
+
+
+
+
+
+
+
+
+

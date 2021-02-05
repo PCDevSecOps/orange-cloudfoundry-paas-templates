@@ -1,0 +1,3 @@
+tenant_name: ops-depls
+deployment_name: cf-redis-osb
+when: "daily 4:15"

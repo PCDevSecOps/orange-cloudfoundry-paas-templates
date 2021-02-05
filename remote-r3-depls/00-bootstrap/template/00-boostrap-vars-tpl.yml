@@ -1,0 +1,5 @@
+network: net-bosh-remote-3 #create vm on r3 network
+deployment_name: 00-bootstrap
+
+external_ip: ((/secrets/multi_region_region_3_vpn_interco_endpoint))
+vpn_port: 443 #51820 is wireguard default

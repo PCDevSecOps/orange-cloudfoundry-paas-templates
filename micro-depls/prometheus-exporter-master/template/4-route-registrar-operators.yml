@@ -1,0 +1,27 @@
+#--- Add routing bosh release
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+#--- Expose prometheus web ui
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines:
+        - ops-routing-nats
+        password: ((/bosh-master/ops-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: prometheus-master
+          port: 9090
+          registration_interval: 20s
+          uris:
+          - elpaaso-prometheus-exporter-master.((/secrets/cloudfoundry_ops_domain))

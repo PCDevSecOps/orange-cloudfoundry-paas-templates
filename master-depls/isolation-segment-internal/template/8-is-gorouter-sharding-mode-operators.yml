@@ -1,0 +1,6 @@
+#gorouters will only route traffic for the internal isolation segment
+# see https://github.com/cloudfoundry/routing-release/blob/develop/jobs/gorouter/spec#L221
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/routing_table_sharding_mode?
+  value: segments

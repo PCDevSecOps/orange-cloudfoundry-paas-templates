@@ -1,0 +1,23 @@
+---
+#adapt AZ : [z1, z2, z3]
+# mysql and proxy
+- type: replace
+  path: /instance_groups/name=mysql/azs
+  value: [z1,r2-z1]
+
+- type: replace
+  path: /instance_groups/name=arbitrator/azs
+  value: [r3-z1]
+
+- type: replace
+  path: /instance_groups/name=arbitrator/vm_type
+  value: 1cpu-2g
+
+- type: replace
+  path: /instance_groups/name=proxy/azs
+  value: [z1,r2-z1] #one proxy on r1 and the other on remote r2
+
+# broker
+- type: replace
+  path: /instance_groups/name=broker/azs
+  value: [z1]

@@ -1,0 +1,89 @@
+---
+name: inception
+
+cloud_provider:
+  cert: ((mbus_bootstrap_ssl))
+  mbus: https://mbus:((mbus_bootstrap_password))@((micro_bosh.inception_ip)):6868
+  properties:
+    agent: {mbus: "https://mbus:((mbus_bootstrap_password))@0.0.0.0:6868"}
+    blobstore: {provider: local, path: /var/vcap/micro_bosh/data/cache}
+
+instance_groups:
+- name: inception
+  instances: 1
+  jobs:
+  - name: user_add
+    release: os-conf
+    properties:
+      users:
+      - name: inception
+        public_key: ((inception_ssh.public_key))
+
+  networks:
+  - name: intranet_interco
+    default: [dns, gateway]
+    static_ips: [((intranet_interco.inception_ip))]
+
+  - name: micro_bosh
+    static_ips: [((micro_bosh.inception_ip))]
+
+  persistent_disk: 20_000
+  resource_pool: vms
+
+networks:
+- name: intranet_interco
+  type: manual
+  subnets:
+  - range: ((intranet_interco.range))
+    gateway: ((intranet_interco.gateway))
+    static: [((intranet_interco.inception_ip))]
+    dns: [((target_dns_recursor_1)), ((target_dns_recursor_2))]
+    cloud_properties:
+      name: ((networks.intranet_interco))
+
+- name: micro_bosh
+  type: manual
+  subnets:
+  - range: ((micro_bosh.range))
+    gateway: ((micro_bosh.gateway))
+    static: [((micro_bosh.inception_ip))]
+    cloud_properties:
+      name: ((networks.micro_bosh))
+
+releases:
+- name: os-conf
+  version: ((os_conf_release))
+  url: https://bosh.io/d/github.com/cloudfoundry/os-conf-release?v=((os_conf_release))
+  sha1: ((os_conf_sha1))
+
+resource_pools:
+- name: vms
+  network: micro_bosh
+  env:
+    bosh:
+      mbus:
+        cert: ((mbus_bootstrap_ssl))
+      password: "((vcap_password_sha512))"
+  stemcell:
+    url: ((url_stemcell))
+    sha1: ((sha1_stemcell))
+
+variables:
+- name: default_ca
+  options:
+    common_name: ca
+    is_ca: true
+  type: certificate
+
+- name: mbus_bootstrap_ssl
+  options:
+    alternative_names: [((micro_bosh.inception_ip))]
+    ca: default_ca
+    common_name: ((micro_bosh.inception_ip))
+  type: certificate
+
+- name: mbus_bootstrap_password
+  type: password
+
+- name: inception_ssh
+  type: ssh

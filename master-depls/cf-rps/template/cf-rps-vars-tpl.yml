@@ -1,0 +1,2 @@
+#use grab secrets to avoid bosh issues
+apps_ip: (( grab secrets.intranet_interco_ips.apps ))

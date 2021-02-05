@@ -1,0 +1,18 @@
+- type: replace
+  path: /instance_groups/name=cfcr-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "pod-initContainers"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: Pod
+      metadata:
+        name: provisioning
+      spec:
+        initContainers:
+          - name: provisioning
+            image: busybox:1.28
+            imagePullPolicy: IfNotPresent
+            command: ['sh', '-c', 'echo metabase provisioning is done']

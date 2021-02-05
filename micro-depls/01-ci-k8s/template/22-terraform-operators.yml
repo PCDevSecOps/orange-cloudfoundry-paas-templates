@@ -1,0 +1,36 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: terraform
+    version: latest
+
+
+#terraform state colocated with server. NB: ko with multiple servers.
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: terraform-apply
+    release: terraform
+    properties:
+      terraform:
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: localhost,127.0.0.1,.((/secrets/cloudfoundry_ops_domain))
+        vars:
+          deployment_name: ((deployment_name))
+          rancher_access_key: ((/micro-bosh/00-gitops-management/rancher_access_key))
+          rancher_secret_key:  ((/micro-bosh/00-gitops-management/rancher_secret_key))
+          ops_domain: ((/secrets/cloudfoundry_ops_domain))
+          intranet_ca: ((/secrets/certs/intranet-ca))
+        specs:
+        - ((versioned-providers))
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: terraform-plan-only
+    release: terraform
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((rancher-registration))

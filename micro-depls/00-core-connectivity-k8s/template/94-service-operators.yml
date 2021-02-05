@@ -1,0 +1,25 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "create_service-intranet"
+    cmd: "apply"
+    options: "-n intranet-proxy"
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: intranet-proxy-service
+        labels:
+          app: intranet-proxy
+        annotations:
+          "metallb.universe.tf/address-pool": intranet-proxy-private-vip-pool #uses external vrrp ip pool
+      spec:
+        selector:
+          app: intranet-proxy
+        type: LoadBalancer
+        ports:
+        - protocol: TCP
+          port: 3128
+          targetPort: 3128
+          name: squid

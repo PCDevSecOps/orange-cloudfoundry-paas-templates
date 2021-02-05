@@ -1,0 +1,54 @@
+[submodule "coab-depls/cf-mysql/template/cf-mysql-deployment"]
+	path = coab-depls/cf-mysql/template/cf-mysql-deployment
+	url = https://github.com/cloudfoundry/cf-mysql-deployment.git
+[submodule "master-depls/logsearch/template/logsearch-boshrelease"]
+	path = master-depls/logsearch/template/logsearch-boshrelease
+	url = https://github.com/cloudfoundry-community/logsearch-boshrelease
+[submodule "ops-depls/cloudfoundry-mysql/template/cf-mysql-deployment"]
+	path = ops-depls/cloudfoundry-mysql/template/cf-mysql-deployment
+	url = https://github.com/cloudfoundry/cf-mysql-deployment/
+[submodule "master-depls/cached-buildpack-pipeline/concourse-pipeline-config/ci-buildpack-cached"]
+	path = master-depls/cached-buildpack-pipeline/concourse-pipeline-config/ci-buildpack-cached
+	url = https://github.com/orange-cloudfoundry/ci-buildpack-cached
+[submodule "submodules/cf-deployment"]
+	path = submodules/cf-deployment
+	url = https://github.com/cloudfoundry/cf-deployment
+[submodule "submodules/prometheus-boshrelease"]
+	path = submodules/prometheus-boshrelease
+	url = https://github.com/bosh-prometheus/prometheus-boshrelease
+[submodule "submodules/bosh-deployment"]
+	path = submodules/bosh-deployment
+	url = https://github.com/cloudfoundry/bosh-deployment
+[submodule "submodules/cf-networking-examples"]
+	path = submodules/cf-networking-examples
+	url = https://github.com/cloudfoundry/cf-networking-examples
+[submodule "submodules/logsearch-boshrelease"]
+	path = submodules/logsearch-boshrelease
+	url = https://github.com/cloudfoundry-community/logsearch-boshrelease/
+[submodule "micro-depls/concourse/template/concourse-bosh-deployment"]
+	path = micro-depls/concourse/template/concourse-bosh-deployment
+	url = https://github.com/concourse/concourse-bosh-deployment
+[submodule "ops-depls/concourse-dev/template/concourse-bosh-deployment"]
+	path = ops-depls/concourse-dev/template/concourse-bosh-deployment
+	url = https://github.com/concourse/concourse-bosh-deployment
+[submodule "submodules/shield"]
+	path = submodules/shield
+	url = https://github.com/shieldproject/shield-boshrelease
+[submodule "submodules/cf-mysql-deployment"]
+	path = submodules/cf-mysql-deployment
+	url = https://github.com/cloudfoundry/cf-mysql-deployment
+[submodule "submodules/elastic-stack-bosh-deployment"]
+	path = submodules/elastic-stack-bosh-deployment
+	url = https://github.com/bosh-elastic-stack/elastic-stack-bosh-deployment
+[submodule "submodules/orange-cf-mysql-deployment"]
+	path = submodules/orange-cf-mysql-deployment
+	url = https://github.com/orange-cloudfoundry/cf-mysql-deployment.git
+[submodule "submodules/cf-for-k8s"]
+	path = submodules/cf-for-k8s
+	url = https://github.com/cloudfoundry/cf-for-k8s
+[submodule "submodules/pxc-release"]
+	path = submodules/pxc-release
+	url = https://github.com/cloudfoundry-incubator/pxc-release
+[submodule "submodules/rabbitmq-server"]
+	path = submodules/rabbitmq-server
+	url = https://github.com/rabbitmq/rabbitmq-server.git

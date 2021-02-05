@@ -1,0 +1,61 @@
+#set pod preset so k8s pod have corporate ca mounted
+
+# pre-reate namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: cattle-system
+
+
+#enable ca for rancher agent
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "rancher-agentcorporate-ca-podpreset"
+    cmd: "apply"
+    content:
+      apiVersion: settings.k8s.io/v1alpha1
+      kind: PodPreset
+      metadata:
+        name: rancher-agentcorporate-ca-podpreset
+        namespace: cattle-system
+      spec:
+        selector:
+          matchLabels:
+            app: cattle-cluster-agent #for rancher agent registration to rancher-ui with corporate ca cert
+        volumeMounts:
+        - name: cert-volume
+          mountPath: /etc/ssl/certs
+        volumes:
+        - name: cert-volume
+          hostPath:
+            path: /etc/ssl/certs
+            type: Directory
+
+#enable ca for fleet agent
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "fleet-agentcorporate-ca-podpreset"
+    cmd: "apply"
+    content:
+      apiVersion: settings.k8s.io/v1alpha1
+      kind: PodPreset
+      metadata:
+        name: fleet-agentcorporate-ca-podpreset
+        namespace: fleet-system
+      spec:
+        selector:
+          matchLabels:
+            app: fleet-agent #for fleet agent registration to rancher-ui with corporate ca cert
+        volumeMounts:
+        - name: cert-volume
+          mountPath: /etc/ssl/certs
+        volumes:
+        - name: cert-volume
+          hostPath:
+            path: /etc/ssl/certs
+            type: Directory

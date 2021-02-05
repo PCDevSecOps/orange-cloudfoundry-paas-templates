@@ -1,0 +1,8 @@
+#feature-coab-catalog-custom
+#feature-mysql-osb-catalog
+#feature-redis-catalog
+#feature-mongo-desi
+#feature-enable-rabbitmq-desi
+#feature-change-service-broker-name
+feature-mysql-surbooking
+#feature-raise-cpu-disk-small-instances

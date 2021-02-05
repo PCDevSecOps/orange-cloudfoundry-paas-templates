@@ -1,0 +1,18 @@
+- type: replace
+  path: /releases/name=backup-and-restore-sdk?
+  value:
+    name: backup-and-restore-sdk
+    version: latest
+
+- path: /instance_groups/name=backup-restore/persistent_disk_type
+  type: replace
+  value: default
+
+- path: /instance_groups/name=backup-restore/vm_type
+  type: replace
+  value: 1cpu-4g
+
+- type: replace
+  path: /instance_groups/name=backup-restore/networks/0
+  value:
+    name: ((network_name))

@@ -1,0 +1,6 @@
+---
+deployment:
+  cf-rps:
+    releases:
+      haproxy:
+      prometheus:

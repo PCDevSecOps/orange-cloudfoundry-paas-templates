@@ -1,0 +1,12 @@
+---
+#this operators adapts the deployment in order to use tf-net-osb-data-plane-dedicated-pub and tf-net-osb-data-plane-dedicated-priv networks
+
+- type: replace
+  path: /instance_groups/name=redis/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-pub
+
+- type: replace
+  path: /instance_groups/name=broker/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-priv

@@ -1,0 +1,7 @@
+deployment_name: "cf-redis-osb"
+
+#172.17 configuration
+proxy_ip_shared: "(( ips secrets.osb_data_plane_shared_public.range 21 ))"
+
+#10.228 configuration
+#proxy_ip_shared: "(( ips secrets.osb_data_plane_shared_public.range 2 ))"

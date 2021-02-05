@@ -1,0 +1,6 @@
+
+---
+vault:
+  service:
+    name: (( grab meta.service.name ))
+    description: (( grab meta.service.description ))

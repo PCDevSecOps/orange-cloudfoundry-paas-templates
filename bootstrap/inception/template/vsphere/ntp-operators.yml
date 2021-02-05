@@ -1,0 +1,6 @@
+#--- BRMC authoritative ntp servers
+- type: replace
+  path: /cloud_provider/properties/ntp?
+  value:
+  - 10.98.198.49
+  - 10.98.112.81

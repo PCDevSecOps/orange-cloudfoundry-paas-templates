@@ -1,0 +1,17 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-grafana-dashboard-dashboard"
+    cmd: "replace"
+    options: " --force --save-config=false "
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: dash-k8s-micro-gitlab-gitaly
+        namespace: grafana
+        labels:
+          grafana_dashboard: '1'
+      data:
+        grafana_gitlab-gitaly.json: ((dashboard_gitaly))

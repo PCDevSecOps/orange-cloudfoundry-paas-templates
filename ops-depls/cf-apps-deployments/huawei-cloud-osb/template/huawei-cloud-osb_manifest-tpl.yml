@@ -1,0 +1,16 @@
+---
+applications:
+- name: huawei-cloud-osb
+  memory: 256M
+  stack: cflinuxfs3
+  instances: 1
+  buildpacks:
+  - go_buildpack
+  path: ./huaweicloud-service-broker
+
+  routes:
+  - route: (( concat "huawei-cloud-osb." secrets.cloudfoundry.system_domain ))
+  env:
+    GOPACKAGENAME: github.com/huaweicloud/huaweicloud-service-broker
+  services:
+  - mysql-hws-service

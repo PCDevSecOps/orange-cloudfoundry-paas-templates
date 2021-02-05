@@ -1,0 +1,23 @@
+# UAA client for shieldv8
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/shieldv8-webui-client-secret
+    type: password
+
+# UAA client for shieldv8
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/shieldv8-webui-client?
+  value:
+    name: shieldv8-webui-client
+    override: true
+    authorized-grant-types: authorization_code,refresh_token
+    authorities: uaa.none
+    resource_ids: none
+    autoapprove: false
+    scope: openid
+    secret: ((/uaa/shieldv8-webui-client-secret))
+    #cf stands for the uaa.identifier defined in shield deployment
+    redirect-uri: https://shieldv8-webui.((ops_domain))/auth/ops-routing/redir
+    access-token-validity: 3600
+    refresh-token-validity: 3600

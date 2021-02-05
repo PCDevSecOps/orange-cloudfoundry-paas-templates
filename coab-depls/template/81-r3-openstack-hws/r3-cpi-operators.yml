@@ -1,0 +1,17 @@
+- type: replace
+  path: /cpis/-
+  value:
+    name: region-3
+    type: openstack
+    properties:
+      auth_url: ((auth_url_3))
+      username: ((openstack_username_3))
+      api_key: ((openstack_password_3))
+      domain: ((openstack_domain_3))
+      project: ((openstack_project_3))
+      region: ((region_3))
+      default_key_name: ((default_key_name_3))
+      default_security_groups:
+      - ((default_security_groups_3))
+      human_readable_vm_names: true
+      ignore_server_availability_zone: false

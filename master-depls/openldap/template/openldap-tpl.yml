@@ -1,0 +1,82 @@
+---
+name: openldap
+
+releases:
+  - {name: docker, version: latest}
+  - {name: openldap, version: latest }
+  - {name: routing, version: latest}
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1
+  serial: false
+
+instance_groups:
+- name: openldap
+  instances: 1
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-exchange
+    static_ips:
+    - 192.168.99.60
+
+  persistent_disk_type: small_disk
+  jobs:
+  - name: ldap-server
+    release: openldap
+    properties:
+      ldap:
+        reloadConfigOnRestart: yes
+        configDatabasePW: ((database_password))
+        olcSuffix: dc=orange,dc=com
+        olcRootDN: cn=manager,dc=orange,dc=com
+        olcRootPW: ((/secrets/ldap_root_password))
+
+  - name: docker
+    release: docker
+    properties:
+      registry_mirrors:
+      - https://docker.jcr.((/secrets/cloudfoundry_ops_domain))
+      store_dir: /var/vcap/data
+
+  - name: containers
+    release: docker
+    properties:
+      containers:
+        - name: ldapadmin
+          image: osixia/phpldapadmin:((osixia/phpldapadmin))
+          bind_ports:
+            - "80:80"
+          env_vars:
+            - "PHPLDAPADMIN_LDAP_HOSTS=elpaaso-ldap.internal.paas"
+            - "PHPLDAPADMIN_HTTPS=false"
+
+  #--- Expose phpldap admin web ui
+  - release: routing
+    name: route_registrar
+    properties:
+      nats:
+        machines: [ops-routing-nats]
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+          - name: elpaaso-openldap
+            uris:
+              - elpaaso-openldap.((/secrets/cloudfoundry_ops_domain))
+            port: 80
+            registration_interval: 20s
+
+variables:
+- name: database_password
+  type: password

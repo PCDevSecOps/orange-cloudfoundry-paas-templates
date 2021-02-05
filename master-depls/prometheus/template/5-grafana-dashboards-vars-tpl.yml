@@ -1,0 +1,6 @@
+#--- Grafana dashboard json files
+vmware_stats_content: (( file "../../../additional-resource/master-depls/prometheus/template/additional-dashboards/vmware_stats.json" ))
+dedicated_services_general_view_content: (( file "../../../additional-resource/master-depls/prometheus/template/additional-dashboards/dedicated_services_general_view.json" ))
+squid_stats_content: (( file "../../../additional-resource/master-depls/prometheus/template/additional-dashboards/squid_stats.json" ))
+multi_region_vpn_content: (( file "../../../additional-resource/master-depls/prometheus/template/additional-dashboards/multi-region-vpn-status.json" ))
+rabbitmq_overview_content: (( file "../../../additional-resource/master-depls/prometheus/template/additional-dashboards/RabbitMQ-Overview.json" ))

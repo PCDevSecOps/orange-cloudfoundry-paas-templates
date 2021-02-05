@@ -1,0 +1,14 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - coab-depls/noop
+          - shared-operators/coab
+    stemcells:
+    releases:
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+    errands:

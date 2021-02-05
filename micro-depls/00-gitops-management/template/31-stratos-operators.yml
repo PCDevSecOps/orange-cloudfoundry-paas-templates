@@ -1,0 +1,103 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: stratos
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: stratos
+    url: https://cloudfoundry.github.io/stratos/
+
+
+## stratos secret creation (just config stratos helm chart with secret name)
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: stratos-cert
+    secret_type: kubernetes.io/tls
+    namespace: stratos
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: stratos
+    chart: stratos/console
+    namespace: stratos
+    version: ((helm_stratos))
+    
+    #file parameters
+    values_file_content:
+      console:
+        ssoLogin: true
+        techPreview: true
+        service:
+          ingress:
+            enabled: true
+            #see reference https://doc.traefik.io/traefik/v1.7/configuration/backends/kubernetes/#annotations
+            annotations:
+              kubernetes.io/ingress.class: traefik #use local ingress class (default is nginx).
+              ingress.kubernetes.io/protocol: https
+            host: stratos.((/secrets/cloudfoundry_ops_domain))
+            secretName: stratos-cert
+
+    #properties parameters
+    properties:
+      #ops uaa
+    - name: uaa.endpoint # UAA endpoint (e.g. https://uaa.domain:2793)
+      value: https://uaa.((/secrets/cloudfoundry_ops_domain))
+    - name: uaa.consoleClient # Client to use when authenticating (default is 'cf')
+      value: stratos
+    - name: uaa.consoleClientSecret # Client Secret to use when authenticating (default is '')
+      value: ((/uaa/stratos-client-secret))
+    - name: consoleAdminIdentifier # Scope that determines if a user is a Stratos admin
+      value: bosh.admin
+    - name: uaa.skipSSLValidation # Skip SSL validation when communicating with the UAA
+      value: false
+
+#expose stratos ui as raw nodeport (bypass loadbalancer and traefik ingress)
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "stratos-ui-node-port"
+    cmd: "apply"
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: stratos-ui-node-port
+        namespace: stratos
+      spec:
+        ports:
+        - protocol: TCP
+          port: 443
+          targetPort: 443
+          nodePort: 31443
+        selector:
+          app: stratos
+          component: stratos
+        type: NodePort
+
+#register stratos uri in host vm route registrar
+- type: replace
+  path: /addons/name=30-expose-on-gorouters/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value :
+    name: 00-stratos
+    registration_interval: 60s
+    tls_port: 31443 # nodeport to access stratus ui directly
+    #tls_port: 443 #to target ingress
+    server_cert_domain_san: "stratos.((/secrets/cloudfoundry_ops_domain))"
+    uris:
+    - stratos.((/secrets/cloudfoundry_ops_domain))
+    #FIXME: set health url ?
+

@@ -1,0 +1,11 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: prometheus
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: orange-prometheus-addons
+    version: latest

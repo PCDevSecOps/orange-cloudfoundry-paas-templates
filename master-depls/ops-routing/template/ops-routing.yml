@@ -1,0 +1,91 @@
+---
+name: ops-routing
+
+releases:
+- {name: routing, version: latest}
+- {name: nats, version: latest}
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
+
+instance_groups:
+- name: ops-routing-router
+  instances: 2
+  vm_type: 2cpu-8g
+  stemcell: default
+  azs: [z1,z2]
+  networks:
+  - name: ((network))
+    default: [dns,gateway]
+    static_ips:
+    - 192.168.99.81
+    - 192.168.99.82
+
+  jobs:
+  - {release: routing, name: gorouter}
+
+  properties:
+    router:
+      enable_ssl: true
+      disable_http: true                      #--- only https on ops_domain
+      ca_certs: ((/internalCA.certificate))((/internalCA2.certificate))   #--- ca cert to validate backend
+      write_access_logs_locally: true         #--- this targets the colocated syslog release
+      enable_proxy: true #enable proxy protocol so originating ip are not lost par tcp relays
+      tls_pem:
+      - cert_chain: ((/secrets/certs/ops.certificate))
+        private_key: ((/secrets/certs/ops.private_key))
+      status:
+        password: ((router_status_password))
+        user: router-status
+      tracing:
+        enable_zipkin: true
+      backends:
+        enable_tls: true
+      ssl_skip_validation: true
+      #max_idle_connections: 2000 #this enables http keepalive. max is 100 per backend. This configures global keepalive connections
+
+    uaa:
+      clients:
+        gorouter:
+          secret: ((uaa_clients_gorouter_secret))
+      ssl:
+        port: 8443    #--- match cf uaa port ? ...
+
+- name: ops-routing-nats
+  instances: 2
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1,z2]
+  provides:
+    nats: {as: nats, shared: true} #enable inter deployment bosh links for nats consumption (route registrar)
+  networks:
+  - name: ((network))
+    default: [dns,gateway]
+    static_ips:
+    - 192.168.99.80
+    - 192.168.99.79
+  jobs:
+  - {release: nats, name: nats}
+
+  properties:
+    nats:
+      password: "((nats_password))"
+      user: nats
+      hostname: ops-routing-nats #required from v34, must be bosh-dns alias of nats
+
+variables:
+- name: nats_password
+  type: password
+- name: router_status_password
+  type: password
+- name: uaa_clients_gorouter_secret
+  type: password

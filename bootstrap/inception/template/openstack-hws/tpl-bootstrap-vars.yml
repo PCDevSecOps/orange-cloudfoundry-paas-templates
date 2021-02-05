@@ -1,0 +1,104 @@
+#--- Site properties
+site_name: brmc-svc-xxx
+iaas_type: vsphere
+
+#--- Repositories git
+git_template_repo: "https://xxx.git"
+git_secrets_repo: "https://xxx.git"
+
+#--- COA version
+coa_version: "4.0.2"
+
+#--- Vsphere vcenter parameters
+vcenter_ip: xxx
+vcenter_user: xxx
+vcenter_password: xxx
+vcenter_dc: xxx
+vcenter_cluster: xxx                        #--- cluster (shared with ACDC CF)
+vcenter_ds: xxx                             #--- persistent_datastore_pattern: created by BRMC team
+vcenter_resource_pool: SERVICES             #--- resource pool name
+vcenter_disks: SERVICES/services_disks      #--- disk path (will be created by cpi)
+vcenter_templates: SERVICES/services_disks  #--- template folder (will be created by cpi)
+vcenter_vms: SERVICES/services_disks        #--- vm folder (will be created by cpi)
+
+#--- Proxy for bosh release, os packages, docker images download
+proxy_url: http://xxx:xxx
+proxy_gw: xxx                               #--- Default gateway on proxy for inception internet access
+
+#--- Iaas authoritative DNS resolver
+target_dns_recursor_1: xxx
+target_dns_recursor_2: xxx
+
+#--- Iaas authoritative NTP servers
+target_ntp_server_1: xxx
+target_ntp_server_2: xxx
+
+#--- Http domains
+api_domain: xxx
+ops_domain: xxx
+osb_domain: xxx
+
+#--- Micro-bosh network
+micro_bosh:
+  range: xxx/xx                    #--- Micro-bosh range
+  gateway: xxx                     #--- Micro-bosh gateway
+  inception_ip: xxx                #--- Inception instance internal ip
+
+#--- Interco network
+intranet_interco:
+  range: xxx/25
+  gateway: xxx
+  inception_ip: xxx               #--- Inception ip
+  osb_ip: xxx                     #--- OSB relay ip
+  api_ip: xxx                     #--- API relay ip
+  ops_ip: xxx                     #--- OPS relay ip
+  to_internet_proxy_ip: xxx       #--- internet-proxy ip
+  to_intranet_proxy_ip: xxx       #--- to_intranet ip
+  dns_recursor_1: xxx             #--- Authoritative dns 1 ip
+  dns_recursor_2: xxx             #--- Authoritative dns 2 ip
+  concourse_public_ip: xxx        #--- public ip for concourse webui bootstrap
+  concourse_public_ip_2: xxx      #--- public ip for concourse webui bootstrap
+
+#--- Internal networks names
+networks:
+  intranet_interco: xxx                     #--- Intranet incerco network
+  micro_bosh: xxx                           #--- Micro-bosh network
+  compilation: xxx                          #--- Compilation network
+  net_bosh_2: xxx                           #--- Micro-depls network
+  net_exchange: xxx                         #--- Master-depls network
+  net_osb_control_plane: xxx                #--- Osb control plane network
+  net_osb_data_plane_shared_priv: xxx       #--- Osb private shared data plane network
+  net_osb_data_plane_shared_pub: xxx        #--- Osb public shared data plane network
+
+#--- Shield s3 credentials
+shield:
+  s3_host: private-s3.internal.paas
+  s3_access_key_id: private-s3
+  s3_bucket_prefix: brmc-svc-backup
+
+#--- SMTP mail target
+smtp_mail: xxx@xxx
+
+#--- Mattermost channel configuration
+slack-webhook: https://xxx
+slack-channel: '#xxx'
+
+#--- Stemcell properties
+stemcell:
+  name: bosh-vsphere-esxi-ubuntu-xenial-go_agent
+  version: "315.64"
+  url : xxx                                 #--- Updated by installation process
+  sha1 : xxx                                #--- Updated by installation process
+
+#--- Bosh releases used for inception creation
+dns-release-version: "1.10.0"
+dns-release-sha1: d1aadbda5d60c44dec4a429cda872cf64f6d8d0b
+
+networking-release-version: "9"
+networking-release-sha1: 9b5f9d27917c3754e492470ac6c9af80d62963db
+
+os_conf_release: "21.0.0"
+os_conf_sha1: 7579a96515b265c6d828924bf4f5fae115798199
+
+git_server_release: "3"
+git_server_sha1: 682a70517c495455f43545b9ae39d3f11d24d94c

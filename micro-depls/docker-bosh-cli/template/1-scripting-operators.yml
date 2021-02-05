@@ -1,0 +1,104 @@
+#--- Add scripting release
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+#--- Clean obsolete images and volumes and create files used in volume shared with container
+- type: replace
+  path: /instance_groups/name=docker-cli/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/bash
+          #--- Fix jcr registry error access (502: service unavailable) when remains old container connectivity
+          # printf "Clean docker network configuration.\n"
+          # flag="$(grep "local-kv.db" /var/vcap/jobs/docker/bin/ctl)"
+          # if [ "${flag}" = "" ] ; then
+          #   sed -i '/ *create_network_bridge$/i rm -f /var/vcap/data/docker/docker/network/files/local-kv.db > /dev/null 2>&1' /var/vcap/jobs/docker/bin/ctl
+          # fi
+
+          #--- Set volume directory for ops-portal
+          OPS_PORTAL_DIR="/var/vcap/data/tmp/ops-portal"
+          rm -fr ${OPS_PORTAL_DIR} > /dev/null 2>&1 ; mkdir ${OPS_PORTAL_DIR}
+
+          #--- Set nginx configuration
+          printf "Set nginx configuration.\n"
+          cat > ${OPS_PORTAL_DIR}/nginx.conf <<'EOF'
+          ((nginx_conf))
+          EOF
+          cat > ${OPS_PORTAL_DIR}/default.conf <<'EOF'
+          ((default_conf))
+          EOF
+
+          #--- Set css files
+          printf "Set nginx common css file.\n"
+          cat > ${OPS_PORTAL_DIR}/common.css <<'EOF'
+          ((css_common))
+          EOF
+
+          printf "Set nginx light css file.\n"
+          cat > ${OPS_PORTAL_DIR}/light.css <<'EOF'
+          ((css_light))
+          EOF
+
+          printf "Set nginx dark css file.\n"
+          cat > ${OPS_PORTAL_DIR}/dark.css <<'EOF'
+          ((css_dark))
+          EOF
+
+          #--- Set ops-portal javascript file
+          printf "Set nginx javascript file.\n"
+          cat > ${OPS_PORTAL_DIR}/code.js <<'EOF'
+          ((js_script))
+          EOF
+
+          #--- Set ops-portal html page
+          printf "Set nginx index.html file.\n"
+          cat > ${OPS_PORTAL_DIR}/index-tpl.html <<'EOF'
+          ((html_content))
+          EOF
+
+          #--- Adapt ops_portal main page with iaas context
+          OPS_DOMAIN="((/secrets/cloudfoundry_ops_domain))"
+          OSB_DOMAIN="((/secrets/osb_interco/osb_domain))"
+          SYSTEM_DOMAIN="((/secrets/cloudfoundry_system_domain))"
+          APPS_DOMAIN="((apps_domain))"
+          SITE_NAME="((/secrets/site))"
+          ENV_TYPE="((/secrets/site_type))"
+          OPS_SITE_NAME="OPS Portal [${SITE_NAME}]"
+          sed -e "s+<SITE>+${OPS_SITE_NAME}+g ; s+<ENV_TYPE>+${ENV_TYPE}+g ; s+<OPS_DOMAIN>+${OPS_DOMAIN}+g ; s+<OSB_DOMAIN>+${OSB_DOMAIN}+g ; s+<SYSTEM_DOMAIN>+${SYSTEM_DOMAIN}+g ; s+<APPS_DOMAIN>+${APPS_DOMAIN}+g" ${OPS_PORTAL_DIR}/index-tpl.html > ${OPS_PORTAL_DIR}/index.html
+
+          #--- Set  environment variables for bosh-cli containers
+          BOSH_CLI_ENV_DIR="/var/vcap/data/tmp/bosh-cli"
+          rm -fr ${BOSH_CLI_ENV_DIR} > /dev/null 2>&1 ; mkdir ${BOSH_CLI_ENV_DIR}
+          cat > ${BOSH_CLI_ENV_DIR}/bosh-cli.env <<EOF
+          export OPS_DOMAIN=${OPS_DOMAIN}
+          export OSB_DOMAIN=${OSB_DOMAIN}
+          export SYSTEM_DOMAIN=${SYSTEM_DOMAIN}
+          export SITE_NAME=${SITE_NAME}
+          EOF
+          chmod 755 ${BOSH_CLI_ENV_DIR}/bosh-cli.env
+
+        post-deploy-script: |
+          #!/bin/bash
+          DOCKER_BIN="/var/vcap/packages/docker/bin/docker"
+          DOCKER_OPTS="--host unix:///var/vcap/sys/run/docker/docker.sock"
+          CHECK_DOCKER="$(pidof dockerd)"
+          if [ -s ${DOCKER_BIN} ] && [ "${CHECK_DOCKER}" != "" ] ; then
+            dockerContainers=$(${DOCKER_BIN} ${DOCKER_OPTS} ps -qa --filter "status=exited")
+            if [ "${dockerContainers}" != "" ] ; then
+              printf "Clean docker exited containers...\n"
+              ${DOCKER_BIN} ${DOCKER_OPTS} rm ${dockerContainers}
+            fi
+            printf "Clean unused docker images older than 12 months...\n"
+            ${DOCKER_BIN} ${DOCKER_OPTS} image prune -af --filter "until=8760h"
+            printf "Clean unused docker volumes...\n"
+            ${DOCKER_BIN} ${DOCKER_OPTS} volume ls -qf dangling=true | /usr/bin/xargs -r ${DOCKER_BIN} ${DOCKER_OPTS} volume rm
+          else
+            printf "Docker binary file \"${DOCKER_BIN}\" unknown.\n"
+          fi

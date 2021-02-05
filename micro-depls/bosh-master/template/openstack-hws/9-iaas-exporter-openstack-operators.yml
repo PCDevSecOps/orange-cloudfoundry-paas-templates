@@ -1,0 +1,64 @@
+#vsphere exporter, as a docker container- type: replace
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=scripting/properties/scripting/pre-start-script?
+  value: |
+    #!/bin/sh
+    echo "prestart, prepare openstack api config file"
+    # add config.json
+    cat - > /var/vcap/data/scripting/clouds.yaml <<EOF
+    clouds:
+     r1-openstack-cloud:
+       region_name: ((region))
+       identity_api_version: 3
+       identity_interface: internal
+       auth:
+         username: ((openstack_username))
+         password: ((openstack_password))
+         project_name: ((openstack_project))
+         project_domain_name: ((openstack_domain))
+         user_domain_name: ((openstack_domain))
+         auth_url: ((auth_url))
+         cacert: ""
+         verify: false #true | false  // disable || enable SSL certificate verification
+    EOF
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      #--- Set proxy to internet-proxy for docker images downloading
+      env:
+        http_proxy: http://system-internet-http-proxy.internal.paas:3128
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: localhost,127.0.0.1
+      registry_mirrors:
+      - https://docker.jcr.((/secrets/cloudfoundry_ops_domain))
+      store_dir: /var/vcap/data
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: containers
+    release: docker
+    properties:
+      containers:
+      - name: openstack_iaas_exporter
+        image: quay.io/niedbalski/openstack-exporter-linux-amd64:((niedbalski/openstack-exporter-linux-amd64))
+        bind_ports:
+        - "9180:9180"
+        volumes:
+        - /var/vcap/data/scripting/clouds.yaml:/etc/openstack/clouds.yaml
+        command: "r1-openstack-cloud"
+        env_vars:
+        - "https_proxy=http://system-internet-http-proxy.internal.paas:3128"
+
+
+

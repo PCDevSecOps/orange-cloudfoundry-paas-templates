@@ -1,0 +1,5 @@
+#--- Apply vm_extension
+- type: replace
+  path: /instance_groups/name=ls-router/vm_extensions?/-
+  value: logsearch-ops-vrrp
+

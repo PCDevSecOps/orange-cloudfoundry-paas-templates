@@ -1,0 +1,54 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: minio
+    url: https://helm.min.io/
+
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: minio-secret-key
+    type: password
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: minio
+    chart: minio/minio
+    namespace: minio
+    version: ((helm_minio))
+    properties:
+    - name: mode
+      value: "distributed"
+    - name: accessKey
+      value: "minio"
+    - name: secretKey
+      value: ((minio-secret-key))
+    - name: persistence.storageClass
+      value: local-path
+    - name: persistence.enabled
+      value: 'true'
+
+    values_file_content:
+      service:
+        type: NodePort
+        clusterIP: ~
+        port: 9000
+        nodePort: 32020
+        annotations:
+          prometheus.io/scrape: 'true'
+          prometheus.io/path: '/minio/prometheus/metrics'
+          prometheus.io/port: '9000'
+
+      buckets:
+      - name: registry
+        policy: none
+        purge: false
+
+
+      ingress:
+        enabled: false
+

@@ -1,0 +1,37 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: ops-relay
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: net-bosh-2
+#      static_ips:
+#      - 192.168.116.20 #hardcoded as this vm is transient
+
+    jobs:
+    - {release: haproxy, name: haproxy}
+
+    properties:
+      ha_proxy:
+        disable_http: true
+        log_level: debug
+        tcp:
+        - name: ops-http #--- https access to ops portals
+          port: 443
+          backend_port: 443
+          backend_servers:
+          - 192.168.116.19 #this is metallb vip (not accessible out of the vpc, thus this transient relay)
+
+        #use proxy protocol to tcp backend to propagate originating ip
+        #https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#5.2-send-proxy-v2-ssl-cn
+#        tcp_backend_config: |
+#          default-server send-proxy

@@ -1,0 +1,25 @@
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/vars
+  value:
+    openstack_user_name: ((openstack_username))
+    openstack_password: ((openstack_password))
+    openstack_tenant_name: ((openstack_tenant_name))
+    openstack_auth_url: ((openstack_auth_url))
+    openstack_region_name: ((openstack_region))
+    openstack_router_id: ((openstack_router_id))
+    openstack_domain: ((openstack_domain))
+
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((flexible-engine-provider-r1-tf))
+
+
+#create the vip port
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((internet-proxy-vip-port-tf))
+
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((intranet-proxy-vip-port-tf))
+

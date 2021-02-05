@@ -1,0 +1,39 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: terraform
+    version: latest
+
+# activate the terraform apply
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: terraform
+    instances: 1
+    vm_type: 1cpu-1g
+    stemcell: default
+    azs: [z1]
+    persistent_disk: 1024 #1 Go minimum on openstack-hws
+    networks:
+    - name: net-bosh-2
+    jobs: []
+
+- type: replace
+  path: /instance_groups/name=terraform/jobs/-
+  value:
+    name: terraform-apply
+    release: terraform
+    properties:
+      terraform:
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: localhost,127.0.0.1,.((/secrets/cloudfoundry_system_domain))
+        vars: [] #TODO: openstack / vsphere access vars
+        specs:
+        - ((versioned-providers))
+
+- type: replace
+  path: /instance_groups/name=terraform/jobs/-
+  value:
+    name: terraform-plan-only
+    release: terraform
+

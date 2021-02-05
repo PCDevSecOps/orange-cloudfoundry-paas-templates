@@ -1,0 +1,14 @@
+- type: replace
+  path: /instance_groups/name=web/instances
+  value: 1
+#internet access to concourse-micro, required for bootstraping
+- type: replace
+  path: /instance_groups/name=web/networks/-
+  value:
+    name: floating-concourse
+    static_ips:
+    - ((public_bootstrap_ip))
+    
+#scale down to a single web instance
+- type: remove
+  path: /instance_groups/name=web/networks/name=((network_name))/static_ips/1

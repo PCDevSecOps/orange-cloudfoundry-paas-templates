@@ -1,0 +1,16 @@
+#--- Add route to alertmanager for sachet
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/route/routes?/-
+  value:
+    receiver: astreinte-sms
+    continue: true
+    group_wait: ((sachet_sms_group_wait))
+    match_re: ((sachet_sms_match_re))
+
+- type: replace
+  path: /instance_groups/name=alert-manager/jobs/name=alertmanager/properties/alertmanager/route/routes?/-
+  value:
+    receiver: astreinte-call
+    continue: true
+    group_wait: ((sachet_call_group_wait))
+    match_re: ((sachet_call_match_re))

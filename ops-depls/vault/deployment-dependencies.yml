@@ -1,0 +1,14 @@
+---
+deployment:
+  vault:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases:
+      routing:
+      prometheus:
+      haproxy:
+      broker-registrar:
+      safe:
+      
+

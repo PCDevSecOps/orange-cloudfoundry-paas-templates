@@ -1,0 +1,21 @@
+#add thanos query on grafana servers
+
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=containers/properties/containers/name=thanos_query/env_vars?
+  value: &proxy
+  - "https_proxy=http://intranet-http-proxy.internal.paas:3129" #on vsphere, we use intranet proxy
+  - "no_proxy=.local" #this suffix has been set on alias just to be able to no proxy a full domain (issue with , in docker bosh release var)
+  
+#add thanos sidecar on prometheus servers
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=containers/properties/containers/name=thanos_sidecar/env_vars?
+  value: *proxy
+
+# add singleton instance group to hold thanos store and compactor
+- type: replace
+  path: /instance_groups/name=thanos-store/jobs/name=containers/properties/containers/name=thanos_store/env_vars?
+  value: *proxy
+
+- type: replace
+  path: /instance_groups/name=thanos-store/jobs/name=containers/properties/containers/name=thanos_compact/env_vars?
+  value: *proxy

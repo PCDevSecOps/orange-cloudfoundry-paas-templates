@@ -1,0 +1,85 @@
+---
+applications:
+- name: coa-redis-broker
+  memory: 2GB
+  disk_quota: 1536M
+  stack: cflinuxfs3
+  routes:
+    - route: (( concat "coa-redis-broker." secrets.cloudfoundry.system_domain ))
+  instances: 1
+  path: cf-ops-automation-bosh-broker.jar
+  timeout: 180
+  buildpacks:
+    - cached-java-buildpack
+  env:
+     JAVA_OPTS: (( grab secrets.coab.brokers_additional_flags || "" ))
+    # url to gitlab paas-secret
+     git.paas-secret.url: (( grab secrets.coa-redis-broker.git.paas-secret.url ))
+     # user that pushes commits in paas-secret
+     git.paas-secret.user: (( grab secrets.coa-redis-broker.git.paas-secret.user ))
+     # password of the git user that push commits in paas-secret
+     git.paas-secret.password: (( grab secrets.coa-redis-broker.git.paas-secret.password ))
+     # commit name of the git user that push commits in paas-secret
+     git.paas-secret.committerName: (( grab secrets.coa-redis-broker.git.paas-secret.committerName ))
+     # commit name of the git user that push commits in paas-secret
+     git.paas-secret.committerEmail: (( grab secrets.coa-redis-broker.git.paas-secret.committerEmail ))
+
+     # url to gitlab paas-template
+     git.paas-template.url: (( grab secrets.coa-redis-broker.git.paas-template.url ))
+     # user that pushes commits in paas-template
+     git.paas-template.user: (( grab secrets.coa-redis-broker.git.paas-template.user ))
+     # password of the git user that push commits in paas-template
+     git.paas-template.password: (( grab secrets.coa-redis-broker.git.paas-template.password ))
+     # commit name of the git user that push commits in paas-template
+     git.paas-template.committerName: (( grab secrets.coa-redis-broker.git.paas-template.committerName ))
+     # commit email of the git user that push commits in paas-template
+     git.paas-template.committerEmail: (( grab secrets.coa-redis-broker.git.paas-template.committerEmail ))
+
+     # createBranchIfMissing : target branch
+     git.paas-template.createBranchIfMissing: (( grab secrets.coa-redis-broker.git.paas-template.createBranchIfMissing ))
+     # checkOutRemoteBranch : source branch
+     git.paas-template.checkOutRemoteBranch: (( grab secrets.coa-redis-broker.git.paas-template.checkOutRemoteBranch ))
+
+     # broker basic auth user
+     spring.security.user.name: (( grab secrets.coa-redis-broker.name ))
+     # broker basic auth password
+     spring.security.user.password: "(( grab secrets.cloudfoundry.service_brokers.coa-redis-broker.password ))"
+
+     pipeline.maxExecutionDurationSeconds: (( grab secrets.coa-redis-broker.pipeline.maxExecutionDurationSeconds ))
+
+     pipeline.osbDelegateUser: (( grab secrets.coa-redis-broker.pipeline.osbDelegateUser ))
+     pipeline.osbDelegatePassword: (( grab secrets.coa-redis-broker.pipeline.osbDelegatePassword ))
+     #pipeline.brokerUrlPattern: (( concat "https://redis-broker-e_{0}." secrets.cloudfoundry.system_domain ))     
+     pipeline.brokerUrlPattern: (( concat "https://redis-broker-e_{0}." secrets.cloudfoundry.system_domain ))
+     # Ease undelete requests
+     pipeline.skipDeProvision: "true"
+
+     logging.level.org.springframework.cloud.servicebroker: debug
+     # Display COA generated bosh manifest file presence. Useful to detect mismatch between COAB and COA template
+     logging.level.com.orange.oss.cloudfoundry.broker.opsautomation.ondemandbroker.pipeline.PipelineCompletionTracker: debug
+
+     logging.level.org.springframework.web.filter.CommonsRequestLoggingFilter: debug
+
+     server.max-http-header-size: 65536
+
+     # Prefix used in deployment names. Useful to distinguish different deployment types (e.g. c for cassandra and m for mongo and y for redis)
+     deployment.model-deployment-short-alias: "e"
+     # used in git commit to identity the broker
+     deployment.broker-display-name: redis
+     # relative path to the paas-template deployment model (ie. bosh manifest files)
+     deployment.model-deployment: redis
+
+     # When set to true, then service instance operations (create/update/delete) are rejected,
+     # while service binding operations (create/delete) are still accepted.
+     # This enables to perform maintenance on the underlying COA/git branches infrastructure while not risking
+     # corrupted COA inventory and not imposing full control plan downtime to coab users.
+     # See spruce syntax for default value at https://github.com/geofffranks/spruce/blob/master/doc/environment-variables-and-defaults.md
+     deployment.serviceInstanceReadOnlyMode: (( grab secrets.coa-redis-broker.deployment.serviceInstanceReadOnlyMode || false ))
+
+     # User facing message to display when a service instance operation is requested while serviceInstanceReadOnlyMode is set to true
+     # Useful to tell users about ETA for end of maintenance window.
+     # when no value is specified (null in yaml), a default COAB message is used instead.
+     deployment.serviceInstanceReadOnlyMessage: (( grab secrets.coa-redis-broker.deployment.serviceInstanceReadOnlyMessage || null ))
+
+     # Override the default catalog
+     CATALOG_YML: (( file "../../../../generated-files/broker-catalog-config.yml" ))

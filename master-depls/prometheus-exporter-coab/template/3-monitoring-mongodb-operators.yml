@@ -1,0 +1,18 @@
+#alerts
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: mongodb_alerts
+    release: orange-prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/rule_files/-
+  value: "/var/vcap/jobs/mongodb_alerts/*.alerts.yml"
+
+    #scraping, using bosh inventory discovery comes from prometheus bosh-release
+
+    
+    
+    
+    
+    

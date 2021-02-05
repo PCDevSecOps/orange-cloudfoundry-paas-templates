@@ -1,0 +1,5 @@
+coredns_clusterrole: ((file "../../../additional-resource/shared-operators/k8s/coredns/clusterrole.yml"))
+coredns_clusterrolebinding: ((file "../../../additional-resource/shared-operators/k8s/coredns/clusterrolebinding.yml"))
+coredns_configmap: ((file "../../../additional-resource/shared-operators/k8s/coredns/configmap.yml"))
+coredns_deployment: ((file "../../../additional-resource/shared-operators/k8s/coredns/deployment.yml"))
+coredns_service: ((file "../../../additional-resource/shared-operators/k8s/coredns/service.yml"))

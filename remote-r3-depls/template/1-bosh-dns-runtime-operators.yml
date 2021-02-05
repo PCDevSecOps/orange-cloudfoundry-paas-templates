@@ -1,0 +1,37 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: bosh-dns
+    version: 1.27.0
+
+- type: replace
+  path: /addons/-
+  value:
+    name: bosh-dns
+    jobs:
+    - name: bosh-dns
+      release: bosh-dns
+      properties:
+        health:
+          enabled: true
+          server:
+            tls: ((/dns_healthcheck_server_tls))
+          client:
+            tls: ((/dns_healthcheck_client_tls))
+        api:
+          server:
+            tls: ((/dns_api_server_tls))
+          client:
+            tls: ((/dns_api_client_tls))
+        recursors:
+        - 192.168.116.156
+        - 192.168.116.166
+        cache:
+          enabled: true
+
+
+    exclude:
+      deployments: []
+      jobs:
+        - name: bosh-dns
+          release: bosh-dns #exclude general bosh-dns if job alreadry present (eg: isolation-segment-intranet-2 relay instance group)

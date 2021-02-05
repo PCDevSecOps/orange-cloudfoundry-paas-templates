@@ -1,0 +1,10 @@
+#register rancher.micro uri in host vm route registrar
+- type: replace
+  path: /addons/name=30-expose-on-gorouters/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value :
+    name: 00-gitops-management-endpoint-rancher
+    registration_interval: 60s
+    port: 80 # traefik ingress controller is fronted by a lb for 80 (http) and 443
+    uris:
+    - ((rancher-url))
+    #FIXME: set health Rancher will respond 200 to health checks on the /healthz endpoint.

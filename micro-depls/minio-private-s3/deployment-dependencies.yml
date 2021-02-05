@@ -1,0 +1,7 @@
+---
+deployment:
+  minio-private-s3:
+    releases:
+      minio:
+      routing:
+      haproxy:

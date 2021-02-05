@@ -1,0 +1,21 @@
+- type: replace
+  path: /releases/name=prometheus?
+  value:
+    name: prometheus
+    version: latest
+
+#--- Colocate icmp blackbox exporter with vpn r1
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    name: blackbox_exporter
+    release: prometheus
+    properties:
+      blackbox_exporter:
+        log_level: debug
+        config:
+          modules:
+           icmp_ipv4:
+             prober: icmp
+             icmp:
+               preferred_ip_protocol: ip4
