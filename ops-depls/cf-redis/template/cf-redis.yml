@@ -1,0 +1,112 @@
+---
+name: cf-redis
+
+releases:
+  - {name: shared-redis, version: latest}
+  - {name: routing, version: latest}
+  - {name: cf-cli, version: latest}
+
+update:
+  serial: false
+  canaries: 1
+  canary_watch_time: 30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  update_watch_time:  30000-240000
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: latest
+
+instance_groups:
+- name: cf-redis-broker
+  instances: 1
+  vm_type: 2cpu-8g
+  persistent_disk_type: large
+  azs: [z1]
+  stemcell: default
+  networks:
+  - name: tf-net-services-2
+    static_ips:
+    - 192.168.31.90
+  jobs:
+  - name: cf-cli-6-linux
+    release: cf-cli
+
+  - name: route_registrar
+    release: routing
+    properties:
+      nats:
+        #machines: [192.168.35.30, 192.168.35.31]
+        machines:
+        - 192.168.35.30
+        password: ((/secrets/cloudfoundry_nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: broker_0
+          port: 12350
+          registration_interval: 10s
+          health_check:
+            name: redis-broker
+            script_path: "/var/vcap/jobs/cf-redis-broker/bin/health_check.sh"
+          tags:
+            component: ((broker_name))
+            env: production
+          uris:
+          - ((uris))
+
+  - name: cf-redis-broker
+    release: shared-redis
+    properties:
+      cf:
+        apps_domain: ((cf.apps_domain))
+        system_domain: ((cf.system_domain))
+      redis:
+        bg_save_command: ((redis.bg_save_command))
+        broker:
+          auth:
+            password: ((broker-password))
+            username: ((broker.username))
+          backend_port: 12345
+          name: redis
+          service_id: EEA47C3A-569C-4C24-869D-0ADB5B337A4C
+          shared_vm_plan_id: C210CA06-E7E5-4F5D-A5AA-7A2C51CC290E
+          subdomain: redis-broker
+          service_instance_limit: 250
+        config_command: configalias
+        dedicated_plan:
+          instance_count: 5
+        save_command: anotherrandomstring
+        shared_plan:
+          instance_limit: 250
+          max_memory: 262144000
+        syslog_aggregator:
+          address: logsearch.((/secrets/cloudfoundry_system_domain))
+          port: 2514
+        tcp_keep_alive: 300
+
+  - name: smoke-tests
+    release: shared-redis
+    properties:
+      cf:
+        api_url: ((cf.api_url))
+        admin_password: ((cf.admin_password))
+        admin_username: ((cf.admin_username))
+        apps_domain: ((cf.apps_domain))
+        system_domain: ((cf.system_domain))
+        org_name: ((cf.org_name))
+        space_name: ((cf.space_name))
+      redis:
+        broker:
+          host: ((uris))
+          service_instance_limit: 250
+      retry:
+        backoff: constant
+        baseline_interval_milliseconds: 100
+        max_attempts: 1
+
+variables:
+- name: broker-password
+  type: password

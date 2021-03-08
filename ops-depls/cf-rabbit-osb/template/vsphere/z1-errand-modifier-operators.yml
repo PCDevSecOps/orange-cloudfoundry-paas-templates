@@ -1,0 +1,70 @@
+- type: replace
+  path: /instance_groups/name=rmq-broker/jobs/name=scripting?
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        post-deploy-script: |
+          echo '#!/bin/sh
+          #Home dir
+          echo "SMOKE-TEST : - create cf_home folder"
+          export CF_HOME=/var/vcap/data/cf_home
+          mkdir -p $CF_HOME
+          cd $CF_HOME
+          echo "SMOKE-TEST : - copy example APP src code "
+          cp -R /var/vcap/packages/cf-rabbitmq-smoke-tests/src/rabbitmq-smoke-tests/assets/rabbit-example-app $CF_HOME/.
+          echo "SMOKE-TEST : - add cf-cli to env PATH "
+          export PATH=$PATH:/var/vcap/jobs/cf-cli-6-linux/packages/cf-cli-6-linux/bin
+          # Define CF API end point
+          echo "SMOKE-TEST : - configure CF api & auth"
+          cf api https://api.((/secrets/cloudfoundry_system_domain)) --skip-ssl-validation
+          cf auth ((cf-admin-username)) ((cf-admin-password))
+          echo "SMOKE-TEST : - setup test org and space "
+          cf target -o ((cf-test-org)) -s ((cf-test-space))
+
+          echo "SMOKE-TEST : - update service-broker infos"
+          cf update-service-broker rabbitmq-smoke-test-broker ((rabbitmq-broker-username)) ((rabbitmq-broker-password)) https://((rabbitmq-broker-hostname)).((/secrets/osb_interco/osb_domain)) --space-scoped
+
+          echo "SMOKE-TEST : - delete test app /cleaning"
+          cf delete rabbit-example-app -f
+
+          echo "SMOKE-TEST : - delete test service instance /cleaning"
+          cf delete-service rabbitmq-smoke-test-instance -f
+
+          echo "SMOKE-TEST : - register space-scoped broker"
+          cf create-service-broker rabbitmq-smoke-test-broker ((rabbitmq-broker-username)) ((rabbitmq-broker-password)) https://((rabbitmq-broker-hostname)).((/secrets/osb_interco/osb_domain)) --space-scoped
+
+
+          echo "SMOKE-TEST : - create rabbitmq service_instance"
+          cf create-service ((product-name)) standard rabbitmq-smoke-test-instance
+          echo "SMOKE-TEST : - push test app "
+          cd rabbit-example-app && cf push
+          echo "SMOKE-TEST : - map external route to app"
+          cf map-route rabbit-example-app app.((apps_domain)) --hostname rabbit-example-app
+          echo "SMOKE-TEST : - bind app/service_instance "
+          cf bind-service rabbit-example-app rabbitmq-smoke-test-instance
+          echo "SMOKE-TEST : - restage test app"
+          cf restage rabbit-example-app
+          echo "SMOKE-TEST : - Test service with POST /queues/smoke-test-queue"
+          URL="https://rabbit-example-app.app.((apps_domain))"
+          curlResponse="`curl -k -v -X POST -d "SMOKE-TEST Message" $URL/queues/smoke-test-queue 2>&1`"
+          flagHttp=`echo "${curlResponse}" | grep -E "HTTP/1.1 200 OK"`
+          if [ "${flagHttp}" = "" ] ; then
+            echo "SMOKE-TEST : - Test service with POST /queues/smoke-test-queue  ------ Failed !"
+            exit 1
+          else
+            echo "SMOKE-TEST : - Test service with POST /queues/smoke-test-queue  ------ OK !"
+          fi
+          echo "SMOKE-TEST : - Test service with GET /queues/smoke-test-queue"
+          curlResponse="`curl -k -v -X GET $URL/queues/smoke-test-queue 2>&1`"
+          messagecheck=`echo "${curlResponse}" | grep -E "SMOKE-TEST Message"`
+          flagHttp=`echo "${curlResponse}" | grep -E "HTTP/1.1 200 OK"`
+          if [ "${flagHttp}" = "" ] ; then
+            echo "SMOKE-TEST : - Test service with GET /queues/smoke-test-queue  ------ FAILED !"
+            exit 1
+          else
+            echo "SMOKE-TEST : - Test service with GET /queues/smoke-test-queue  ------ OK !"
+          fi
+          ' > /var/vcap/jobs/scripting/bin/run
+          chmod 755 /var/vcap/jobs/scripting/bin/run

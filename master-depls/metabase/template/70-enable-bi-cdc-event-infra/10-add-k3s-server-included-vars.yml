@@ -1,0 +1,5 @@
+#colocate k3s agents with existing kafka instance groups
+server_addon_include_release: metabase
+server_addon_include_job: metabase
+
+

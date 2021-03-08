@@ -1,0 +1,40 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: apps-relay
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: intranet-ha-interco
+      static_ips:
+      - ((apps_ip))
+
+    jobs:
+    - {release: haproxy, name: haproxy}
+    - {release: prometheus, name: blackbox_exporter }
+
+    properties:
+      ha_proxy:
+        disable_http: true
+        log_level: debug
+        tcp:
+        - name: apps-http #--- http access to cf apps
+          port: 80
+          backend_servers:  #--- cf-rps vms
+          - 192.168.99.40
+          - 192.168.99.41
+          # TODO fallback
+          #- https://storage.orange.com/p2a-prod-static-pages/maintenance-page.html ?
+          # art #400722
+  
+        - name: apps-https  #--- https access to cf apps
+          port: 443
+          backend_servers:  #--- cf-rps vms
+          - 192.168.99.40
+          - 192.168.99.41
+        #use proxy protocol to tcp backend to propagate originating ip
+        #https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#5.2-send-proxy-v2-ssl-cn
+        tcp_backend_config: |
+          default-server send-proxy-v2-ssl-cn

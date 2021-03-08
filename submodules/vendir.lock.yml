@@ -1,0 +1,19 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: Ditto...
+      sha: 3542f65fcc2085e70403810b3ea2e5711f11e043
+      tags:
+      - v3.8.0-rc.1-29172-g3542f65fcc
+    path: .
+  path: rabbit-mqserver
+- contents:
+  - git:
+      commitTitle: Final release v209.0.1
+      sha: 0074d2f31cd2e7fabea648486efc5b553392a6ad
+      tags:
+      - v209.0.1
+    path: .
+  path: logsearch-boshrelease
+kind: LockConfig

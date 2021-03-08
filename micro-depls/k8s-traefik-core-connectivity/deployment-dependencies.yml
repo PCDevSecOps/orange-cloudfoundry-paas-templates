@@ -1,0 +1,18 @@
+---
+deployment:
+  k8s-traefik-core-connectivity:
+    resources:
+      templates:
+        extended_scan_path:
+        - "shared-operators/k8s-common"
+        - "shared-operators/k8s-traefik"
+
+    stemcells:
+    releases:
+      helm-kubectl:
+
+    errands:
+      action:
+
+
+

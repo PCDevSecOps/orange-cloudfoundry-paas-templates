@@ -1,0 +1,39 @@
+#--- add cron release
+- type: replace
+  path: /releases/-
+  value:
+    name: cron
+    version: latest
+
+# add job section
+- type: replace
+  path: /instance_groups/name=rmq/jobs/-
+  value:
+    name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+          - script:
+              name: connection.sh
+              contents: |
+                #!/bin/bash
+                export PATH=$PATH:/usr/sbin:/sbin:/var/vcap/packages/rabbitmq-server/bin/:/var/vcap/packages/erlang/bin:/var/vcap/packages/rabbitmq-admin/bin/
+                echo "${PATH}"
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+                /var/vcap/packages/rabbitmq-server/bin/rabbitmqctl list_vhosts | egrep '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' > vhosts.lst
+                for vhost in $(cat vhosts.lst); do
+                  /var/vcap/packages/rabbitmq-server/bin/rabbitmqctl set_vhost_limits -p ${vhost} '{"max-connections": ((max-connections-per-vhost))}'
+                  /var/vcap/packages/rabbitmq-server/bin/rabbitmqctl set_operator_policy --vhost ${vhost} ((policy_name)) ".*" '((policy_definition))' --priority ((policy_priority))
+                done
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+            log: /var/vcap/sys/log/cron/connection.log
+            lock: /var/vcap/sys/run/cron/myhourly.lock
+            day: '*'
+            hour: '*'
+            minute: '0'
+            month: '*'
+            user: vcap
+            wday: '*'

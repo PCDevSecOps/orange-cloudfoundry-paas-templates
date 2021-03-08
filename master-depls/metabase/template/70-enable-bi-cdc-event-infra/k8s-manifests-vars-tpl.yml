@@ -1,0 +1,2 @@
+---
+zookeeper-entrance-yml: (( file "../../../additional-resource/master-depls/metabase/template/70-enable-bi-cdc-event-infra/k8s-manifests/zookeeper-entrance.yml" ))

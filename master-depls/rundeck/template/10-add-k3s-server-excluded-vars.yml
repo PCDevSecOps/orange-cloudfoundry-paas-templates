@@ -1,0 +1,4 @@
+server_addon_exclude_release: jumpbox
+server_addon_exclude_job: jumpbox
+
+

@@ -1,0 +1,21 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "jaeger-rolebinding"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: RoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: jaeger-operator
+        namespace: jaeger
+      subjects:
+      - kind: ServiceAccount
+        name: jaeger-operator
+      roleRef:
+        kind: Role
+        name: jaeger-operator
+        apiGroup: rbac.authorization.k8s.io

@@ -1,0 +1,61 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-openldap"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: ConfigMap
+      apiVersion: v1
+      metadata:
+        name: customldif
+        namespace: openldap
+        labels:
+          kubernetes.io/name: openldap
+      data:
+        01-custom-ou.ldif: |-
+          #--- Create root dn: dc=orange,dc=com
+          dn: dc=orange,dc=com
+          objectclass: dcObject
+          objectclass: top
+          objectclass: organization
+          dc: orange
+          o: com
+
+          #--- Create groups: ou=groups,dc=orange,dc=com
+          dn: ou=groups,dc=orange,dc=com
+          objectclass: organizationalUnit
+          objectclass: top
+          ou: groups
+
+          #--- Create paas-groups: ou=paas-groups,ou=groups,dc=orange,dc=com
+          dn: ou=paas-groups,ou=groups,dc=orange,dc=com
+          objectclass: organizationalUnit
+          objectclass: top
+          ou: paas-groups
+
+          #--- Create users: ou=users,dc=orange,dc=com
+          dn: ou=users,dc=orange,dc=com
+          objectclass: organizationalUnit
+          objectclass: top
+          ou: users
+
+          #--- Create admin group with scopes
+          dn: cn=admin,ou=paas-groups,ou=groups,dc=orange,dc=com
+          objectclass: groupOfUniqueNames
+          objectclass: top
+          cn: admin
+          description: cloud_controller.admin,cloud_controller.write,cloud_controller.read,cloud_controller_service_permissions.read,
+            scim.write,scim.read,scim.me,scim.userids,uaa.admin,uaa.user,openid,oauth.approvals,approvals.me,password.write,
+            admin_ui.admin,credhub.write,credhub.read,bosh.admin,bosh.read
+          uniquemember: uid=concourse,ou=users,dc=orange,dc=com
+
+          #--- Create auditor group with scopes
+          dn: cn=auditor,ou=paas-groups,ou=groups,dc=orange,dc=com
+          objectclass: groupOfUniqueNames
+          objectclass: top
+          cn: auditor
+          description: cloud_controller.read,cloud_controller_service_permissions.read,
+            scim.me,scim.userids,uaa.user,openid,oauth.approvals,approvals.me,bosh.read
+          uniquemember: uid=concourse,ou=users,dc=orange,dc=com

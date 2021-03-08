@@ -1,0 +1,20 @@
+upgrade_process_principles
+@startuml
+
+partition Shell-mode {
+(*) --> "Get Paas Templates from reference"
+(*) --> "Get Cf-Ops-Automation from Github"
+"Get Paas Templates from reference" --> "Push to local Gitlab"
+"Get Cf-Ops-Automation from Github" --> "Push to local Gitlab"
+"Push to local Gitlab" ---> "Setup upgrade pipelines"
+}
+
+partition Concourse-mode {
+"Setup upgrade pipelines" --> "Check upgrade pipelines"
+"Check upgrade pipelines" --> "Upgrade Cf-Ops-Automation"
+"Upgrade Cf-Ops-Automation" --> "Upgrade Paas-Templates"
+}
+"Upgrade Paas-Templates" --> (*)
+@enduml
+
+upgrade_process_principles

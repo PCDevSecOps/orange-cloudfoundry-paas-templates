@@ -1,0 +1,15 @@
+#--- Intranet-1 isolation segment
+
+isolation_segment: intranet_1_isolation_segment #--- must match terraform configured name
+
+is_org: ((/secrets/intranet_interco_1/cf_org))
+is_deployment_name: isolation-segment-intranet-1
+is_network_name: tf-net-cf
+
+router_ssl.certificate: ((/secrets/certs/intranet-1.certificate))
+router_ssl.private_key: ((/secrets/certs/intranet-1.private_key))
+
+apps_ip: (( grab secrets.intranet_interco_ips.apps ))
+apps_network: intranet-ha-interco
+
+trusted_cert_for_apps.ca: ((/secrets/certs/intranet-ca))

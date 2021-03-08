@@ -1,0 +1,7 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      routing:
+      concourse:
+      postgres:

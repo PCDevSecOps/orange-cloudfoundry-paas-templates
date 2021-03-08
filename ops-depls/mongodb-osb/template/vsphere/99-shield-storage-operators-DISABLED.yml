@@ -1,0 +1,10 @@
+- type: replace
+  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/stores/mongodb_all_db_s3_obos?
+  value:
+    plugin: s3
+    config:
+      s3_host: ((/secrets/shield_scality_host))
+      access_key_id: "((/secrets/shield_scality_access_key_id))"
+      secret_access_key: "((/secrets/shield_scality_secret_access_key))"
+      bucket: "((/secrets/shield_scality_bucket_prefix))-mongodb-all-db"
+      signature_version: '4'

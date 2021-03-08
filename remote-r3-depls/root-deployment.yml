@@ -1,0 +1,54 @@
+---
+name: remote-r3-depls
+releases:
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.27.0
+  bosh-dns-aliases:
+    repository: cloudfoundry/bosh-dns-aliases-release
+    version: 0.0.3
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.9
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.0
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  jumpbox:
+    version: 4.6.4
+    repository: cloudfoundry-community/jumpbox-boshrelease
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 5.0.0
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 22.0.0
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+    version: 3.2.0
+  shield-addon-bbr:
+    repository: shieldproject/shield-addon-bbr-boshrelease
+    version: 0.2.1
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.6.0
+  wireguard:
+    repository: orange-cloudfoundry/wireguard-boshrelease
+    version: '6'
+    tag_prefix: ''
+  terraform:
+    repository: orange-cloudfoundry/terraform-release
+    version: '3'
+    tag_prefix: ''
+#  weave-scope:
+#    repository: cloudfoundry-community/weavescope-boshrelease
+#    version: "0.0.18"
+#    github-release-name: weave-scope.tgz
+  wondershaper:
+    repository: orange-cloudfoundry/wondershaper-boshrelease
+    version: '1'
+    tag_prefix: ''
+stemcell:
+  version: '621.107'

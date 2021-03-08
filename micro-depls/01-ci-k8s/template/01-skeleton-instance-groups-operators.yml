@@ -1,0 +1,44 @@
+#add market release so k3s addons can be targeted to instance-groups
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-taint-jobs
+    version: latest
+
+#support instance groups. Will be loaded by bosh deployment level addons
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: server
+    instances: ((masters_instance_count))
+    vm_type: 2cpu-8g #scale from 1cpu-2g
+    stemcell: default
+    persistent_disk_type: ((master_persistent_disk_type))
+    azs: [z1]
+    networks:
+    - name: net-bosh-2
+    jobs:
+    - release: generic-taint-jobs
+      name: master-taint
+    env:
+      bosh:
+        swap_size: 0
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: agents
+    instances: ((worker_instance_count))
+    vm_type: 4cpu-16g
+    stemcell: default
+    persistent_disk_type: ((worker_persistent_disk_type))
+    azs: [z1]
+    networks:
+    - name: net-bosh-2
+      default: [dns,gateway]
+    jobs:
+    - release: generic-taint-jobs
+      name: slave-taint
+    env:
+      bosh:
+        swap_size: 0

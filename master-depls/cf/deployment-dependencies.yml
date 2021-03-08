@@ -1,0 +1,64 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - "submodules/cf-deployment"
+        - "master-depls/cf/template/terraform-specs"
+        - "shared-operators/00-terraform"
+    releases:
+      capi:
+      cf-networking:
+      silk:
+      loggregator:
+      loggregator-agent:
+      statsd-injector:
+      nats:
+      uaa:
+      diego:
+      cflinuxfs3:
+      garden-runc:
+      log-cache:
+      cf-cli:
+
+      #others
+      cf-smoke-tests:
+      cf-syslog-drain:
+      routing:
+      credhub:
+      cron:
+      bosh-dns-aliases:
+
+
+      #buildpacks
+      go-buildpack:
+      java-buildpack:
+      dotnet-core-buildpack:
+      binary-buildpack:
+      nodejs-buildpack:
+      php-buildpack:
+      python-buildpack:
+      ruby-buildpack:
+      staticfile-buildpack:
+      nginx-buildpack:
+      r-buildpack:
+      
+      haproxy:
+
+      bpm:
+
+      backup-and-restore-sdk:
+      generic-scripting:
+
+      metrics-discovery:
+      
+      terraform:
+
+    errands:
+      post-bosh-deploy-errand:
+      smoke_tests:
+      terraform-apply: 
+      terraform-plan-only:

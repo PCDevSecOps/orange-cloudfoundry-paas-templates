@@ -1,0 +1,5 @@
+fluentd-elasticsearch-version: 9.6.0
+falco-version: 1.1.7
+
+elasticsearch-version: 7.8.1
+elasticsearch-exporter-version: 3.7.0

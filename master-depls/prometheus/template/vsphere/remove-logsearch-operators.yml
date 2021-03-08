@@ -1,0 +1,5 @@
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=logsearch?
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=elasticsearch_exporter?

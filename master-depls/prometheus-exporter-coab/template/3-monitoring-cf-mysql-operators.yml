@@ -1,0 +1,12 @@
+#alerts
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: mysql_alerts
+    release: prometheus
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/rule_files/-
+  value: "/var/vcap/jobs/mysql_alerts/*.alerts.yml"
+
+#scraping, using bosh inventory discovery comes from prmoetheus bosh-release

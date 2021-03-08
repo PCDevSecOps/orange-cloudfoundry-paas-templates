@@ -1,0 +1,24 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gpm-service"
+    cmd: "apply"
+    options: ""
+    content:
+      # Copyright (c) 2020 SIGHUP s.r.l All rights reserved.
+      # Use of this source code is governed by a BSD-style
+      # license that can be found in the LICENSE file.
+
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: gatekeeper-policy-manager
+        namespace: gatekeeper-system
+      spec:
+        selector:
+          app: gatekeeper-policy-manager
+        ports:
+        - port: 80
+          targetPort: http

@@ -1,0 +1,22 @@
+#--- local exporter
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: blackbox_exporter
+    release: prometheus
+    properties:
+      blackbox_exporter:
+        log_level: debug
+        config:
+          modules:
+            http:
+              prober: http
+              timeout: 5s
+              http:
+                valid_status_codes: # Defaults to 2xx
+                - 200
+                - 401
+                - 403
+
+                tls_config:
+                  insecure_skip_verify: false

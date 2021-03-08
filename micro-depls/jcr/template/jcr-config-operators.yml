@@ -1,0 +1,396 @@
+#--- JCR configuration properties
+- type: replace
+  path: /instance_groups/name=jfrog-container-registry/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          #!/bin/sh
+          cat <<EOF > param.yml
+          urlBase: https://jcr.((/secrets/cloudfoundry_ops_domain))/artifactory
+
+          security:
+            anonAccessEnabled: true
+            ldapSettings:     #--- LDAP server(s) settings
+              elpaaso-ldap:
+                emailAttribute: mail
+                ldapPoisoningProtection: true
+                ldapUrl: ldap://elpaaso-ldap.internal.paas/dc=orange,dc=com
+                search:
+                   searchBase: ou=users
+                   searchFilter: (uid={0})
+                   searchSubTree: true
+                allowUserToAccessProfile: false
+                autoCreateUser: true
+                enabled: true
+
+          mailServer:
+            enabled: true     #--- When set, mail notifications are enabled
+            from: ((/secrets/smtp_from))
+            host: ((/secrets/intranet_interco_1/smtp_server))
+            subjectPrefix: "[Jfrog Container Registry - <site> ]"
+
+          proxies:
+            internet-proxy:
+              host: system-internet-http-proxy.internal.paas
+              port: 3128
+            intranet-proxy:
+              host: intranet-http-proxy.internal.paas
+              port: 3129
+
+          reverseProxies:
+            direct:
+              webServerType: direct
+              artifactoryAppContext: artifactory
+              publicAppContext: artifactory
+              serverName: jcr.((/secrets/cloudfoundry_ops_domain))
+              serverNameExpression: "*.jcr.((/secrets/cloudfoundry_ops_domain))"
+              dockerReverseProxyMethod: subDomain
+
+          localRepositories:
+            osb-cmdb-builds:
+              type: generic
+              description: "Stores build results of osb-cmdb, such as junit tets reports"
+              archiveBrowsingEnabled: true
+            osb-cmdb-helm-charts:
+              type: helm
+              description: "Stores helm charts for osbcmdb"
+              archiveBrowsingEnabled: true
+
+          remoteRepositories:
+            #=========================================================
+            # Docker remote repositories
+            #=========================================================
+            docker-crunchy:
+              type: docker
+              url: https://registry.developers.crunchydata.com
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            docker-elastic-co:
+              type: docker
+              url: https://docker.elastic.co
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            docker-remote:
+              type: docker
+              url: https://registry-1.docker.io/
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            docker-via-intranet:
+              type: docker
+              url: ((/secrets/multi_region_region_1_corporate_internet_dockerhub_mirror_url))
+              proxy: intranet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            ghcr-io:
+              type: docker
+              url: https://ghcr.io/
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            k8s-gcr-io:
+              type: docker
+              url: https://k8s.gcr.io
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            quay-io: null    #---- Delete old repository
+
+            quay-io-remote:
+              type: docker
+              url: https://quay.io/
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            quay-io-via-intranet:
+              type: docker
+              url: ((/secrets/multi_region_region_1_corporate_internet_quayio_mirror_url))
+              proxy: intranet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+              blockPushingSchema1: false
+
+            registry.gitlab.com:
+              type: docker
+              url: https://registry.gitlab.com
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            suse-docker:
+              type: docker
+              url: https://registry.suse.com
+              proxy: internet-proxy
+              enableTokenAuthentication: true
+              repoLayout: simple-default
+
+            #=========================================================
+            # Helm remote repositories
+            #=========================================================
+            bitnami:
+              type: helm
+              url: https://charts.bitnami.com/bitnami
+              proxy: internet-proxy
+
+            concourse:
+              type: helm
+              url: https://concourse-charts.storage.googleapis.com/
+              proxy: internet-proxy
+
+            dandydev:
+              type: helm
+              url: https://dandydeveloper.github.io/charts
+              proxy: internet-proxy
+
+            elastic:
+              type: helm
+              url: https://helm.elastic.co
+              proxy: internet-proxy
+
+            fairwinds-stable:
+              type: helm
+              url: https://charts.fairwinds.com/stable
+              proxy: internet-proxy
+
+            falcosecurity:
+              type: helm
+              url: https://falcosecurity.github.io/charts
+              proxy: internet-proxy
+
+            fluxcd:
+              type: helm
+              url: https://charts.fluxcd.io
+              proxy: internet-proxy
+
+            gatekeeper:
+              type: helm
+              url: https://open-policy-agent.github.io/gatekeeper/charts
+              proxy: internet-proxy
+
+            gitlab:
+              type: helm
+              url: https://charts.gitlab.io
+              proxy: internet-proxy
+
+            harbor:
+              type: helm
+              url: https://helm.goharbor.io
+              proxy: internet-proxy
+
+            helm-remote:
+              type: helm
+              url: https://storage.googleapis.com/kubernetes-charts
+              proxy: internet-proxy
+
+            gitea-charts:
+              type: helm
+              url: https://dl.gitea.io/charts/
+              proxy: internet-proxy
+
+            jaegertracing:
+              type: helm
+              url: https://jaegertracing.github.io/helm-charts
+              proxy: internet-proxy
+
+            jetstack:
+              type: helm
+              url: https://charts.jetstack.io
+              proxy: internet-proxy
+
+            kiwigrid:
+              type: helm
+              url: https://kiwigrid.github.io
+              proxy: internet-proxy
+
+            kubernetes-dashboard:
+              type: helm
+              url: https://kubernetes.github.io/dashboard
+              proxy: internet-proxy
+
+            kubevious:
+              type: helm
+              url: https://helm.kubevious.io
+              proxy: internet-proxy
+
+            grafana:
+              type: helm
+              url: https://grafana.github.io/helm-charts
+              proxy: internet-proxy
+
+            lifen-charts:
+              type: helm
+              url: http://honestica.github.io/lifen-charts/
+              proxy: internet-proxy
+
+            loki:
+              type: helm
+              url: https://grafana.github.io/loki/charts
+              proxy: internet-proxy
+
+            longhorn:
+              type: helm
+              url: https://charts.longhorn.io
+              proxy: internet-proxy
+
+            maesh:
+              type: helm
+              url: https://containous.github.io/maesh/charts
+              proxy: internet-proxy
+
+            ingress-nginx:
+              type: helm
+              url: https://kubernetes.github.io/ingress-nginx
+              proxy: internet-proxy
+
+            minio:
+              type: helm
+              url: https://helm.min.io/
+              proxy: internet-proxy
+
+            openebs:
+              type: helm
+              url: https://openebs.github.io/charts
+              proxy: internet-proxy
+
+            orange-cloudfoundry-shield:
+              type: helm
+              url:  https://orange-cloudfoundry.github.io/helm-shield/
+              proxy: internet-proxy
+
+            prometheus-community:
+              type: helm
+              url: https://prometheus-community.github.io/helm-charts
+              proxy: internet-proxy
+
+            quarks:
+              type: helm
+              url: https://cloudfoundry-incubator.github.io/quarks-helm/
+              proxy: internet-proxy
+
+            rancher-stable:
+              type: helm
+              url:  https://releases.rancher.com/server-charts/stable
+              proxy: internet-proxy
+            rancher-charts:
+              type: helm
+              url:  https://charts.rancher.io
+              proxy: internet-proxy
+            rook-release:
+              type: helm
+              url: https://charts.rook.io/release
+              proxy: internet-proxy
+
+            starkandwayne:
+              type: helm
+              url: https://helm.starkandwayne.com
+              proxy: internet-proxy
+
+            stratos:
+              type: helm
+              url: https://cloudfoundry.github.io/stratos
+              proxy: internet-proxy
+
+            suse:
+              type: helm
+              url: https://kubernetes-charts.suse.com
+              proxy: internet-proxy
+
+            svc-cat:
+              type: helm
+              url: https://kubernetes-sigs.github.io/service-catalog
+              proxy: internet-proxy
+
+            vmware-tanzu:
+              type: helm
+              url: https://vmware-tanzu.github.io/helm-charts
+              proxy: internet-proxy
+              
+            incubator:
+              type: helm
+              url: https://charts.helm.sh/incubator
+              proxy: internet-proxy
+
+            stable:
+              type: helm
+              url: https://charts.helm.sh/stable
+              proxy: internet-proxy
+
+          virtualRepositories:
+            docker:
+              type: docker
+              repositories:
+              - docker-via-intranet
+              - docker-remote
+              - quay-io-via-intranet
+              - quay-io-remote
+              - docker-crunchy
+              - k8s-gcr-io
+              - docker-elastic-co
+              - suse-docker
+              - registry.gitlab.com
+              - ghcr-io
+              
+            quay-io:
+              type: docker
+              repositories:
+              - quay-io-via-intranet
+              - quay-io-remote
+
+            helm:
+              type: helm
+              repositories:
+              - kubernetes-dashboard
+              - concourse
+              - dandydev
+              - elastic
+              - rook-release
+              - gatekeeper
+              - gitlab
+              - grafana
+              - harbor
+              - helm-remote
+              - jaegertracing
+              - fairwinds-stable
+              - falcosecurity
+              - jetstack
+              - kiwigrid
+              - kubevious
+              - lifen-charts
+              - loki
+              - longhorn
+              - maesh
+              - minio
+              - orange-cloudfoundry-shield
+              - openebs
+              - prometheus-community
+              - quarks
+              - rancher-stable
+              - rancher-charts
+              - starkandwayne
+              - stratos
+              - suse
+              - svc-cat
+              - vmware-tanzu
+              - bitnami
+              - fluxcd
+              - gitea-charts
+              - ingress-nginx
+          EOF
+
+          #--- Check if container is ready with 120s timeout before using jcr api
+          export AUTH="-u admin:((jcr_admin_password))"
+          timeout 120 sh -c 'until nc -z $0 $1; do sleep 1; done' localhost 8081
+          curl ${AUTH} -X PATCH "http://localhost:8081/artifactory/api/system/configuration" -H "Content-Type:application/yaml" -T param.yml

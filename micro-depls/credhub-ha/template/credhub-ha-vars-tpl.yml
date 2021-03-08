@@ -1,0 +1,20 @@
+---
+database_admin: (( grab secrets.database-admin ))
+credhub_cert: (( file "secrets/certs/credub-certs/server.crt" ))
+credhub_key: (( file "secrets/certs/credub-certs/server.key" ))
+
+ca_cert: (( file "../../shared/certs/internal_paas-ca/server-ca.crt" ))
+credhub_encryption_password: (( grab secrets.credhub-encryption-password))
+credhub_uaa_admin_client_secret: (( grab secrets.uaa-users-admin ))
+uaa_admin_client_secret: (( grab secrets.uaa-admin ))
+director_to_credhub_secret: (( grab secrets.bosh_credhub_secrets ))
+
+uaa_login_client_secret: (( grab secrets.uaa-login ))
+uaa_cert: (( file "secrets/certs/uaa-credub-certs/server.crt" ))
+uaa_key: (( file "secrets/certs/uaa-credub-certs/server.key" ))
+uaa_signing_key: (( file "secrets/certs/uaa" ))
+uaa_saml_cert: (( file "secrets/certs/uaa-credub-certs/server.crt" ))
+uaa_saml_key: (( file "secrets/certs/uaa-credub-certs/server.key" ))
+uaa_encryption_key_1: (( grab secrets.uaa_encryption_key_1 ))
+uaa_verification_key: (( file "secrets/certs/uaa.pub" ))
+ldap_root_password: (( grab secrets.ldap.root.password ))

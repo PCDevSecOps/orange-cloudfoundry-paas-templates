@@ -1,0 +1,36 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - githubRelease:
+      url: https://api.github.com/repos/vmware-tanzu/carvel-kapp-controller/releases/37059339
+    path: github.com/vmware-tanzu/carvel-kapp-controller
+  - githubRelease:
+      url: https://api.github.com/repos/operator-framework/operator-lifecycle-manager/releases/33379512
+    path: github.com/operator-framework/operator-lifecycle-manager
+  - githubRelease:
+      url: https://api.github.com/repos/strimzi/strimzi-kafka-operator/releases/36572908
+    path: github.com/strimzi/strimzi-kafka-operator
+  - git:
+      commitTitle: 'Merge pull request #21 from iSignal/tls-full-remove...'
+      sha: 16977b571c4a59256b468e37f14ed154fa3b799a
+    path: github.com/yugabyte/yugabyte-operator
+  - git:
+      commitTitle: Use operator image SHA from redhat-cop repo
+      sha: f68e240f8fdf81019fcaff4ef19b6f602eac7f4c
+      tags:
+      - v0.0.14
+    path: github.com/argoproj-labs/argocd-operator
+  - git:
+      commitTitle: Prepare v3.1.0 release (#800)...
+      sha: 0ee983d08ce5cd1836f1d0aca46b6667e2a30a5d
+      tags:
+      - v3.1.0
+    path: github.com/open-policy-agent/gatekeeper
+  - git:
+      commitTitle: Fix problem with TerraformDeploymentV2 migration (#169)...
+      sha: 1453e3393d4e43c7a70991b12298b5834325fbdb
+      tags:
+      - 0.2.3
+    path: github.com/cloudfoundry-incubator/cloud-service-broker
+  path: k8s-manifests
+kind: LockConfig

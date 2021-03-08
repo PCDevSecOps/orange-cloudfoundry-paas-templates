@@ -1,0 +1,41 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "ds-prometheus-grafana-datasource"
+    cmd: "replace"
+    options: " --force --save-config=false "
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: ds-prometheus-grafana
+        namespace: grafana
+        labels:
+          grafana_datasource: '1'
+      data:
+        datasource.yaml: |-
+          apiVersion: 1
+          datasources:
+          - name: prometheus
+            type: prometheus
+            access: direct
+            orgId: 1
+            tlsSkipVerify: true
+            url: https://elpaaso-prometheus.((/secrets/cloudfoundry_ops_domain))
+            isDefault: true
+          - name: k8s-micro
+            type: prometheus
+            access: direct
+            orgId: 1
+            url: https://prometheus.k8s-micro.((/secrets/cloudfoundry_ops_domain))/prometheus-server
+          - name: k8s-master
+            type: prometheus
+            access: direct
+            orgId: 1
+            url: https://prometheus.k8s-master.((/secrets/cloudfoundry_ops_domain))/prometheus-server
+          - name: k8s-serv
+            type: prometheus
+            access: direct
+            orgId: 1
+            url: https://prometheus.k8s-serv.((/secrets/cloudfoundry_ops_domain))/prometheus-server

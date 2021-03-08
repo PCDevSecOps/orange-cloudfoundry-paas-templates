@@ -1,0 +1,5 @@
+---
+name: cloudflare-depls
+releases: {}
+stemcell:
+  version: '621.99'

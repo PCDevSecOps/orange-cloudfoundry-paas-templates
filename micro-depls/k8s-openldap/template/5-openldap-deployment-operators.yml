@@ -1,0 +1,112 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "deploy-openldap"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: openldap
+        namespace: openldap
+        labels:
+          app.kubernetes.io/name: openldap
+      spec:
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: openldap
+        replicas: 1
+        template:
+          metadata:
+            labels:
+              app.kubernetes.io/name: openldap
+          spec:
+            volumes:
+            - name: data
+              persistentVolumeClaim:
+                claimName: openldap
+            - name: customldif
+              configMap:
+                name: customldif
+            - name: ldifworkingdir
+              emptyDir: {}
+            - name: tls
+              secret:
+                secretName: openldap-tls
+            - name: certs
+              secret:
+                secretName: openldap-tls
+            initContainers:
+            - name: openldap-init-ldif
+              image: busybox:((busybox))
+              imagePullPolicy: Always
+              command: ['/bin/sh','-c','cp /customldif/* /ldifworkingdir']
+              volumeMounts:
+              - name: customldif
+                mountPath: /customldif
+              - name: ldifworkingdir
+                mountPath: /ldifworkingdir
+            - name: openldap-init-tls
+              image: busybox:((busybox))
+              command: ['/bin/sh','-c','cp /tls/* /certs']
+              imagePullPolicy: Always
+              volumeMounts:
+              - name: tls
+                mountPath: /tls
+              - name: certs
+                mountPath: /certs
+
+            containers:
+            - name: openldap
+              image: osixia/openldap:((osixia/openldap))
+              imagePullPolicy: "Always"
+              volumeMounts:
+              - name: data
+                mountPath: /var/lib/ldap
+                subPath: data
+              - name: ldifworkingdir
+                mountPath: /container/service/slapd/assets/config/bootstrap/ldif/custom
+              - name: data
+                mountPath: /etc/ldap/slapd.d
+                subPath: config-data
+              - name: certs
+                mountPath: /container/service/slapd/assets/certs
+
+              env:
+              - name: "LDAP_ORGANISATION"
+                value: "Orange"
+              - name: "LDAP_DOMAIN"
+                value: "orange.com"
+              - name: "LDAP_BACKEND"
+                value: "hdb"
+              - name: "LDAP_TLS"
+                value: "true"
+              - name: "LDAP_TLS_ENFORCE"
+                value: "false"
+              - name: "LDAP_REMOVE_CONFIG_AFTER_SETUP"
+                value: "true"
+
+              - name: LDAP_ADMIN_USERNAME
+                value: "admin"
+              - name: LDAP_ADMIN_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    key: adminpassword
+                    name: openldap
+              - name: LDAP_USERS
+                valueFrom:
+                  secretKeyRef:
+                    key: users
+                    name: openldap
+              - name: LDAP_PASSWORDS
+                valueFrom:
+                  secretKeyRef:
+                    key: passwords
+                    name: openldap
+              ports:
+              - name: tcp-ldap
+                containerPort: 1389
+
+

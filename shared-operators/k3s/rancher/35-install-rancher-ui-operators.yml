@@ -1,0 +1,106 @@
+#create admin password. to set manually in rancher-ui at first start
+- type: replace
+  path: /variables/-
+  value:
+    name: rancher_admin_password
+    type: password
+
+#create access key / secret key. to set manually in rancher-ui, creating a api key logged as admin
+#NB: if need bearer token is ((rancher_access_key)):((rancher_secret_key))
+- type: replace
+  path: /variables/-
+  value:
+    name: rancher_access_key
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: rancher_secret_key
+    type: password
+
+
+# create namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: cattle-system
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: rancher-stable
+    url : https://releases.rancher.com/server-charts/stable
+
+#additional intranet ca in secrets 
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name:  tls-ca-additional
+    namespace: cattle-system
+    data:
+    - name: internal-ca
+      value: ((/internalCA.ca))
+    - name: ca-certificates.crt
+      value: ((/secrets/certs/intranet-ca))
+
+
+# ops certs secrets for rancher
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: tls-rancher-ingress
+    secret_type: kubernetes.io/tls
+    namespace: cattle-system
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))
+
+#helm chart install
+#see https://rancher.com/docs/rancher/v2.x/en/installation/resources/chart-options/
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: rancher
+    chart: rancher-stable/rancher
+    namespace: cattle-system
+    version: ((helm_rancher))
+    values_file_content:
+      hostname: ((rancher-url))
+      additionalTrustedCAs: true
+      tls: ingress
+      proxy: http://system-internet-http-proxy.internal.paas:3128
+      ingress:
+        tls:
+          source: secret
+        extraAnnotations:
+          kubernetes.io/ingress.class: nginx
+      noProxy: 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16
+
+#    properties:
+#    - name: noProxy
+#      value: "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+#proxy syntax is KO with COA as properties. Values require to duplicate everything...
+#      noProxy: "127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+# see issue https://github.com/helm/helm/issues/1556
+
+
+#create secrets for internalCA
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name:  tls-ca-additional
+    namespace: cattle-system
+    data:
+    - name: ca-additional.pem
+      value: ((/secrets/certs/intranet-ca))

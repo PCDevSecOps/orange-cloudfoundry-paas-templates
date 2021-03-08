@@ -1,0 +1,9 @@
+#--- add bosh remote r3 relays ips
+- type: replace
+  path: /networks/name=intranet-ha-interco/subnets/0/static/-
+  value: ((r3_nats_ip))
+
+- type: replace
+  path: /networks/name=intranet-ha-interco/subnets/0/static/-
+  value: ((r3_blobstore_ip))
+

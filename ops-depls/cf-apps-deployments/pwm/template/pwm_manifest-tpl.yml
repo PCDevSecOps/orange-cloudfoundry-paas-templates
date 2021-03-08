@@ -1,0 +1,15 @@
+---
+applications:
+- name: elpaaso-pwm
+  routes:
+    - route: (( concat "elpaaso-pwm." secrets.cloudfoundry.system_domain ))
+  buildpacks:
+    - cached-java-buildpack
+  memory: 1G
+  stack: cflinuxfs3
+  env:
+    JAVA_OPTS: -Djava.security.egd=file:///dev/urandom
+    PWM_APPLICATIONPATH: /home/vcap/app
+  path: pwm.war
+  services:
+    - mysql-pwm

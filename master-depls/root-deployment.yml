@@ -1,0 +1,250 @@
+---
+name: master-depls
+releases:
+  app-autoscaler:
+    version: 1.2.2
+    repository: cloudfoundry-incubator/app-autoscaler-release
+  backup-and-restore-sdk:
+    version: 1.18.0
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+  binary-buildpack:
+    version: 1.0.36
+    repository: cloudfoundry/binary-buildpack-release
+  bosh:
+    version: 271.2.0
+    repository: cloudfoundry/bosh
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.27.0
+  bosh-dns-aliases:
+    repository: cloudfoundry/bosh-dns-aliases-release
+    version: 0.0.3
+  bosh-openstack-cpi:
+    version: '41'
+    repository: cloudfoundry/bosh-openstack-cpi-release
+  bosh-vsphere-cpi:
+    version: 54.1.0
+    repository: cloudfoundry/bosh-vsphere-cpi-release
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.9
+  capi:
+    version: 1.103.0
+    repository: cloudfoundry/capi-release
+  cassandra_prometheus:
+    repository: orange-cloudfoundry/cassandra_prometheus-boshrelease
+    version: '1.2'
+  cf-cli:
+    version: 1.31.0
+    repository: bosh-packages/cf-cli-release
+  cf-mysql:
+    version: 36.19.0
+    repository: cloudfoundry/cf-mysql-release
+  cf-networking:
+    version: 2.35.0
+    repository: cloudfoundry/cf-networking-release
+  cf-smoke-tests:
+    version: 41.0.2
+    repository: cloudfoundry/cf-smoke-tests-release
+  cf-syslog-drain:
+    version: 10.2.11
+    repository: cloudfoundry/cf-syslog-drain-release
+  cfcr-etcd:
+    version: 1.11.0
+    repository: cloudfoundry-incubator/cfcr-etcd-release
+  cflinuxfs3:
+    version: 0.222.0
+    repository: cloudfoundry/cflinuxfs3-release
+  containerd:
+    version: '1'
+    repository: orange-cloudfoundry/containerd-boshrelease
+  credhub:
+    version: 2.9.0
+    repository: pivotal-cf/credhub-release
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.0
+  diego:
+    version: 2.48.0
+    repository: cloudfoundry/diego-release
+  docker:
+    version: 35.3.4
+    repository: cloudfoundry-incubator/docker-boshrelease
+  dotnet-core-buildpack:
+    version: 2.3.19
+    repository: cloudfoundry/dotnet-core-buildpack-release
+  garden-runc:
+    version: 1.19.18
+    repository: cloudfoundry/garden-runc-release
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  generic-taint-jobs:
+    version: '1'
+    repository: orange-cloudfoundry/generic-taint-jobs-release
+  go-buildpack:
+    version: 1.9.23
+    repository: cloudfoundry/go-buildpack-release
+  haproxy:
+    version: 10.2.0
+    repository: cloudfoundry-community/haproxy-boshrelease
+  helm-kubectl:
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+    tag_prefix: ''
+    version: '33'
+  java-buildpack:
+    version: '4.35'
+    repository: cloudfoundry/java-buildpack-release
+  jumpbox:
+    repository: cloudfoundry-community/jumpbox-boshrelease
+    version: 4.6.4
+  kafka:
+    version: 2.4.2
+    repository: cloudfoundry-community/kafka-boshrelease
+  k3s:
+    repository: orange-cloudfoundry/k3s-boshrelease
+    version: '12'
+  k8s:
+    tag_prefix: ''
+    version: 1.18.8-orange-7
+    repository: orange-cloudfoundry/k8s-boshrelease
+  log-cache:
+    version: 2.9.0
+    repository: cloudfoundry/log-cache-release
+  loggregator:
+    version: 106.3.11
+    repository: cloudfoundry/loggregator-release
+  loggregator-agent:
+    version: 6.1.3
+    repository: cloudfoundry/loggregator-agent-release
+  logsearch:
+    version: 209.0.2
+    repository: cloudfoundry-community/logsearch-boshrelease
+  logsearch-for-cloudfoundry:
+    version: 207.0.3
+    repository: cloudfoundry-community/logsearch-for-cloudfoundry
+  mapfs:
+    version: 1.1.0
+    repository: cloudfoundry/mapfs-release
+  metabase:
+    repository: orange-cloudfoundry/metabase-boshrelease
+    version: '5'
+  metrics-discovery:
+    repository: cloudfoundry/metrics-discovery-release
+    version: 3.0.3
+  minio:
+    version: 2020-06-18T02-23-35Z
+    repository: minio/minio-boshrelease
+  mongodb_prometheus-dashboards_alerts:
+    repository: orange-cloudfoundry/mongodb_prometheus-dashboards_alerts-boshrelease
+    version: '1.3'
+  nats:
+    version: '39'
+    repository: cloudfoundry/nats-release
+  networking:
+    version: '9'
+    repository: cloudfoundry/networking-release
+  nfs-volume:
+    version: 1.5.3
+    repository: cloudfoundry/nfs-volume-release
+  nginx-buildpack:
+    version: 1.1.19
+    repository: cloudfoundry/nginx-buildpack-release
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 5.0.0
+  nodejs-buildpack:
+    version: 1.7.37
+    repository: cloudfoundry/nodejs-buildpack-release
+  oauth2-proxy:
+    repository: cloudfoundry-community/oauth2-proxy-boshrelease
+    version: 0.2.0
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    version: '1'
+    tag_prefix: ''
+  openldap:
+    repository: cloudfoundry-community/openldap-boshrelease
+    version: 0.3.0
+  openvpn:
+    version: 5.5.0
+    repository: dpb587/openvpn-bosh-release
+  orange-prometheus-addons:
+    repository: orange-cloudfoundry/orange-prometheus-addons-boshrelease/
+    version: '1'
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 22.0.0
+  php-buildpack:
+    version: 4.4.27
+    repository: cloudfoundry/php-buildpack-release
+  postgres:
+    version: '43'
+    repository: cloudfoundry/postgres-release
+  prometheus:
+    version: 26.4.0
+    repository: cloudfoundry-community/prometheus-boshrelease
+  prometheus-iaas-tenant-exporter:
+    repository: orange-cloudfoundry/prometheus-iaas-tenant-exporter-boshrelease
+    version: '10'
+  python-buildpack:
+    version: 1.7.26
+    repository: cloudfoundry/python-buildpack-release
+  r-buildpack:
+    version: 1.1.11
+    repository: cloudfoundry/r-buildpack-release
+  routing:
+    version: 0.210.0
+    repository: cloudfoundry/routing-release
+  ruby-buildpack:
+    version: 1.8.27
+    repository: cloudfoundry/ruby-buildpack-release
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+    version: 3.2.0
+  shield:
+    version: 8.7.3
+    repository: starkandwayne/shield-boshrelease
+  shield-addon-bbr:
+    repository: shieldproject/shield-addon-bbr-boshrelease
+    version: 0.2.1
+  silk:
+    version: 2.35.0
+    repository: cloudfoundry/silk-release
+  squid:
+    repository: cloudfoundry-community/squid-boshrelease
+    version: 1.0.1
+  staticfile-buildpack:
+    version: 1.5.14
+    repository: cloudfoundry/staticfile-buildpack-release
+  statsd-injector:
+    version: 1.11.15
+    repository: cloudfoundry/statsd-injector-release
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.6.0
+  terraform:
+    repository: orange-cloudfoundry/terraform-release
+    version: '3'
+    tag_prefix: ''
+
+  uaa:
+    version: 74.29.0
+    repository: cloudfoundry/uaa-release
+#  weave-scope:
+#    repository: cloudfoundry-community/weavescope-boshrelease
+#    version: "0.0.18"
+#    github-release-name: weave-scope.tgz
+  ulimit:
+    version: '1'
+    repository: pivotal-cf/ulimit-release/
+
+  wireguard:
+    repository: orange-cloudfoundry/wireguard-boshrelease
+    version: '6'
+    tag_prefix: ''
+  zookeeper:
+    version: 0.0.10
+    repository: cppforlife/zookeeper-release
+stemcell:
+  version: '621.107'

@@ -1,0 +1,7 @@
+---
+
+#add gorouter with the vm_extensions marker to be part of the load balancing pool
+- type: replace
+  path: /instance_groups/name=cf-internet-rp/vm_extensions?/-
+  value: internet-is-lb-extension
+

@@ -1,0 +1,5 @@
+kube_ops_view_deployment: ((file "../../../additional-resource/shared-operators/k8s-addon/kube-ops-view/deployment.yml"))
+kube_ops_view_rbac: ((file "../../../additional-resource/shared-operators/k8s-addon/kube-ops-view/rbac.yml"))
+kube_ops_view_redis_deployment: ((file "../../../additional-resource/shared-operators/k8s-addon/kube-ops-view/redis-deployment.yml"))
+kube_ops_view_redis_service: ((file "../../../additional-resource/shared-operators/k8s-addon/kube-ops-view/redis-service.yml"))
+kube_ops_view_service: ((file "../../../additional-resource/shared-operators/k8s-addon/kube-ops-view/service.yml"))

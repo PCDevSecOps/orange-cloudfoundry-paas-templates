@@ -1,0 +1,33 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: to-public-s3
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: tf-net-exchange
+      default: [dns,gateway]
+      static_ips:
+      - 192.168.99.89
+    jobs:
+    - release: haproxy
+      name: haproxy
+      properties:
+        ha_proxy:
+          disable_http: true
+          log_level: debug
+          resolvers:            #override bosh-dns resolver by specifying public resolver for haproxy backends (avoids infinite loop due to bosh-dns split brain)
+          - private: 8.8.8.8
+          - public: 8.8.8.8
+          tcp:
+          - name: public-s3 #--- tcp relay to s3
+            port: 443
+            backend_servers:
+            - ((public-s3-hostname))
+          - name: public-s3-iam #--- tcp relay to s3  iam
+            port: 8600
+            backend_servers:
+            - ((public-s3-hostname))
+

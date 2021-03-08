@@ -1,0 +1,7 @@
+---
+#add routing
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest

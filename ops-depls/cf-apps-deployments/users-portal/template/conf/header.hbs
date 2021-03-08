@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>{{title}} - Cloud Foundry Users Portal</title>
+        {{#equal layout 'tag.hbt'}}
+        <meta name="robots" content="noindex">
+        {{else}}
+        <meta name="keywords" content="{{site.globalKeywords}}, {{#each tags as |tag| }}{{tag.name}}{{#unless @last}}, {{/unless}}{{/each}}">
+        <meta name="description" content="{{excerpt}}">
+        <meta name="last-modified" content="{{dateFormat publicationDate "YYYY-MM-DDTHH:mm:ssZ"}}">
+        {{/equal}}
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="/{{fingerprint.[images/favicon.png]}}" />
+        <link rel="stylesheet" href="/{{fingerprint.[css/app.css]}}">
+        {{> analytics}}
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+       <header class="navbar navbar-dark bg-dark navbar-expand-md" role="banner">
+            <nav class="container">
+                <a class="navbar-brand" href="/">
+                    <img src="/{{fingerprint.[images/logo.svg]}}" alt="Back to homepage" title="Back to homepage"/>
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsing-navbar" aria-controls="collapsing-navbar" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse" id="collapsing-navbar">
+                    <h1 class="sr-only">{{site.title}}</h1>
+                    <ul class="navbar-nav">
+                        <li class="nav-item"><a href="/offer/" class="nav-link">Offer</a></li>
+                        <li class="nav-item"><a href="/news/" class="nav-link">News</a></li>
+                        <li class="nav-item"><a href="/tags/" class="nav-link">Tags</a></li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuButton" title="Cloud Foundry documentation">Documentation<b class="caret"></b></a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="http://docs.cloudfoundry.org/devguide/" target="_blank" title="Cloud Foundry Developer Guide">Cloud Foundry Developer Guide</a>
+                                <a class="dropdown-item" href="http://docs.cloudfoundry.org/" target="_blank" title="Cloud Foundry documentation">Cloud Foundry Documentation</a>
+                                <a class="dropdown-item" href="https://plazza.orange.com/groups/cloudfoundry" target="_blank" title="Cloud Foundry Plazza Community">Cloud Foundry Plazza Community</a>
+                                <a class="dropdown-item" href="/cli-commands/" target="_blank" title="CF CLI Commands">CF CLI Commands</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuButton" title="Cloud Foundry tools">Tools<b class="caret"></b></a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="https://elpaaso-pwm.<SYSTEM_DOMAIN>/"target="_blank" title="User Account/Password Management">User Account/Password Management</a>
+                                <a class="dropdown-item" href="https://elpaaso-sandbox-ui.<SYSTEM_DOMAIN>/#/" target="_blank" title="Sandbox Space Creation">Sandbox Space Creation</a>
+                                <a class="dropdown-item" href="https://console-v2.<SYSTEM_DOMAIN>/#/login" target="_blank" title="Cloud Foundry Stratos Management Console">Cloud Foundry Stratos Management Console</a>
+                                <a class="dropdown-item" href="https://logsearch.<SYSTEM_DOMAIN>/" target="_blank" title="GUI tool for application logs">Log Search</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuButton" title="Support">Support<b class="caret"></b></a>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                <a class="dropdown-item" href="/release-note/" title="Release note">Release note</a>
+                                <a class="dropdown-item" href="/faq/" title="FAQ">FAQ</a>
+                                <a class="dropdown-item" href="/contact-us/" title="Contact us">Contact us</a>
+                                <a class="dropdown-item" href="{{site.rss}}" target="_blank" title="Mattermost">Mattermost Users Chat</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>

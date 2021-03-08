@@ -1,0 +1,14 @@
+---
+#add bpm job for route registrar on proxy instance group
+- path: /instance_groups/name=proxy/jobs/-
+  type: replace
+  value:
+    name: bpm
+    release: bpm
+
+#add bpm job for route registrar on proxy instance group
+- path: /instance_groups/name=broker/jobs/-
+  type: replace
+  value:
+    name: bpm
+    release: bpm

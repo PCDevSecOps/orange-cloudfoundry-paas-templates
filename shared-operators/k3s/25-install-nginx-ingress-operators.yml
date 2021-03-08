@@ -1,0 +1,72 @@
+#disable k3s default traefik ingress controller
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=k3s-server/properties/k3s/disable?
+  value: [ traefik ] #keep klipper servicelb
+
+#install ingress with helm chart
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: nginx-ingress
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: tls
+    secret_type: kubernetes.io/tls
+    namespace: nginx-ingress
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: ingress-nginx
+    url:  https://kubernetes.github.io/ingress-nginx
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: ingress-nginx
+    chart: ingress-nginx/ingress-nginx
+    namespace: nginx-ingress
+    version: ((helm_ingress_nginx))
+    values_file_content:
+      controller:
+        extraArgs:
+          enable-ssl-passthrough: ""
+        setAsDefaultIngress: true
+        prometheus:
+          create: true
+        wildcardTLS:
+          secret: nginx-ingress/tls
+
+
+#configure nginx ingress to forward header (upstream ssl offload)
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "ingress-nginx-controller"
+    cmd: "apply"
+    content:
+      kind: ConfigMap
+      apiVersion: v1
+      metadata:
+        name: ingress-nginx-controller
+        namespace: nginx-ingress
+        labels:
+          app.kubernetes.io/name: ingress-nginx
+          app.kubernetes.io/part-of: ingress-nginx
+      data:
+        use-proxy-protocol: "false"
+        use-forwarded-headers: "true"

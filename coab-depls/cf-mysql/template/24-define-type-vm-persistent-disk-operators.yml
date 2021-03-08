@@ -1,0 +1,51 @@
+---
+#adapt vm type and disk size
+
+# mysql
+- type: remove
+  path: /instance_groups/name=mysql/persistent_disk
+
+- type: replace
+  path: /instance_groups/name=mysql/persistent_disk_type?
+  value: ((vm-mysql.persistent_disk_type))
+
+- type: replace
+  path: /instance_groups/name=mysql/vm_type?
+  value: ((vm-mysql.vm_type))
+
+- type: replace
+  path: /instance_groups/name=mysql/vm_extensions?
+  value: ((vm-mysql.ephemeral_disk))
+
+# proxy
+- type: replace
+  path: /instance_groups/name=proxy/vm_type?
+  value: ((vm-proxy.vm_type))
+
+# errands Mysql
+- type: replace
+  path: /instance_groups/name=bootstrap-vm/vm_type
+  value: ((vm-errand.vm_type))
+
+- type: replace
+  path: /instance_groups/name=rejoin-unsafe-vm/vm_type
+  value: ((vm-errand.vm_type))
+
+- type: replace
+  path: /instance_groups/name=verify-cluster-schemas-vm/vm_type
+  value: ((vm-errand.vm_type))
+
+# smoke test
+- type: replace
+  path: /instance_groups/name=smoke-tests-vm/vm_type
+  value: ((vm-errand.vm_type))
+
+# errands broker
+- type: replace
+  path: /instance_groups/name=broker-registrar-vm/vm_type
+  value: ((vm-broker.vm_type))
+
+- type: replace
+  path: /instance_groups/name=deregister-and-purge-instances-vm/vm_type
+  value: ((vm-broker.vm_type))  
+  

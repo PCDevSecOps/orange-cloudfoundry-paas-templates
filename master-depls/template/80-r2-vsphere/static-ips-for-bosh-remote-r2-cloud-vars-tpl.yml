@@ -1,0 +1,3 @@
+r2_blobstore_ip: ((/secrets/multi_region_region_2_vpn_interco_blobstore_ip))
+r2_nats_ip: ((/secrets/multi_region_region_2_vpn_interco_nats_ip))
+vpn_ip: ((/secrets/multi_region_region_1_vpn_endpoint))

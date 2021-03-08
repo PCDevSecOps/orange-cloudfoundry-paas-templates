@@ -1,0 +1,25 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true              
+      templates:
+        extended_scan_path:
+          - ops-depls/cloudfoundry-mysql
+          - submodules/orange-cf-mysql-deployment
+          - shared-operators/shield
+    releases:
+      cf-mysql:
+      bpm:
+      routing:
+      prometheus:
+      haproxy:
+      shield:
+      minio:
+      generic-scripting:
+    errands:
+      import:
+        display-name: shield-provisioning
+    manual-errands:
+      bootstrap:

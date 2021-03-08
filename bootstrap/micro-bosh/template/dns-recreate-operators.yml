@@ -1,0 +1,48 @@
+#--- Load bosh-dns release
+- type: replace
+  path: /releases/name=bosh-dns?
+  value:
+    name: bosh-dns
+    version: ((bosh_dns_version))
+    url: https://bosh.io/d/github.com/cloudfoundry/bosh-dns-release?v=((bosh_dns_version))
+    sha1: ((bosh_dns_sha1))
+
+#--- Add bosh-dns job
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=bosh-dns?
+  value:
+    name: bosh-dns
+    release: bosh-dns
+    properties:
+      cache:
+        enabled: true
+      health:
+        enabled: true
+        server:
+          tls:
+            ca: ((dns_healthcheck_server_tls.ca))
+            certificate: ((dns_healthcheck_server_tls.certificate))
+            private_key: ((dns_healthcheck_server_tls.private_key))
+        client:
+          tls:
+            ca: ((dns_healthcheck_client_tls.ca))
+            certificate: ((dns_healthcheck_client_tls.certificate))
+            private_key: ((dns_healthcheck_client_tls.private_key))
+      api:
+        server:
+          tls:
+            ca: ((dns_api_server_tls.ca))
+            certificate: ((dns_api_server_tls.certificate))
+            private_key: ((dns_api_server_tls.private_key))
+        client:
+          tls:
+            ca: ((dns_api_client_tls.ca))
+            certificate: ((dns_api_client_tls.certificate))
+            private_key: ((dns_api_client_tls.private_key))
+      aliases:
+        (( append ))
+
+      #--- Use dns-recursor for internal.paas domain
+      recursors:
+        - 192.168.116.156
+        - 192.168.116.166

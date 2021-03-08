@@ -1,0 +1,7 @@
+#isolation intranet 1 routers have a specific role wrt / smoke tests / legacy
+#to enable routers to route to apps-domain, even if cf-app is not hosted in is, set specif sharding mode
+# see https://github.com/cloudfoundry/routing-release/blob/develop/jobs/gorouter/spec#L221
+
+- type: replace
+  path: /instance_groups/name=router/jobs/name=gorouter/properties/router/routing_table_sharding_mode?
+  value: shared-and-segments

@@ -1,0 +1,6 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      nfs-volume:
+      mapfs:

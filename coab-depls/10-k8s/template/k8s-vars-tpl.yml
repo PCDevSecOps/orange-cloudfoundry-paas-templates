@@ -1,0 +1,20 @@
+
+
+virtual-ip: 192.168.245.150
+
+deployment_name: k8s
+
+# Nodes characteristics
+nb_node: (( grab meta.k8s.nb_node))
+
+# Nodes dedicated to persistent characteristics
+nb_node_persistent: (( grab meta.k8s.nb_node_persistent))
+
+# Nodes dedicated to exposition characteristics
+nb_node_public: (( grab meta.k8s.nb_node_public))
+
+# ETCD characteristics
+nb_etcd: (( grab meta.k8s.nb_etcd))
+
+
+

@@ -1,0 +1,17 @@
+#--- Bosh-deployment micro-bosh director configuration
+net_id: (( grab secrets.networks.micro-bosh ))
+internal_dns: [192.168.116.156, 192.168.116.166]
+
+#--- Openstack cpi properties
+openstack_domain: (( grab secrets.openstack.tenant.name ))
+openstack_project: (( grab secrets.openstack.region.name ))
+region: (( grab secrets.openstack.region.name ))
+az: (( grab secrets.openstack.availability_zone ))
+default_security_groups: (( grab secrets.openstack.tenant_security_group ))
+auth_url: (( grab secrets.openstack.auth_url ))
+openstack_username: (( grab secrets.openstack.username ))
+openstack_password: (( grab secrets.openstack.password ))
+
+#--- Set generic-scripting release version/sha1
+generic_scripting_version: (( grab $GENERIC_SCRIPTING_VERSION ))
+generic_scripting_sha1: (( grab $GENERIC_SCRIPTING_SHA1 ))

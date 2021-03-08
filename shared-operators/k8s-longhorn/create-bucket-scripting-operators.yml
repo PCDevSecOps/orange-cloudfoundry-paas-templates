@@ -1,0 +1,54 @@
+#add minio release
+- type: replace
+  path: /releases/name=minio?
+  value:
+    name: minio
+    version: latest
+
+#add mc job operator
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: mc
+    release: minio
+    templates:
+    - name: mc
+    consumes:
+      minio:
+        instances:
+        - address: shield-s3.internal.paas
+        properties:
+          port: "1234"
+          credential:
+            accesskey: fake-s3
+            secretkey: "fake*1234"
+    properties:
+      script: |
+        #!/bin/sh
+
+#leveraging scripting release to create bucket
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: 3
+
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "post-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          echo "post-deploy !!"

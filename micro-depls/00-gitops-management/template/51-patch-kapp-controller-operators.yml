@@ -1,0 +1,33 @@
+#adapt kapp controller for internal use (ca, http proxy)
+
+#create secrets for internalCA
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name:  paas-templates-internal-ca
+    namespace: kapp-controller
+    data:
+    - name: internal-ca
+      value: ((/internalCA.ca))
+    - name: ca-certificates.crt
+      value: ((/secrets/certs/intranet-ca))
+
+#patch kapp-controller with secrets mount
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kapp-controller/content/spec/template/spec/containers/0/volumeMounts/-
+  value:
+    name: corporate-ca
+    mountPath: "/etc/ssl/certs"
+    #subPath: ca-certificates.crt
+    readOnly: true
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kapp-controller/content/spec/template/spec/volumes/-
+  value:
+    name: corporate-ca
+    secret:
+      secretName: paas-templates-internal-ca
+      items:
+      - key: ca-certificates.crt
+        path: ca-certificates.crt

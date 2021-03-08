@@ -1,0 +1,5 @@
+trusted_cert_for_apps.ca: ((/secrets/certs/intranet-ca))
+gorouter_instance: (( grab meta.cf.gorouter_instances_count ))
+diego_cell_instance: (( grab meta.cf.diego_cell_instances_count ))
+doppler_instance: (( grab meta.cf.doppler_instances_count ))
+api_instance: (( grab meta.cf.api_instances_count ))

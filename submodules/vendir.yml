@@ -1,0 +1,20 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+directories:
+- path: rabbit-mqserver
+  contents:
+  - path: .
+    git:
+      url: https://github.com/rabbitmq/rabbitmq-server.git
+      ref: 3542f65fcc2085e70403810b3ea2e5711f11e043
+    includePaths:
+    - deps/rabbitmq_prometheus/docker/grafana/dashboards/**/*
+
+- path: logsearch-boshrelease
+  contents:
+  - path: .
+    git:
+      url: https://github.com/cloudfoundry-community/logsearch-boshrelease/
+      ref: v209.0.1
+    includePaths:
+    - deployment/**/*

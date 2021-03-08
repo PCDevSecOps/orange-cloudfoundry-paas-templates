@@ -1,0 +1,53 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: mongodb_dashboards
+    release: orange-prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: mysql_dashboards
+    release: orange-prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: rabbitmq_dashboards
+    release: orange-prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: redis_dashboards
+    release: orange-prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: redis_sentinel_dashboards
+    release: orange-prometheus-addons
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: exec
+    cmd: |
+      for product in mongodb mysql rabbitmq redis redis_sentinel ; do \
+      export dashboard_dir=/var/vcap/jobs/${product}_dashboards; \
+      export dashboard_cm=${product/"_"/"-"}|; \
+      rm  /tmp/${dashboard_cm}; \
+      mkdir -p /tmp/${dashboard_cm}; \
+      cd ${dashboard_dir}; \
+      for i in $(ls *.json); \
+       do sed  's/${DS_PROMETHEUS}/prometheus/' ${dashboard_dir}/${i} > /tmp/${dashboard_cm}/${i}; \
+      done; \
+      kubectl delete --ignore-not-found=true configmap -n grafana ${dashboard_cm}; \
+      kubectl create configmap -n grafana ${dashboard_cm} --from-file=/tmp/${dashboard_cm}; \
+      kubectl annotate cm -n grafana ${dashboard_cm} folderAnnotation=/tmp/dashboards/${dashboard_cm}; \
+      kubectl label cm -n grafana ${dashboard_cm} grafana_dashboard=1; \
+      done;
+
+
+
+

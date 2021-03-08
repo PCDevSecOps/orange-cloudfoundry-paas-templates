@@ -1,0 +1,58 @@
+#FIXME add variable to variables section
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/concourse-secret
+    type: password
+
+
+# UAA client for logsearch-ops
+- type: replace
+  path: /variables/-
+  value:
+    name: logsearch-ops-client-secret
+    type: password
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/logsearch-ops?
+  value:
+    secret: ((logsearch-ops-client-secret))
+    scope: openid,profile,email,resource.read,bosh.admin #scope of the users, see https://content.pivotal.io/practitioners-blog/securing-services-with-spring-cloud-gateway-2
+    authorities: uaa.none #no authority on the client by it self
+    authorized-grant-types: "authorization_code,client_credentials,refresh_token"
+    required_user_groups:
+    - bosh.admin
+    access-token-validity: 3600
+    refresh-token-validity: 3600
+    autoapprove: true
+    override: true
+    redirect-uri: https://logsearch-ops.((/secrets/cloudfoundry_ops_domain))/oauth2/callback
+
+# generic UAA client for ops portal. require admin scope. No redirect URL enforced
+- type: replace
+  path: /variables/-
+  value:
+    name: generic-ops-client-secret
+    type: password
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/generic-ops?
+  value:
+    secret: ((generic-ops-client-secret))
+    scope: openid,profile,email,resource.read,bosh.admin #scope of the users, see https://content.pivotal.io/practitioners-blog/securing-services-with-spring-cloud-gateway-2
+    authorities: uaa.none #no authority on the client by it self
+    authorized-grant-types: "authorization_code,client_credentials,refresh_token"
+    access-token-validity: 3600
+    refresh-token-validity: 3600
+    autoapprove: true
+    override: true
+    redirect-uri: https://*.((/secrets/cloudfoundry_ops_domain))/oauth2/callback
+
+# let credhub generate secrets
+- type: replace
+  path: /variables/-
+  value:
+    name: cookie_secret_ops
+    type: password
+    length: 32

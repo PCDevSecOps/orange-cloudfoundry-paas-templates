@@ -1,0 +1,4 @@
+#--- Terraform spec files
+versioned-providers: (( file "../../../additional-resource/shared-operators/00-terraform/versioned-providers.tf" ))
+rancher-registration: (( file "../../../additional-resource/shared-operators/k3s/rancher/rancher-registration.tf" )) 
+

@@ -1,0 +1,21 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name:      lb
+    instances: 2
+    azs:       [z1,z2,z3]
+    vm_type: ((vm_type_lb))
+    disk_type: ((disk_type_lb))
+
+    stemcell: default
+    networks:
+    - name: ((network))
+      cloud_properties:
+        security_groups: [default]
+    jobs:
+    - name: lb
+      release: k8s
+      properties:
+        vrrp:
+          id: 241
+          ip: ((virtual-ip))

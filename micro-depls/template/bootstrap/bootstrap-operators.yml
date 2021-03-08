@@ -1,0 +1,62 @@
+#--- For "~1", see escaping https://bosh.io/docs/cli-ops-files/#escaping to replace with "/"
+- type: replace
+  path: /variables?/name=~1dns_healthcheck_tls_ca?
+  value:
+    name: /dns_healthcheck_tls_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: dns-healthcheck-tls-ca
+
+- type: replace
+  path: /variables?/name=~1dns_healthcheck_server_tls?
+  value:
+    name: /dns_healthcheck_server_tls
+    type: certificate
+    options:
+      ca: /dns_healthcheck_tls_ca
+      common_name: health.bosh-dns
+      extended_key_usage:
+        - server_auth
+
+- type: replace
+  path: /variables?/name=~1dns_healthcheck_client_tls?
+  value:
+    name: /dns_healthcheck_client_tls
+    type: certificate
+    options:
+      ca: /dns_healthcheck_tls_ca
+      common_name: health.bosh-dns
+      extended_key_usage:
+        - client_auth
+
+- type: replace
+  path: /variables?/name=~1dns_api_tls_ca?
+  value:
+    name: /dns_api_tls_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: dns-api-tls-ca
+
+- type: replace
+  path: /variables?/name=~1dns_api_server_tls?
+  value:
+    name: /dns_api_server_tls
+    type: certificate
+    options:
+      ca: /dns_api_tls_ca
+      common_name: api.bosh-dns
+      extended_key_usage:
+        - server_auth
+
+- type: replace
+  path: /variables?/name=~1dns_api_client_tls?
+  value:
+    name: /dns_api_client_tls
+    type: certificate
+    options:
+      ca: /dns_api_tls_ca
+      common_name: api.bosh-dns
+      extended_key_usage:
+        - client_auth

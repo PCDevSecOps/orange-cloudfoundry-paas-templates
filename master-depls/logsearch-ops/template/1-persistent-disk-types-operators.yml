@@ -1,0 +1,16 @@
+---
+- type: replace
+  path: /instance_groups/name=elasticsearch_master/persistent_disk_type
+  value: large
+- type: replace
+  path: /instance_groups/name=cluster_monitor/persistent_disk_type
+  value: large
+- type: replace
+  path: /instance_groups/name=elasticsearch_data/persistent_disk_type
+  value: logsearch-es-data
+- type: replace
+  path: /instance_groups/name=kibana/persistent_disk_type
+  value: small_disk
+- type: replace
+  path: /instance_groups/name=ingestor/persistent_disk_type
+  value: xlarge

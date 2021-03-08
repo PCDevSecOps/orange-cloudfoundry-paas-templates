@@ -1,0 +1,18 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path: ["submodules/logsearch-boshrelease"]
+
+    releases:
+      logsearch:
+      logsearch-for-cloudfoundry:
+      haproxy:
+      oauth2-proxy:
+      generic-scripting:
+
+    errands:
+      upload-kibana-objects:  # used to upload kibana dashboard provided by this release

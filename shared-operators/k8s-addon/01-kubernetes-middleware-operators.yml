@@ -1,0 +1,17 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "k8smiddleware-https"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((middleware_api_version))
+      kind: Middleware
+      metadata:
+        name: middleware-https
+        namespace: kube-system
+      spec:
+        headers:
+          sslProxyHeaders:
+            X-Forwarded-Proto: https

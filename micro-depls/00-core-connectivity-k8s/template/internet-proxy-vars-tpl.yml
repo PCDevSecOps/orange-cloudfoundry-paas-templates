@@ -1,0 +1,2 @@
+intranet_interco_ips_ops: (( grab secrets.intranet_interco_ips.ops ))
+ops_domain: (( grab secrets.ops_interco.ops_domain ))

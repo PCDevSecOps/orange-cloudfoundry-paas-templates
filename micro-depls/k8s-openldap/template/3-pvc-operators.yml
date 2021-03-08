@@ -1,0 +1,22 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "pvc-openldap"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: PersistentVolumeClaim
+      apiVersion: v1
+      metadata:
+        name: openldap
+        namespace: openldap
+        labels:
+          app: openldap
+      spec:
+        accessModes:
+        - "ReadWriteOnce"
+        resources:
+          requests:
+            storage: "8Gi"
+        storageClassName: "local-path"

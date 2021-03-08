@@ -1,0 +1,70 @@
+#disable k3s default loadbalancer
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=k3s-server/properties/k3s/disable?
+  value: [ servicelb, traefik ] #disable also traefik 1.7 ingress (requires a LoabBalancer)
+
+
+# create namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: metallb-system
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: bitnami
+    url : https://charts.bitnami.com/bitnami
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: metallb
+    chart: bitnami/metallb
+    namespace: metallb-system
+    version: ((helm_metallb)) #matches metallb 0.9.5
+    values_file_content:
+      existingConfigMap: config-metallb
+      speaker:
+        nodeSelector:
+          bosh.io/name: "agents"
+
+      controller:
+        nodeSelector:
+          node-role.kubernetes.io/master: "true"
+
+
+#configure metallb
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "config-metallb"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: metallb-system
+        name: config-metallb
+      data:
+        config: |
+          address-pools:
+            #private internal vip for internet proxy
+          - name: internet-proxy-private-vip-pool
+            protocol: layer2
+            addresses:
+            - "((internet_proxy_private_vip))/32"
+          - name: intranet-proxy-private-vip-pool
+            protocol: layer2
+            addresses:
+            - "((intranet_proxy_private_vip))/32"
+          - name: internal-ops-relay-vip-pool
+            protocol: layer2
+            addresses:
+            - "((internal_ops_relay_vip))/32"

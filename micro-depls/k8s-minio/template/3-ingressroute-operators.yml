@@ -1,0 +1,30 @@
+#- type: replace
+#  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "minioingressroute"
+#    cmd: "apply"
+#    options: ""
+#    content:
+#      apiVersion: traefik.containo.us/v1alpha1
+#      kind: IngressRoute
+#      metadata:
+#        name: minio-ingress
+#        namespace: minio
+#        annotations:
+#          kubernetes.io/ingress.class: traefik
+#      spec:
+#        entryPoints:
+#        - websecure
+#        tls:
+#          {}
+#        routes:
+#        - match: Host(`minio.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && PathPrefix(`/`)
+#          kind: Rule
+#          priority: 0
+#          services:
+#          - kind: Service
+#            name: minio
+#            namespace: minio
+#            port: 9000
+

@@ -1,0 +1,6 @@
+#add minio release
+- type: replace
+  path: /releases/name=minio?
+  value:
+    name: minio
+    version: latest

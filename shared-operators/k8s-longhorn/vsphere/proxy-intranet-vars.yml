@@ -1,0 +1,1 @@
+use_http_proxy: http://intranet-http-proxy.internal.paas:3129

@@ -1,0 +1,115 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/name=openldap/values/customLdifFiles
+  value:
+    slapd.ldif: |
+      # Frontend settings
+      #
+      dn: olcDatabase=frontend,cn=config
+      objectClass: olcDatabaseConfig
+      objectClass: olcFrontendConfig
+      olcDatabase: frontend
+      #
+      # Sample global access control policy:
+      #	Root DSE: allow anyone to read it
+      #	Subschema (sub)entry DSE: allow anyone to read it
+      #	Other DSEs:
+      #		Allow self write access
+      #		Allow authenticated users read access
+      #		Allow anonymous users to authenticate
+      #
+      #olcAccess: to dn.base="" by * read
+      #olcAccess: to dn.base="cn=Subschema" by * read
+      #olcAccess: to *
+      #	by self write
+      #	by users read
+      #	by anonymous auth
+      #
+      # if no access controls are present, the default policy
+      # allows anyone and everyone to read anything but restricts
+      # updates to rootdn.  (e.g., "access to * by * read")
+      #
+      # rootdn can always read and write EVERYTHING!
+      #
+
+
+      # set a rootpw for the config database so we can bind.
+      # deny access to everyone else.
+      dn: olcDatabase=config,cn=config
+      objectClass: olcDatabaseConfig
+      olcDatabase: config
+      olcRootPW: ((openldap-config-password))
+      olcAccess: to * by * none
+
+      #######################################################################
+      # LMDB database definitions
+      #######################################################################
+      #
+      dn: olcDatabase=mdb,cn=config
+      objectClass: olcDatabaseConfig
+      objectClass: olcMdbConfig
+      olcDatabase: mdb
+      olcSuffix: dc=orange,dc=com
+      olcRootDN: cn=manager,dc=orange,dc=com
+      # Cleartext passwords, especially for the rootdn, should
+      # be avoided.  See slappasswd(8) and slapd-config(5) for details.
+      # Use of strong authentication encouraged.
+      olcRootPW: ((openldap-admin-password))
+      # The database directory MUST exist prior to running slapd AND
+      # should only be accessible by the slapd and slap tools.
+      # Mode 700 recommended.
+      olcDbDirectory: /var/vcap/store/ldap-server/data
+      # Indices to maintain
+      olcDbIndex: objectClass eq
+      # Allow users to change their own password
+      # Allow anonymous to authenticate against the password
+      # Allow admin to change any password
+      olcAccess: to attrs=userPassword
+        by self write
+        by anonymous auth
+        by dn.base="cn=manager,dc=orange,dc=com" write
+        by dn.base="cn=admin,ou=Users,dc=orange,dc=com" read
+        by * none
+      # Allow users to change their own record
+      # Allow anyone to read directory
+      olcAccess: to *
+        by self write
+        by dn.base="cn=manager,dc=orange,dc=com" write
+        by * read
+    init-schema.ldif: |
+    default-user.ldif: |
+      #--- Concourse user for COA (change pwd with Ldap admin)
+      dn: uid=concourse,ou=users,dc=orange,dc=com
+      cn: concourse
+      givenname: concourse
+      objectclass: organizationalPerson
+      objectclass: person
+      objectclass: inetOrgPerson
+      objectclass: top
+      sn: concourse
+      uid: concourse
+      userpassword: {SSHA}HP9cAEIVfSH6iFKz3XVBq4MC0eaaOHjE
+
+      #--- Default PWM user (need for PWM health check tests)
+      dn: uid=pwmtestuser,ou=users,dc=orange,dc=com
+      cn: PWM healt check user
+      givenname: pwmtestuser
+      objectclass: inetOrgPerson
+      objectclass: pwmUser
+      objectclass: top
+      pwmeventlog:: MDAwMSMuIy4jPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz
+      4KPGhpc3Rvcnk+PHJlY29yZCB0aW1lc3RhbXA9IjE1MTQ4ODg1MTM0MzYiIGV2ZW50Q29kZT0iR
+      XZlbnRMb2dfQ3JlYXRlVXNlciIgc3JjSVA9IjE5Mi4xNjguOTkuMzEiIHNyY0hvc3Q9IjE5Mi4x
+      NjguOTkuMzEiIC8+PC9oaXN0b3J5Pgo=
+      sn: pwmtestuser
+      uid: pwmtestuser
+      userpassword: {SSHA}ZfwZxEvnQhJZyZXvJoV2QCxNPiSVxZrG
+    pwm.schema.ldif: |
+      dn: cn=pwm,cn=schema,cn=config
+      objectClass: olcSchemaConfig
+      cn: pwm
+      olcAttributeTypes: {0}( 1.3.6.1.4.1.35015.1.2.1 NAME 'pwmEventLog' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+      olcAttributeTypes: {1}( 1.3.6.1.4.1.35015.1.2.2 NAME 'pwmResponseSet' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+      olcAttributeTypes: {2}( 1.3.6.1.4.1.35015.1.2.3 NAME 'pwmLastPwdUpdate' SYNTAX 1.3.6.1.4.1.1466.115.121.1.24 )
+      olcAttributeTypes: {3}( 1.3.6.1.4.1.35015.1.2.4 NAME 'pwmGUID' SYNTAX 1.3.6.1.4.1.1466.115.121.1.15 )
+      olcAttributeTypes: {1}( 1.3.6.1.4.1.35015.1.2.6 NAME 'pwmOtpSecret' EQUALITY octetStringMatch SYNTAX 1.3.6.1.4.1.1466.115.121.1.40 )
+      olcObjectClasses: {0}( 1.3.6.1.4.1.591242.1.2010.04.16.1 NAME 'pwmUser' AUXILIARY MAY ( pwmLastPwdUpdate $ pwmEventLog $ pwmResponseSet $ pwmOtpSecret $ pwmGUID ) )

@@ -1,0 +1,151 @@
+#--- Add micro-bosh bosh-cpi version
+- type: replace
+  path: /releases/name=bosh-openstack-cpi?
+  value:
+    name: bosh-openstack-cpi
+    sha1: ((bosh_cpi_sha1))
+    url: https://bosh.io/d/github.com/cloudfoundry/bosh-openstack-cpi-release?v=((bosh_cpi_version))
+    version: ((bosh_cpi_version))
+
+#--- Add generic scripting template
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    sha1: ((generic_scripting_sha1))
+    url: https://bosh.io/d/github.com/orange-cloudfoundry/generic-scripting-release?v=((generic_scripting_version))
+    version: ((generic_scripting_version))
+
+#--- Add default security group to network
+- type: replace
+  path: /networks/name=default/subnets/0/cloud_properties/security_groups?
+  value: ((default_security_groups))
+
+#--- Adapt default iaas instance type
+- type: replace
+  path: /resource_pools/name=vms/cloud_properties/instance_type
+  value: s3.xlarge.4
+
+#--- Openstack cpi config (fix)
+- type: replace
+  path: /cloud_provider/properties/openstack/stemcell_public_visibility?
+  value: false
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/stemcell_public_visibility?
+  value: false
+
+- type: remove
+  path: /resource_pools/name=vms/cloud_properties/availability_zone
+
+- type: replace
+  path: /cloud_provider/properties/openstack/ignore_server_availability_zone?
+  value: false
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/ignore_server_availability_zone?
+  value: false
+
+#--- Openstack timeout cpi config (specific Flexible Engine)
+- type: replace
+  path: /cloud_provider/properties/openstack/state_timeout?
+  value: 900 #--- Default value 300
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/state_timeout?
+  value: 900
+
+- type: replace
+  path: /cloud_provider/properties/openstack/connection_options?/connect_timeout
+  value: 900 #--- Default value 60
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/connect_timeout
+  value: 900
+
+- type: replace
+  path: /cloud_provider/properties/openstack/connection_options?/read_timeout
+  value: 900 #--- Default value 60
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/read_timeout
+  value: 900
+
+- type: replace
+  path: /cloud_provider/properties/openstack/connection_options?/write_timeout
+  value: 900 #--- Default value 60
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/write_timeout
+  value: 900
+
+#--- Disable human-readable properties for kubernetes
+- type: replace
+  path: /cloud_provider/properties/openstack/human_readable_vm_names?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/human_readable_vm_names?
+  value: true
+
+#--- Disable SSL verification for FE
+- type: replace
+  path: /cloud_provider/properties/openstack/connection_options?/ssl_verify_peer
+  value: false
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/ssl_verify_peer
+  value: false
+
+#--- Enable DHCP. The vm will find its network config in config_drive (avoids parasits resolver in /etc/resolv.conf, causing issues with alpine based containers)
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/use_dhcp?
+  value: false
+
+#--- Vm mounts as persistant disks after reboot
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/config_drive?
+  value: disk
+
+#--- Delete bosh-dns aliases
+- type: remove
+  path: /instance_groups/name=bosh/jobs/name=bosh-dns/properties/aliases
+
+#--- Update Openstack cpi ruby script to allow multiple vip creation
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=scripting?
+  value:
+    name: scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #--- Initialize logs
+          > /var/vcap/sys/log/scripting/pre-start.stderr.log
+          > /var/vcap/sys/log/scripting/pre-start.stdout.log
+          set +e
+          FILE="/var/vcap/packages/bosh_openstack_cpi/lib/cloud/openstack/manual_network.rb"
+          check="$(grep "#cloud_error" ${FILE})"
+          if [ "${check}" = "" ] ; then
+            echo "$(date): Patch openstack cpi to allow multiple address pair..."
+            sed -ie "s+cloud_error+#cloud_error+g" ${FILE}
+          fi
+    release: generic-scripting
+
+#--- Set internet http proxy for openstack cpi
+# - path: /instance_groups/name=bosh/properties/env?/http_proxy?
+#   type: replace
+#   value: http://system-internet-http-proxy.internal.paas:3128
+
+# - path: /instance_groups/name=bosh/properties/env?/https_proxy?
+#   type: replace
+#   value: http://system-internet-http-proxy.internal.paas:3128
+
+#--- Avoid blobstore access with proxy
+# - path: /instance_groups/name=bosh/properties/env?/no_proxy?
+#   type: replace
+#   value: 127.0.0.1,localhost,169.254.0.0/16,192.168.0.0/16,.internal.paas
+
+#--- DEBUG Mode
+#--- Disable generate passwords in order to ease debugging
+#- type: replace
+#  path: /instance_groups/name=bosh/properties/director/generate_vm_passwords?
+#  value: false
+
+#--- Keep unreachable vms in order to ease debugging
+#- type: replace
+#  path: /instance_groups/name=bosh/properties/director/debug?
+#  value:
+#    keep_unreachable_vms: true

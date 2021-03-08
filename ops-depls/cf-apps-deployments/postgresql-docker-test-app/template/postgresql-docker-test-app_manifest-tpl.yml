@@ -1,0 +1,13 @@
+---
+applications:
+- name: postgresql-docker-test-app
+  routes:
+      - route: (( concat "postgresql-docker-test-app." secrets.intranet_interco_1.apps_domain ))
+  instances: 1
+  memory:  64M
+  stack: cflinuxfs3
+  disk: 64M
+  buildpacks:
+    - nodejs_buildpack
+  services:
+  - postgresql-docker-test-app-service

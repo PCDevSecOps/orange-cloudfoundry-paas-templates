@@ -1,0 +1,6 @@
+feature-flags:
+  coa-upgrade-pipeline:
+    description: "Enable: 'true: load coa upgrade pipeline - false: skip coa upgrade pipeline loading'"
+    enable: true
+
+cf-bosh-cli-version: 2.1.46

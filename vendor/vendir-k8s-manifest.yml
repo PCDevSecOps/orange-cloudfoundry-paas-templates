@@ -1,0 +1,55 @@
+apiVersion: vendir.k14s.io/v1alpha1
+kind: Config
+directories:
+
+- path: k8s-manifests 
+  contents:
+
+  # validates checksums automatically from release notes
+  - path: github.com/vmware-tanzu/carvel-kapp-controller
+    githubRelease:
+      slug: vmware-tanzu/carvel-kapp-controller
+      tag: v0.16.0
+
+  - path: github.com/operator-framework/operator-lifecycle-manager
+    githubRelease:
+      slug: operator-framework/operator-lifecycle-manager
+      tag: v0.17.0
+      disableAutoChecksumValidation: true
+
+  - path: github.com/strimzi/strimzi-kafka-operator
+    githubRelease:
+      slug: strimzi/strimzi-kafka-operator
+      tag: 0.21.1
+      disableAutoChecksumValidation: true
+    includePaths:
+    - "**/*.yaml" #exclude tgz and helm charts
+
+
+  - path: github.com/yugabyte/yugabyte-operator
+    git:
+      url: https://github.com/yugabyte/yugabyte-operator
+      ref: 16977b571c4a59256b468e37f14ed154fa3b799a
+    includePaths:
+    - deploy/**/*
+
+  - path: github.com/argoproj-labs/argocd-operator
+    git:
+      url: https://github.com/argoproj-labs/argocd-operator
+      ref: v0.0.14
+    includePaths:
+    - deploy/**/*
+
+  - path: github.com/open-policy-agent/gatekeeper
+    git:
+      url: https://github.com/open-policy-agent/gatekeeper
+      ref: v3.1.0
+    includePaths:
+    - deploy/**/*
+
+  - path: github.com/cloudfoundry-incubator/cloud-service-broker
+    git:
+      url: https://github.com/cloudfoundry-incubator/cloud-service-broker
+      ref: 0.2.3
+    includePaths:
+    - k8s/**/*

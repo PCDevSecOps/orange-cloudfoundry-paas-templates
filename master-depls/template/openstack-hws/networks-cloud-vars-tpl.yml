@@ -1,0 +1,21 @@
+#--- Openstack vars
+dns: [192.168.116.156,192.168.116.166]
+az_1: (( grab secrets.openstack.availability_zone ))
+az_2: (( grab secrets.openstack.availability_zone_2 ))
+az_3: (( grab secrets.openstack.availability_zone ))
+
+tf_net_exchange_id: (( grab secrets.networks.tf_net_exchange )) #--- from terraform
+intranet_interco_ips_net_id: (( grab secrets.intranet_interco_ips.net_id ))
+compilation_net_id: (( grab secrets.networks.compilation ))
+tf_net_cf_id: ((/tf/networks_net-cf)) #--- from credhub, saved there by terraform @subnet creation time
+tf_net_is_internet_id: ((/tf/networks_net-is-internet)) #--- from credhub, saved there by terraform @subnet creation time
+
+#--- Intranet interco
+intranet_interco_ips_range: (( grab secrets.intranet_interco_ips.range ))
+intranet_interco_ips_gateway: (( grab secrets.intranet_interco_ips.gateway ))
+intranet_interco_ips_api: (( grab secrets.intranet_interco_ips.api ))
+intranet_interco_ips_ops: (( grab secrets.intranet_interco_ips.ops ))
+intranet_interco_ips_apps: (( grab secrets.intranet_interco_ips.apps ))
+intranet_interco_ips_to_intranet: (( grab secrets.intranet_interco_ips.to_intranet ))
+
+

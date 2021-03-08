@@ -1,0 +1,114 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "role-provision"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: Role
+      metadata:
+        name: provision-kibana
+        namespace: kube-logging
+      rules:
+      - apiGroups: [""]
+        resources: ["configmaps"]
+        verbs: ["get", "watch", "list"]
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "sa-provision"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: sa-provision
+        namespace: kube-logging
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "rb-sa-provision"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: RoleBinding
+      apiVersion: rbac.authorization.k8s.io/v1
+      metadata:
+        name: provision-kibana-rolebind
+        namespace: kube-logging
+      roleRef:
+        kind: Role
+        name: provision-kibana
+        apiGroup: rbac.authorization.k8s.io
+      subjects:
+      - kind: ServiceAccount
+        name: sa-provision
+        namespace: kube-logging
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "dp-provision"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: provision-kibana
+        namespace: kube-logging
+        labels:
+          app: provision-kibana
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: provision-kibana
+        template:
+          metadata:
+            namespace: kube-logging
+            labels:
+              app: provision-kibana
+          spec:
+            serviceAccountName: sa-provision
+            volumes:
+            - name: shared-volume
+              emptyDir: {}
+
+            containers:
+            - name: curl
+              image: tutum/curl:alpine
+              command:
+              - "/bin/sh"
+              args:
+              - "-c"
+              - "while true; do sleep 60; echo \"update kibana\"; for f in `ls /tmp`; do curl -X POST http://kibana-kibana.kube-logging.svc.cluster.local:5601/api/saved_objects/_log_legacy_import -H \"content-type: application/json\" -H \"kbn-version: 7.2.0\" ; done; echo done; done"
+              resources: {}
+              volumeMounts:
+              - name: shared-volume
+                mountPath: "/tmp/"
+              imagePullPolicy: Always
+            - name: sidecar
+              image: kiwigrid/k8s-sidecar:latest
+              env:
+              - name: LABEL
+                value: kibana
+              - name: FOLDER
+                value: "/tmp/"
+              - name: NAMESPACE
+                value: kube-logging
+              resources: {}
+              volumeMounts:
+              - name: shared-volume
+                mountPath: "/tmp/"
+              imagePullPolicy: Always
