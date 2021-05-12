@@ -1,0 +1,35 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+
+- type: replace
+  path: /addons/-
+  value :
+    name: 30-expose-on-gorouters
+    include:
+      #only k3s instance groups
+      jobs:
+      - release: generic-taint-jobs
+        name: master-taint
+      - release: generic-taint-jobs
+        name: slave-taint
+    jobs:
+    - name: route_registrar
+      release: routing
+      consumes:
+        nats:
+          instances:
+          - address: ops-routing-nats
+          properties:
+            nats:
+              port: 4222
+              user: nats
+              password: ((/bosh-master/ops-routing/nats_password))
+      properties:
+        route_registrar:
+          routes: []
+        

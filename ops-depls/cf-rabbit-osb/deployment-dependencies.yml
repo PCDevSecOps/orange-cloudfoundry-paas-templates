@@ -1,0 +1,45 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+          - shared-operators/cf-rabbit
+          - shared-operators/shield
+    releases:
+      cf-cli:
+        base_location: https://bosh.io/d/github.com/
+        repository: bosh-packages/cf-cli-release
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      haproxy:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/haproxy-boshrelease
+      prometheus:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/prometheus-boshrelease
+      cron:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/cron-boshrelease
+      cf-rabbitmq:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/cf-rabbitmq-release
+      cf-rabbitmq-multitenant-broker:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/cf-rabbitmq-multitenant-broker-release
+      cf-rabbitmq-smoke-tests:
+        base_location: https://bosh.io/d/github.com/
+        repository: pivotal-cf/cf-rabbitmq-smoke-tests-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+    errands:
+      smoke-tests:
+      import:
+        display-name: shield-provisioning

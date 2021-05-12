@@ -1,0 +1,780 @@
+meta:
+  tasks:
+    - &notify_on_failure
+      put: failure-alert
+      params:
+        channel: ((slack-channel))
+        text: Failed to run [[$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME ($BUILD_NAME)]($ATC_EXTERNAL_URL/teams/main/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME)].
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        username: Concourse # credential_leak_validated
+    - &setup-orange-cf-bosh-cli-task
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: orangecloudfoundry/orange-cf-bosh-cli
+          tag: ((cf-bosh-cli-version))
+      inputs:
+        - name: secrets
+        - name: paas-templates
+      outputs:
+        - name: secrets-updated
+      run:
+        path: bash
+        args:
+          - -ce
+          - |
+            echo "Check ruby version"
+            ruby --version
+            echo "Bosh CLI: $(bosh --version)"
+            echo -e "Credhub:\n$(credhub --version)"
+            cf --version
+
+            mkdir -p /usr/local/bin
+            FLY=/usr/local/bin/fly
+            echo "Fetching fly...";
+            curl -SsL "$CONCOURSE_URL/api/v1/cli?arch=amd64&platform=linux" -k > $FLY;
+            chmod +x $FLY;
+
+            echo "Concourse CLI(Fly) version: $(fly --version)"
+            git config --global user.email "$GIT_USER_EMAIL"
+            git config --global user.name "$GIT_USER_NAME"
+            git config --global advice.detachedHead false
+            export TERM=xterm-256color
+            git clone secrets ${FINAL_REPO}
+            mkdir -p ~/bosh
+            ln -s $PWD/${FINAL_REPO} $HOME/bosh/secrets
+            ln -s $PWD/paas-templates $HOME/bosh/template
+            credhub login
+            echo "creating upgrade file from BASH_SCRIPT_CONTENT environment variable"
+            printenv BASH_SCRIPT_CONTENT > script.sh
+            chmod +x script.sh
+            ./script.sh
+      params:
+        FINAL_REPO: secrets-updated
+        CREDHUB_CA_CERT: |
+          ((internalCA2))
+          ((internalCA))
+        BOSH_CA_CERT: ((internalCA2))((internalCA))
+        CREDHUB_CLIENT: "director_to_credhub"
+        CREDHUB_SECRET: ((credhub-secret))
+        CREDHUB_SERVER: https://credhub.internal.paas:8844
+        OPS_DOMAIN: ((cloudfoundry_ops_domain))
+        GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server" # credential_leak_validated
+        GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com" # credential_leak_validated
+        CONCOURSE_URL: ((concourse-url))
+        CONCOURSE_USERNAME: ((concourse-admin.username))
+        CONCOURSE_PASSWORD: ((concourse-admin.password))
+        CONCOURSE_INSECURE: ((concourse-insecure))
+        IAAS_TYPE: ((iaas-type))
+        PROFILES: ((profiles))
+  scripts:
+    - &trigger-root-deployment-retrigger-all |
+      echo "Login to Concourse"
+      fly login -t concourse -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name main 2>&1 # credential_leak_validated
+
+      PIPELINE_NAME="${ROOT_DEPLS_NAME}-bosh-generated"
+      job_name="$PIPELINE_NAME/retrigger-all-jobs"
+      fly -t concourse unpause-job -j "${job_name}" --team ${ROOT_DEPLS_NAME}
+      fly -t concourse trigger-job -j "${job_name}" -w --team ${ROOT_DEPLS_NAME}
+
+    - &trigger-remaining-root-deployments-retrigger-all |
+      set -e
+      ROOT_DEPLS_LIST=$(find secrets -maxdepth 1 -type d -name "*-depls" -printf '%f\n')
+      for root_depl in ${ROOT_DEPLS_LIST}; do
+       if ! [ "${root_depl}" = "cloudflare-depls" -o "${root_depl}" = "micro-depls" -o "${root_depl}" = "master-depls" -o "${root_depl}" = "coab-depls" ]; then
+        export ROOT_DEPLS_FILTERED_LIST="${ROOT_DEPLS_FILTERED_LIST} ${root_depl}"
+        echo "Selecting ${root_depl}"
+       else
+        echo "Ignoring ${root_depl}"
+       fi
+      done
+      fly login -t concourse -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name main 2>&1 # credential_leak_validated
+      for root_depl in ${ROOT_DEPLS_FILTERED_LIST};do
+        echo "processing ${root_depl}"
+        PIPELINE_NAME="${root_depl}-bosh-generated"
+        job_name="$PIPELINE_NAME/retrigger-all-jobs"
+        fly -t concourse unpause-job -j "${job_name}" --team ${root_depl}
+        fly -t concourse trigger-job -j "${job_name}" -w --team ${root_depl}
+      done
+
+    - &trigger-root-deployment-upgrade-pipeline |
+      echo "Login to Concourse"
+      fly login -t concourse -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name main 2>&1 # credential_leak_validated
+
+      PIPELINE_NAME="${ROOT_DEPLS_NAME}-update-generated"
+      job_name="$PIPELINE_NAME/update-pipeline-${ROOT_DEPLS_NAME}"
+      fly -t concourse unpause-job -j "${job_name}"
+      fly -t concourse trigger-job -j "${job_name}" -w
+
+    - &trigger-deploy-job |
+      set -e
+      TOOLS_PATH=${PWD}/paas-templates/admin
+      . ${TOOLS_PATH}/functions.sh
+      if ! [ -e secrets/${ROOT_DEPL}/${DEPLOYMENT_NAME}/enable-deployment.yml ];then
+        display "INFO" "WARNING: ${ROOT_DEPL}/${DEPLOYMENT_NAME} is not enabled, SKIPPING!!!"
+        exit 0
+      fi
+      #--- Log to concourse with fly cli
+      printf "\n\n%bLog to fly%b\n" "${GREEN}${BOLD}" "${STD}"
+      CONCOURSE_URL="${CONCOURSE_URL:-https://elpaaso-concourse.${OPS_DOMAIN}}"
+      export FLY_USER=$(getValue ${FLY_CREDENTIALS} "/concourse-micro-depls-username")
+      export FLY_PWD=$(getValue ${FLY_CREDENTIALS} "/concourse-micro-depls-password")
+      fly -t concourse login -c ${CONCOURSE_URL} -k -u ${FLY_USER} -p ${FLY_PWD} -n main
+
+      PIPELINE_NAME="${ROOT_DEPL}-bosh-generated"
+      job_name="$PIPELINE_NAME/deploy-${DEPLOYMENT_NAME}"
+      fly -t concourse edit-target -n ${ROOT_DEPL}
+      fly -t concourse unpause-job -j "${job_name}"
+      fly -t concourse trigger-job -j "${job_name}" -w
+      if ! [ "${PAUSE_PIPELINE}" = "false" ]; then
+        fly -t concourse pause-job -j "${job_name}"
+      fi
+
+resource_types:
+  - name: slack-notification
+    type: registry-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+      tag: v1.4.2
+
+resources:
+  - name: secrets
+    type: git
+    source:
+      uri: ((secrets-uri))
+      branch: ((secrets-branch))
+      skip_ssl_verification: true
+      git_config:
+        - name: advice.detachedHead
+          value: false
+
+  - name: paas-templates
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((paas-templates-branch))
+      skip_ssl_verification: true
+      git_config:
+        - name: advice.detachedHead
+          value: false
+
+  - name: failure-alert
+    type: slack-notification
+    source:
+      url: ((slack-webhook))
+      proxy: ((slack-proxy))
+      proxy_https_tunnel: ((slack-proxy-https-tunnel))
+      disable: ((slack-disable))
+
+  - name: cf-ops-automation
+    type: git
+    source:
+      uri: ((cf-ops-automation-uri))
+      branch: ((cf-ops-automation-branch))
+      tag_filter: ((cf-ops-automation-version))
+      skip_ssl_verification: true
+
+jobs:
+
+  - name: warning-this-pipeline-retriggers-all-deployments
+    serial: true
+    plan:
+      - in_parallel:
+        - get: secrets
+          params: { submodules: none, depth: 1 }
+        - get: paas-templates
+          params: { submodules: none, depth: 1 }
+
+  - name: pause-bosh-pipelines-except-coab
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+        - get: cf-ops-automation
+          params: { submodules: none, depth: 1 }
+        - get: paas-templates
+          params: { submodules: none, depth: 1 }
+        - get: secrets
+          params: { submodules: none, depth: 1 }
+          passed: [ warning-this-pipeline-retriggers-all-deployments ]
+          trigger: true
+      - task: execute-from-orange-cf-bosh-cli
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          BASH_SCRIPT_CONTENT: |
+            set -e
+            ROOT_DEPLS_LIST=$(find secrets -maxdepth 1 -type d -name "*-depls" -printf '%f\n')
+            for root_depl in ${ROOT_DEPLS_LIST}; do
+             if ! [ "${root_depl}" = "cloudflare-depls" -o "${root_depl}" = "coab-depls" ]; then
+              export ROOT_DEPL_SHORT_NAME="$ROOT_DEPL_SHORT_NAME ${root_depl%%-depls}"
+             fi
+            done
+            echo "Pausing $ROOT_DEPL_SHORT_NAME"
+            paas-templates/admin/pause-jobs.sh -p "$ROOT_DEPL_SHORT_NAME"
+
+
+
+  - name: reload-bootstrap-all-init-from-git
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+          - get: secrets
+            params: { submodules: none, depth: 1 }
+            passed: [ pause-bosh-pipelines-except-coab ]
+            trigger: true
+      - task: update-bootstrap-pipeline
+        input_mapping:
+          scripts-resource: cf-ops-automation
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source: {repository: "governmentpaas/curl-ssl"}
+          inputs:
+            - name: scripts-resource
+            - name: secrets
+          run:
+            path: sh
+            args:
+              - -ec
+              - |
+                apk add bash coreutils --no-cache
+                export SECRETS=$(pwd)/secrets
+                CONFIG_DIR=${SECRETS}/coa/config
+                echo "COA config directory detected: <${CONFIG_DIR}>"
+                FILTER_CMD="ls ${CONFIG_DIR}/$CREDENTIALS_FILTER"
+                CREDENTIALS_FILES=$(eval $FILTER_CMD)
+                ALL_CREDENTIALS_FILE=$(mktemp /tmp/all-credentials.XXXXXX)
+                echo "Credentials files used: ${CREDENTIALS_FILES}"
+                for FILE in ${CREDENTIALS_FILES};do
+                  {
+                   cat ${FILE}
+                   echo ""
+                  } >> ${ALL_CREDENTIALS_FILE}
+                done
+                export ATC_EXTERNAL_URL=$(grep -e "^${ATC_EXTERNAL_URL_KEY}:" ${ALL_CREDENTIALS_FILE} |cut -d':' -f2-|tr -d [:blank:])
+                export FLY_USERNAME=$(grep -e "^${FLY_USERNAME_KEY}:" ${ALL_CREDENTIALS_FILE} |cut -d':' -f2-|tr -d [:blank:]) # credential_leak_validated
+                export FLY_PASSWORD=$(grep -e "^${FLY_PASSWORD_KEY}:" ${ALL_CREDENTIALS_FILE} |cut -d':' -f2-|tr -d [:blank:])
+
+                export IAAS_TYPE=$(grep ${IAAS_TYPE_KEY} ${ALL_CREDENTIALS_FILE} |cut -d':' -f2-|tr -d [:blank:])
+                if [ -z "${IAAS_TYPE}" ]
+                then
+                echo "ERROR: missing environment variable: IAAS_TYPE"
+                fi
+                echo "Extracted IAAS_TYPE: <${IAAS_TYPE}>"
+                echo "Duplicated keys found:"
+                cat $ALL_CREDENTIALS_FILE| sort | uniq -c|sort|grep -v '\-\-\-'|grep -v -e "^[ ]*1.*"|cut -d':' -f1
+                mkdir -p /usr/local/bin
+                FLY=/usr/local/bin/fly
+                echo "Fetching fly...";
+                curl -SsL "$ATC_EXTERNAL_URL/api/v1/cli?arch=amd64&platform=linux" -k > $FLY;
+                chmod +x $FLY;
+
+                echo "Login to Concourse using extracted credentials (ATC_EXTERNAL_URL, FLY_USERNAME, FLY_PASSWORD)"
+                fly login -t main -c "$ATC_EXTERNAL_URL" --username="$FLY_USERNAME" --password="$FLY_PASSWORD" -k 2>&1 # credential_leak_validated
+
+                export FLY_TARGET=main
+                export FLY_SET_PIPELINE_OPTION="--non-interactive"
+                cd scripts-resource/
+                echo "Launching concourse-bootstrap.sh"
+                ./concourse-bootstrap.sh
+                pipeline_name=bootstrap-all-init-pipelines
+                jobs="bootstrap-pipelines create-teams bootstrap-control-plane bootstrap-update-pipelines"
+                for job in ${jobs};do
+                  job_name=$pipeline_name/$job
+                  fly -t main unpause-job -j "${job_name}"
+                  fly -t main trigger-job -j "${job_name}" -w
+                  echo '============================================================================================================================'
+                done
+          params:
+            CREDENTIALS_FILTER: credentials-*.yml|grep -ve '\Wpipeline\W'
+            ATC_EXTERNAL_URL_KEY: concourse-micro-depls-target
+            FLY_USERNAME_KEY: concourse-micro-depls-username # credential_leak_validated
+            FLY_PASSWORD_KEY: concourse-micro-depls-password
+            IAAS_TYPE_KEY: iaas-type
+
+  - name: trigger-root-deployment-update-pipelines
+    serial: true
+    plan:
+    - in_parallel:
+      - get: secrets
+        passed: [ reload-bootstrap-all-init-from-git ]
+        trigger: true
+      - get: paas-templates
+        params: { submodules: none, depth: 1 }
+    - in_parallel:
+      - task: process-micro-depls
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: micro-depls
+          BASH_SCRIPT_CONTENT: *trigger-root-deployment-upgrade-pipeline
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+      - task: process-master-depls
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: master-depls
+          BASH_SCRIPT_CONTENT: *trigger-root-deployment-upgrade-pipeline
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+      - task: process-remaining-root-deployments
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          BASH_SCRIPT_CONTENT: |
+            echo "Login to Concourse"
+            fly login -t concourse -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name main 2>&1  # credential_leak_validated
+            echo "Detect active root deployments"
+            ROOT_DEPLS_LIST=$(find secrets -maxdepth 1 -type d -name "*-depls" -printf '%f\n')
+            for root_depl in ${ROOT_DEPLS_LIST}; do
+             if ! [ "${root_depl}" = "cloudflare-depls" -o "${root_depl}" = "micro-depls" -o "${root_depl}" = "master-depls" ]; then
+              export ROOT_DEPLS_FILTERED_LIST="${ROOT_DEPLS_FILTERED_LIST} ${root_depl}"
+             else
+              echo "Ignoring ${root_depl}"
+             fi
+            done
+            for root_depl in ${ROOT_DEPLS_FILTERED_LIST}; do
+              PIPELINE_NAME="${root_depl}-update-generated"
+              job_name="$PIPELINE_NAME/update-pipeline-${root_depl}"
+              fly -t concourse unpause-job -j "${job_name}"
+              fly -t concourse trigger-job -j "${job_name}" -w
+            done
+
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+
+  - name: ensure-no-coab-jobs-are-running
+    serial: true
+    plan:
+      - in_parallel:
+          - get: secrets
+            params: { submodules: none, depth: 1 }
+            trigger: true
+            passed: [ trigger-root-deployment-update-pipelines ]
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+      - task: wait-for-bosh-coab-deployments-execution-ending
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: coab-depls
+          BASH_SCRIPT_CONTENT: &wait-for-deployment-executions-to-end |
+            echo "Login to Concourse"
+            fly login -t concourse -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k 2>&1 # credential_leak_validated
+            fly -t concourse etg -n ${ROOT_DEPLS_NAME} # this is required as fly builds -n is not working properly
+            running_jobs_count=$(fly -t concourse builds --team ${ROOT_DEPLS_NAME} -p ${ROOT_DEPLS_NAME}-bosh-generated -c 500 --json|jq '.[]|select(.status == "started")|.status'|wc -l)
+            while [ $running_jobs_count -gt 0 ];do
+              echo "Still $running_jobs_count running on ${ROOT_DEPLS_NAME}, waiting..."
+              sleep 30
+              running_jobs_count=$(fly -t concourse builds --team ${ROOT_DEPLS_NAME} -p ${ROOT_DEPLS_NAME}-bosh-generated -c 500 --json|jq '.[]|select(.status == "started")|.status'|wc -l)
+            done
+            echo "No running job detected for ${ROOT_DEPLS_NAME}"
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+
+  - name: retrigger-micro-depls-bosh-jobs
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+        - get: cf-ops-automation
+          params: { submodules: none, depth: 1 }
+        - get: secrets
+          params: { submodules: none, depth: 1 }
+          passed: [ ensure-no-coab-jobs-are-running ]
+          trigger: true
+        - get: paas-templates
+          params: { submodules: none, depth: 1 }
+      - task: retrigger-all-micro-depls-deployments
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: micro-depls
+          BASH_SCRIPT_CONTENT: *trigger-root-deployment-retrigger-all
+      - task: redeploy-credhub-seeder
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          PAUSE_PIPELINE: false
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: credhub-seeder
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: redeploy-dns-recursor
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: dns-recursor
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: redeploy-nexus
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: nexus
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: redeploy-credhub-ha
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: credhub-ha
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: redeploy-jcr
+        attempts: 5
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: jcr
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: redeploy-internet-proxy
+        attempts: 5
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: internet-proxy
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: redeploy-gitlab
+        attempts: 5
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: gitlab
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: unpause-micro-depls-deployment
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL_SHORT_NAME: micro
+          BASH_SCRIPT_CONTENT: &unpause-jobs |
+            set -e
+            paas-templates/admin/unpause-jobs.sh -p $ROOT_DEPL_SHORT_NAME
+      - task: wait-for-micro-bosh-deployments-execution-ending
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: micro-depls
+          BASH_SCRIPT_CONTENT: *wait-for-deployment-executions-to-end
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+      - task: redeploy-concourse
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: micro-depls
+          DEPLOYMENT_NAME: concourse
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+
+  - name: retrigger-master-depls-bosh-jobs
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+        - get: cf-ops-automation
+          params: { submodules: none, depth: 1 }
+        - get: secrets
+          params: { submodules: none, depth: 1 }
+          passed: [ retrigger-micro-depls-bosh-jobs ]
+          trigger: true
+        - get: paas-templates
+          params: { submodules: none, depth: 1 }
+      - task: retrigger-all-micro-depls-deployments
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: master-depls
+          BASH_SCRIPT_CONTENT: *trigger-root-deployment-retrigger-all
+      - task: execute-from-orange-cf-bosh-cli
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL_SHORT_NAME: master
+          BASH_SCRIPT_CONTENT: *unpause-jobs
+      - task: wait-for-master-bosh-deployments-execution-ending
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: master-depls
+          BASH_SCRIPT_CONTENT: *wait-for-deployment-executions-to-end
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+
+
+  - name: retrigger-remaining-depls-bosh-jobs-excluding-coab-depls
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+        - get: cf-ops-automation
+          params: { submodules: none, depth: 1 }
+        - get: secrets
+          params: { submodules: none, depth: 1 }
+          passed: [ retrigger-master-depls-bosh-jobs ]
+          trigger: true
+        - get: paas-templates
+          params: { submodules: none, depth: 1 }
+      - task: retrigger-all-remaining-depls-deployments
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          BASH_SCRIPT_CONTENT: *trigger-remaining-root-deployments-retrigger-all
+
+      - task: unpause-remaining-root-deployments
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          BASH_SCRIPT_CONTENT: |
+            set -e
+            TOOLS_PATH=${PWD}/paas-templates/admin
+            . ${TOOLS_PATH}/functions.sh
+
+            ROOT_DEPLS_LIST=$(find secrets -maxdepth 1 -type d -name "*-depls" -printf '%f\n')
+            for root_depl in ${ROOT_DEPLS_LIST}; do
+             if ! [ "${root_depl}" = "cloudflare-depls" -o "${root_depl}" = "micro-depls" -o "${root_depl}" = "master-depls" -o "${root_depl}" = "coab-depls" ]; then
+              export ROOT_DEPLS_FILTERED_LIST="${ROOT_DEPLS_FILTERED_LIST} ${root_depl%%-depls}"
+             else
+              echo "Ignoring ${root_depl}"
+             fi
+            done
+
+            for root_depl in ${ROOT_DEPLS_FILTERED_LIST};do
+              echo "processing ${root_depls}"
+              ${TOOLS_PATH}/unpause-jobs.sh -p ${root_depl}
+            done
+
+  - name: retrigger-multi-region-vpn-deployments-jobs
+    serial: true
+    plan:
+      - in_parallel:
+          - get: secrets
+            passed: [ retrigger-remaining-depls-bosh-jobs-excluding-coab-depls ]
+            params: { submodules: none, depth: 1 }
+            trigger: true
+          - get: paas-templates
+            passed: [ retrigger-remaining-depls-bosh-jobs-excluding-coab-depls ]
+            params: { submodules: none, depth: 1 }
+            trigger: true
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+      - task: update-r1-vpn
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: master-depls
+          DEPLOYMENT_NAME: r1-vpn
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: update-r2-boostrap
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: remote-r2-depls
+          DEPLOYMENT_NAME: 00-bootstrap
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+      - task: update-r3-bootstrap
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL: remote-r3-depls
+          DEPLOYMENT_NAME: 00-bootstrap
+          BASH_SCRIPT_CONTENT: *trigger-deploy-job
+
+  - name: manually-retrigger-coab-depls-bosh-jobs
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+          - get: secrets
+            params: { submodules: none, depth: 1 }
+            passed: [ retrigger-multi-region-vpn-deployments-jobs ]
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+      - task: retrigger-all-coab-depls-deployments
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: coab-depls
+          BASH_SCRIPT_CONTENT: *trigger-root-deployment-retrigger-all
+      - task: execute-from-orange-cf-bosh-cli
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPL_SHORT_NAME: coab
+          BASH_SCRIPT_CONTENT: *unpause-jobs
+      - task: wait-for-coab-bosh-deployments-execution-ending
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          ROOT_DEPLS_NAME: coab-depls
+          BASH_SCRIPT_CONTENT: *wait-for-deployment-executions-to-end
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+
+
+  - name: manual-enable-coab-read-only-mode
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+          - get: secrets
+            params: { submodules: none, depth: 1 }
+
+      - task: update-secrets
+        input_mapping:
+          paas-templates: paas-templates
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          READ_ONLY_MODE: true
+          COMMIT_MESSAGE: "Cf-ops-automation automated upgrade ${COA_VERSION}: Coab Read only mode ${READ_ONLY_MODE} - Paas templates ${PAAS_TEMPLATES_VERSION}"
+          BASH_SCRIPT_CONTENT: &coab_read_only_mode |
+            export TERM=xterm-256color
+            echo "executing upgrade file"
+            set -e
+            ruby paas-templates/upgrade/set_coab_read_only_mode.rb -c ${FINAL_REPO} --read-only-mode $READ_ONLY_MODE
+
+            cd ${FINAL_REPO}
+            git add --all
+            echo "Git Diff:"
+            git diff
+            CHANGE_DETECTED_COUNTER=$(git status --porcelain|wc -l)
+            if [ ${CHANGE_DETECTED_COUNTER} -gt 0 ]; then
+              GIT_COMMIT_MESSAGE=$(eval echo $(echo $COMMIT_MESSAGE))
+              git commit --no-verify -a -m "$GIT_COMMIT_MESSAGE"
+              git --no-pager show HEAD
+            else
+              echo "No change detected, skip commit"
+            fi
+      - put: secrets
+        get_params: { submodules: none, depth: 1 }
+        params:
+          repository: secrets-updated
+          rebase: true
+      - task: unpause-cf-apps-pipelines
+        input_mapping:
+          paas-templates: paas-templates
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          FLY_COMMAND: unpause-pipeline
+          BASH_SCRIPT_CONTENT: &fly_command_on_coab_cf_apps_pipelines |
+            set -e
+            echo "Login to Concourse"
+            fly login -t concourse -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name main 2>&1 # credential_leak_validated
+
+            ALL_PIPELINES=$(fly -t concourse pipelines -a --json)
+            APP_GENERATED_PIPELINES=$(echo ${ALL_PIPELINES}|jq -r '.[]|.name| select(test("coab-depls-cf-apps-generated"))')
+            echo "Selected pipelines: <$APP_GENERATED_PIPELINES>"
+            for pipeline in ${APP_GENERATED_PIPELINES};do
+              echo "Processing pipeline $pipeline"
+              TEAM=$(echo ${ALL_PIPELINES}|jq --arg pipeline ${pipeline} '.[]|select(.name == $pipeline)|.team_name')
+              if [[ -z ${TEAM} ]]; then
+                echo "ERROR: cannot extract team from"
+                exit 1
+              fi
+              echo "Applying <${FLY_COMMAND}> on <$pipeline> in $TEAM team"
+              fly -t concourse ${FLY_COMMAND} -p ${pipeline} --team ${TEAM}
+            done
+
+  - name: manual-disable-coab-read-only-mode
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+          - get: secrets
+            params: { submodules: none, depth: 1 }
+      - task: update-secrets
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          READ_ONLY_MODE: false
+          COMMIT_MESSAGE: "Cf-ops-automation automated upgrade ${COA_VERSION}: Coab Read only mode ${READ_ONLY_MODE} - Paas templates ${PAAS_TEMPLATES_VERSION}"
+          BASH_SCRIPT_CONTENT: *coab_read_only_mode
+      - put: secrets
+        get_params: { submodules: none, depth: 1 }
+        params:
+          repository: secrets-updated
+          rebase: true
+
+  - name: display-readme
+    on_failure: *notify_on_failure
+    serial: true
+    plan:
+      - get: paas-templates
+        passed: [ warning-this-pipeline-retriggers-all-deployments ]
+        params: { submodules: none, depth: 1 }
+        trigger: true
+      - task: display
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: governmentpaas/curl-ssl
+          inputs:
+            - name: paas-templates
+          run:
+            path: sh
+            args:
+              - -ec
+              - |
+                echo "Displaying $README_FILE:"
+                cat $README_FILE
+                echo ""
+                echo "----------"
+                echo ""
+                echo "Meta-inf.yml:"
+                cat paas-templates/meta-inf.yml
+          params:
+            README_FILE: paas-templates/micro-depls/retrigger-all-deployments/concourse-pipeline-config/Readme.md
+
+groups:
+ - name: overview
+   jobs:
+     - "*"
+ - name: setup
+   jobs:
+     - warning-this-pipeline-retriggers-all-deployments
+     - pause-bosh-pipelines-except-coab
+     - reload-bootstrap-all-init-from-git
+     - trigger-root-deployment-update-pipelines
+     - ensure-no-coab-jobs-are-running
+     - display-readme
+ - name: micro-depls
+   jobs:
+     - ensure-no-coab-jobs-are-running
+     - retrigger-micro-depls-bosh-jobs
+     - retrigger-master-depls-bosh-jobs
+     - display-readme
+ - name: master-depls
+   jobs:
+     - retrigger-micro-depls-bosh-jobs
+     - retrigger-master-depls-bosh-jobs
+     - retrigger-remaining-depls-bosh-jobs-excluding-coab-depls
+     - display-readme
+ - name: others-depls-excluding-coab
+   jobs:
+     - retrigger-master-depls-bosh-jobs
+     - retrigger-remaining-depls-bosh-jobs-excluding-coab-depls
+     - retrigger-multi-region-vpn-deployments-jobs
+     - display-readme
+ - name: vpn
+   jobs:
+     - retrigger-remaining-depls-bosh-jobs-excluding-coab-depls
+     - retrigger-multi-region-vpn-deployments-jobs
+     - manually-retrigger-coab-depls-bosh-jobs
+     - display-readme
+ - name: coab-depls
+   jobs:
+     - "*-coab-read-only-mode"
+     - "*coab-depls*"
+     - display-readme
+
+

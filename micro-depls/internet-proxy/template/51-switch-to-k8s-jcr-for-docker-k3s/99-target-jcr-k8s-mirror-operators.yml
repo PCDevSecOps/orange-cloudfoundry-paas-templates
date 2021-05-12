@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=system-internet-relay/jobs/name=docker/properties/registry_mirrors
+  value: [((docker_mirror))]

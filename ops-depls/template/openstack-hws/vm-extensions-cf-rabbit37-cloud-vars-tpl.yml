@@ -1,0 +1,2 @@
+#--- vrrp defined values
+vrrp_ip_cf_rabbit37: (( ips secrets.osb_data_plane_shared_public.range 245 ))

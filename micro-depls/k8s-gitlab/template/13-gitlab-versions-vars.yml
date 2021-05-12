@@ -1,0 +1,8 @@
+postgresql-version: 6.3.12
+
+redis-ha-version: 4.5.3
+minio-version:  5.0.19
+# stolon-version caution 1.4.0 is bad pb on ssl
+stolon-version: 1.6.2
+prometheus-postgres-exporter-version: 1.1.1
+plantuml-version: 0.1.12

@@ -1,0 +1,23 @@
+### base on https://github.com/operator-framework/operator-lifecycle-manager/releases/tag/0.17.0
+
+# Explanation: why deleted action before recreate the same ?
+# If the CRD is not deleted the next action kubectl apply -f ... will freeze
+# in the future may it be solved but this workaround works well
+#
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "olm-crd"
+    cmd: "delete --ignore-not-found=true "
+    options: "-f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.17.0/crds.yaml"
+
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "olm-crd"
+    cmd: "apply"
+    options: "-f https://github.com/operator-framework/operator-lifecycle-manager/releases/download/v0.17.0/crds.yaml"

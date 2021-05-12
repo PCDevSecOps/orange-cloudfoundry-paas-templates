@@ -1,0 +1,34 @@
+#set pod preset so fleet gitjob pod have corporate ca mounted
+# this works around issue https://github.com/rancher/fleet/issues/150
+
+# pre-reate namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: fleet-system
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "fleet-corporate-ca-podpreset"
+    cmd: "apply"
+    content:
+      apiVersion: settings.k8s.io/v1alpha1
+      kind: PodPreset
+      metadata:
+        name: fleet-corporate-ca-podpreset
+        namespace: fleet-system
+      spec:
+        selector:
+          matchLabels:
+            app: gitjob
+        volumeMounts:
+        - name: cert-volume
+          mountPath: /etc/ssl/certs
+        volumes:
+        - name: cert-volume
+          hostPath:
+            path: /etc/ssl/certs
+            type: Directory

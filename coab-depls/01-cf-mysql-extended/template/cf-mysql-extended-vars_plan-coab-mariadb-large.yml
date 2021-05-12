@@ -1,0 +1,56 @@
+---
+##############################################################################################################
+# network
+private_network_name   : tf-net-osb-data-plane-dedicated-priv
+public_network_name   : tf-net-osb-data-plane-dedicated-pub
+##############################################################################################################
+# plan
+#                 +---------------------------------++----------------------------------------------++      ++----------------------++
+#                 |         Plan broker             ||            vm-mysql                              ||     ||      plan-mysql      ||
+# +--------------++--------------------+------+-----++--------------------+-------------------------++-----++----------+-----------++--------+---------+----------+-------------------------------------------------------------------------------
+# |   type       ||     Name           | Size | Max ||persistent_disk_type|         vm_type             || FS  ||max_      |mysql_persi||max_con |tmp_table|Max_heap_ |            description
+# |              ||                    |  GB  | Con ||                    |                             ||store||storage_mb|tent_disk  ||instance|_size    |table_size|
+# +--------------++--------------------+------+-----++--------------------+-------------------------++-----++----------+-----------++--------+---------+----------+-------------------------------------------------------------------------------
+# | standard     || small              |    2 |  70 || medium             | 1cpu-2g                     ||   6 ||     2048 |      6144 ||    100 |     32M |      32M |Dedicated MariaDB Galera Cluster 2GB data storage with 4GB RAM/1CPU
+# | standard     || medium             |   33 | 150 || large              | 2cpu-8g                     ||  49 ||    33792 |     50176 ||    200 |     32M |      32M |Dedicated MariaDB Galera Cluster 33GB data storage with 8GB RAM/2CPU
+# | standard     || medium-big-request |   33 |  15 || large              | 2cpu-8g                     ||  49 ||    33792 |     50176 ||     50 |    256M |     256M |Dedicated MariaDB Galera Cluster 33GB data storage with 8GB RAM/2CPU
+# | standard     || large              |   66 | 200 || xlarge             | 4cpu-16g                    ||  98 ||    67584 |    200704 ||    250 |     32M |      32M |Dedicated MariaDB Galera Cluster 66GB data storage with 16GB RAM/4CPU
+# | standard     || xlarge             |  131 | 450 || database           | 4cpu-16g                    || 196 ||   134144 |    200704 ||    500 |     32M |      32M |Dedicated MariaDB Galera Cluster 131GB data storage with 16GB RAM/4CPU
+# | standard     || xxlarge            |  261 | 700 || xxlarge-performant | 8cpu-32g                    || 391 ||   267264 |    400384 ||    750 |     32M |      32M |Dedicated MariaDB Galera Cluster 261GB data storage with 32GB RAM/8CPU
+# | highpower    || powerlarge         |  131 | 700 || xlarge-performant  | 16cpu-64g                   || 196 ||   134144 |    200704 ||    750 |     32M |      32M |Dedicated MariaDB Galera Cluster 131GB data storage (SSD) with 64GB RAM/16CPU
+# | highcapacity || capacitylarge      |  522 | 700 || datawarehouse      | 4cpu-16g                    || 782 ||   534528 |    800768 ||    750 |     32M |      32M |Dedicated MariaDB Galera Cluster 522GB data storage with 16GB RAM/4CPU
+# +--------------++--------------------+------+-----++--------------------+-------------------------++-----++----------+-----------++--------+---------+----------+-------------------------------------------------------------------------------
+
+##############################################################################################################
+# vm_type / persistent_disk_type
+vm-mysql:
+  persistent_disk_type: xlarge
+  vm_type:              4cpu-16g
+  ephemeral_disk:       [100GB_ephemeral_disk]
+
+vm-proxy:
+  vm_type:              1cpu-2g
+
+vm-errand:
+  vm_type:              1cpu-2g
+
+vm-broker:
+  vm_type:              2cpu-4g
+
+vm-arbitrator:
+  vm_type:              1cpu-2g
+
+##############################################################################################################
+plan-mysql:
+  max_storage_mb: 67584
+  mysql_persistent_disk: 100352
+  max_user_connections: 200
+  plan_name: large
+  
+##############################################################################################################
+# spec release cf-mysql fixed 
+spec-cf-mysql:
+  max_connections:  250
+  disable_auto_sst: true
+  max_heap_table_size: 33554432
+  tmp_table_size: 33554432  

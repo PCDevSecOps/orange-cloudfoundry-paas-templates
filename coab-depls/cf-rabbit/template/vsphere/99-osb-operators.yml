@@ -1,0 +1,38 @@
+---
+#this operators adapts the deployment in order to use tf-net-osb-data-plane-dedicated-pub and tf-net-osb-data-plane-dedicated-priv networks
+
+- type: replace
+  path: /instance_groups/name=haproxy/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-pub
+
+- type: replace
+  path: /instance_groups/name=rmq/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-priv
+
+- type: replace
+  path: /instance_groups/name=shield/networks
+  value:
+    - name: tf-net-osb-data-plane-dedicated-priv
+
+#--- Add proxy usage
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=shield-agent/properties/env?
+  value:
+    http_proxy: ((http_proxy))
+    https_proxy: ((http_proxy))
+    no_proxy: localhost,127.0.0.1,((shield-alias-prefix))((deployment_name))((shield-domain-suffix)),((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) #no proxy to connect to shield server
+
+#--- Add proxy usage
+- type: replace
+  path: /instance_groups/name=rmq/jobs/name=shield-agent/properties/env?
+  value:
+    http_proxy: ((http_proxy))
+    https_proxy: ((http_proxy))
+    no_proxy: localhost,127.0.0.1,((shield-alias-prefix))((deployment_name))((shield-domain-suffix)),((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) #no proxy to connect to shield server
+
+#--- Replace network for bosh-dns alias
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/0/targets/0/network
+  value: tf-net-osb-data-plane-dedicated-priv

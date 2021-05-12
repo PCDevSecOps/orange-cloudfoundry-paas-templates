@@ -1,0 +1,142 @@
+#--- Site properties
+iaas_type: vsphere
+site_name: brmc-svc-xxx
+site_type: integration/preproduction/production
+
+#--- Internet proxy for bosh release/os packages/docker images download
+proxy_url: http://xxx:xxx
+
+#--- COA version
+coa_version: "vxxx"
+
+#--- vcap password (to use in case of inception/micro-bosh ssh acces)
+vcap_password: xxx
+
+#--- Vsphere vcenter parameters
+vcenter_ip: xxx
+vcenter_user: xxx
+vcenter_password: xxx
+vcenter_dc: xxx
+vcenter_cluster: xxx                                #--- cluster (shared with ACDC CF)
+vcenter_ds: xxx                                     #--- persistent_datastore_pattern: created by BRMC team
+vcenter_resource_pool: xxx                          #--- resource pool name
+vcenter_disks: SERVICES/xxx/disks                   #--- disk path (will be created by cpi)
+vcenter_templates: SERVICES/xxx/templates           #--- template folder (will be created by cpi)
+vcenter_vms: SERVICES/xxx/vms                       #--- vm folder (will be created by cpi)
+
+#--- Iaas authoritative DNS resolver
+target_dns_recursor_1: xxx
+target_dns_recursor_2: xxx
+
+#--- Iaas authoritative NTP servers
+target_ntp_server_1: xxx
+target_ntp_server_2: xxx
+
+#--- Http domains
+api_domain: xxx
+apps_domain: xxx
+ops_domain: xxx
+osb_domain: xxx
+
+#--- Micro-bosh network
+micro_bosh:
+  range: 192.168.10.0/28                    #--- Micro-bosh range
+  gateway: 192.168.10.1                     #--- Micro-bosh gateway
+  inception_ip: 192.168.10.2                #--- Inception instance internal ip
+
+#--- Internal networks names
+networks:
+  intranet_interco: xxx                     #--- Intranet interco network
+  compilation: xxx                          #--- Bosh compilation network
+  compilation-dedicated: xxx                #--- Dedicated services compilation network
+  micro_bosh: xxx                           #--- Micro-bosh network
+  micro-depls: xxx                          #--- Micro-depls network
+  master-depls: xxx                         #--- Master-depls network
+  osb_control_plane: xxx                    #--- Osb control plane network
+  osb_data_plane_shared_pub: xxx            #--- Osb data plane shared public network
+  osb_data_plane_shared_pub2: xxx           #--- osb data plane shared 2 public network
+  osb_data_plane_shared_priv: xxx           #--- Osb data plane shared private network
+  osb_data_plane_dedicated_priv: xxx        #--- Osb data plane dedicated private network
+  net_cf: xxx                               #--- cloud foundry diego cells network
+  k8s_micro: xxx                            #--- k8s micro network
+  k8s_master: xxx                           #--- k8s master network
+  k8s_services: xxx                         #--- k8s services network
+
+#--- Interco network
+intranet_interco:
+  range: xxx/xx
+  gateway: xxx
+  inception_ip: xxx                         #--- Inception ip
+  api_ip: xxx                               #--- API relay ip
+  apps_ip: xxx                              #--- APS relay ip
+  ops_ip: xxx                               #--- OPS relay ip
+  osb_ip: xxx                               #--- OSB relay ip
+  to_internet_proxy_ip: xxx                 #--- internet-proxy ip
+  to_intranet_proxy_ip: xxx                 #--- to_intranet ip
+  dns_recursor_1: xxx                       #--- Authoritative dns 1 ip
+  dns_recursor_2: xxx                       #--- Authoritative dns 2 ip
+  concourse_public_ip: xxx                  #--- public ip for concourse webui bootstrap
+
+#--- Intranet interco network
+intranet_interco_1:
+  cf_org: orange
+  intranet_dns_1: 10.98.198.49
+  intranet_dns_2: 10.98.112.81
+  ntp_server_1: 10.98.198.49
+  ntp_server_2: 10.98.112.81
+
+#--- Osb services data dedicated public
+osb_data_plane_dedicated_public:
+  net_id: xxx                             #--- Router-osb subnet network name
+  range: xx.xxx.xxx.xx/xx
+  gateway: xx.xxx.xxx.xxx
+  reserved_dhcp: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+  static: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+
+#--- Osb services data shared public
+osb_data_plane_shared_public:
+  net_id: xxx                             #--- Router-osb subnet network name
+  range: xx.xxx.xxx.xx/xx
+  gateway: xx.xxx.xxx.xxx
+  reserved_dhcp: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+  reserved_vrrp: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+  static: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+
+#--- Osb services data 2 shared public
+osb_data_plane_shared_public2:
+  net_id: xxx                             #--- Router-osb subnet network name
+  range: xx.xxx.xxx.xx/xx
+  gateway: xx.xxx.xxx.xxx
+  reserved_dhcp: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+  reserved_vrrp: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+  static: xx.xxx.xxx.xxx - xx.xxx.xxx.xxx
+
+#--- S3 backup credentials
+backup:
+  bucket_prefix: xxx
+  local_s3:
+    host: xxx
+    access_key_id: xxx
+    secret_access_key:  xxx
+  remote_s3:
+    host: xxx
+    access_key_id: xxx
+    secret_access_key: xxx
+    signature_version: xxx
+
+#--- SMTP mail target
+smtp_mail: xxx
+
+#--- Mattermost channel configuration
+slack-webhook: https://xxx
+slack-channel: '#xxx'
+
+#--- Stemcell name
+stemcell_name: bosh-vsphere-esxi-ubuntu-xenial-go_agent
+
+#--- Bosh releases used for inception creation
+networking-release-version: "9"
+networking-release-sha1: 9b5f9d27917c3754e492470ac6c9af80d62963db
+
+git_server_release: "3"
+git_server_sha1: 682a70517c495455f43545b9ae39d3f11d24d94c

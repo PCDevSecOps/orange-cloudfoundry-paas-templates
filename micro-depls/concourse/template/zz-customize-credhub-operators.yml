@@ -1,0 +1,10 @@
+
+#Customize lookup path
+- type: replace
+  path: /instance_groups/name=web/jobs/name=web/properties/credhub/path_prefix?
+  value: /concourse-micro
+
+#FIXME should not disable ssl check !!!
+#- type: replace
+#  path: /instance_groups/name=web/jobs/name=web/properties/credhub/tls/insecure_skip_verify?
+#  value: true

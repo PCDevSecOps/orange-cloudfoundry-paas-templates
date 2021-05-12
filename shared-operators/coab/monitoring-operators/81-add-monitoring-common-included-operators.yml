@@ -1,0 +1,6 @@
+---
+- type: replace
+  path: /addons/name=monitoring/include/jobs/-
+  value:
+    release: ((monitoring_include_release))
+    name: ((monitoring_include_job))

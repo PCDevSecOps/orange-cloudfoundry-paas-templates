@@ -1,0 +1,34 @@
+#- type: replace
+#  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "kubeapps-app-repository"
+#    cmd: "apply"
+#    options: ""
+#    content:
+#      apiVersion: kubeapps.com/v1alpha1
+#      kind: AppRepository
+#      metadata:
+#        name: jcr
+#        namespace: kubeapps
+#      spec:
+#        auth:
+#          customCA:
+#            secretKeyRef:
+#              key: ca.crt
+#              name: apprepo-jcr
+#        resyncRequests: 0
+#        syncJobPodTemplate:
+#          spec:
+#            containers:
+#            - env:
+#              - name: https_proxy
+#                value: ((https_proxy))
+#              - name: http_proxy
+#                value: ((http_proxy))
+#              - name: no_proxy
+#                value: ((no_proxy))
+#            securityContext:
+#              runAsUser: 1001
+#        type: helm
+#        url: 'https://jcr-k8s.((/secrets/cloudfoundry_ops_domain))/artifactory/helm'

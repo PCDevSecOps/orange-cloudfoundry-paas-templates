@@ -1,0 +1,56 @@
+# as we host oci registry on private domain, must mount the corporate ca in pods
+# (not possible with helm chart)
+# see https://github.com/concourse/concourse-chart/issues/215
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "concourse-corporate-ca-podpreset"
+    cmd: "apply"
+    content:
+      apiVersion: settings.k8s.io/v1alpha1
+      kind: PodPreset
+      metadata:
+        name: concourse-corporate-ca-podpreset
+        namespace: concourse
+      spec:
+        selector:
+          matchLabels:
+            app: concourse-web
+        volumeMounts:
+        - name: cert-volume
+          mountPath: /etc/ssl/certs
+          readOnly: true
+        volumes:
+        - name: cert-volume
+          hostPath:
+            path: /etc/ssl/certs
+            type: Directory
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "concourse-worker-corporate-ca-podpreset"
+    cmd: "apply"
+    content:
+      apiVersion: settings.k8s.io/v1alpha1
+      kind: PodPreset
+      metadata:
+        name: concourse-worker-corporate-ca-podpreset
+        namespace: concourse
+      spec:
+        selector:
+          matchLabels:
+            app: concourse-worker
+        volumeMounts:
+        - name: cert-volume
+          mountPath: /etc/ssl/certs
+          readOnly: true
+        volumes:
+        - name: cert-volume
+          hostPath:
+            path: /etc/ssl/certs
+            type: Directory
+            

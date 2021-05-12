@@ -1,0 +1,1 @@
+docker_mirror: https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))

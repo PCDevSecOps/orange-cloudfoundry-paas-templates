@@ -1,0 +1,4 @@
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysqld_exporter/properties/mysqld_exporter/collect/auto_increment_columns?
+  value:
+    false

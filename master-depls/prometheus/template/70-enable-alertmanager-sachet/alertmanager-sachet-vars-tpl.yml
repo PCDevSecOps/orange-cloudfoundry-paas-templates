@@ -1,0 +1,6 @@
+#--- Sachet properties
+sachet_url: ((grab secrets.sachet.url))
+sachet_sms_match_re: ((grab secrets.sachet.sms.match_re))
+sachet_call_match_re: ((grab secrets.sachet.call.match_re))
+sachet_sms_group_wait: ((grab secrets.sachet.sms.group_wait))
+sachet_call_group_wait: ((grab secrets.sachet.call.group_wait))

@@ -1,0 +1,6 @@
+#--- Add Terraform spec files
+flexible-engine-provider-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/10-flexible-engine-provider.tf" ))
+intranet-interco-network-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/20-intranet-interco-network.tf" ))
+internet-proxy-vip-port-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/40-internet-proxy-vip-port.tf" ))
+intranet-proxy-vip-port-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/40-intranet-proxy-vip-port.tf" ))
+intranet-vip-ports-tf: (( file "../../../additional-resource/micro-depls/00-core-connectivity-terraform/template/openstack-hws/40-intranet-vip-ports.tf" ))

@@ -1,0 +1,37 @@
+## stratos secret creation (just config stratos helm chart with secret name)
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: external-listener-cert
+    secret_type: kubernetes.io/tls
+    namespace: kafka-cluster-((instance_id))
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))
+
+
+### kafka client secret creation (avoid autogeneration, set corporate intranet PKI certs)
+#- type: replace
+#  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+#  value:
+#    type: secret
+#    name: ((instance_id))-clients-ca
+#    namespace: kafka
+#    #secret_type: kubernetes.io/tls
+#    data:
+#    - name: ca.key
+#      value: ((/secrets/certs/ops.private_key))
+#
+#- type: replace
+#  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+#  value:
+#    type: secret
+#    name: ((instance_id))-clients-ca-cert
+#    #secret_type: kubernetes.io/tls
+#    namespace: kafka
+#    data:
+#    - name: ca.crt
+#      value: ((/secrets/certs/ops.certificate))

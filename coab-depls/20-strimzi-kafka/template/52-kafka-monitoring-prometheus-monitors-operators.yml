@@ -1,0 +1,138 @@
+#see https://gitlab.tech.orange/diod-marketplace-services/kafka/strimzi-operator-deployment/-/blob/master/monitoring/prometheus-operator/strimzi-pod-monitor.yaml
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cluster-operator-metrics"
+    cmd: "apply"
+    content:
+      apiVersion: monitoring.coreos.com/v1
+      kind: PodMonitor
+      metadata:
+        name: cluster-operator-metrics
+        namespace: kafka
+        labels:
+          app: strimzi
+      spec:
+        selector:
+          matchLabels:
+            strimzi.io/kind: cluster-operator
+        namespaceSelector:
+          #FIXME
+          matchNames:
+            - kafka-cluster-((instance_id))
+        podMetricsEndpoints:
+        - path: /metrics
+          port: http
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "entity-operator-metrics"
+    cmd: "apply"
+    content:
+      apiVersion: monitoring.coreos.com/v1
+      kind: PodMonitor
+      metadata:
+        name: entity-operator-metrics
+        namespace: kafka
+        labels:
+          app: strimzi
+      spec:
+        selector:
+          matchLabels:
+            app.kubernetes.io/name: entity-operator
+        namespaceSelector:
+          #FIXME
+          matchNames:
+            - kafka-cluster-((instance_id))
+        podMetricsEndpoints:
+        - path: /metrics
+          port: healthcheck
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "bridge-metrics"
+    cmd: "apply"
+    content:
+      apiVersion: monitoring.coreos.com/v1
+      kind: PodMonitor
+      metadata:
+        name: bridge-metrics
+        namespace: kafka
+        labels:
+          app: strimzi
+      spec:
+        selector:
+          matchLabels:
+            strimzi.io/kind: KafkaBridge
+        namespaceSelector:
+          #FIXME
+          matchNames:
+            - kafka-cluster-((instance_id))
+        podMetricsEndpoints:
+        - path: /metrics
+          port: rest-api
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kafka-resources-metrics"
+    cmd: "apply"
+    content:
+      apiVersion: monitoring.coreos.com/v1
+      kind: PodMonitor
+      metadata:
+        name: kafka-resources-metrics
+        namespace: kafka
+        labels:
+          app: strimzi
+      spec:
+        selector:
+          matchExpressions:
+            - key: "strimzi.io/kind"
+              operator: In
+              values: ["Kafka", "KafkaConnect", "KafkaConnectS2I", "KafkaMirrorMaker", "KafkaMirrorMaker2"]
+        namespaceSelector:
+          #FIXME
+          matchNames:
+            - kafka-cluster-((instance_id))
+        podMetricsEndpoints:
+        - path: /metrics
+          port: tcp-prometheus
+          relabelings:
+          - separator: ;
+            regex: __meta_kubernetes_pod_label_(strimzi_io_.+)
+            replacement: $1
+            action: labelmap
+          - sourceLabels: [__meta_kubernetes_namespace]
+            separator: ;
+            regex: (.*)
+            targetLabel: namespace
+            replacement: $1
+            action: replace
+          - sourceLabels: [__meta_kubernetes_pod_name]
+            separator: ;
+            regex: (.*)
+            targetLabel: kubernetes_pod_name
+            replacement: $1
+            action: replace
+          - sourceLabels: [__meta_kubernetes_pod_node_name]
+            separator: ;
+            regex: (.*)
+            targetLabel: node_name
+            replacement: $1
+            action: replace
+          - sourceLabels: [__meta_kubernetes_pod_host_ip]
+            separator: ;
+            regex: (.*)
+            targetLabel: node_ip
+            replacement: $1
+            action: replace
+    

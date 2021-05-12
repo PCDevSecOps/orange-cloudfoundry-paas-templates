@@ -1,0 +1,20 @@
+#--- Ldap/uaa configuration
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/ldap?
+  value:
+    enabled: true
+    profile_type: search-and-bind
+    url: 'ldap://elpaaso-ldap.internal.paas:389/'
+    userDN: 'cn=manager,dc=orange,dc=com'
+    userPassword: ((/secrets/ldap_root_password))
+    searchBase: 'ou=users,dc=orange,dc=com'
+    searchFilter: 'uid={0}'
+    mailAttributeName: mail
+    groups:
+      profile_type: groups-as-scopes
+      searchBase: 'ou=paas-groups,ou=groups,dc=orange,dc=com'
+      groupRoleAttribute: 'description'
+      groupSearchFilter: 'uniqueMember={0}'
+      searchSubtree: true
+      maxSearchDepth: 10
+      autoAdd: true

@@ -1,0 +1,20 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - shared-operators/multi-region-common/r1
+        - shared-operators/multi-region-common/r2
+        - shared-operators/multi-region-common/wireguard-tools
+
+    releases:
+      jumpbox:
+      bosh-dns-aliases:
+      os-conf:
+      wireguard:
+      generic-scripting:
+      wondershaper:
+

@@ -1,0 +1,48 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: kubeapps-tls
+    secret_type: kubernetes.io/tls
+    namespace: kubeapps
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kubeapps-ingress"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        annotations:
+          kubernetes.io/ingress.allow-http: "false"
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/whitelist-source-range: 0.0.0.0/0
+        name: kubeapps
+        namespace: kubeapps
+      spec:
+        tls:
+        - hosts:
+          - kubeapps.((/secrets/cloudfoundry_ops_domain))
+          secretName: kubeapps-tls
+        rules:
+        - host: kubeapps.((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: kubeapps
+                  port:
+                    number: 80

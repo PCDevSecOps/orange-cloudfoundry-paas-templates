@@ -1,0 +1,7 @@
+---
+#adapt AZ : [z1, z2, z3]
+#
+- path: /instance_groups/name=mongod/azs
+  type: replace
+  value: [z1, z2, z3]
+#  value: [z1]

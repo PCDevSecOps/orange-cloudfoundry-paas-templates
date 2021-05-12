@@ -1,0 +1,54 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kafka-cluster/content/spec/kafka/template?/pod?/affinity?
+
+  value:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      #distinct host for each kafka pod
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - kafka
+        topologyKey: "kubernetes.io/hostname"
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: bosh.io/name
+            operator: In
+            values:
+            - worker
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kafka-cluster/content/spec/zookeeper/template?/pod?/affinity?
+  value:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      #distinct host for each zookeeper pod
+      - labelSelector:
+          matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+            - zookeeper
+        topologyKey: "kubernetes.io/hostname"
+        
+        #distinct az for each zookeeper pod
+#      - labelSelector:
+#          matchExpressions:
+#          - key: app.kubernetes.io/name
+#            operator: In
+#            values:
+#            - zookeeper
+#        topologyKey: topology.kubernetes.io/zone #should be failure-domain.beta.kubernetes.io/zone ?
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: bosh.io/name
+            operator: In
+            values:
+            - worker
+

@@ -1,0 +1,10 @@
+#--- From shared secrets
+
+ops_ip: (( grab secrets.intranet_interco_ips.ops ))
+osb_ip: (( grab secrets.osb_interco.osb ))
+to-intranet-ip: (( grab secrets.intranet_interco_ips.to_intranet ))
+api_ip: (( grab secrets.intranet_interco_ips.api ))
+apps_ip: (( grab secrets.intranet_interco_ips.apps ))
+
+#--- From dns-recursor secrets
+public_s3_service_host: (( grab secrets.public_s3_service.host ))

@@ -1,0 +1,19 @@
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: k8s-micro-vrrp
+    cloud_properties:
+      allowed_address_pairs: 192.168.243.150 #--- ip for port mapped to master-depls/logsearch-ops/ls-router
+      #--- NOTE: port must be reserved in openstack by terraform rules (required by bosh cpi to retrieve port id from allowed ip)
+
+
+#cidr allowed_address_pair. Requires on openstack-cpi evolution  ==> DISABLED as we use openstack client scripts to set directly the allowed server pair on openstack port
+#- type: replace
+#  path: /vm_extensions/-
+#  value:
+#    name: k8s-private-vip-cidr-vm-extension
+#    cloud_properties:
+#      allowed_address_pairs: 192.168.116.0/24 #--- cidr allowed for vips
+#      security_groups:
+#      - tf-default-sg #seems vm extension override network security group. reapply
+#      

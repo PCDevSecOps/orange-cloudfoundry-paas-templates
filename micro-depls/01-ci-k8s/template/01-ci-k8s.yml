@@ -1,0 +1,26 @@
+---
+#Deployment Identification
+name: ((deployment_name))
+
+#Features Block
+
+addons: []
+#Releases Block
+releases: []
+
+#Stemcells Block
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+#Update Block
+update:
+  canaries: 1
+  max_in_flight: 2
+  canary_watch_time: 15000-30000
+  update_watch_time: 15000-300000
+
+#Instance Groups Block
+instance_groups: []
+variables: []

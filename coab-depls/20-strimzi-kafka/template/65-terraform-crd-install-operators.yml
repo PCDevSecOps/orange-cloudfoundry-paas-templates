@@ -1,0 +1,27 @@
+#install terraform crd with helm chart
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: tf-system
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: isaaguilar 
+    url:  https://isaaguilar.github.io/helm-charts
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: terraform-operator 
+    chart: isaaguilar/terraform-operator
+    namespace: tf-system
+    version: ((helm_isaaguilar_terraform_operator))
+    values_file_content:
+      controller:
+        environmentVars:
+          https_proxy: http://system-internet-http-proxy.internal.paas:3128
+          no_proxy: "169.254.169.254,127.0.0.1,localhost,.((/secrets/cloudfoundry_ops_domain)),.paas,.internal,.svc,.svc.cluster.local,192.168.0.0/16,10.200.0.0/16,10.244.0.0/16,10.245.0.0/16,10.100.200.0/16"

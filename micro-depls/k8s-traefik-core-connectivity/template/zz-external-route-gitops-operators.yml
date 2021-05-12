@@ -1,0 +1,45 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikingressroutegitops"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRouteTCP
+      metadata:
+        name: routingmapgitops
+        namespace: traefik
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - websecure
+        tls:
+          passthrough: true
+        routes:
+        - match: HostSNI(`rancher-micro.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: gitops-management
+            namespace: traefik
+            kind: Service
+            port: 443
+        - match: HostSNI(`stratos.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: gitops-management
+            namespace: traefik
+            kind: Service
+            port: 443
+        - match: HostSNI(`stratos-cf.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: gitops-management
+            namespace: traefik
+            kind: Service
+            port: 443

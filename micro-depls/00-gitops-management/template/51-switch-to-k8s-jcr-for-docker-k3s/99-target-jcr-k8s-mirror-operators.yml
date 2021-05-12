@@ -1,0 +1,9 @@
+#patch server
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=k3s-server/properties/containerd_registry
+  value: ((containerd_registry))
+  
+#patch agent
+- type: replace
+  path: /addons/name=20-add-agents/jobs/name=k3s-agent/properties/containerd_registry
+  value: ((containerd_registry))

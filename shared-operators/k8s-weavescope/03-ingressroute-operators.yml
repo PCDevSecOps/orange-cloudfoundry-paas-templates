@@ -1,0 +1,57 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "weave-cert"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((certificate_api_version))
+      kind: Certificate
+      metadata:
+        name: weave-tls
+        namespace: weave
+      spec:
+        secretName: weave-tls
+        duration: ((cert_duration))
+        renewBefore: ((cert_renew_before))
+        commonName: weave-scope-app.((env_pf)).((/secrets/cloudfoundry_ops_domain))
+        issuerRef:
+          name: issuer
+          kind: ClusterIssuer
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "weavescopeingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: veave
+        namespace: weave
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - websecure
+        tls:
+          secretName: weave-tls
+        routes:
+        - match: Host(`weave-scope-app.((env_pf)).((/secrets/cloudfoundry_ops_domain))`) && (PathPrefix(`/`) )
+          kind: Rule
+          middlewares:
+          - name: auth-by-uaa
+            namespace: traefik
+          priority: 0
+          services:
+          - kind: Service
+            name: weave-scope-app
+            namespace: weave
+            port: 80
+
+
+

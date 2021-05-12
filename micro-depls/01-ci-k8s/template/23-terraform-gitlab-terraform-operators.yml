@@ -1,0 +1,11 @@
+
+#gitlab access token. credhub generated, to replace manually with a true access token generated on gitlab portail
+- type: replace
+  path: /variables/-
+  value:
+    name: gitlab_api_token
+    type: password
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((gitlab-configuration))

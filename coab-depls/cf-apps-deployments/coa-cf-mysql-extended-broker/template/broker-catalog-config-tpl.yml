@@ -1,0 +1,67 @@
+servicebroker:
+  catalog:
+    services:
+      - id: cf-mysql-extended-ondemand-service
+        name: (( grab secrets.coa-cf-mysql-extended-broker.serviceName ))
+        description: (( grab secrets.coa-cf-mysql-extended-broker.serviceDescription ))
+        bindable: true
+        plans:
+          - id: plan-coab-mariadb-small
+            name: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.small.name ))
+            description: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.small.description ))
+            free: false
+            metadata:
+              bullets:
+                - 2GB storage
+                - 70 concurrent connections
+              costs:
+                - amount:
+                    eur: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.small.price ))
+                  unit: Monthly
+              displayName: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.small.displayName ))
+            maintenance_info:
+              version: "50.0.0"
+              description: "Dashboard url with backend guid"
+          - id: plan-coab-mariadb-medium
+            name: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.medium.name ))
+            description: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.medium.description ))
+            free: false
+            metadata:
+              bullets:
+                - 33GB storage
+                - 150 concurrent connections
+              costs:
+                - amount:
+                    eur: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.medium.price ))
+                  unit: Monthly
+              displayName: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.medium.displayName ))
+            maintenance_info:
+              version: "50.0.0"
+              description: "Dashboard url with backend guid"
+          - id: plan-coab-mariadb-large
+            name: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.large.name ))
+            description: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.large.description ))
+            free: false
+            metadata:
+              bullets:
+                - 66GB storage
+                - 200 concurrent connections
+              costs:
+                - amount:
+                    eur: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.large.price ))
+                  unit: Monthly
+              displayName: (( grab secrets.coa-cf-mysql-extended-broker.plan-coab-mariadb.large.displayName ))
+            maintenance_info:
+              version: "50.0.0"
+              description: "Dashboard url with backend guid"
+        tags:
+          - MariaDB
+          - Galera Cluster
+          - relational
+        metadata:
+          displayName: (( grab secrets.coa-cf-mysql-extended-broker.metadata.displayName ))
+          imageUrl: data:image/png;base64,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
+          longDescription: (( grab secrets.coa-cf-mysql-extended-broker.metadata.longDescription ))
+          providerDisplayName: Cloud Foundry / MariaDB
+          documentationUrl: (( grab secrets.coa-cf-mysql-extended-broker.metadata.documentationUrl ))
+          supportUrl: (( grab secrets.coa-cf-mysql-extended-broker.metadata.supportUrl ))

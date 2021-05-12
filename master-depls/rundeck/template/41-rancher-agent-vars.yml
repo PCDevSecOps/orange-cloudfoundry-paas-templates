@@ -1,0 +1,4 @@
+#FIXME: cacth from secrets or credhub
+rancher-agent-id: 42e66ea
+rancher_agent_url: "aHR0cHM6Ly9yYW5jaGVyLW1pY3JvLm5kLWludC1vcHMtcGFhcy5pdG4uaW50cmFvcmFuZ2U="
+rancher_agent_token: "cjZ3Zjl2MnI3bDh4Y3dkNGM2YjVsN2tyZGhyZGdsNnd0Mjd0cGZqMnF3cnF3emNmaGN4d2N6"

@@ -1,0 +1,4 @@
+- type: replace
+  path: /instance_groups/name=docker-cli/jobs/name=docker/properties/registry_mirrors
+  value: [((docker_mirror))]
+

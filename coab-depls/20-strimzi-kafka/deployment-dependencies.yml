@@ -1,0 +1,27 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - coab-depls/20-strimzi-kafka
+        - coab-depls/20-strimzi-kafka/template
+        - shared-operators/k3s
+        - shared-operators/k8s-common
+        - shared-operators/00-terraform
+    releases:
+      routing:
+      bosh-dns-aliases:
+      k3s:
+      helm-kubectl:
+      generic-taint-jobs:
+      ulimit:
+      terraform:
+#      haproxy:
+#      pxc:
+
+    errands:
+      action:
+        display-name: kubectl-actions
+#      smoke-tests: #pxc smoke test
+#        display-name: pxc-smoke-tests

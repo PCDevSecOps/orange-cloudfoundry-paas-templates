@@ -1,0 +1,6 @@
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/0/name?
+  value: ((deployment_name))-stratos-(ip)
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/0/config/exclude?
+  value: "*.sock"

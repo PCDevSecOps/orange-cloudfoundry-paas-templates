@@ -1,0 +1,95 @@
+---
+#this operators inject the generic scripting release in order to adapt errand to run on an airgap CF platform
+
+# add Generic- scripting release
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=scripting?
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/sh
+
+          # Prepare sed replacement ---
+          VAR=" \
+          OSB_MONGO_NAME=desi-mongo-tmp\n \
+          OSB_MONGO_USER=mongodb-broker\n \
+          OSB_MONGO_PASS=((broker-password))\n \
+          OSB_MONGO_URI=https:\\/\\/((route_registrar.external_host))\n \
+          export http_proxy=http:\\/\\/system-internet-http-proxy.internal.paas:3128\n \
+          export https_proxy=http:\\/\\/system-internet-http-proxy.internal.paas:3128\n \
+          \1\n\n \
+          # Install bundler to package dependencies\n \
+          apt-get update\n \
+          apt-get -y install bundler git\n \
+          echo 'End Install'\n "
+
+          BUNDLE=" \
+          \1\n\n \
+          # Get vendor lib\n \
+          bundle package --all\n \
+          unset http_proxy\n \
+          unset https_proxy\n \
+          echo 'End Get vendor'\n "
+
+          REG_BROKER=" \
+          \1\n\n \
+          # Register space scoped broker tmp\n \
+          cf create-service-broker $\{OSB_MONGO_NAME} \${OSB_MONGO_USER} \${OSB_MONGO_PASS} \${OSB_MONGO_URI} --space-scoped\n \
+          echo 'End Register'\n "
+
+          RESTORE=" \
+          # Clean app, service instance and broker\n \
+          cf d -f -r \${CF_MONGODB_APPNAME}\n \
+          cf ds -f \${CF_MONGODB_SERVICEINSTANCENAME}\n \
+          cf delete-service-broker -f \${OSB_MONGO_NAME}\n "
+
+          ROUTE=" \
+          \1\n\n \
+          # Map app to a accessible route\n \
+          cf map-route \${CF_MONGODB_APPNAME} \${CF_MONGODB_APPDOMAIN} --hostname \${CF_MONGODB_APPNAME}\n \
+          echo 'End mapping external route'\n "
+
+          cd /var/vcap/jobs/broker-smoke-tests/bin/
+          sudo sed -ri "s/^(echo 'End Get parameters')/$VAR/" run
+
+          sudo sed -ri "s/^(echo 'End Copy')/$BUNDLE/" run
+
+          sudo sed -ri "s/^(echo 'End target org and space')/$RESTORE\n\n$REG_BROKER/" run
+
+          sudo sed -ri "s/^(echo 'End push')/$ROUTE/" run
+
+          sudo sed -ri "s/^(# Exit)/$RESTORE\n\n\1/" run
+
+# Adapt smoke test to run with the correct credential
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=broker-smoke-tests/properties/cf/admin/username
+  value: ((cf.admin.username))
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=broker-smoke-tests/properties/cf/org
+  value: ((cf.org))
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=broker-smoke-tests/properties/cf/space
+  value: ((cf.space))
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=broker-smoke-tests/properties/cf/mongodb/appdomain
+  value: ((cf.mongo.appdomain))
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=broker-smoke-tests/properties/cf/mongodb/servicename
+  value: ((cf.mongo.servicename))
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=broker-smoke-tests/properties/cf/mongodb/serviceplan
+  value: ((cf.mongo.serviceplan))

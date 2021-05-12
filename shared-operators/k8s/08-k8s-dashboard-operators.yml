@@ -1,0 +1,34 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: kubernetes-dashboard
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: kubernetes-dashboard
+    url: https://kubernetes.github.io/dashboard/
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kubernetes-dashboard
+    chart: kubernetes-dashboard/kubernetes-dashboard
+    namespace: kubernetes-dashboard
+    version: ((helm_kubernetes_dashboard))
+    properties:
+    - name: metricsScraper.enabled
+      value: true
+    values_file_content:
+      pinnedCRDs:
+      - kind: customresourcedefinition
+        name: ingressroutes.traefik.containo.us
+        displayName: Ingress-Route
+        namespaced: true
+      - kind: customresourcedefinition
+        name: middlewares.traefik.containo.us
+        displayName: Middleware
+        namespaced: true

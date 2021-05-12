@@ -1,0 +1,186 @@
+# current version v36
+# we are using the same cf-mysql-deployment.yml manifest
+# https://github.com/cloudfoundry/cf-mysql-deployment/blob/v36/cf-mysql-deployment.yml
+#
+# Releases Section
+- type: replace
+  path: /releases/-
+  value:
+    name: cf-mysql
+    version: latest
+
+# Variables Section
+- type: replace
+  path: /variables/-
+  value:
+    name: cf_mysql_mysql_admin_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf_mysql_mysql_cluster_health_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf_mysql_mysql_galera_healthcheck_db_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf_mysql_mysql_galera_healthcheck_endpoint_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf_mysql_proxy_api_password
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: cf_mysql_smoke_tests_db_password
+    type: password
+
+
+# Instance_groups section
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: mysql
+    instances: 3
+    azs: [z1, z2]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-4g
+    stemcell: default
+    persistent_disk: 10000
+    jobs:
+    - release: cf-mysql
+      name: mysql
+      properties:
+        cf_mysql:
+          mysql:
+            admin_password: ((cf_mysql_mysql_admin_password))
+            cluster_health:
+              password: ((cf_mysql_mysql_cluster_health_password))
+            galera_healthcheck:
+              db_password: ((cf_mysql_mysql_galera_healthcheck_db_password))
+              endpoint_password: ((cf_mysql_mysql_galera_healthcheck_endpoint_password))
+            persistent_disk: 10000
+    - name: smoke-tests-user
+      release: cf-mysql
+      properties:
+        cf_mysql:
+          smoke_tests:
+            db_password: ((cf_mysql_smoke_tests_db_password))
+    migrated_from:
+    - {name: mysql_z1, az: z1}
+    - {name: mysql_z2, az: z2}
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: arbitrator
+    instances: 0
+    azs: [z2]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-2g
+    stemcell: default
+    jobs:
+    - {release: cf-mysql, name: arbitrator}
+    migrated_from:
+    - {name: arbitrator_z2, az: z2}
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: proxy
+    instances: 1
+    azs: [z1, z2]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-2g
+    stemcell: default
+    jobs:
+    - name: proxy
+      release: cf-mysql
+      properties:
+        cf_mysql:
+          proxy:
+            api_password: ((cf_mysql_proxy_api_password))
+      provides:
+        mysql-database:
+          as: mysql-database
+          shared: true
+
+    migrated_from:
+    - {name: proxy_z1, az: z1}
+    - {name: proxy_z2, az: z2}
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: bootstrap
+    instances: 1
+    lifecycle: errand
+    azs: [z1]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-4g
+    stemcell: default
+    jobs:
+    - {release: cf-mysql, name: bootstrap}
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: rejoin-unsafe
+    instances: 1
+    lifecycle: errand
+    azs: [z1]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-4g
+    stemcell: default
+    jobs:
+    - {release: cf-mysql, name: rejoin-unsafe}
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: verify-cluster-schemas
+    instances: 1
+    lifecycle: errand
+    azs: [z1]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-4g
+    stemcell: default
+    jobs:
+    - {release: cf-mysql, name: verify-cluster-schemas}
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: smoke-tests
+    instances: 1
+    lifecycle: errand
+    azs: [z1]
+    networks: [{name: tf-net-exchange}]
+    vm_type: 1cpu-4g
+    stemcell: default
+    jobs:
+    - name: smoke-tests
+      release: cf-mysql
+      properties:
+        cf_mysql:
+          mysql:
+            admin_password: ((cf_mysql_mysql_admin_password))
+          smoke_tests:
+            db_password: ((cf_mysql_smoke_tests_db_password))
+            standalone_tests_only: true
+          proxy:
+            api_password: ((cf_mysql_proxy_api_password))
+
+
+

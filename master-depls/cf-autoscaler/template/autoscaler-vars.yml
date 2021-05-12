@@ -1,0 +1,4 @@
+network: tf-net-exchange
+system_domain: ((/secrets/cloudfoundry_system_domain))
+cf_admin_password: ((/secrets/cloudfoundry_admin_password))
+skip_ssl_validation: true #due to go version, ca certs for api not visible from apiserver

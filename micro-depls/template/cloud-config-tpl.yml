@@ -1,0 +1,79 @@
+#--- Availability zones
+azs:
+- name: z1
+  cloud_properties:
+    availability_zone: ((az_1))
+- name: z2
+  cloud_properties:
+    availability_zone: ((az_2))
+- name: z3
+  cloud_properties:
+    availability_zone: ((az_3))
+
+#--- VM flavors
+vm_types: []
+
+#--- Vm extensions
+vm_extensions: []
+
+#--- Disk sizes
+disk_types: []
+
+#--- micro-depls network
+networks:
+- name: net-bosh-2
+  type: manual
+  subnets:
+  - azs: [z1,z2,z3]
+    dns: ((dns))
+    range: 192.168.116.0/24
+    gateway: 192.168.116.1
+    reserved:
+    - 192.168.116.1 - 192.168.116.20    #--- Exclude gateway and dhcp address
+    static:
+    - 192.168.116.21 - 192.168.116.200  #--- Static ips
+
+#--- Compilation network
+- name: compilation-network
+  type: manual
+  subnets:
+  - azs: [z1,z2]
+    dns: ((dns))
+    range: 192.168.100.0/24
+    gateway: 192.168.100.1
+    reserved:
+    - 192.168.100.2 - 192.168.100.20
+    - 192.168.100.41 - 192.168.100.254
+
+#--- Intranet-interco network
+- name: intranet-interco
+  subnets:
+  - azs: [z1,z2,z3]
+    dns: ((dns))
+    gateway: ((intranet_interco_gateway))
+    range: ((intranet_interco_range))
+    reserved:
+      - ((intranet_interco_gateway))
+      - ((intranet_interco_reserved))
+  type: manual
+
+#--- K8s network
+- name: tf-net-cfcr-micro
+  type: manual
+  subnets:
+  - azs: [z1,z2,z3]
+    dns: ((dns))
+    range: 192.168.243.0/24
+    gateway: 192.168.243.1
+    reserved:
+    - 192.168.243.1 - 192.168.243.150     #--- exclude dhcp address (see terraform)
+    static:
+    - 192.168.243.151 - 192.168.243.200
+
+#--- Compilation vms
+compilation:
+  workers: 2
+  reuse_compilation_vms: true
+  az: z1
+  vm_type: 2cpu-8g
+  network: compilation-network

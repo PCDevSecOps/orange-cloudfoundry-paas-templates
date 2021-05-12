@@ -1,0 +1,92 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: coredns-coredns
+  namespace: kube-system
+  labels:
+    app.kubernetes.io/instance: coredns
+    app.kubernetes.io/name: coredns
+    k8s-app: coredns
+    kubernetes.io/cluster-service: 'true'
+    kubernetes.io/name: CoreDNS
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: coredns
+      app.kubernetes.io/name: coredns
+      k8s-app: coredns
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: coredns
+        app.kubernetes.io/name: coredns
+        k8s-app: coredns
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: ''
+        scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
+    spec:
+      volumes:
+      - name: config-volume
+        configMap:
+          name: coredns-coredns
+          items:
+          - key: Corefile
+            path: Corefile
+          defaultMode: 420
+      - name: hostsfromnode
+        hostPath:
+          path: /etc/hosts
+          type: File
+      containers:
+      - name: coredns
+        image: 'coredns/coredns:1.7.0'
+        args:
+        - '-conf'
+        - /etc/coredns/Corefile
+        ports:
+        - name: udp-53
+          containerPort: 53
+          protocol: UDP
+        - name: tcp-53
+          containerPort: 53
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/coredns
+        - name: hostsfromnode
+          mountPath: /etc/hostsFromNode
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+            scheme: HTTP
+          initialDelaySeconds: 60
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8181
+            scheme: HTTP
+          initialDelaySeconds: 10
+          timeoutSeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
+          failureThreshold: 5
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        imagePullPolicy: IfNotPresent
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600

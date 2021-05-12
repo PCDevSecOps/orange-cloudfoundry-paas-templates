@@ -1,0 +1,7 @@
+#--- Load template version properties to credhub
+- type: replace
+  path: /instance_groups/name=credhub-importer/jobs/name=credhub-importer/properties/credhub/import_credentials/-
+  value:
+    name: /meta/template_version
+    type: value
+    value: ((paas-templates-version))

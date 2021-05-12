@@ -1,0 +1,14 @@
+deployment_name: 00-k3s-serv
+network: tf-net-kubo
+
+agent_addon_include_release: generic-taint-jobs
+agent_addon_include_job: slave-taint
+server_addon_include_release: generic-taint-jobs
+server_addon_include_job: master-taint
+
+
+master_persistent_disk_type: xlarge
+worker_persistent_disk_type: xlarge
+masters_instance_count: 1
+worker_instance_count: (( grab meta.k8s.nb_agent || "4" ))
+cluster_name: 00-k3s-serv

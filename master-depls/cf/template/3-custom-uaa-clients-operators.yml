@@ -1,0 +1,77 @@
+#FIXME secrets to delete (v52) ===================
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/cfcr-secret
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/o-elpaaso-sandbox-secret
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/grafana-coab-client-secret
+    type: password
+#END secrets to delete (v52) ===================
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/concourse-secret
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/firehose-to-syslog-secret
+    type: password
+    options:
+      length: 30
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/prometheus-firehose-secret
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/admin-ui-client-secret
+    type: password
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/firehose-to-syslog?
+  value:
+    secret: ((/uaa/firehose-to-syslog-secret))
+    authorized-grant-types:  client_credentials,refresh_token
+    authorities:  doppler.firehose,cloud_controller.global_auditor
+    scope: uaa.none
+    override: true
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/prometheus-firehose?
+  value:
+    access-token-validity: 1209600
+    secret: ((/uaa/prometheus-firehose-secret))
+    authorized-grant-types: authorization_code,client_credentials,refresh_token
+    override: true
+    authorities: cloud_controller.admin,doppler.firehose,oauth.login #admin for cf-exporter+ according to prometheus firehose doc
+    scope: openid,oauth.approvals,doppler.firehose
+    redirect-uri: https://doppler.((/secrets/cloudfoundry_system_domain))
+
+#--- admin-ui client
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/admin_ui_client?
+  value:
+    secret: ((/uaa/admin-ui-client-secret))
+    autoapprove: true
+    override: true
+    scope: admin_ui.admin,admin_ui.user,openid
+    authorized-grant-types: authorization_code,client_credentials,refresh_token
+    authorities: clients.write,cloud_controller.admin,cloud_controller.read,cloud_controller.write,doppler.firehose,openid,scim.read,scim.write,sps.write,uaa.admin,uaa.resource
+    redirect-uri: https://admin-ui.((/secrets/cloudfoundry_system_domain))/login

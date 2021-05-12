@@ -1,0 +1,17 @@
+
+cf_admin_password: "((/secrets/cloudfoundry_admin_password))"
+
+
+# domain where cloud_controller will listen (api.domain) often the same as the system domain
+system_domain: "((/secrets/cloudfoundry_system_domain))"
+
+
+# Domain reserved for CF operator, base URL where the login, uaa, and other non-user apps listen
+system_domain_organization: system_domain
+
+# static ips for gorouter nats
+nats_static_ips:
+  - 192.168.35.30
+  - 192.168.35.31
+
+  

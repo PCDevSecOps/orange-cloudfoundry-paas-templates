@@ -1,0 +1,6 @@
+#vars for metallb
+internet_proxy_private_vip: 192.168.116.15 #vip to support internet proxy
+intranet_proxy_private_vip: 192.168.116.17 #vip to support intranet proxy
+internal_ops_relay_vip: 192.168.116.19     #vip to support ops_domain internet split brain
+internal_paas_private_vip: 192.168.116.14 #vip for internal services (minio/ldap)
+

@@ -1,0 +1,22 @@
+---
+deployment_name: "noop" # needs to match deployment name
+instance_id: "e5f92172-52c2-4e2c-99af-b0ca8a70f160"
+service_id: "noop-ondemand-service"
+plan_id: "noop-ondemand-plan"
+context:
+  platform: "cloudfoundry"
+  user_guid: "0d02117b-aa21-43e2-b35e-8ad6f8223519"
+  space_guid: "d8d14da7-7ac8-4a6b-b17b-8544c28e514a"
+  organization_guid: "b65a1232-add9-49ab-8bf1-283ddc08c0de"
+parameters:
+  x-osb-cmdb:
+    annotations:
+      brokered_service_api_info_location: "fake-endpoint/v2/info"
+      brokered_service_context_instanceName: "a-faked-instance-name-in-coab-noop-model"
+      brokered_service_context_organizationName: "a-faked-org-name-in-coab-noop-model"
+      brokered_service_context_spaceName: "a-faked-space-name-in-coab-noop-model"
+    labels:
+      brokered_service_context_organization_guid: "a-faked-org-guid-in-coab-noop-model"
+      brokered_service_context_space_guid: "a-faked-space-guid-in-coab-noop-model"
+      brokered_service_instance_guid: "noop-smoketest-1603785117"
+      brokered_service_originating_identity_user_id: "a-faked-user-guid-in-coab-noop-model"

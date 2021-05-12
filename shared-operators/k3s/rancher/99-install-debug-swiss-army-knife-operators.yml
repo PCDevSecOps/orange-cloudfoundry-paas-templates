@@ -1,0 +1,29 @@
+#enable ca for rancher agent
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "rancher-agentcorporate-ca-podpreset"
+    cmd: "apply"
+    content:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: debug-tool
+      spec:
+        selector:
+            matchLabels:
+              name: debug-tool
+        template:
+          metadata:
+            labels:
+              name: debug-tool
+          spec:
+            tolerations:
+            - operator: Exists
+            containers:
+            - image: rancherlabs/swiss-army-knife
+              imagePullPolicy: Always
+              name: debug-tool
+              command: ["sh", "-c", "tail -f /dev/null"]
+              terminationMessagePath: /dev/termination-log

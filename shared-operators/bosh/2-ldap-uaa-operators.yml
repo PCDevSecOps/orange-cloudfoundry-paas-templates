@@ -1,0 +1,41 @@
+#--- Force uaa release to concourse provided, no direct download
+- type: replace
+  path: /releases/name=uaa
+  value:
+    name: uaa
+    version: latest
+
+#--- Ldap/uaa configuration
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=uaa/properties/uaa/ldap?
+  value:
+    enabled: true
+    profile_type: search-and-bind
+    url: 'ldap://elpaaso-ldap.internal.paas:389/'
+    userDN: 'cn=manager,dc=orange,dc=com'
+    userPassword: ((/secrets/ldap_root_password))
+    searchBase: 'ou=users,dc=orange,dc=com'
+    searchFilter: 'uid={0}'
+    mailAttributeName: mail
+    groups:
+      profile_type: groups-as-scopes
+      searchBase: 'ou=paas-groups,ou=groups,dc=orange,dc=com'
+      groupRoleAttribute: 'description'
+      groupSearchFilter: 'uniqueMember={0}'
+      searchSubtree: true
+      maxSearchDepth: 10
+      autoAdd: true
+
+#--- patch uaa => added urandom setting to speed tomcat bootstrap
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=uaa/properties/uaa/catalina_opts?
+  value: "-Xmx768m -XX:MaxMetaspaceSize=256m -Djava.security.egd=file:///dev/urandom"
+
+#--- Force use internal CA cert (openssl manually created) because credhub certs don't operate
+- type: replace
+  path: /variables/name=uaa_ssl/options/ca
+  value: /internalCA
+
+- type: replace
+  path: /variables/name=uaa_service_provider_ssl/options/ca
+  value: /internalCA

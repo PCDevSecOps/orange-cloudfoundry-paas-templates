@@ -1,0 +1,150 @@
+---
+name: coab-depls
+releases:
+  backup-and-restore-sdk:
+    version: 1.18.8
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.28.0
+  bosh-dns-aliases:
+    version: 0.0.3
+    repository: cloudfoundry/bosh-dns-aliases-release
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.9
+  cf-cli:
+    version: 1.26.0
+    repository: bosh-packages/cf-cli-release
+  cf-mysql:
+    repository: orange-cloudfoundry/cf-mysql-release
+    skip_branch_checkout: false
+    version: 38.0.0
+    tag_prefix: ''
+  cf-rabbitmq:
+    repository: pivotal-cf/cf-rabbitmq-release
+    skip_branch_checkout: false
+    version: 368.0.0
+  cf-rabbitmq-multitenant-broker:
+    repository: pivotal-cf/cf-rabbitmq-multitenant-broker-release
+    skip_branch_checkout: false
+    version: 93.0.0
+  cf-rabbitmq-smoke-tests:
+    repository: pivotal-cf/cf-rabbitmq-smoke-tests-release
+    skip_branch_checkout: false
+    version: 95.0.0
+  cfcr-etcd:
+    version: 1.11.0
+    repository: cloudfoundry-incubator/cfcr-etcd-release
+  containerd:
+    version: '1'
+    repository: orange-cloudfoundry/containerd-boshrelease
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.0
+  curator:
+    repository: bosh-elastic-stack/curator-boshrelease
+    version: 0.3.1
+  docker:
+    repository: cloudfoundry-incubator/docker-boshrelease
+    version: 35.3.4
+  docker-registry:
+    repository: cloudfoundry-community/docker-registry-boshrelease
+    version: 3.5.2
+  elasticsearch:
+    repository: bosh-elastic-stack/elasticsearch-boshrelease
+    version: 0.23.2
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  generic-taint-jobs:
+    version: '1'
+    repository: orange-cloudfoundry/generic-taint-jobs-release
+  haproxy:
+    version: 10.2.0
+    repository: cloudfoundry-community/haproxy-boshrelease
+  helm-kubectl:
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+    tag_prefix: ''
+    version: '35'
+  jumpbox:
+    repository: cloudfoundry-community/jumpbox-boshrelease
+    version: 4.6.4
+  k3s:
+    repository: orange-cloudfoundry/k3s-boshrelease
+    version: '15'
+  k8s:
+    tag_prefix: ''
+    version: 1.18.8-orange-7
+    repository: orange-cloudfoundry/k8s-boshrelease
+  kibana:
+    repository: bosh-elastic-stack/kibana-boshrelease
+    version: 0.16.3
+  logstash:
+    repository: bosh-elastic-stack/logstash-boshrelease
+    version: 0.15.2
+  minio:
+    version: 2020-06-18T02-23-35Z
+    repository: minio/minio-boshrelease
+  mongodb-services:
+    repository: orange-cloudfoundry/mongodb-boshrelease
+    version: '13'
+    tag_prefix: ''
+  nginx:
+    repository: cloudfoundry-community/nginx-release
+    version: 1.19.1
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 5.0.0
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    version: '1'
+    tag_prefix: ''
+  orange-prometheus-addons:
+    repository: orange-cloudfoundry/orange-prometheus-addons-boshrelease/
+    version: '3'
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 22.0.0
+  prometheus:
+    version: 26.5.0
+    repository: cloudfoundry-community/prometheus-boshrelease
+  pxc:
+    repository: cloudfoundry-incubator/pxc-release
+    version: 0.33.0
+  redis-service:
+    repository: orange-cloudfoundry/redis-orange
+    skip_branch_checkout: false
+    version: '3.2'
+  rke:
+    repository: orange-cloudfoundry/rke-boshrelease
+    version: '5'
+  routing:
+    version: 0.206.0
+    repository: cloudfoundry/routing-release
+  shell:
+    repository: cloudfoundry-community/shell-boshrelease
+    version: 3.2.0
+  shield:
+    version: 8.7.3
+    repository: starkandwayne/shield-boshrelease
+  shield-addon-mongodb:
+    repository: shieldproject/shield-addon-mongodb-boshrelease
+    version: 1.0.0
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.7.0
+  terraform:
+    repository: orange-cloudfoundry/terraform-release
+    version: '4'
+    tag_prefix: ''
+  ulimit:
+    version: '1'
+    repository: pivotal-cf/ulimit-release/
+
+#  weave-scope:
+#    repository: cloudfoundry-community/weavescope-boshrelease
+#    version: "0.0.18"
+#    github-release-name: weave-scope.tgz
+stemcell:
+  version: '1.1'

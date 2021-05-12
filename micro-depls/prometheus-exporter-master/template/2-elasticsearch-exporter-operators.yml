@@ -1,0 +1,11 @@
+#--- elasticsearch exporter
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: elasticsearch_exporter
+    release: prometheus
+    properties:
+      elasticsearch_exporter:
+        es:
+          uri: http://es-master-ops.internal.paas:9200
+          all: true

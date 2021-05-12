@@ -1,0 +1,20 @@
+#create a static pv on nfs server
+#see https://www.terraform.io/docs/providers/kubernetes/r/persistent_volume.html
+
+resource "kubernetes_persistent_volume" "tf-static-nfs-pv" {
+    metadata {
+        name = "tf-static-nfs-pv"
+    }
+    spec {
+        capacity {
+            storage = "2Gi"
+        }
+        access_modes = ["ReadWriteMany"]
+        persistent_volume_source {
+            nfs {
+                server =  "192.168.245.180"
+                path = "/"
+            }
+        }
+    }
+}

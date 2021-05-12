@@ -1,0 +1,48 @@
+#--- set up the vpn server to enable transparent inter region subnet traffic
+- type: replace
+  path: /releases/-
+  value:
+    name: wireguard
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    release: wireguard
+    name: wireguard
+    properties:
+      wireguard:
+        debug: true #defining this property enables wireguard debug
+        address: 192.168.2.4/32 #ip of the server on the new 192.168.2.0/24 VPN network
+        listen_port: ((vpn_port))
+        private_key: ((/secrets/multi_region_region_3_private_key))
+        table: "off" #disable wireguard default route setting
+        peers: []
+        preup: []
+        postup:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv4.conf.all.proxy_arp=1
+        - sysctl -w net.ipv4.conf.all.rp_filter=0 #https://access.redhat.com/solutions/53031
+        - sysctl -w net.ipv4.conf.wg0.rp_filter=0
+        - sysctl -w net.ipv4.conf.eth0.rp_filter=0
+        predown: []
+        postdown: []
+
+#set the vm as router
+#--- set up the vpn server to enable transparent inter region subnet traffic
+- type: replace
+  path: /releases/-
+  value:
+    name: os-conf
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    release: os-conf
+    name: sysctl
+    properties:
+      sysctl:
+      #--- Enable linux tcp routing, see https://github.com/pirate/wireguard-docs#setup
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.proxy_arp=1

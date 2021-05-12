@@ -1,0 +1,1 @@
+../../../shared-operators/coab/coa-hooks/verify-coab-completion-marker.bash

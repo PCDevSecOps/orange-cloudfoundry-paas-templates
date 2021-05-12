@@ -1,0 +1,111 @@
+---
+#Deployment Identification
+name: metabase
+ 
+#Features Block
+
+#Releases Block
+releases:
+- name: postgres
+  version: latest
+- name: metabase
+  version: 5
+- name: routing
+  version: latest
+
+# Stemcell details
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+#Update Block
+update:
+  canaries: 1
+  max_in_flight: 2
+  canary_watch_time: 15000-30000
+  update_watch_time: 15000-300000
+
+#Instance Groups Block
+instance_groups:
+- name: data_db
+  networks:
+  - name: tf-net-exchange
+  vm_type: 1cpu-4g
+  stemcell: default
+  persistent_disk_type: xlarge
+
+  azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: postgres
+    release: postgres
+    provides:
+      postgres: {as: db1}
+    properties:
+      databases:
+        databases:
+        - citext: true
+          name: metabase
+          tag: cc
+        db_scheme: postgres
+        roles:
+        - name: admin
+          password: "((!metabase_db_password))"
+          tag: admin
+        hooks:
+          pre_start: |
+            #!/bin/bash
+            echo "Going to start Postgres"
+            echo "PostgreSQL data directory is ${DATA_DIR}"
+            echo "PostgreSQL port is ${PORT}"
+            echo "Package directory is ${PACKAGE_DIR}"
+          post_start: |
+            #!/bin/bash
+            echo "The following databases are available:"
+            ${PACKAGE_DIR}/bin/psql -p ${PORT} -U vcap postgres -c "\l
+
+
+- name: metabase
+  vm_type: 1cpu-4g
+  stemcell: default
+  persistent_disk_type: default
+  networks:
+  - name: tf-net-exchange
+  azs:
+  - z1
+  instances: 1
+  jobs:
+  - name: metabase
+    release: metabase
+    consumes:
+      postgres: {from: db1}
+    properties: {}   
+
+  - release: routing
+    name: route_registrar
+    properties:
+       # this is a route to expose weave console  via cf routers
+      nats:
+        machines: [ops-routing-nats] 
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+          - name: metabase
+            uris:
+              - metabase-ops.((/secrets/cloudfoundry_ops_domain))
+            port: 3000
+            registration_interval: 20s  
+
+variables:
+- name: metabase_db_password
+  type: password  
+
+#Addons Block
+
+#Properties Block
+#should not be used anymore
+

@@ -1,0 +1,10 @@
+#--- Paas-template version
+template_version: ((/meta/template_version))
+
+#--- ops-portal properties
+nginx_conf: (( file "../../../additional-resource/micro-depls/docker-bosh-cli/template/nginx/nginx.conf" ))
+default_conf: (( file "../../../additional-resource/micro-depls/docker-bosh-cli/template/nginx/default.conf" ))
+css_common: (( file "../../../additional-resource/micro-depls/docker-bosh-cli/template/nginx/common.css" ))
+css_light: (( file "../../../additional-resource/micro-depls/docker-bosh-cli/template/nginx/light.css" ))
+css_dark: (( file "../../../additional-resource/micro-depls/docker-bosh-cli/template/nginx/dark.css" ))
+js_script: (( file "../../../additional-resource/micro-depls/docker-bosh-cli/template/nginx/code.js" ))

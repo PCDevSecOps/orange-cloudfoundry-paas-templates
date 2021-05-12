@@ -1,0 +1,63 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikingressrouteci"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRouteTCP
+      metadata:
+        name: routingmap-ci
+        namespace: traefik
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - websecure
+        tls:
+          passthrough: true
+        routes:
+        - match: HostSNI(`gitlab-gitlab-k8s.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: ci-k8s
+            namespace: traefik
+            kind: Service
+            port: 30725 #TODO change to 443
+        - match: HostSNI(`minio-gitlab-k8s.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+            - name: ci-k8s
+              namespace: traefik
+              kind: Service
+              port: 30725 #TODO change to 443
+        - match: HostSNI(`concourse-k8s.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: ci-k8s
+            namespace: traefik
+            kind: Service
+            port: 30725 #TODO change to 443
+        - match: HostSNI(`minio-k8s.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: ci-k8s
+            namespace: traefik
+            kind: Service
+            port: 443
+        - match: HostSNI(`openldap-k8s.((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: ci-k8s
+            namespace: traefik
+            kind: Service
+            port: 443
+
+

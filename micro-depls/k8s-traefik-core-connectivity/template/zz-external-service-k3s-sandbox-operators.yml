@@ -1,0 +1,17 @@
+## creating service reference with an external fqdn, leveraging endpoint slides (fqdn is ok with ExternalName)
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "k3s-sandbox"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: k3s-sandbox
+        namespace: traefik
+      spec:
+        externalName: 192.168.99.194 #TOFIX IP of agent 0 (VM)
+        type: ExternalName

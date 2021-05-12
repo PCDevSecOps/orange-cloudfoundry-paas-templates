@@ -1,0 +1,13 @@
+#--- Vsphere cpi properties
+vcenter_ip: (( grab secrets.vsphere.vcenter_ip ))
+vcenter_user: (( grab secrets.vsphere.vcenter_user ))
+vcenter_password: (( grab secrets.vsphere.vcenter_password ))
+vcenter_dc: (( grab secrets.vsphere.vcenter_dc ))
+vcenter_cluster: (( grab secrets.vsphere.vcenter_cluster ))
+vcenter_ds: (( grab secrets.vsphere.vcenter_ds ))
+vcenter_resource_pool: (( grab secrets.vsphere.vcenter_resource_pool ))
+vcenter_disks: (( grab secrets.vsphere.vcenter_disks ))
+vcenter_templates: (( grab secrets.vsphere.vcenter_templates ))
+vcenter_vms: (( grab secrets.vsphere.vcenter_vms ))
+
+intranet_interco_inception_ip: (( grab secrets.intranet_interco_ips.inception_ip ))

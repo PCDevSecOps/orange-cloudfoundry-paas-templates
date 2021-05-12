@@ -1,0 +1,35 @@
+---
+#this operators fixed the deployment for upgrade compatibility with existing bosh 1 manifest:
+#- define a single node broker
+#- set all vms on the legacy ips, legacy bosh 1 network
+
+- type: replace
+  path: /instance_groups/name=rmq/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+      static_ips:
+      - 192.168.60.52
+      - 192.168.60.53
+      - 192.168.60.54
+
+- type: replace
+  path: /instance_groups/name=rmq-broker/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+      static_ips:
+      - 192.168.60.50
+ #   - name: tf-net-osb-data-plane-shared-pub
+ #     default: [dns,gateway]
+
+- type: replace
+  path: /instance_groups/name=haproxy/networks
+  value:
+#    - name: tf-net-osb-data-plane-shared-backward
+#      default: [dns,gateway]
+#      static_ips:
+#      - 172.17.48.50
+#      - 172.17.48.51
+    - name: tf-net-osb-data-plane-shared-pub
+      static_ips:
+      - 172.17.48.50
+      - 172.17.48.51

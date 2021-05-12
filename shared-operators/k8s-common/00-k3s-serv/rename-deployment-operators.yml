@@ -1,0 +1,6 @@
+---
+#replace deployment name
+- type: replace
+  path: /name
+  value: 10-((deployment_name))
+

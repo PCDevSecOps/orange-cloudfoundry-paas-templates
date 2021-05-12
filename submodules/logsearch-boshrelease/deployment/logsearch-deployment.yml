@@ -1,0 +1,194 @@
+---
+name: logsearch
+update:
+  canaries: 1
+  canary_watch_time: 30000-1200000
+  max_in_flight: 1
+  serial: true
+  update_watch_time: 5000-1200000
+
+instance_groups:
+- name: elasticsearch_master
+  azs:
+  - z1
+  - z2
+  - z3
+  instances: 3
+  persistent_disk_type: 5GB
+  vm_type: medium
+  stemcell: default
+  update:
+    max_in_flight: 1
+    serial: true
+  networks:
+  - name: default
+  jobs:
+  - name: bpm
+    release: bpm
+  - name: elasticsearch
+    release: logsearch
+    consumes:
+      elasticsearch: {from: elasticsearch_master}
+    provides:
+      elasticsearch: {as: elasticsearch_master}
+    properties:
+      elasticsearch:
+        node:
+          allow_master: true
+        config_options: &xpack-options
+          xpack.monitoring.enabled: false
+          xpack.graph.enabled: false
+          xpack.ml.enabled: false
+          xpack.security.enabled: false
+          xpack.watcher.enabled: false
+
+- name: maintenance
+  azs:
+  - z1
+  instances: 1
+  vm_type: medium
+  persistent_disk_type: 5GB
+  stemcell: default
+  update:
+    serial: true
+  networks:
+  - name: default
+  jobs:
+  - name: bpm
+    release: bpm
+  - name: elasticsearch
+    release: logsearch
+    consumes:
+      elasticsearch: {from: elasticsearch_master}
+    properties:
+      elasticsearch:
+        config_options: *xpack-options
+  - name: elasticsearch_config
+    release: logsearch
+    properties:
+      elasticsearch_config:
+        index_prefix: logs-
+        templates:
+          - shards-and-replicas: /var/vcap/jobs/elasticsearch_config/index-templates/shards-and-replicas.json
+          - index-settings: /var/vcap/jobs/elasticsearch_config/index-templates/index-settings.json
+          - index-mappings: /var/vcap/jobs/elasticsearch_config/index-templates/index-mappings.json
+  - name: curator
+    release: logsearch
+  - name: smoke_tests
+    release: logsearch
+    consumes:
+      elasticsearch: {from: elasticsearch_master}
+      ingestor_link: {from: ingestor_syslog}
+
+- name: elasticsearch_data
+  azs:
+  - z1
+  - z2
+  - z3
+  instances: 3
+  persistent_disk_type: 100GB
+  vm_type: large
+  stemcell: default
+  update:
+    max_in_flight: 1
+    serial: true
+  networks:
+  - name: default
+  jobs:
+  - name: bpm
+    release: bpm
+  - name: elasticsearch
+    release: logsearch
+    consumes:
+      elasticsearch: {from: elasticsearch_master}
+    properties:
+      elasticsearch:
+        node:
+          allow_data: true
+        config_options: *xpack-options
+
+- name: kibana
+  azs:
+  - z1
+  instances: 1
+  persistent_disk_type: 5GB
+  vm_type: large
+  stemcell: default
+  networks:
+  - name: default
+  jobs:
+  - name: bpm
+    release: bpm
+  - name: elasticsearch
+    release: logsearch
+    consumes:
+      elasticsearch: {from: elasticsearch_master}
+    properties:
+      elasticsearch:
+        config_options: *xpack-options
+  - name: kibana
+    release: logsearch
+    provides:
+      kibana: {as: kibana_link}
+    consumes:
+      elasticsearch: {from: elasticsearch_master}
+    properties:
+      kibana:
+        health:
+          timeout: 500
+        env:
+          - NODE_ENV: production
+        config_options: *xpack-options
+
+- name: ingestor
+  azs:
+  - z1
+  - z2
+  instances: 2
+  persistent_disk_type: 5GB
+  vm_type: large
+  stemcell: default
+  networks:
+  - name: default
+  jobs:
+  - name: bpm
+    release: bpm
+  - name: elasticsearch
+    release: logsearch
+    consumes:
+      elasticsearch: {from: elasticsearch_master}
+    properties:
+      elasticsearch:
+        config_options: *xpack-options
+  - name: ingestor_syslog
+    release: logsearch
+    consumes:
+      elasticsearch: nil
+    provides:
+      ingestor: {as: ingestor_link}
+      ingestor_inputs: nil
+    properties:
+      logstash_parser:
+        elasticsearch:
+          data_hosts:
+          - 127.0.0.1
+        deployment_dictionary:
+          - /var/vcap/packages/logsearch-config/deployment_lookup.yml
+
+releases:
+- name: logsearch
+  url: https://s3.amazonaws.com/logsearch/logsearch-211.1.0.tgz
+  version: 211.1.0
+  sha1: fa1cd0dc846b163ea619cc0149c2379daee06025
+
+- name: bpm
+  url: https://bosh.io/d/github.com/cloudfoundry/bpm-release?v=1.1.6
+  version: 1.1.6
+  sha1: 5bad6161dbbcf068830a100b6a76056fe3b99bc8
+
+stemcells:
+- alias: default
+  os: ubuntu-xenial
+  version: "latest"
+
+variables: []

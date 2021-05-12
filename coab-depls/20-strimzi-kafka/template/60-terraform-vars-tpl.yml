@@ -1,0 +1,3 @@
+#--- Terraform spec files
+versioned-providers: (( file "../../../additional-resource/shared-operators/00-terraform/versioned-providers.tf" ))
+kubernetes-alpha-spec: (( file "../../../additional-resource/coab-depls/20-strimzi-kafka/template/60-terraform-spec.tf" ))

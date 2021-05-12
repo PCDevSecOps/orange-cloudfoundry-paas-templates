@@ -1,0 +1,30 @@
+---
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-taint-jobs
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/-
+  value:
+    name: persistent-taint
+    release: generic-taint-jobs
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: grafana-webui-coab-endpoint
+    registration_interval: 10s
+    port: 3000
+    uris:
+      - grafana-mongodb.((/secrets/cloudfoundry_system_domain))
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: prometheus-webui-coab-endpoint
+    registration_interval: 10s
+    port: 9090
+    uris:
+      - prometheus-mongodb.((/secrets/cloudfoundry_system_domain))

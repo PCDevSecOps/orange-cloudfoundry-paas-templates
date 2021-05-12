@@ -1,0 +1,7 @@
+---
+#this operators adapts the deployment in order to use tf-net-osb-data-plane-shared-pub network
+
+#replace deployment name
+- path: /name
+  type: replace
+  value: cf-rabbit-osb

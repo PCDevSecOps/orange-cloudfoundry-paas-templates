@@ -1,0 +1,5 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: 3

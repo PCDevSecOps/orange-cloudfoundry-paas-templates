@@ -1,0 +1,4 @@
+#--- Terraform spec files
+versioned-providers: (( file "../../../additional-resource/master-depls/cf/template/terraform-specs/versioned-providers.tf" ))
+cf: (( file "../../../additional-resource/master-depls/cf/template/terraform-specs/cf-spec.tf" )) 
+isolation-segment-cf:   (( file "../../../additional-resource/master-depls/cf/template/terraform-specs/isolation-segment-spec.tf" ))

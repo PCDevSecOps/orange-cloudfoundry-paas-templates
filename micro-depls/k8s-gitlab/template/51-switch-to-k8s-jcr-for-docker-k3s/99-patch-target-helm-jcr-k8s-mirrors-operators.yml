@@ -1,0 +1,4 @@
+# change helm chart repo mirror to jcr-k8s
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/repository_mirror/url
+  value: https://jcr-k8s.((/secrets/cloudfoundry_ops_domain))/artifactory/helm

@@ -1,0 +1,44 @@
+#--- bosh director api metrics server
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: micro-bosh-api-metrics-server
+    metrics_path: /api_metrics
+    scrape_interval: 5m
+    scrape_timeout: 2m
+    scheme: https
+    tls_config:
+      ca_file: /var/vcap/data/scripting/metrics_server_ca.crt
+      cert_file: /var/vcap/data/scripting/metrics_server_cert.crt
+      key_file: /var/vcap/data/scripting/metrics_server_key.crt
+    static_configs:
+      - targets:
+        - bosh-micro.internal.paas:9091
+
+#--- bosh director metrics server
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: micro-bosh-metrics-server
+    metrics_path: /metrics
+    scrape_interval: 5m
+    scrape_timeout: 2m
+    scheme: https
+    tls_config:
+      ca_file: /var/vcap/data/scripting/metrics_server_ca.crt
+      cert_file: /var/vcap/data/scripting/metrics_server_cert.crt
+      key_file: /var/vcap/data/scripting/metrics_server_key.crt
+    static_configs:
+      - targets:
+        - bosh-micro.internal.paas:9091
+
+#--- nats exporter
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: micro-bosh-nats-exporter
+    scrape_interval: 5m
+    scrape_timeout: 2m
+    static_configs:
+      - targets:
+        - bosh-micro.internal.paas:9118

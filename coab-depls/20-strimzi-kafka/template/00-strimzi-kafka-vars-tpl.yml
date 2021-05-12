@@ -1,0 +1,17 @@
+
+network: tf-net-osb-data-plane-dedicated-priv #create vm issue
+
+master_persistent_disk_type: large
+worker_persistent_disk_type: xlarge-performant
+
+masters_instance_count: 1
+workers_instance_count: 3
+
+
+#k3s jobs placements with addons include/exclude
+server_addon_include_release: generic-taint-jobs 
+server_addon_include_job: master-taint
+
+agent_addon_include_release: generic-taint-jobs
+agent_addon_include_job: slave-taint
+

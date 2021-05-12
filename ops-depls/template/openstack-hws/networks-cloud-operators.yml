@@ -1,0 +1,36 @@
+- type: replace
+  path: /networks/name=tf-net-services/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf-net-services_id))
+    security_groups:
+    - tf-default-sg
+
+- type: replace
+  path: /networks/name=tf-net-services-2/subnets/0/cloud_properties?
+  value:
+    net_id: ((tf-net-services-2_id))
+    security_groups:
+    - tf-default-sg
+
+#- type: replace
+#  path: /networks/name=tf-net-services-custom/subnets/0/cloud_properties?
+#  value:
+#    net_id: ((tf-net-services-custom_id))
+#    security_groups:
+#    - tf-default-sg
+
+- type: replace
+  path: /networks/name=compilation-network/subnets/0/cloud_properties?
+  value:
+    net_id: ((compilation_network_id))
+    security_groups:
+    - tf-default-sg
+
+- type: replace
+  path: /azs/0/cloud_properties/availability_zone
+  value: ((az_1))
+
+- type: replace
+  path: /azs/1/cloud_properties/availability_zone
+  value: ((az_2))
+  

@@ -1,0 +1,40 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "docker-jcr-artifactory"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+        labels:
+          app: artifactory
+        name: docker-jcr-artifactory
+        namespace: jcr
+      spec:
+        rules:
+        - host: docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: artifactory-jcr-artifactory
+                servicePort: 8081
+              path: /
+              pathType: ImplementationSpecific
+        - host: quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                serviceName: artifactory-jcr-artifactory
+                servicePort: 8081
+              path: /
+              pathType: ImplementationSpecific
+        tls:
+        - hosts:
+          - docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          - quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          secretName: jcr-ssl

@@ -1,0 +1,56 @@
+#--- Add vsphere specific cpi properties
+- type: replace
+  path: /cloud_provider/template?
+  value:
+    name: vsphere_cpi
+    release: bosh-vsphere-cpi
+
+- type: replace
+  path: /cloud_provider/properties/vcenter?
+  value:
+    address: ((vcenter_ip))
+    password: ((vcenter_password))
+    user: ((vcenter_user))
+    datacenters:
+    - clusters:
+      - ((vcenter_cluster)):
+          resource_pool: ((vcenter_resource_pool))
+      name: ((vcenter_dc))
+      datastore_pattern: ((vcenter_ds))
+      persistent_datastore_pattern: ((vcenter_ds))
+      disk_path: ((vcenter_disks))
+      template_folder: ((vcenter_templates))
+      vm_folder: ((vcenter_vms))
+
+- type: replace
+  path: /resource_pools/name=vms/cloud_properties?
+  value:
+    cpu: 1
+    ram: 1024
+    disk: 10_240
+
+#--- BRMC authoritative ntp servers
+# - type: replace
+#   path: /cloud_provider/properties/ntp?
+#   value:
+#   - 10.98.198.49
+#   - 10.98.112.81
+
+#--- Set routes for internal access
+- type: replace
+  path: /instance_groups/name=inception/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+          #--- paas-template network (through micro-bosh gw)
+          - net: 192.168.0.0
+            netmask: 255.255.0.0
+            gateway: 192.168.10.1
+
+          #--- vsphere ESX network (through micro-bosh gw)
+          - net: 172.17.11.0
+            netmask: 255.255.255.0
+            gateway: 192.168.10.1

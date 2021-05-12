@@ -1,0 +1,12 @@
+cf:
+  api:
+    url: "https://api.((/secrets/cloudfoundry_system_domain))"
+  admin:
+    password: ((/secrets/cloudfoundry_admin_password))
+  mongodb:
+    appdomain: ((/secrets/cloudfoundry_apps_domain))
+  service:
+    password: ((/secrets/cloudfoundry_service_password))
+
+route_registrar:
+  external_host: "mongodb-broker.((/secrets/cloudfoundry_system_domain))"

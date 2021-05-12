@@ -1,0 +1,57 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "create_deployment"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        labels:
+          app: internet-proxy
+        name: internet-proxy
+        namespace: internet-proxy
+      spec:
+        replicas: 2
+        selector:
+          matchLabels:
+            app: internet-proxy
+
+        template:
+          metadata:
+            labels:
+              app: internet-proxy
+          spec:
+            serviceAccountName: internet-proxy
+            volumes:
+            - name: config-volume
+              configMap:
+                name: squid-config
+            - name: cert-volume
+              hostPath:
+                path: /etc/ssl/certs
+                type: Directory
+            nodeSelector:
+              bosh.io/name: "agents"
+            
+            affinity:
+              podAntiAffinity:
+                requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                    - key: app
+                      operator: In
+                      values:
+                      - internet-proxy
+                  topologyKey: "kubernetes.io/hostname"
+
+            containers:
+            - image: sameersbn/squid:((sameersbn/squid))
+              name: squid
+              volumeMounts:
+              - name: config-volume
+                mountPath: /etc/squid/
+              - name: cert-volume
+                mountPath: /etc/ssl/certs

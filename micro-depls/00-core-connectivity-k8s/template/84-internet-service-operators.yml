@@ -1,0 +1,25 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "create_service"
+    cmd: "apply"
+    options: "-n internet-proxy"
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: internet-proxy-service
+        labels:
+          app: internet-proxy
+        annotations:
+          "metallb.universe.tf/address-pool": internet-proxy-private-vip-pool #uses external vrrp ip pool
+      spec:
+        selector:
+          app: internet-proxy
+        type: LoadBalancer
+        ports:
+        - protocol: TCP
+          port: 3128
+          targetPort: 3128
+          name: squid

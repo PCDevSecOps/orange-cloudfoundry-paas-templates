@@ -1,0 +1,79 @@
+#leveraging scripting release set openstack allowed adddres pair for vip compatibility (openstack cpi limitations)
+- type: replace
+  path: /addons/name=20-add-agents/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        post-start-script: |
+          echo "post-start allowed address pairs for vip"
+          
+          #set kubectl and target k3s server
+          export PATH=/var/vcap/packages/kubectl-k3s/:$PATH
+          alias kubectl=/var/vcap/packages/kubectl-k3s/kubectl
+          
+          #build kubeconfig
+          echo "- Generate kubeconfig.yml"
+          cat - > /var/vcap/data/scripting/kubeconfig.yml <<EOF
+          apiVersion: v1
+          clusters:
+          - cluster:
+              insecure-skip-tls-verify: true
+              server: https://0.server.net-bosh-2.00-core-connectivity-k8s.bosh:6443
+            name: server
+          contexts:
+          - context:
+              cluster: server
+              user: admin
+            name: server
+          current-context: server
+          kind: Config
+          preferences: {}
+          users:
+          - name: admin
+            user:
+              token: ((admin_token))
+          EOF
+          
+          export KUBECONFIG=/var/vcap/data/scripting/kubeconfig.yml
+          
+          #delete previous execution pod if existing
+          set +e
+          kubectl delete pod post-start-os-command --now
+          
+          set -e
+          
+          #create pod with openstack client (with sleep command to stay alive)
+          kubectl run post-start-os-command \
+            --env OS_AUTH_URL=((/secrets/openstack_auth_url)) \
+            --env OS_IDENTITY_API_VERSION=3 \
+            --env OS_PROJECT_NAME=((/secrets/openstack_project)) \
+            --env OS_PROJECT_DOMAIN_NAME=((/secrets/openstack_domain)) \
+            --env OS_USERNAME=((/secrets/openstack_username)) \
+            --env OS_USER_DOMAIN_NAME=((/secrets/openstack_domain)) \
+            --env OS_PASSWORD=((/secrets/openstack_password)) \
+            --env OS_IDENTITY_API_VERSION=3 \
+            --env https_proxy=http://system-internet-http-proxy.internal.paas:3128 \
+            --image openstacktools/openstack-client  sleep 3000
+          
+          #wait for pod ready
+          kubectl wait pod/post-start-os-command --for condition=ready --timeout=-120s
+          
+          #function to allow any private subnet ip to be used as a arp vip
+          Allowed_private(){
+          
+          PORT="$(kubectl exec post-start-os-command -- openstack port list |grep $1 |cut -d '|' -f 2)"
+          
+          kubectl exec post-start-os-command -- openstack port set --no-allowed-address $PORT
+          kubectl exec post-start-os-command -- openstack port set --allowed-address ip-address=192.168.116.0/24 $PORT
+          }
+          
+          #find agents private ip with bosh dns
+          Allowed_private "$(getent hosts 0.agents.net-bosh-2.00-core-connectivity-k8s.bosh|cut -d ' ' -f 1)"
+          Allowed_private "$(getent hosts 1.agents.net-bosh-2.00-core-connectivity-k8s.bosh|cut -d ' ' -f 1)"
+          Allowed_private "$(getent hosts 2.agents.net-bosh-2.00-core-connectivity-k8s.bosh|cut -d ' ' -f 1)"
+          Allowed_private "$(getent hosts 3.agents.net-bosh-2.00-core-connectivity-k8s.bosh|cut -d ' ' -f 1)"
+          
+          #clean up openstack client pod
+          kubectl delete pod post-start-os-command --now

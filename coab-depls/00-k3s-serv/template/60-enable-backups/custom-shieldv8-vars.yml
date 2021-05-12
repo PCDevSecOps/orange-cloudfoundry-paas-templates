@@ -1,0 +1,6 @@
+tenant_name: coab-depls
+mysql_password: ((/secrets/p-mysql-root-password))
+mysql_port: "3306"
+when: "daily 4:15"
+when_1: "daily 12:15"
+when_2: "daily 20:15"

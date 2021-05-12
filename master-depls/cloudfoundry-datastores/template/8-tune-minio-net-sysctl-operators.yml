@@ -1,0 +1,18 @@
+#add shield release
+- type: replace
+  path: /releases/-
+  value:
+    name: os-conf
+    version: 21.0.0
+
+# tune tcp to avoid TIME_WAIT between minio
+- type: replace
+  path: /instance_groups/name=minio-s3-cluster/jobs/-
+  value:
+    name: sysctl
+    release: os-conf
+    properties:
+      sysctl:
+      - net.ipv4.tcp_tw_recycle=1
+      - net.ipv4.tcp_fin_timeout=30
+      - net.ipv4/tcp_tw_reuse=1

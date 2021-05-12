@@ -1,0 +1,5 @@
+env_pf: k3s-serv
+kubernetes.host: 0.server.tf-net-kubo.00-k3s-serv.bosh
+network: tf-net-kubo
+prefix-deployment: "10-"
+docker_repository: ""

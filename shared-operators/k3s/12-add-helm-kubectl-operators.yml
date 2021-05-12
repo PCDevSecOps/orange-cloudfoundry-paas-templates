@@ -1,0 +1,33 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: helm-kubectl
+    version: latest
+
+
+# server node, so helm-kubectl can leverage local /var/vcap/store/k3s-server/kubeconfig file
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: action
+    release: helm-kubectl
+    properties:
+      config: path_config_file
+      kubernetes:
+        config_path: /var/vcap/store/k3s-server/kubeconfig.yml
+        usecontext: default #k3s generated kube config is default
+
+      proxy:
+        https: http://system-internet-http-proxy.internal.paas:3128
+        http: http://system-internet-http-proxy.internal.paas:3128
+        noproxy: "169.254.169.254,127.0.0.1,localhost,.((/secrets/cloudfoundry_ops_domain)),.paas,.internal,.svc,.svc.cluster.local,192.168.0.0/16,10.200.0.0/16,10.244.0.0/16,10.245.0.0/16,10.100.200.0/16"
+
+      repository_mirror:
+        enabled: true
+        url: https://jcr.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+      run_on_each_deploy: true #applies this action during bosh deploy.
+      actions: []
+
+
+      ingress_class: traefik
+

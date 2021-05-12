@@ -1,0 +1,6 @@
+---
+default:
+  stemcell:
+    name: bosh-openstack-kvm-ubuntu-bionic-go_agent
+  git:
+     shallow-clone-depth: 128

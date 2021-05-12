@@ -1,0 +1,13 @@
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: concourse
+    secret_type: kubernetes.io/tls
+    namespace: concourse
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))

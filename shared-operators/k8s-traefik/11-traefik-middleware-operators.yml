@@ -1,0 +1,56 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikingressrouteMiddleware"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((middleware_api_version))
+      kind: Middleware
+      metadata:
+        name: auth
+        namespace: traefik
+      spec:
+        basicAuth:
+          secret: traefik
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikingressrouteMiddlewareByUaa"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((middleware_api_version))
+      kind: Middleware
+      metadata:
+        name: auth-by-uaa
+        namespace: traefik
+      spec:
+        forwardAuth:
+          address: http://traefik-forward-auth.traefik:4181
+          authResponseHeaders:
+          - X-Forwarded-User
+        tls:
+          caSecret: uaa-ssl
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "k8smiddleware-https"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((middleware_api_version))
+      kind: Middleware
+      metadata:
+        name: middleware-https
+        namespace: traefik
+      spec:
+        headers:
+          sslProxyHeaders:
+            X-Forwarded-Proto: https

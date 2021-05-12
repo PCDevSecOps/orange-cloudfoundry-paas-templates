@@ -1,0 +1,12 @@
+- type: replace
+  path: /instance_groups/name=grafana/jobs/name=docker/properties/registry_mirrors
+  value: [((docker_mirror))]
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=docker/properties/registry_mirrors
+  value: [((docker_mirror))]
+
+- type: replace
+  path: /instance_groups/name=thanos-store/jobs/name=docker/properties/registry_mirrors
+  value: [((docker_mirror))]
+  

@@ -1,0 +1,7 @@
+job_name: mongodb
+exporter_name: mongodb_exporter
+exporter_port: 9001
+dashboard_release: orange-prometheus-addons
+dashboard_name: mongodb_dashboards
+dashboard_folder_name: MongoDB
+dashboard_folder_path: /var/vcap/jobs/mongodb_dashboards/*.json

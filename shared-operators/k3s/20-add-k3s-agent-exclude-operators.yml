@@ -1,0 +1,6 @@
+- type: replace
+  path: /addons/name=20-add-agents/exclude/jobs/-
+  value:
+    release: ((agent_addon_exclude_release))
+    name: ((agent_addon_exclude_job))
+

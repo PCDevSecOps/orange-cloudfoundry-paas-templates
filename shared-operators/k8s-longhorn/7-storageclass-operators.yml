@@ -1,0 +1,53 @@
+#- type: replace
+#  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "longhorn-storageclass"
+#    cmd: "apply"
+#    options: ""
+#    content:
+#      kind: StorageClass
+#      apiVersion: storage.k8s.io/v1
+#      metadata:
+#        name: longhorn-1instance-backuped
+#        labels:
+#          app.kubernetes.io/instance: longhorn
+#          app.kubernetes.io/name: longhorn
+#          app.kubernetes.io/version: v1.0.2
+#      provisioner: driver.longhorn.io
+#      parameters:
+#        baseImage: ''
+#        #dataLocality: "best-effort"
+#        fromBackup: ''
+#        numberOfReplicas: '1'
+#        recurringJobs: >-
+#          [  {
+#          "name":"backup", "task":"backup", "cron":"0 0 * * *", "retain":1,
+#          "labels": { "interval":"1Day" } } ]
+#        staleReplicaTimeout: '30'
+#      reclaimPolicy: Delete
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "longhorn-storageclass-2"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: StorageClass
+      apiVersion: storage.k8s.io/v1
+      metadata:
+        name: longhorn-1instance
+        labels:
+          app.kubernetes.io/instance: longhorn
+          app.kubernetes.io/name: longhorn
+          app.kubernetes.io/version: v1.0.2
+      provisioner: driver.longhorn.io
+      parameters:
+        baseImage: ''
+        #dataLocality: "best-effort"
+        fromBackup: ''
+        numberOfReplicas: '1'
+        staleReplicaTimeout: '30'
+      reclaimPolicy: Delete

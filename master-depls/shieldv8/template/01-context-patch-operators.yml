@@ -1,0 +1,132 @@
+#operators to adapt the community manifest to paas-templates context
+
+#adapt stemcell
+- type: replace
+  path: /stemcells/0
+  value:
+    alias: default
+    os: ubuntu-bionic
+    version: latest
+
+#adapt deployment name
+- type: replace
+  path: /name
+  value: shieldv8
+
+#adapt release, add routing
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+- type: replace
+  path: /releases/name=shield
+  value:
+    name: shield
+    version: latest
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: failsafe-password
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: token_name
+    type: password
+
+#adapt vm_types
+- type: replace
+  path: /instance_groups/name=shield/vm_type
+  value: 1cpu-4g
+
+#adapt vm_types
+- type: replace
+  path: /instance_groups/name=shield/persistent_disk
+  value: 200000
+
+#adapt network
+- type: replace
+  path: /instance_groups/name=shield/networks/0/name
+  value: tf-net-exchange
+
+#link
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=core/provides/shield
+  value: {shared: true, as: shield}
+
+#log-level for core
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=core/properties/log-level?
+  value: ((log-level))
+
+#failsafe password for core
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=core/properties/failsafe?
+  value:
+    password: ((failsafe-password))
+
+#set update_mode to converge
+- type: replace
+  path: /variables/name=shield-tls/update_mode?
+  value: converge
+
+#set ca to internal
+- type: replace
+  path: /variables/name=shield-tls/options/ca
+  value: /internalCA
+
+#add alternative_name on private alias
+- type: replace
+  path: /variables/name=shield-tls/options/alternative_names/-
+  value: ((shield-alias))
+
+#add alternative_name on public alias
+- type: replace
+  path: /variables/name=shield-tls/options/alternative_names/-
+  value: ((shield-domain))
+
+#remove shield-ca
+- type: remove
+  path: /variables/name=shield-ca
+
+#force shield agent without bosh link
+- type: remove
+  path: /instance_groups/name=shield/jobs/name=shield-agent
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      shield-url: https://((shield-alias))
+      agent:
+        key: ((shield-agent-key.public_key))
+      core:
+        ca: ((shield-tls.ca))
+      log-level: ((log-level))
+      require-shield-core: false
+
+#add route registrar for shield deployment
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines: [ops-routing-nats]
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+        - name: shieldv8-webui
+          tls_port: 443
+          server_cert_domain_san: '((shield-domain))'
+          registration_interval: 20s
+          uris:
+            - ((shield-domain))

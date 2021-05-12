@@ -1,0 +1,19 @@
+#--- Openstack tenant
+az_1: (( grab secrets.openstack.availability_zone ))
+az_2: (( grab secrets.openstack.availability_zone_2 ))
+az_3: (( grab secrets.openstack.availability_zone ))
+boostrap_security_groups: (( grab secrets.openstack.tenant_security_group || grab secrets.openstack.bootstrap_security_group ))
+openvpn_security_groups: (( grab secrets.openstack.openvpn_security_group ))
+public_dns: (( grab secrets.bosh.public_dns ))
+iaas_dns: (( grab secrets.bosh.iaas_dns ))
+dns: [192.168.116.156,192.168.116.166]
+
+#--- Networks Id
+bosh-2_net_id: (( grab secrets.networks.net-bosh-2 ))
+compilation_net_id: (( grab secrets.networks.compilation ))
+
+#--- Intranet interco
+intranet_interco_net_id: (( grab secrets.multi_region.region_1.intranet-interco.net_id ))
+intranet_interco_range: (( grab secrets.multi_region.region_1.intranet-interco.range ))
+intranet_interco_gateway: (( grab secrets.multi_region.region_1.intranet-interco.gateway ))
+intranet_interco_reserved: (( grab secrets.multi_region.region_1.intranet-interco.reserved ))

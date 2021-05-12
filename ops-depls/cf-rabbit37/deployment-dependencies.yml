@@ -1,0 +1,28 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - shared-operators/cf-rabbit
+        - shared-operators/shield
+    releases:
+      cf-cli:
+      routing:
+      haproxy:
+      prometheus:
+      cron:
+      cf-rabbitmq:
+      cf-rabbitmq-multitenant-broker:
+      cf-rabbitmq-smoke-tests:
+      shield:
+      minio:
+      generic-scripting:
+    manual-errands:
+      errand-scripting:
+    errands:
+      smoke-tests:
+      import:
+        display-name: shield-provisioning

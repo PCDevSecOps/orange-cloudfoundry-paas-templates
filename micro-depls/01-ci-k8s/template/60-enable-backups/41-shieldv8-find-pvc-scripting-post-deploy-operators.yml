@@ -1,0 +1,56 @@
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "post-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          #--- Initialize context
+          echo "- Start post-deploy"
+          > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+          > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+          set +e
+
+          #--- find pvc directory and generate addon file
+          cat <<EOF > /var/vcap/jobs/import/bin/addon
+          storage_path=((base_dir))
+          backup="ldap#pvc-*_openldap_ldap-data-ldap*"
+          #extract key and pattern
+          key=\$(echo \${backup} |cut -d'#' -f1)
+          pattern=\$(echo \${backup} |cut -d'#' -f2)
+          absolute_path=\$(find \${storage_path} -type d -name \${pattern})
+          echo \${absolute_path}
+          if [ "\${absolute_path}" != "" ] ; then
+            #--- replace
+            PROVISIONING_CONFIG_FILE=/var/vcap/jobs/import/config/import.yml
+            cat \${PROVISIONING_CONFIG_FILE}
+            sed -i "s#\${storage_path}/\${key}#\${absolute_path}#" \${PROVISIONING_CONFIG_FILE}
+            cat \${PROVISIONING_CONFIG_FILE}
+          fi
+          EOF
+          chown root:vcap /var/vcap/jobs/import/bin/addon
+          chmod +x /var/vcap/jobs/import/bin/addon
+          /var/vcap/jobs/import/bin/addon
+
+          #--- append addon file to provisioning script (after key : ^bin=")
+          addon=$(grep /var/vcap/jobs/import/bin/addon /var/vcap/jobs/import/bin/run | wc -l)
+          if [ "${addon}" -eq 0 ]; then
+            #addon is not present so concat at the end
+            echo "append addon file to provisioning script"
+            sed "/^bin=/ a /var/vcap/jobs/import/bin/addon" /var/vcap/jobs/import/bin/run > /var/vcap/jobs/import/bin/run.tmp
+            mv /var/vcap/jobs/import/bin/run.tmp /var/vcap/jobs/import/bin/run
+            chown root:vcap /var/vcap/jobs/import/bin/run
+            chmod +x /var/vcap/jobs/import/bin/run
+          fi

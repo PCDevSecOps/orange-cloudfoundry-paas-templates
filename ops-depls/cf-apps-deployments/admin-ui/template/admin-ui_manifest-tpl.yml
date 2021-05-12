@@ -1,0 +1,11 @@
+---
+applications:
+- name: admin-ui
+  memory: 1G
+  stack: cflinuxfs3
+  instances: 1
+  buildpacks:
+  - cached-ruby-buildpack
+  command: ~/bin/admin -c ~/config/default.yml
+  routes:
+  - route: (( concat "admin-ui." secrets.cloudfoundry.system_domain ))
