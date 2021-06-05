@@ -1,0 +1,68 @@
+#--- Add docker-bosh-cli floating ip and security group
+- type: replace
+  path: /networks/-
+  value:
+    name: floating-boshcli
+    type: vip
+
+- type: replace
+  path: /networks/name=floating-boshcli/cloud_properties?
+  value:
+    security_groups: ((boostrap_security_groups))
+
+#--- Add concourse-micro floating ip and security group
+- type: replace
+  path: /networks/-
+  value:
+    name: floating-concourse
+    type: vip
+
+- type: replace
+  path: /networks/name=floating-concourse/cloud_properties?
+  value:
+    security_groups: ((boostrap_security_groups))
+
+#--- Add internet-relay floating ip and security group
+- type: replace
+  path: /networks/-
+  value:
+    name: net-floating
+    type: vip
+
+- type: replace
+  path: /networks/name=net-floating/cloud_properties?
+  value:
+    security_groups: ((boostrap_security_groups))
+
+#--- Add micro-depls network id and security group
+- type: replace
+  path: /networks/name=net-bosh-2/subnets/0/cloud_properties?
+  value:
+    net_id: ((bosh-2_net_id))
+    security_groups:
+    - tf-default-sg
+
+#--- Add compilation network id and security group
+- type: replace
+  path: /networks/name=compilation-network/subnets/0/cloud_properties?
+  value:
+    net_id: ((compilation_net_id))
+    security_groups:
+    - tf-default-sg
+
+#--- Add k8s network id and security group
+- type: replace
+  path: /networks/name=tf-net-cfcr-micro/subnets/0/cloud_properties?
+  value:
+    net_id: ((/tf/networks_net-cfcr-micro))
+    security_groups:
+    - tf-default-sg
+
+#--- Add intranet-interco network id and security group
+- type: replace
+  path: /networks/name=intranet-interco/subnets/0/cloud_properties?
+  value:
+    net_id: ((intranet_interco_net_id))
+    security_groups:
+    - tf-default-sg
+    - tf-intranet-https-sg

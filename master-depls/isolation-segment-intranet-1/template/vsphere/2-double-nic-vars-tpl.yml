@@ -1,0 +1,2 @@
+#--- shared secrets
+interco_gateway: (( grab secrets.intranet_interco_ips.gateway ))

@@ -1,0 +1,52 @@
+#--- Bosh-deploymenty micro-bosh director configuration
+director_name: micro-bosh
+internal_cidr: 192.168.10.0/28
+internal_gw: 192.168.10.1
+internal_ip: 192.168.10.10
+director_alt_name: bosh-micro.internal.paas
+admin_password: (( grab secrets.bosh.admin.password ))
+
+#--- Default keypair name used when creating new instance
+default_key_name: bosh
+
+#--- Stemcell
+url_stemcell: (( grab $URL_STEMCELL ))
+sha1_stemcell: (( grab $SHA1_STEMCELL ))
+
+#--- CA certs
+INTRANET_CA_CERTS: (( grab $INTRANET_CA_CERTS ))
+INTERNAL_CA_KEY: (( grab $INTERNAL_CA_KEY ))
+INTERNAL_CA_CERT: (( grab $INTERNAL_CA_CERT ))
+INTERNAL_CA2_CERT: (( grab $INTERNAL_CA2_CERT ))
+
+ca_cert:
+  intranet: (( file INTRANET_CA_CERTS ))
+  internal: (( file INTERNAL_CA_CERT ))
+  internal2: (( file INTERNAL_CA2_CERT ))
+
+trusted_certs: (( concat ca_cert.intranet ca_cert.internal ca_cert.internal2 ))
+
+/internalCA:
+  ca: (( file INTERNAL_CA_CERT ))
+  certificate: (( file INTERNAL_CA_CERT ))
+  private_key: (( file INTERNAL_CA_KEY ))
+
+#--- IAAS dns server
+iaas_dns_1: (( grab secrets.bosh.iaas_dns[0] ))
+iaas_dns_2: (( grab secrets.bosh.iaas_dns[1] ))
+
+#--- root password
+root_password: (( grab secrets.bosh.root.password ))
+
+#--- credhub server client password
+bosh_credhub_secrets: (( grab secrets.bosh_credhub_secrets ))
+
+#--- prometheus password
+prometheus_password: (( grab secrets.prometheus.password ))
+
+#--- ldap password
+ldap_root_password: (( grab secrets.ldap.root.password ))
+
+#--- smtp mail
+smtp_from: (( grab secrets.smtp.from ))
+smtp_mail: (( grab secrets.smtp.to_ops ))

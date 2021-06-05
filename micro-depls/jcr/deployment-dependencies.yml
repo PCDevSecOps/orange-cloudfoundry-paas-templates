@@ -1,0 +1,13 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/docker-images
+    releases:
+      docker:
+      routing:
+      generic-scripting:
+    errands:
+    - errand-scripting

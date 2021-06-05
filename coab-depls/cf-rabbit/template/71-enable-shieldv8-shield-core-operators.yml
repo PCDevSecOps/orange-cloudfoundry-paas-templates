@@ -1,0 +1,146 @@
+---
+- type: replace
+  path: /addons?/-
+  value:
+    name: bosh-dns-aliases
+    include:
+      stemcell:
+        - os: ubuntu-trusty
+        - os: ubuntu-xenial
+          os: ubuntu-bionic
+    jobs:
+      - name: bosh-dns-aliases
+        release: bosh-dns-aliases
+        properties:
+          aliases:
+            - domain: ((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+              targets:
+                - query: '*'
+                  instance_group: shield
+                  deployment: ((deployment_name))
+                  network: ((private_network))
+                  domain: bosh
+
+# bpm already added
+# add route for shield gui
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: shield-webui-coab-endpoint
+    registration_interval: 10s
+    tls_port: 443
+    server_cert_domain_san: '((shield-alias-prefix))((instance_id))((shield-domain-suffix))'
+    uris:
+      - ((shield-alias-prefix))((instance_id))((shield-domain-suffix))
+
+# add shield core
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: core
+    release: shield
+    provides:
+      shield: {as: shield-((deployment_name))}
+    properties:
+      domain: ((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+      log-level: ((log-level))
+      agent:
+        key: ((shield-agent-key.private_key))
+      tls:
+        certificate: ((shield-tls.certificate))
+        key:         ((shield-tls.private_key))
+      vault:
+        tls:
+          ca:          ((vault-tls.ca))
+          certificate: ((vault-tls.certificate))
+          key:         ((vault-tls.private_key))
+      core:
+        authentication:
+        - identifier: ((uaa.identifier))
+          name: ((uaa.name))
+          backend: ((uaa.backend))
+          properties:
+            client_id: ((shield-alias-prefix))((deployment_name))-client  # credential_leak_validated
+            client_secret: ((shield-webui-uaa-client-secret))
+
+            uaa_endpoint: ((uaa.endpoint))
+            skip_verify_tls: ((uaa.skip_verify_tls))
+            mapping:
+              - tenant: SYSTEM
+                rights:
+                  - { scim: uaa.admin, role: admin }
+              - tenant: ((deployment_name))
+                rights:
+                  - { scim: uaa.admin, role: admin }
+#                    - { role: operator }
+
+#add shield agent
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      shield-url: https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+      agent:
+        key: ((shield-agent-key.public_key))
+      core:
+        ca: ((shield-tls.ca))
+      log-level: ((log-level))
+      require-shield-core: false
+
+#add provisioning shield job
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: import
+    release: shield
+    properties:
+      generate_token: true
+      token_name: (deployment)-(name)-(index)-((token_name))
+      core: sandbox
+      domain: ((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+      password: ((failsafe-password))
+      import:
+        ca: ((shield-tls.ca))
+        core: https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+        tenants:
+        - name: ((deployment_name))
+          members:
+          - user: admin@local # credential_leak_validated
+            role: admin
+          storage:
+          - name: obosv4-cf-rabbit
+            summary: |
+              Obos v4 cloud storage for all SHIELD tenants to use
+            agent:  (ip):5444
+            plugin: s3
+            config:
+              s3_host: ((s3_host))
+              s3_port: "443"
+              access_key_id: ((s3_access_key_id))
+              secret_access_key: ((s3_secret_access_key))
+              bucket: ((s3_bucket_prefix))-cf-rabbitcoab #pre-requisite
+              prefix: ((deployment_name))
+              skip_ssl_validation: true
+          policies:
+          - name: short-term
+            days: 7
+          systems:
+          - name: Shield FS backup on obosv4
+            agent:  (ip):5444
+            plugin: fs
+            config:
+              base_dir: "/var/vcap/store/shield"
+            jobs:
+              - name:    Daily
+                when:    daily 4am
+                policy:  short-term
+                retain: 21
+                storage: obosv4-cf-rabbit
+                paused:  false
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=core/properties/failsafe?
+  value:
+    password: ((failsafe-password))

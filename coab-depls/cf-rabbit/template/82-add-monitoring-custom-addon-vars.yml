@@ -1,0 +1,7 @@
+job_name: rabbitmq
+exporter_name: rabbitmq_exporter
+exporter_port: 9125
+dashboard_release: orange-prometheus-addons
+dashboard_name: rabbitmq_dashboards
+dashboard_folder_name: RabbitMQ
+dashboard_folder_path: /var/vcap/jobs/rabbitmq_dashboards/*.json

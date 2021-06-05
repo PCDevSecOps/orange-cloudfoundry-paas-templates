@@ -1,0 +1,31 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gpm-ingressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRoute
+      metadata:
+        name: gatekeeper-policy-manager-ingress
+        namespace: gatekeeper-system
+      spec:
+        entryPoints:
+        - websecure
+        tls: {}
+
+        routes:
+        - match: Host(`gpm.((env_pf)).((/secrets/cloudfoundry_ops_domain))`)
+          kind: Rule
+          priority: 0
+          middlewares:
+          - name: auth-by-uaa
+            namespace: traefik
+          services:
+          - kind: Service
+            name: gatekeeper-policy-manager
+            namespace: gatekeeper-system
+            port: 80
+

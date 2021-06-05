@@ -1,0 +1,36 @@
+#this will retrieve the registration yaml from the rancher server
+#NB:
+# - must first declare the k8s cluster in rancher
+# - get the identifier of the cluster, will be used to download the registration.yaml locally
+# Implemented as a errand to avoid bootstrapping /hard cyclic dependency 
+
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+ 
+ #cluster-rancher-id. This is just  a placeholder as the true value is computed by rancher when declaring the cluster
+- type: replace
+  path: /variables/-
+  value:
+    name: cluster-rancher-id
+    type: password
+
+#errand to retrieve locally the registration yaml
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          #!/bin/sh
+          echo "launch errand, download rancher registration locally. Make sure the current cluster is declared in rancher"
+          cd /var/vcap/data/errand-scripting
+          export KUBECONFIG=/var/vcap/store/k3s-server/kubeconfig.yml
+          export PATH=$PATH:/var/vcap/packages/kubectl-k3s/
+          set -x
+          curl --insecure -sfL https://rancher-micro.((/secrets/cloudfoundry_ops_domain))/v3/import/((cluster-rancher-id)).yaml | kubectl apply -f -

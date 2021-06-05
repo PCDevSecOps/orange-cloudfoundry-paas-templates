@@ -1,0 +1,7 @@
+---
+deployment:
+  io-bench:
+    releases:
+      gobonniego:
+    errands:
+      vm_to_benchmark:

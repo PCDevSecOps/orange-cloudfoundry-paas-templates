@@ -1,0 +1,55 @@
+#--- Enable bosh director server metrics
+- path: /instance_groups/name=bosh/properties/director/metrics_server?/enabled
+  type: replace
+  value: true
+- path: /instance_groups/name=bosh/properties/director/metrics_server?/tls/ca
+  type: replace
+  value: ((metrics_server_tls.ca))
+- path: /instance_groups/name=bosh/properties/director/metrics_server?/tls/certificate
+  type: replace
+  value: ((metrics_server_tls.certificate))
+- path: /instance_groups/name=bosh/properties/director/metrics_server?/tls/private_key
+  type: replace
+  value: ((metrics_server_tls.private_key))
+
+#--- Enable nats metrics
+- path: /instance_groups/name=bosh/properties/nats/enable_metrics_endpoint?
+  type: replace
+  value: true
+
+#--- metrics_server ca cert
+- path: /variables/name=metrics_server_ca?
+  type: replace
+  value:
+    name: metrics_server_ca
+    type: certificate
+    options:
+      common_name: bosh-metrics-server-ca
+      is_ca: true
+
+#--- metrics_server server cert
+- path: /variables/name=metrics_server_tls?
+  type: replace
+  value:
+    name: metrics_server_tls
+    type: certificate
+    options:
+      alternative_names:
+        - ((director_alt_name))
+        - ((internal_ip))
+      ca: metrics_server_ca
+      common_name: bosh-metrics-server-server
+      extended_key_usage:
+        - server_auth
+
+#--- metrics_server client cert
+- path: /variables/name=metrics_server_client_tls?
+  type: replace
+  value:
+    name: metrics_server_client_tls
+    type: certificate
+    options:
+      ca: metrics_server_ca
+      common_name: bosh-metrics-server-client
+      extended_key_usage:
+        - client_auth

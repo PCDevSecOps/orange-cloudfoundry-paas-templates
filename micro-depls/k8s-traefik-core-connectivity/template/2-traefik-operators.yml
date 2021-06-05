@@ -1,0 +1,129 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: traefik
+    url: https://helm.traefik.io/traefik
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: traefik
+    chart: traefik/traefik
+    namespace: traefik
+    version: ((helm_traefik))
+    #debug: => MUST NEVER BE SET WITHOUT GREAT CAUTION !!!!
+    #          AS IF TRAEFIK CRASH YOU LOSE CONCOURSE/GITLAB/....
+    #debug: true
+
+    values_file_content:
+      # Default values for Traefik
+      deployment:
+        replicas: 3
+      podDisruptionBudget:
+        enabled: true
+        maxUnavailable: 1
+        minAvailable: 0
+
+      # Create an IngressRoute for the dashboard
+      ingressRoute:
+        dashboard:
+          enabled: true
+          # Additional ingressRoute annotations (e.g. for kubernetes.io/ingress.class)
+          annotations: {}
+          # Additional ingressRoute labels (e.g. for filtering IngressRoute by custom labels)
+          labels: {}
+
+      #
+      # Configure providers
+      #
+      providers:
+        kubernetesCRD:
+          enabled: true
+          namespaces: []
+          # - "default"
+        kubernetesIngress:
+          enabled: true
+          namespaces: []
+          # - "default"
+          # IP used for Kubernetes Ingress endpoints
+          publishedService:
+            enabled: false
+
+      logs:
+        general:
+          level: INFO
+        access:
+          enabled: true
+      globalArguments:
+      - "--global.sendanonymoususage=false"
+      - "--global.checknewversion=false"
+
+      additionalArguments:
+        - "--log.level=DEBUG"
+        - "--providers.kubernetescrd.allowcrossnamespace=false"
+      ports:
+        ldap:
+          expose: true
+          port: 8389
+          exposedPort: 389
+          protocol: TCP
+        minio:
+          expose: true
+          port: 9900
+          exposedPort: 9000
+          protocol: TCP
+        ssh-cli:
+          expose: true
+          port: 9080
+          exposedPort: 80
+          protocol: TCP
+        web:
+          expose: false
+        websecure:
+          tls:
+            enabled: true
+            domains:
+              - main: traefik-ui.k8s-micro.((/secrets/cloudfoundry_ops_domain))
+                sans:
+                - traefik-ui.k8s-micro.((/secrets/cloudfoundry_ops_domain))
+      service:
+        enabled: true
+        type: LoadBalancer
+        annotations:
+          metallb.universe.tf/address-pool: internal-ops-relay-vip-pool #uses external vrrp ip pool
+      autoscaling:
+        enabled: true
+        minReplicas: 3
+        maxReplicas: 4
+        metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            targetAverageUtilization: 60
+        - type: Resource
+          resource:
+            name: memory
+            targetAverageUtilization: 60
+      podSecurityPolicy:
+        enabled: true
+
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "50Mi"
+        limits:
+          cpu: "300m"
+          memory: "150Mi"
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - traefik
+            topologyKey: "kubernetes.io/hostname"

@@ -1,0 +1,27 @@
+#install crossplane with helm chart
+#see https://crossplane.io/docs/v1.0/reference/install.html#installation
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: crossplane-system
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: crossplane-stable
+    url:  https://charts.crossplane.io/stable
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: crossplane
+    chart: crossplane-stable/crossplane
+    namespace: crossplane-system
+    version: ((helm_crossplane))
+    #reference for properties: https://github.com/crossplane/crossplane/tree/release-1.1/cluster/charts/crossplane
+    values_file_content:
+

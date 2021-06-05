@@ -1,0 +1,29 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-cscript"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: script
+        namespace: gitlab
+      data:
+        create-bucket.sh: |-
+          echo "begin script"
+
+          #Set configuration for S3
+          mc config host add shield-s3 http://shield-s3.internal.paas shield-s3 ((/bosh-master/shieldv8/s3_secretkey)) --api s3v4
+          if [ $? != 0 ] ; then echo "shield S3 target configuration failed\n" ; exit 0 ; fi
+
+          #Create buckets for S3 (or assert if they already exists)
+          buckets="git-lfs|gitlab-artifacts|gitlab-backups|gitlab-mr-diffs|gitlab-packages|gitlab-terraform-state|gitlab-uploads|registry"
+          for bucket in $(echo ${buckets} | tr "|" " "); do
+            mc mb shield-s3/${bucket} --ignore-existing
+            if [ $? != 0 ] ; then echo "bucket creation failed in shield s3\n" ; exit 0 ; fi
+          done
+          echo "end script"
+

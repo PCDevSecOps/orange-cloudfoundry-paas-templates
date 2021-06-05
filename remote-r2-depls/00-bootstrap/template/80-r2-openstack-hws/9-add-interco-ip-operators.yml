@@ -1,0 +1,7 @@
+# add a nic connected to inter region intranet
+- type: replace
+  path: /instance_groups/name=vpn/networks/0:before #set interco network as first network to enable bosh bootstraping
+  value:
+    name: remote-r2-interco-network
+    static_ips: [((/secrets/multi_region_region_2_vpn_interco_endpoint))]
+    default: [dns, gateway] 

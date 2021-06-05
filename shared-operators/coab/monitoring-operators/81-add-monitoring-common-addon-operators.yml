@@ -1,0 +1,85 @@
+---
+#variables
+- type: replace
+  path: /variables?/-
+  value:
+    name: prometheus_password
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: grafana_password
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: grafana_secret_key
+    type: password
+
+- type: replace
+  path: /addons?/name=monitoring?
+  value:
+    name: monitoring
+    jobs: []
+    include:
+      jobs: []
+    exclude:
+      jobs: []
+
+- type: replace
+  path: /addons/name=monitoring/jobs/-
+  value:
+    name: prometheus2
+    release: prometheus
+    properties:
+      prometheus:
+        rule_files:
+          - /var/vcap/jobs/prometheus_alerts/*.alerts.yml
+        scrape_configs:
+          - job_name: prometheus
+            scrape_interval: 5m
+            scrape_timeout: 1m
+            static_configs:
+              - targets:
+                  - localhost:9090
+
+- type: replace
+  path: /addons/name=monitoring/jobs/-
+  value:
+    name: grafana
+    release: prometheus
+    properties:
+      grafana:
+        security:
+          admin_user: admin
+          admin_password: ((grafana_password))
+          secret_key: ((grafana_secret_key))
+        auth:
+          disable_login_form: true
+          anonymous:
+            enabled: true
+            org_name: Main Org.
+            org_role: Viewer
+        dashboards:
+        prometheus:
+          dashboard_folders:
+            - name: Prometheus
+              files:
+                - /var/vcap/jobs/prometheus_dashboards/*.json
+            - name: BOSH
+              files:
+                - /var/vcap/jobs/bosh_dashboards/bosh*.json
+
+- type: replace
+  path: /addons/name=monitoring/jobs/-
+  value:
+    name: prometheus_dashboards
+    release: prometheus
+
+- type: replace
+  path: /addons/name=monitoring/jobs/-
+  value:
+    name: bosh_dashboards
+    release: prometheus

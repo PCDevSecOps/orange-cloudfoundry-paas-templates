@@ -1,0 +1,17 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: bitnami
+    url : https://charts.bitnami.com/bitnami
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kube-state-metrics
+    chart: bitnami/kube-state-metrics
+    namespace: monitoring
+    version: ((helm_kube_state_metrics_by_bitnamy))
+

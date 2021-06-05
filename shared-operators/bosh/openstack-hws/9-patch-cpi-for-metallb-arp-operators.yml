@@ -1,0 +1,14 @@
+#--- Update Openstack cpi ruby script to allow multiple vip creation
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=scripting/properties/scripting/pre-start-script?
+  value: |
+    #--- Initialize logs
+    > /var/vcap/sys/log/scripting/pre-start.stderr.log
+    > /var/vcap/sys/log/scripting/pre-start.stdout.log
+    set +e
+    FILE="/var/vcap/packages/bosh_openstack_cpi/lib/cloud/openstack/manual_network.rb"
+    check="$(grep "#cloud_error" ${FILE})"
+    if [ "${check}" = "" ] ; then
+      echo "$(date): Patch openstack cpi to allow multiple address pair..."
+      sed -ie "s+cloud_error+#cloud_error+g" ${FILE}
+    fi

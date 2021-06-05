@@ -1,0 +1,79 @@
+#--- Bosh directors
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/bosh-micro.internal.paas?
+  value: [192.168.10.10]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/bosh-master.internal.paas?
+  value: [192.168.116.158]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/bosh-ops.internal.paas?
+  value: [192.168.99.152]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/bosh-coab.internal.paas?
+  value: [192.168.99.155]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/bosh-remote-r2.internal.paas?
+  value: [192.168.99.153]
+  
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/bosh-remote-r3.internal.paas?
+  value: [192.168.99.156]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/cf-datastores.internal.paas?
+  value: [192.168.99.125]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/credhub.internal.paas?
+  value: [192.168.116.107]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/docker-bosh-cli.internal.paas?
+  value: [192.168.116.100]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/elpaaso-ntp1.internal.paas?
+  value: [192.168.116.156]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/elpaaso-ntp2.internal.paas?
+  value: [192.168.116.166]
+
+#FIXME: to refactor (move elk exporter to master-depls/prometheus, refactor with bosh dns alias, delete this alias.
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/es-master-ops.internal.paas?
+  value: [192.168.99.100,192.168.99.101,192.168.99.102]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/ls-router-ops.internal.paas?
+  value: [192.168.99.245]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/prometheus.internal.paas?
+  value: [192.168.99.208]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/prometheus-master.internal.paas?
+  value: [192.168.116.35]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/shield.internal.paas?
+  value: [192.168.99.26]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/shield-s3.internal.paas?
+  value: [192.168.99.27]
+
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/uaa-credhub.internal.paas?
+  value: [192.168.116.108]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/weave-scope.internal.paas?
+  value: [192.168.31.155]
+

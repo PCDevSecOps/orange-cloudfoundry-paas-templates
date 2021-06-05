@@ -1,0 +1,12 @@
+---
+#this operators adapt route to the platform
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=route_registrar/properties/nats/machines
+  value:
+    - 192.168.62.23
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=route_registrar/properties/nats/password
+  value: ((/bosh-master/osb-routing/nats_password))
+

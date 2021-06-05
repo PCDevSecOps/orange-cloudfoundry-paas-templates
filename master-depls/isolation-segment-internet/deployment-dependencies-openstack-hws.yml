@@ -1,0 +1,6 @@
+---
+deployment:
+  bosh-deployment:
+      templates:
+        extended_scan_path:
+        - shared-operators/docker-images

@@ -1,0 +1,17 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cm-grafana-k8s-all-etcd-dashboard"
+    cmd: "replace"
+    options: " --force --save-config=false "
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: dash-k8s-all-etcd
+        namespace: grafana
+        labels:
+          grafana_dashboard: '1'
+      data:
+        grafana_k8d_all_etcd_dashboard.json: ((dashboard_etcd))

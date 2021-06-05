@@ -1,0 +1,36 @@
+# create namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: cattle-monitoring-system
+
+#add repo
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: rancher-charts
+    url : https://charts.rancher.io
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: rancher-monitoring-crd
+    chart: rancher-charts/rancher-monitoring-crd
+    namespace: cattle-monitoring-system
+    version: 9.4.201 
+    properties: {}
+
+# DISABLE due to error related to secrets 
+#- type: replace
+#  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+#  value:
+#    type: helm_chart
+#    name: rancher-monitoring
+#    chart: rancher-charts/rancher-monitoring
+#    namespace: cattle-monitoring-system
+#    version: 9.4.201 
+#    properties: {}
+    

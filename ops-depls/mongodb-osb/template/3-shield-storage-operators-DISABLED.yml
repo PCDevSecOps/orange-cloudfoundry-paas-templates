@@ -1,0 +1,26 @@
+---
+#this operators modify Shield storage (S3) information
+
+- type: replace
+  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/stores/mongodb_all_db_s3_obos/plugin
+  value: s3
+
+- type: replace
+  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/stores/mongodb_all_db_s3_obos/config/skip_ssl_validation?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/stores/mongodb_all_db_s3_obos/config/signature_version
+  value: '4'
+
+- type: replace
+  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/stores/mongodb_all_db_s3_obos/config/s3_host?
+  value: storage.orange.com
+
+- type: remove
+  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/stores/mongodb_all_db_s3_obos/config/scality_host?
+
+#shield server, avoid cyclic dep on go router with (( concat "https://shield-webui." secrets.cloudfoundry.ops_domain ))
+- type: replace
+  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/agent/autoprovision?
+  value: http://192.168.99.25

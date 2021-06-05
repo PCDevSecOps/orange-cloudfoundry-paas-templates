@@ -1,0 +1,6 @@
+- type: replace
+  path: /addons/name=10-add-servers/include/jobs/-
+  value:
+    release: ((server_addon_include_release))
+    name: ((server_addon_include_job))
+

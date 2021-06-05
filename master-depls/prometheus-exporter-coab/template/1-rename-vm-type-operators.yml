@@ -1,0 +1,12 @@
+#--- Rename prometheus bosh release vm types
+- type: replace
+  path: /instance_groups/name=prometheus2/vm_type?
+  value: 2cpu-8g
+
+- type: replace
+  path: /instance_groups/name=database/vm_type?
+  value: 1cpu-4g
+
+- type: replace
+  path: /instance_groups/name=nginx/vm_type?
+  value: 1cpu-4g

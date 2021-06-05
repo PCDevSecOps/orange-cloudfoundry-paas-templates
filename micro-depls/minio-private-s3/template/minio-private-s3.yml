@@ -1,0 +1,88 @@
+---
+name: minio-private-s3
+
+releases:
+- name: minio
+  version: latest
+- name: routing
+  version: latest
+- name: haproxy
+  version: latest
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+update:
+  canaries: 1
+  canary_watch_time: 10000-600000
+  update_watch_time: 10000-600000
+  max_in_flight: 1
+  serial: true
+
+instance_groups:
+- name: minio-s3
+  instances: 1
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    static_ips: [192.168.116.50] #fixed ip, so we can assign a powerdns alias private-s3.internal.paas
+
+  vm_type: 1cpu-4g
+  stemcell: default
+  persistent_disk: 200000
+  jobs:
+
+  - name: minio-server
+    release: minio
+    properties:
+      credential:
+        accesskey: private-s3
+        secretkey: ((s3_secretkey))
+      envs: |
+        export MINIO_PROMETHEUS_AUTH_TYPE=public
+
+  - name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines:
+        - ops-routing-nats
+        password: ((/bosh-master/ops-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: private-s3-route
+          port: 9000
+          registration_interval: 10s
+          uris:
+          - "private-s3.((ops_domain))" #public url for portal access
+
+  - name: haproxy #private ssl offload for private-s3.internal.paas
+    release: haproxy
+    properties:
+      ha_proxy:
+        log_level: info
+        https_redirect_all: true  #only https access
+        backend_servers:
+        - localhost   #to local minio
+        backend_port: 9000
+        ssl_pem:
+        - ((private_cert.certificate))((private_cert.private_key))
+        rsp_headers:
+          Strict-Transport-Security: max-age=15768000
+
+variables:
+- name: s3_secretkey
+  type: password
+
+- name: private_cert
+  type: certificate
+  options:
+    ca: /internalCA
+    common_name: private-s3.internal.paas
+    alternative_names:
+    - private-s3.internal.paas
+    - "*.private-s3.internal.paas"

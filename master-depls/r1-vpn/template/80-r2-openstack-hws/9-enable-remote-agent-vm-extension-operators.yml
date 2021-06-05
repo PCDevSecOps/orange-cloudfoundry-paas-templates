@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=vpn/vm_extensions?/-
+  value: vpn-peer-secgroup-extension

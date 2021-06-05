@@ -1,0 +1,18 @@
+---
+
+- type: replace
+  path: /instance_groups/name=ingestor/jobs/name=ingestor_syslog/properties/logstash_parser/filters?/-
+  value:
+    orange-custom-filters: /var/vcap/jobs/parser-config-lfc/config/logstash-filters-custom.conf
+
+
+- type: replace
+  path: /instance_groups/name=ingestor/jobs/name=parser-config-lfc/properties?/logstash_parser/custom_filters
+  value: |
+    if [@index_type] == "app" {
+      # Override @metadata.index
+      if [@cf][org] {
+          mutate { replace => { "[@metadata][index]" => "%{@index_type}-%{[@cf][org]}" } }
+          mutate { lowercase => [ "[@metadata][index]" ] }
+      }
+    }

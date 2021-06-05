@@ -1,0 +1,77 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "docker-jcr-artifactory"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+        labels:
+          app: artifactory
+        name: docker-jcr-artifactory
+        namespace: jcr
+      spec:
+        rules:
+        - host: "*.jcr-k8s.((/secrets/cloudfoundry_ops_domain))"
+          http:
+            paths:
+            - backend:
+                service:
+                  name: artifactory-jcr-artifactory
+                  port:
+                    number: 8081
+              path: /
+              pathType: Prefix
+        tls:
+        - hosts:
+          - docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          - quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          secretName: jcr-ssl
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "jcringressroute"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          ingress.kubernetes.io/force-ssl-redirect: "true"
+          ingress.kubernetes.io/proxy-body-size: "0"
+          ingress.kubernetes.io/proxy-read-timeout: "600"
+          ingress.kubernetes.io/proxy-send-timeout: "600"
+          nginx.ingress.kubernetes.io/configuration-snippet: |
+            rewrite ^/(v2)/token /artifactory/api/docker/null/v2/token;
+            rewrite ^/(v2)/([^\/]*)/(.*) /artifactory/api/docker/$2/$1/$3;
+          nginx.ingress.kubernetes.io/proxy-body-size: "0"
+        labels:
+          app: artifactory
+        name: jcr-artifactory
+        namespace: jcr
+      spec:
+        rules:
+        - host: jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - backend:
+                service:
+                  name: artifactory-jcr-artifactory
+                  port:
+                    number: 8082
+              path: /
+              pathType: Prefix
+        tls:
+        - hosts:
+          - jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          secretName: jcr-ssl
+

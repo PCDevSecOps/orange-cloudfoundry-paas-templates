@@ -1,0 +1,5 @@
+env_pf: k8s-micro
+kubernetes.host: 0.server.tf-net-exchange.k3s-sandbox.bosh
+network: tf-net-exchange
+prefix-deployment: ""
+docker_repository: ""

@@ -1,0 +1,3 @@
+#--- ops-portal properties
+html_content: (( file "../../../additional-resource/micro-depls/docker-bosh-cli/template/nginx/index-services-tpl.html" ))
+apps_domain: ""

@@ -1,0 +1,86 @@
+---
+name: inception
+
+cloud_provider:
+  cert: ((mbus_bootstrap_ssl))
+  mbus: https://mbus:((mbus_bootstrap_password))@((micro_bosh_inception_ip)):6868
+  properties:
+    agent: {mbus: "https://mbus:((mbus_bootstrap_password))@0.0.0.0:6868"}
+    blobstore: {provider: local, path: /var/vcap/inception/data/cache}
+    ntp: [((dns_recursor_1)), ((dns_recursor_2))]
+
+instance_groups:
+- name: inception
+  instances: 1
+  jobs:
+  - name: user_add
+    release: os-conf
+    properties:
+      users:
+      - name: inception
+        public_key: ((inception_ssh.public_key))
+
+  networks:
+  - name: intranet_interco
+    default: [dns, gateway]
+    static_ips: [((intranet_interco_inception_ip))]
+
+  - name: micro_bosh
+    static_ips: [((micro_bosh_inception_ip))]
+
+  persistent_disk: 20_000
+  resource_pool: vms
+
+networks:
+- name: intranet_interco
+  subnets:
+  - cloud_properties:
+      name: ((intranet_interco_name))
+    dns: [((dns_recursor_1)), ((dns_recursor_2))]
+    gateway: ((intranet_interco_gateway))
+    range: ((intranet_interco_range))
+    static: [((intranet_interco_inception_ip))]
+  type: manual
+
+- name: micro_bosh
+  subnets:
+  - cloud_properties:
+      name: ((micro_bosh_network_name))
+    gateway: ((micro_bosh_gateway))
+    range: ((micro_bosh_range))
+    static: [((micro_bosh_inception_ip))]
+  type: manual
+
+releases: []
+
+resource_pools:
+- name: vms
+  network: micro_bosh
+  env:
+    bosh:
+      mbus:
+        cert: ((mbus_bootstrap_ssl))
+      password: "((vcap_password_sha512))"
+  stemcell:
+    url: ((url_stemcell))
+    sha1: ((sha1_stemcell))
+
+variables:
+- name: default_ca
+  options:
+    common_name: ca
+    is_ca: true
+  type: certificate
+
+- name: mbus_bootstrap_ssl
+  options:
+    alternative_names: [((micro_bosh_inception_ip))]
+    ca: default_ca
+    common_name: ((micro_bosh_inception_ip))
+  type: certificate
+
+- name: mbus_bootstrap_password
+  type: password
+
+- name: inception_ssh
+  type: ssh

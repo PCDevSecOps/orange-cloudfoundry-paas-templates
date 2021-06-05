@@ -1,0 +1,41 @@
+#--- Set Terraform vars
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/vars?
+  value:
+    openstack_user_name: ((openstack_username))
+    openstack_password: ((openstack_password))
+    openstack_tenant_name: ((openstack_tenant_name))
+    openstack_auth_url: ((openstack_auth_url))
+    openstack_region_name: ((openstack_region))
+    openstack_router_id: ((openstack_router_id))
+    openstack_domain: ((openstack_domain))
+    multi_region_region_1_intranet_interco_range: ((multi_region_region_1_intranet_interco_range))
+    multi_region_region_1_intranet_interco_gateway: ((multi_region_region_1_intranet_interco_gateway))
+    multi_region_region_1_intranet_interco_api: ((multi_region_region_1_intranet_interco_api))
+    multi_region_region_1_intranet_interco_apps: ((multi_region_region_1_intranet_interco_apps))
+    multi_region_region_1_intranet_interco_ops: ((multi_region_region_1_intranet_interco_ops))
+    multi_region_region_1_intranet_interco_osb: ((multi_region_region_1_intranet_interco_osb))
+
+#--- Set Terraform FlexibleEngine provider
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((flexible-engine-provider-tf))
+
+#--- Add Terraform intranet-interco network
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((intranet-interco-network-tf))
+
+#--- Create internet and intranet vip port
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((internet-proxy-vip-port-tf))
+
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((intranet-proxy-vip-port-tf))
+
+#--- Create vip ports (api, apps, ops and osb)
+- type: replace
+  path: /instance_groups/name=terraform/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((intranet-vip-ports-tf))

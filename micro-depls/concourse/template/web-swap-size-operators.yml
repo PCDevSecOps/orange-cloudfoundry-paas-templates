@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=web/env?/bosh?/swap_size?
+  value: ((web_swap_size))  # Size of swap partition in MB to create. Set this to 0 to avoid having a swap partition created. Default: RAM size of used VM type up to half of the ephemeral disk size.

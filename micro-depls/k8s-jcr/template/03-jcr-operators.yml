@@ -1,0 +1,48 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: jcr
+
+
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: postgresqlPassword
+    type: password
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: jcr_admin_password #--- Jfrog Registry admin password  (to set manually in jfrog ui)
+    type: password
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: artifactory-jcr
+    chart: jfrog/artifactory-jcr
+    namespace: jcr
+    version:  ((helm_artifactory))
+    debug: true
+    values_file_content:
+      artifactory:
+        postgresql:
+          postgresqlPassword: ((postgresqlPassword))
+        artifactory:
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "4Gi"
+              cpu: "1"
+          admin:
+            password: ((jcr_admin_password))
+
+        nginx:
+          enabled: false
+        ingress:
+          enabled: false

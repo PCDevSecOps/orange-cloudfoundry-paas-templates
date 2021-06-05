@@ -1,0 +1,39 @@
+#--- Remove unused networks
+- type: remove
+  path: /networks/name=net-floating
+
+- type: remove
+  path: /networks/name=tf-is-internet
+
+- type: remove
+  path: /networks/name=tf-vpn-interco-net
+
+#--- Add CF network Id
+- type: replace
+  path: /networks/name=tf-net-cf/subnets/0/cloud_properties?
+  value:
+    name: ((tf-net-cf-name))
+
+#--- Add cfcr master network id
+- type: replace
+  path: /networks/name=tf-net-cfcr-master/subnets/0/cloud_properties?
+  value:
+    name: ((tf-net-cfcr-master-name))
+
+#--- Add compilation network name
+- type: replace
+  path: /networks/name=compilation-network/subnets/0/cloud_properties?
+  value:
+    name: ((compilation-network-name))
+
+#--- Add osb-interco network name
+- type: replace
+  path: /networks/name=tf-net-exchange/subnets/0/cloud_properties?
+  value:
+    name: ((exchange-network-name))
+
+#--- Add intranet-ha-interco network name
+- type: replace
+  path: /networks/name=intranet-ha-interco/subnets/0/cloud_properties?
+  value:
+    name: ((intranet_interco-network-name))

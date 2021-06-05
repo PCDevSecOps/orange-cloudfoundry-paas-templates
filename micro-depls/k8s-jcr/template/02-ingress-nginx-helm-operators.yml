@@ -1,0 +1,59 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: ingress-nginx
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: ingress-nginx
+    url:  https://kubernetes.github.io/ingress-nginx
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: ingress-nginx
+    chart: ingress-nginx/ingress-nginx
+    namespace: ingress-nginx
+    version: ((helm_ingress_nginx))
+    values_file_content:
+      controller:
+        extraArgs:
+          enable-ssl-passthrough: ""
+        setAsDefaultIngress: true
+        prometheus:
+          create: true
+        service:
+          enabled: true
+          enableHttp: false
+          type: ClusterIP
+        kind: DaemonSet
+
+#configure nginx ingress to forward header (upstream ssl offload)
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "ingress-nginx-controller"
+    cmd: "apply"
+    content:
+      kind: ConfigMap
+      apiVersion: v1
+      metadata:
+        name: ingress-nginx-controller
+        namespace: ingress-nginx
+        labels:
+          app.kubernetes.io/name: ingress-nginx
+          app.kubernetes.io/part-of: ingress-nginx
+      data:
+        use-proxy-protocol: "false"
+        use-forwarded-headers: "true"
+        use-http2: "false" #workaround for #1097
+
+
+
+

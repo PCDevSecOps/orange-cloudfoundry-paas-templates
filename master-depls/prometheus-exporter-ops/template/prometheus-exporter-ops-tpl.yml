@@ -1,0 +1,46 @@
+---
+name: prometheus-exporter-ops
+
+releases:
+  - {name: prometheus, version: latest }
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time: 30000-240000
+  max_in_flight: 1  #--- important to limit max in flight
+  serial: false
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+instance_groups:
+- name: prometheus2
+  instances: 1
+  vm_type: 1cpu-4g 
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-exchange
+    static_ips:
+    - 192.168.99.207
+  persistent_disk_type: large
+  env:
+    persistent_disk_fs: xfs
+  jobs:
+  - name: prometheus2
+    release: prometheus
+    properties:
+      prometheus:
+        external_labels:
+          bosh: bosh-ops
+        storage:
+          local:
+            engine: persisted
+            retention: 12h
+        web:
+          external_url: "https://elpaaso-prometheus-exporter-ops.((/secrets/cloudfoundry_ops_domain))"
+        rule_files: []
+        scrape_configs: []

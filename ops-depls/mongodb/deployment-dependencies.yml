@@ -1,0 +1,22 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - ops-depls/mongodb
+          - shared-operators/shield
+          - shared-operators/coab/monitoring-operators
+    releases:
+      routing:
+      prometheus:
+      shield:
+      minio:
+      generic-scripting:
+      mongodb-services:
+      orange-prometheus-addons:
+      generic-taint-jobs:
+    errands:
+      broker-smoke-tests:
+      import:
+        display-name: shield-provisioning

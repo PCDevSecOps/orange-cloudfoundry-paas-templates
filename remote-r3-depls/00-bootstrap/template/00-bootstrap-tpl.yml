@@ -1,0 +1,28 @@
+---
+#Deployment Identification
+name: 00-bootstrap 
+
+#Features Block
+
+#Releases Block
+releases:
+- name: jumpbox
+  version: latest
+
+#Stemcells Block
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+#Update Block
+update:
+  canaries: 1
+  max_in_flight: 2
+  canary_watch_time: 15000-30000
+  update_watch_time: 15000-300000
+
+#Instance Groups Block
+instance_groups: []
+variables: []
+

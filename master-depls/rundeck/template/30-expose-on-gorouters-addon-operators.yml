@@ -1,0 +1,30 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+
+- type: replace
+  path: /addons/name=30-expose-on-gorouters?/jobs?/-
+  value :
+    name: route_registrar
+    release: routing
+    consumes:
+      nats:
+        instances:
+        - address: ops-routing-nats
+        properties:
+          nats:
+            port: 4222
+            user: nats
+            password: ((/bosh-master/ops-routing/nats_password))
+    properties:
+      route_registrar:
+        routes:
+        - name: rundeck-endpoint
+          registration_interval: 60s
+          port: 80 # traefik ingress controller is fronted by a lb for 80 (http) and 443
+          uris:
+          - ((uri))

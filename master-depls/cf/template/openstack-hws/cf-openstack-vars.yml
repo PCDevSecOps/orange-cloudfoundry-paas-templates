@@ -1,0 +1,2 @@
+#--- tcp routing
+default_router_group_reservable_ports: "((/secrets/cloudfoundry_default_router_group_reservable_port_min))-((/secrets/cloudfoundry_default_router_group_reservable_port_max))"

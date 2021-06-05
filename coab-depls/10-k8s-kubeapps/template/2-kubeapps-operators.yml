@@ -1,0 +1,38 @@
+- type: replace
+  path: /variables?/-
+  value:
+    name: pg_password
+    type: password
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kubeapps
+    chart:  bitnami/kubeapps
+    namespace: kubeapps
+    version: ((helm_kubeapps))
+    debug: true
+    properties:
+    - name: useHelm3
+      value: true
+    - name: enableIPv6
+      value: false
+    - name: postgresql.postgresqlPassword
+      value: ((pg_password)) # password must be set to be able to update the chart
+    values_file_content:
+      securityContext:
+        enabled: true
+        runAsUser: 1001
+      apprepository:
+        initialReposProxy:
+          enabled: true
+          http_proxy: ((http_proxy))
+          https_proxy: ((https_proxy))
+          no_proxy: ((no_proxy))
+        initialRepos:
+        - name: jcr
+          url: https://jcr-k8s.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+          source: https://github.com/kubernetes/charts/tree/master/stable
+          caCert: ((ca_cert))

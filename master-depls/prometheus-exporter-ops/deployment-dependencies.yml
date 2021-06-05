@@ -1,0 +1,9 @@
+---
+deployment:
+  prometheus-exporter-ops:
+    resources:
+      templates:
+        extended_scan_path: ["submodules/prometheus-boshrelease"]
+    releases:
+      routing:
+      prometheus:

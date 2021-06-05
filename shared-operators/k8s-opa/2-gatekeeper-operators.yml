@@ -1,0 +1,44 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gatekeeper"
+    cmd: "apply"
+    options: "-n gatekeeper-system -f https://raw.githubusercontent.com/open-policy-agent/gatekeeper/release-3.1/deploy/gatekeeper.yaml"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gatekeeper-prometheus"
+    cmd: "patch"
+    options: " -n gatekeeper-system deploy gatekeeper-controller-manager -p '{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"prometheus.io/scrape\": \"true\", \"prometheus.io/port\": \"8888\"}}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gatekeeper-prometheus"
+    cmd: "patch"
+    options: "-n gatekeeper-system deploy gatekeeper-audit -p '{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"prometheus.io/scrape\": \"true\", \"prometheus.io/port\": \"8888\"}}}}}'"
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gatekeeper-prometheus"
+    cmd: "apply"
+    content:
+      apiVersion: config.gatekeeper.sh/v1alpha1
+      kind: Config
+      metadata:
+        name: config
+        namespace: "gatekeeper-system"
+      spec:
+        match:
+        - excludedNamespaces: ["kube-system", "gatekeeper-system"]
+          processes: ["*"]
+        - excludedNamespaces: ["audit-excluded-ns"]
+          processes: ["audit"]
+        - excludedNamespaces: ["audit-webhook-sync-excluded-ns"]
+          processes: ["audit", "webhook", "sync"]

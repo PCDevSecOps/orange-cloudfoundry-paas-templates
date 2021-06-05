@@ -1,0 +1,134 @@
+- type: replace
+  path: /variables/-
+  value:
+    name: /bosh-coab/k3s/broker_password #global credhub namespace, all k3s service instance share same inner broker password
+    type: password
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value: 
+    type: namespace
+    name: o-((instance_id))
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "simplest-broker-worlds-simplest-service-broker"
+    cmd: "apply"
+    content:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: simplest-broker-worlds-simplest-service-broker
+        namespace: o-((instance_id))
+        labels:
+         app: wsb-osb
+
+      spec:
+        selector:
+          matchLabels:
+            app: wsb-osb
+        replicas: 1
+        strategy:
+          rollingUpdate:
+            maxSurge: 25%
+            maxUnavailable: 25%
+          type: RollingUpdate
+        template:
+          metadata:
+            labels:
+              app: wsb-osb
+          spec:
+            containers:
+            - name: worlds-simplest-service-broker
+              image: cfcommunity/worlds-simplest-service-broker:1.3.1
+              imagePullPolicy: IfNotPresent
+              env:
+              - name: PORT
+                value: "3000"
+              - name: BASE_GUID
+                value: 0a6cc65a-6744-48ae
+              - name: SERVICE_NAME
+                value: some-helm-service-class
+              - name: SERVICE_PLAN
+                value: shared
+              - name: FAKE_ASYNC
+                value: "false"
+              - name: FAKE_STATEFUL
+                value: "false"
+              - name: CREDENTIALS
+                value: '{"host":"kafka-((instance_id)).((/secrets/cloudfoundry_ops_domain))","port":443,"username":"admin","password":"((rancher_admin_password))","dashboard_url":"https://rancher-((instance_id)).((/secrets/cloudfoundry_ops_domain))" }'
+              - name: TAGS
+                value: kafka,strimzi
+              - name: IMAGE_URL
+              - name: AUTH_USER
+                value: k3s-broker
+              - name: AUTH_PASSWORD
+                value: ((/bosh-coab/k3s/broker_password))
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: http
+                  scheme: HTTP
+                periodSeconds: 10
+# service
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "world-simplest-broker-service"
+    cmd: "apply"
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: simplest-broker-worlds-simplest-service-broker
+        namespace: o-((instance_id))
+      spec:
+        type: ClusterIP
+        ports:
+        - name: http
+          port: 80
+          protocol: TCP
+          targetPort: 3000
+        selector:
+          app: wsb-osb
+
+#ingress
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "world-simplest-broker-ingress"
+    cmd: "apply"
+    content:
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: world-simplest-broker-ingress
+        namespace: o-((instance_id))
+      spec:
+        rules:
+        - host: inner-broker-((instance_id)).((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: simplest-broker-worlds-simplest-service-broker
+                servicePort: http
+
+
+#wait for broker to be Available
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "o-((instance_id))-wait"
+    cmd: "wait"
+    options: "--for=condition=Available deployment/simplest-broker-worlds-simplest-service-broker -n o-((instance_id)) --timeout=60s"
+
+    port: 80 # traefik ingress controller is fronted by a lb for 80 (http) and 443
+    uris:
+    - inner-broker-((instance_id)).((/secrets/cloudfoundry_ops_domain))

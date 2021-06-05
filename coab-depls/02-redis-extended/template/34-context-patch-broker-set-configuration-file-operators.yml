@@ -1,0 +1,60 @@
+---
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=scripting/properties/scripting/pre-start-script
+  value: |
+
+    #--- Initialize context
+    echo "- Start pre-start"
+    > /var/vcap/sys/log/scripting/pre-start.stderr.log
+    > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+    set +e #curl will fail so we don't exit on error
+
+    #wait for bosh-dns startup (45s max)
+    counter=$(ps -aux | grep "bosh-dns" | wc -l)
+    retry_counter=0
+    while [ ${retry_counter} -lt 15 ]; do
+        echo "waiting"
+        sleep 3
+        retry_counter=$[${retry_counter} + 1]
+        counter=$(ps -aux | grep "bosh-dns" | wc -l)
+    done
+    if [ ${counter} -eq 4 ]; then
+        echo "curling"
+        curl -vs q-s0-a1.proxy.tf-net-osb-data-plane-dedicated-pub.((deployment-name)).bosh -m 5 > curl.txt 2>&1 #z1
+        curl -vs q-s0-a4.proxy.tf-net-osb-data-plane-dedicated-pub.((deployment-name)).bosh -m 5 > curl_remote.txt 2>&1 #r2-z1
+    else
+        echo "timeout waiting for bosh-dns... exit"
+        exit 1
+    fi
+
+    #get local ip from dns
+    local_ip=$(grep "Trying" curl.txt | grep -oE '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}')
+    echo "local is ${local_ip}"
+
+    #get remote ip from dns
+    remote_ip=$(grep "Trying" curl_remote.txt | grep -oE '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}')
+    echo "remote ip is ${remote_ip}"
+
+
+    #first, substitute local ip in broker configuration file
+    if [[ -n "${local_ip}" ]]; then
+      BROKER_CONFIG_FILE=/var/vcap/jobs/redis_broker-1.5/config/application.yml
+      cat ${BROKER_CONFIG_FILE}
+      sed -i "/- 192.168.[0-9]*.[0-9]*/{s//- ${local_ip}/;:p;n;bp}" ${BROKER_CONFIG_FILE} #only first occurence
+      cat ${BROKER_CONFIG_FILE}
+    else
+      echo "local ip is empty... exit"
+      exit 1
+    fi
+
+    #second, substitute remote ip in broker configuration file
+    if [[ -n "${remote_ip}" ]]; then
+      BROKER_CONFIG_FILE=/var/vcap/jobs/redis_broker-1.5/config/application.yml
+      cat ${BROKER_CONFIG_FILE}
+      sed -i "/- 192.168.[0-9]*.[0-9]*/{s//- ${remote_ip}/;:p;n;bp}" ${BROKER_CONFIG_FILE} #only first occurence
+      cat ${BROKER_CONFIG_FILE}
+    else
+      echo "remote ip is empty... exit"
+      exit 1
+    fi

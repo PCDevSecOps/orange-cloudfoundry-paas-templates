@@ -1,0 +1,9 @@
+#--- Specify which cipher-suite will be used for gorouter ssl endpoint
+- type: replace
+  path: /instance_groups/name=osb-routing-router/properties/router/cipher_suites?
+  value: ((gorouter_cipher_ssl))
+
+#--- Disable client cert request (fix Firefox SEC_ERROR_PKCS11_GENERAL_ERROR error when entreprise strategy set security.osclientcerts.autoload to true)
+- type: replace
+  path: /instance_groups/name=osb-routing-router/properties/router/client_cert_validation?
+  value: "none"

@@ -1,0 +1,6 @@
+elasticsearch_master_disk_type: large
+cluster_monitor_disk_type: large 
+elasticsearch_data_disk_type: logsearch-es-data
+kibana_disk_type: small_disk
+ingestor_disk_type: xlarge 
+maintenance_disk_type: xlarge

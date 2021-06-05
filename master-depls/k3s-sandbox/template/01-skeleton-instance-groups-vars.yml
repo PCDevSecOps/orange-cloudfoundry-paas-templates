@@ -1,0 +1,5 @@
+master_persistent_disk_type: xlarge
+worker_persistent_disk_type: xlarge
+masters_instance_count: 1
+worker_instance_count: 3
+cluster_name: k3s-sandbox

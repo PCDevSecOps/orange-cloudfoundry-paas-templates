@@ -1,0 +1,14 @@
+---
+#adapt AZ : [z1, z2, z3]
+# redis
+- type: replace
+  path: /instance_groups/name=redis-master/azs
+  value: [z1,r2-z1]
+
+- type: replace
+  path: /instance_groups/name=redis-sentinel/azs
+  value: [z1,r2-z1]
+
+- type: replace
+  path: /instance_groups/name=broker/azs
+  value: [z1]  

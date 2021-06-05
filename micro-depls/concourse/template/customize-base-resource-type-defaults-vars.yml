@@ -1,0 +1,6 @@
+base_resource_type_defaults: |+
+  registry-image:
+    registry_mirror:
+      host: docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+
+

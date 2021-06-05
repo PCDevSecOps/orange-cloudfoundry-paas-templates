@@ -1,0 +1,4 @@
+tenant_name: micro-depls
+deployment_name: 00-core-connectivity-terraform
+base_dir: "/var/vcap/store/terraform-apply"
+when: "daily 2:15"

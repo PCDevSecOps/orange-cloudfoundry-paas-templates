@@ -1,0 +1,12 @@
+---
+deployment:
+  prometheus-exporter-coab:
+    resources:
+      templates:
+        extended_scan_path: ["submodules/prometheus-boshrelease"]
+
+    releases:
+      prometheus:
+      routing:
+      postgres:
+      orange-prometheus-addons:

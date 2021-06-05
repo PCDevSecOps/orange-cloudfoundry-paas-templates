@@ -1,0 +1,27 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "traefikingressrouteminio"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((ingressroute_api_version))
+      kind: IngressRouteTCP
+      metadata:
+        name: routingmapminio
+        namespace: traefik
+        annotations:
+          kubernetes.io/ingress.class: traefik
+      spec:
+        entryPoints:
+        - minio
+        routes:
+        - match: HostSNI(`*`)
+          kind: Rule
+          priority: 10
+          services:
+          - name: ci-k8s
+            namespace: traefik
+            kind: Service
+            port: 32020

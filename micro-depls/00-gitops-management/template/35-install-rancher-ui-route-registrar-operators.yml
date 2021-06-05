@@ -1,0 +1,11 @@
+#register rancher.micro uri in host vm route registrar
+- type: replace
+  path: /addons/name=30-expose-on-gorouters/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value :
+    name: 00-gitops-management-endpoint-rancher
+    registration_interval: 60s
+    tls_port: 443 #to target ingress
+    server_cert_domain_san: "((rancher-url))"
+    uris:
+    - ((rancher-url))
+    #FIXME: set health Rancher will respond 200 to health checks on the /healthz endpoint.

@@ -1,0 +1,32 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kafka-cluster/content/spec/kafka/listeners/-
+  value:
+    #external service for consumption from client platforms
+    #define tls hostname to enable upstream SNI routing on shared 443 port.
+    name: external
+    port: 9094
+    type: ingress
+    tls: true
+    authentication:
+      #type: tls
+      type: scram-sha-512 #tls is generic for all kafka instance, use scram for authent.
+
+    configuration:
+      bootstrap:
+        host: bootstrap-((instance_id)).((/secrets/cloudfoundry_ops_domain)) #return as a OSB service binding
+      brokers:
+      - broker: 0
+        host: broker-0-((instance_id)).((/secrets/cloudfoundry_ops_domain))
+      - broker: 1
+        host: broker-1-((instance_id)).((/secrets/cloudfoundry_ops_domain))
+      - broker: 2
+        host: broker-2-((instance_id)).((/secrets/cloudfoundry_ops_domain))
+      #use corporate cert/ca for external listener
+      brokerCertChainAndKey:
+        secretName: external-listener-cert
+        certificate: tls.crt
+        key: tls.key
+
+
+#kafka access endpoints are registered on local ingress as tcp 443
+#instance level route can be set upstream with SNI routing on *-((instance_id)).((/secrets/cloudfoundry_ops_domain))

@@ -1,0 +1,22 @@
+---
+#this operators fixed the deployment for upgrade compatibility
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/networks
+  value:
+#    - name: tf-net-osb-data-plane-shared-backward
+    - name: tf-net-osb-data-plane-shared-priv
+
+- type: replace
+  path: /instance_groups/name=mongod/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-pub
+      static_ips:
+      - ((mongod_ip_1))
+      - ((mongod_ip_2))
+      - ((mongod_ip_3))
+
+
+#- type: replace
+#  path: /instance_groups/name=mongod/jobs/name=shield-agent/properties/shield/targets/mongodb_all_db_target/config/mongo_host
+#  value: "rs0/((mongod_ip_1)),((mongod_ip_2)),((mongod_ip_3))"

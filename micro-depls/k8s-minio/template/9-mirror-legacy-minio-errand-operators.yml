@@ -1,0 +1,60 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: minio
+    version: latest
+
+#add mc package
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: mc
+    release: minio
+    templates:
+      - name: mc
+    consumes:
+      minio:
+        instances:
+          - address: private-s3.internal.paas
+        properties:
+          port: "1234"
+          credential:
+            accesskey: fake-s3
+            secretkey: "fake*1234"
+    properties:
+      script: |
+        #!/bin/sh
+
+#leveraging scripting release to create bucket
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          #--- Initialize context
+          echo "- Start errand"
+    
+          #--- Configure S3
+          set +e
+    
+          /var/vcap/packages/mc/mc config host add minio http://private-s3.internal.paas:9000 private-s3 ((/micro-bosh/minio-private-s3/s3_secretkey)) --api s3v4
+          if [ $? != 0 ] ; then echo "remote S3 target configuration failed\n" ; exit 0 ; fi
+    
+          /var/vcap/packages/mc/mc config host add minio_k8s https://minio-k8s.((/secrets/cloudfoundry_ops_domain)) private-s3 ((/micro-bosh/k8s-minio/minio-secret-key)) --api s3v4
+          if [ $? != 0 ] ; then echo "local S3 target configuration failed\n" ; exit 0 ; fi
+          
+          /var/vcap/packages/mc/mc mirror minio/bosh-releases minio_k8s/bosh-releases
+          /var/vcap/packages/mc/mc mirror minio/stemcells minio_k8s/stemcells
+          /var/vcap/packages/mc/mc mirror  minio/cached-buildpacks minio_k8s/cached-buildpacks
+          /var/vcap/packages/mc/mc mirror minio/compiled-releases minio_k8s/compiled-releases
+          echo "- Finished errand"

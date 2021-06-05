@@ -1,0 +1,40 @@
+network_name: net-bosh-2
+external_url: (( concat "https://elpaaso-concourse." secrets.ops_interco.ops_domain "/" ))
+web_vm_type: 1cpu-2g
+db_vm_type: 4cpu-16g
+db_persistent_disk_type: database
+deployment_name: concourse
+
+update_max_in_flight: 3 # to be able to update db, web and 1 worker in parallel
+
+prometheus_port: 9176
+worker_instances: 12
+worker_update_max_in_flight: 3
+web_instances: 3
+web_ip:
+  - 192.168.116.160
+  - 192.168.116.161
+  - 192.168.116.162
+
+garden_max_containers: 290
+garden_network_pool: 10.254.0.0/16
+
+worker_vm_type: 4cpu-16g
+max-active-tasks-per-worker: 4 # 1 tasks per CPU
+storage_driver: overlay
+
+build_logs_default: 50
+build_logs_maximum: 100
+
+worker_swap_size: 0 # disable swap on workers
+web_swap_size: 0 # disable swap on workers
+
+credential-manager:
+  duration: 4m
+  purge_interval: 10m
+  retry_interval: 8s
+  retry_attempts: 7
+
+api_domain: (( grab secrets.cloudfoundry.system_domain ))
+azs:
+  - z1

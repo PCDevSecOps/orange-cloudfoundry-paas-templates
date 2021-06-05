@@ -1,0 +1,17 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - shared-operators/docker-images
+          - shared-operators/shield
+    releases:
+      docker:
+      routing:
+      shield:
+      generic-scripting:
+      openldap:
+    errands:
+      import:
+        display-name: shield-provisioning

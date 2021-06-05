@@ -1,0 +1,76 @@
+###########
+###########
+#
+# You can find newer version in https://github.com/scholzj/zoo-entrance
+#
+###########
+###########
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zoo-entrance
+  namespace: kafka
+  labels:
+    app: zoo-entrance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zoo-entrance
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: zoo-entrance
+    spec:
+      containers:
+        - name: tls-sidecar
+          image: 'docker.io/scholzj/zoo-entrance-stunnel:latest'
+          ports:
+            - containerPort: 2181
+              name: zoo
+              protocol: TCP
+          env:
+            - name: TLS_SIDECAR_LOG_LEVEL
+              value: notice
+            - name: STRIMZI_ZOOKEEPER_CONNECT
+              value: 'paas-templates-bi-zookeeper-client:2181'
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command:
+                - /opt/stunnel/stunnel_healthcheck.sh
+                - '2181'
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+                - /opt/stunnel/stunnel_healthcheck.sh
+                - '2181'
+            failureThreshold: 3
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          volumeMounts:
+            - mountPath: /etc/tls-sidecar/eo-certs/
+              name: eo-certs
+            - mountPath: /etc/tls-sidecar/cluster-ca-certs/
+              name: cluster-ca-certs
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: eo-certs
+          secret:
+            defaultMode: 288
+            secretName: paas-templates-bi-entity-operator-certs
+        - name: cluster-ca-certs
+          secret:
+            defaultMode: 288
+            secretName: paas-templates-bi-cluster-ca-cert

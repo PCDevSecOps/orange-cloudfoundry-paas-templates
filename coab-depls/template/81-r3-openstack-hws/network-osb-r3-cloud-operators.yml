@@ -1,0 +1,44 @@
+#--- Add a r3 subnet for osb-data-plane-dedicated-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-priv/subnets/-
+  value:
+    range: 192.168.68.0/24
+    gateway: 192.168.68.1
+    dns: [192.168.116.156,192.168.116.166]
+    azs: [r3-z1]
+    reserved:
+      - 192.168.68.1 - 192.168.68.20          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      net_id: ((tf-net-osb-data-plane-dedicated-priv-r3_id))
+      security_groups:
+      - tf-default-sg-r3 #security group provisionned by remote-r3-depls/terraform
+
+#--- Add a r3 subnet for osb-data-plane-dedicated-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-priv/subnets/-
+  value:
+    range: 192.168.72.0/24
+    gateway: 192.168.72.1
+    dns: [192.168.116.156,192.168.116.166]
+    azs: [r3-z1]
+    reserved:
+      - 192.168.72.1 - 192.168.72.20          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      net_id: ((/tf/networks_net-osb-data-plane-dedicated-priv-extension-r3))
+      security_groups:
+        - tf-default-sg-r3 #r3 security group provisionned by remote-r3-depls/terraform
+
+#--- Add a r3 subnet for osb-data-plane-dedicated-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-priv/subnets/-
+  value:
+    range: 192.168.75.0/24
+    gateway: 192.168.75.1
+    dns: [192.168.116.156,192.168.116.166]
+    azs: [r3-z1]
+    reserved:
+      - 192.168.75.1 - 192.168.75.20          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      net_id: ((/tf/networks_net-osb-data-plane-dedicated-priv-extension-r3-3))
+      security_groups:
+        - tf-default-sg-r3 #r3 security group provisionned by remote-r3-depls/terraform

@@ -1,0 +1,16 @@
+#add shield agent-job operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      shield-url: https://((shield-alias))
+      agent:
+        key: ((/bosh-master/shieldv8/shield-agent-key.public_key))
+      core:
+        ca: ((/bosh-master/shieldv8/shield-tls.ca))
+      log-level: ((log-level))
+      require-shield-core: false
+      ulimit:
+        fds: ((fds))

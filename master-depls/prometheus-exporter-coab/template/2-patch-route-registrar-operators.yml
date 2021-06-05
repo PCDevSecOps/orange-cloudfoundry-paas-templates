@@ -1,0 +1,26 @@
+#disable bosh link
+- type: remove
+  path: /instance_groups/name=nginx/jobs/name=route_registrar/consumes
+
+  
+#go to custom ops-routing nats
+- type: replace
+  path: /instance_groups/name=nginx/jobs/name=route_registrar/properties/nats?
+  value:
+    machines: [ops-routing-nats]
+    port: 4222
+    user: nats
+    password: ((/bosh-master/ops-routing/nats_password))
+
+    
+#override default portals routes with cob specific
+- type: replace
+  path: /instance_groups/name=nginx/jobs/name=route_registrar/properties/route_registrar/routes/name=prometheus/uris
+  value:
+    - prometheus-coab.((/secrets/cloudfoundry_ops_domain))
+
+# Prometheus URL
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/web?/external_url
+  value: https://prometheus-coab.((/secrets/cloudfoundry_ops_domain))
+  

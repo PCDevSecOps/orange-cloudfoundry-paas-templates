@@ -1,0 +1,53 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clean-job-configrepo"
+    cmd: "delete"
+    options: "job -n jcr provision  --ignore-not-found=true "
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "cronjob-configrepo"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: provision
+        namespace: jcr
+      spec:
+        ttlSecondsAfterFinished: 60
+        template:
+          spec:
+            volumes:
+            - name: script
+              configMap:
+                name: script
+                defaultMode: 0777
+            - name: custom-config
+              configMap:
+                name: custom-config
+            containers:
+            - name: config
+              image: curlimages/curl:7.75.0
+              securityContext:
+                runAsUser: 0
+              command:
+              - '/bin/sh'
+              - '-c'
+              - '/scripts/posthook-end.sh'
+              volumeMounts:
+              - mountPath: "/scripts/posthook-end.sh"
+                subPath: posthook-end.sh
+                name: script
+              - mountPath: "/scripts/param.yml"
+                name: custom-config
+                subPath: param.yml
+            restartPolicy: Never
+        backoffLimit: 4
+

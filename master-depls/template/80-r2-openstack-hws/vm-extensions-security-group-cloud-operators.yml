@@ -1,0 +1,19 @@
+#--- Enable bosh director port access from remote vpn
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: vpn-peer-secgroup-extension
+    cloud_properties:
+      security_groups:
+      - tf-enable-wireguard-r1
+      - tf-default-sg #seems vm extension override network security group. reapply
+
+#--- Enable bosh director port access from remote bosh agents
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: remote-bosh-agents-secgroup-extension
+    cloud_properties:
+      security_groups:
+      - tf-enable-from-bosh-agents
+      - tf-default-sg #seems vm extension override network security group. reapply

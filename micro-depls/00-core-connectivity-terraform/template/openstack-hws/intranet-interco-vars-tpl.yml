@@ -1,0 +1,7 @@
+#--- Get vars for intranet-interco network
+multi_region_region_1_intranet_interco_range: (( grab secrets.multi_region.region_1.intranet-interco.range ))
+multi_region_region_1_intranet_interco_gateway: (( grab secrets.multi_region.region_1.intranet-interco.gateway ))
+multi_region_region_1_intranet_interco_api: (( grab secrets.multi_region.region_1.intranet-interco.api ))
+multi_region_region_1_intranet_interco_apps: (( grab secrets.multi_region.region_1.intranet-interco.apps ))
+multi_region_region_1_intranet_interco_ops: (( grab secrets.multi_region.region_1.intranet-interco.ops ))
+multi_region_region_1_intranet_interco_osb: (( grab secrets.multi_region.region_1.intranet-interco.osb ))

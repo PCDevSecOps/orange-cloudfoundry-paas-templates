@@ -1,0 +1,74 @@
+---
+#add shield agent-job operator
+- type: replace
+  path: /instance_groups/name=rmq/jobs/-
+  value:
+    name: shield-agent
+    release: shield
+    properties:
+      env:
+        http_proxy: ((http_proxy))
+        https_proxy: ((http_proxy))
+        no_proxy: localhost,127.0.0.1,((shield-alias-prefix))((instance_id))((shield-domain-suffix)), ((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) #no proxy to connect to shield server
+      shield-url: https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+      agent:
+        key: ((shield-agent-key.public_key))
+      core:
+        ca: ((shield-tls.ca))
+      log-level: ((log-level))
+      require-shield-core: false
+
+# add import job on rmq instance groups
+- type: replace
+  path: /instance_groups/name=rmq/jobs/-
+  value:
+    name: import
+    release: shield
+    properties:
+      generate_token: true
+      token_name: (deployment)-(name)-(index)-((token_name))
+      core: sandbox
+      domain: ((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+      password: ((failsafe-password))
+      import:
+        ca: ((shield-tls.ca))
+        core: https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix))
+        tenants:
+          - name: ((deployment_name))
+            members:
+              - user: admin@local # credential_leak_validated
+                role: admin
+            storage:
+              - name: dif-03-cf-rabbit-extended/(index)-(ip)
+                summary: |
+                  S3 DIF cloud storage for all SHIELD tenants to use
+                agent:  (ip):5444
+                plugin: s3
+                config:
+                  s3_host: ((s3_host))
+                  s3_port: "443"
+                  access_key_id: ((s3_access_key_id))
+                  secret_access_key: ((s3_secret_access_key))
+                  bucket: ((s3_bucket_prefix))-03-cf-rabbit-extendedcoab #pre-requisite
+                  prefix: ((deployment_name))
+                  skip_ssl_validation: true
+            policies:
+              - name: short-term
+                days: 21
+            systems:
+              - name: 03-cf-rabbit-extended-configuration-backup-(ip)
+                agent: (ip):5444
+                config:
+                  rmq_url: "http://localhost:15672"
+                  rmq_username: "((rabbitmq-management-username))"
+                  rmq_password: "((rabbitmq-management-password))"
+                  skip_ssl_validation: true
+                jobs:
+                  - name: 03-cf-rabbit-extended/(index)-daily
+                    paused: false
+                    policy: short-term
+                    retain: 21
+                    storage: dif-03-cf-rabbit-extended/(index)-(ip)
+                    when: "daily 0:15"
+                plugin: rabbitmq-broker
+                summary: "RabbitMQ configuration backup"

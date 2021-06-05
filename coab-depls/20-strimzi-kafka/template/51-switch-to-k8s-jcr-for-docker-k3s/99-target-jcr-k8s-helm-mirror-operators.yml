@@ -1,0 +1,4 @@
+#patch server helm kubectl
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/repository_mirror/url
+  value: https://jcr-k8s.((/secrets/cloudfoundry_ops_domain))/artifactory/helm

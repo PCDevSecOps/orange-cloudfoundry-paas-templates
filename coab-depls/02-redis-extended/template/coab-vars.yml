@@ -1,0 +1,5 @@
+#Simulates what coab will generate for each deployment.
+deployment_name: "02-redis-extended"
+plan_id: "plan-coab-redis-sentinelsmallha"
+instance_id: "2d6f72c4-7e93-432d-a2b2-9577a2eb4dd3"
+

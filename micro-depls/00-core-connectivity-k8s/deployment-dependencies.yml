@@ -1,0 +1,29 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/k3s
+        - shared-operators/k8s-common
+        - shared-operators/shield
+
+    releases:
+      routing:
+      bosh-dns-aliases:
+      k3s:
+      helm-kubectl:
+      pxc:
+      generic-taint-jobs:
+      ulimit:
+      generic-scripting:
+      haproxy:
+      networking:
+    errands:
+      action:
+        display-name: kubectl-actions
+      smoke-tests: #pxc smoke test
+        display-name: pxc-smoke-tests
+      errand-scripting:
+        display-name: rancher-registration
+      

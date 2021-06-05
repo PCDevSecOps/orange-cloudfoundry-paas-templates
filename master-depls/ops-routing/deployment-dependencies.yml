@@ -1,0 +1,12 @@
+---
+deployment:
+  ops-routing:
+    releases:
+      routing:
+      nats:
+      uaa:
+      postgres:
+      bosh-dns-aliases:
+
+    errands:
+

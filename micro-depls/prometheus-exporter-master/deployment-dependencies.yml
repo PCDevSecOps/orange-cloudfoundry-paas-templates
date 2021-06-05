@@ -1,0 +1,10 @@
+---
+deployment:
+  prometheus-exporter-master:
+    resources:
+      templates:
+        extended_scan_path: ["submodules/prometheus-boshrelease"]
+    releases:
+      routing:
+      prometheus:
+      bosh-dns-aliases:

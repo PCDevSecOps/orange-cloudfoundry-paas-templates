@@ -1,0 +1,4 @@
+---
+helm_isaaguilar_terraform_operator: "v0.1.13" #chart for v0.3.6
+helm_crossplane: "1.1.0"
+helm_strimzi: "0.21.1"

@@ -1,0 +1,46 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clean-job-create-bucket"
+    cmd: "delete"
+    options: "job -n gitlab create-bucket  --ignore-not-found=true "
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "job-create-bucket"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: batch/v1
+      kind: Job
+      metadata:
+        name: gitlab-create-bucket
+        namespace: gitlab
+      spec:
+        ttlSecondsAfterFinished: 60
+        template:
+          spec:
+            volumes:
+            - name: script
+              configMap:
+                name: script
+                defaultMode: 0777
+            containers:
+            - name: config
+              image: minio/mc:RELEASE.2021-03-12T03-36-59Z
+              securityContext:
+                runAsUser: 0
+              command:
+              - '/bin/sh'
+              - '-c'
+              - '/scripts/create-bucket.sh'
+              volumeMounts:
+              - mountPath: "/scripts/create-bucket.sh"
+                subPath: create-bucket.sh
+                name: script
+            restartPolicy: Never
+        backoffLimit: 4
+

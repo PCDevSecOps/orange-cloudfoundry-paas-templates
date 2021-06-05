@@ -1,0 +1,4 @@
+broker_ip_1: "(( ips secrets.osb_data_plane_shared_public.range 40 ))"
+mongod_ip_1: "(( ips secrets.osb_data_plane_shared_public.range 41 ))"
+mongod_ip_2: "(( ips secrets.osb_data_plane_shared_public.range 42 ))"
+mongod_ip_3: "(( ips secrets.osb_data_plane_shared_public.range 43 ))"

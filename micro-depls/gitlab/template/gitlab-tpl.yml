@@ -1,0 +1,81 @@
+---
+name: gitlab
+
+releases:
+- {name: docker, version: latest}
+- {name: routing, version: latest}
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-1200000
+  update_watch_time:  30000-1200000
+  max_in_flight: 32
+  serial: false
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+instance_groups:
+- name: gitlab
+  instances: 1
+  vm_extensions:
+  - 100GB_ephemeral_disk
+  vm_type: 8cpu-16g
+  persistent_disk_type: xlarge
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    default: [dns,gateway]
+
+  jobs:
+  - name: docker
+    release: docker
+    properties:
+      log_driver: syslog
+      registry_mirrors:
+      - https://docker.jcr.((/secrets/cloudfoundry_ops_domain))
+      store_dir: /var/vcap/data
+
+  - name: containers
+    release: docker
+    properties:
+      containers:
+        - name: gitlab
+          image: gitlab/gitlab-ce:((gitlab/gitlab-ce))
+          hostname: elpaaso-gitlab.((/secrets/cloudfoundry_ops_domain))
+          memory: "10000m"
+          bind_ports:
+          - 8929:80   #--- web access
+          - 9168:9168 #--- prometheus gitlab
+          - 9121:9121 #--- prometheus redis
+          - 9187:9187 #--- prometheus postgres
+          - 9236:9236 #--- prometheus gitaly
+          - 9229:9229 #--- prometheus gitlab workhorse
+          bind_volumes:
+          - "/var/opt/gitlab"
+          env_vars:
+          - "EXTERNAL_URL=https://elpaaso-gitlab.((/secrets/cloudfoundry_ops_domain))"
+          - "LDAP_PASSWORD=((/secrets/ldap_root_password))"
+          volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"
+          - "/var/vcap/data/scripting/gitlab.rb:/etc/gitlab/gitlab.rb"
+
+    #--- Registrar to ops-routing
+  - name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines: [ops-routing-nats]
+        password: ((/bosh-master/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes:
+        - name: gitlab-route
+          port: 8929
+          registration_interval: 20s
+          uris:
+          - "elpaaso-gitlab.((/secrets/cloudfoundry_ops_domain))"

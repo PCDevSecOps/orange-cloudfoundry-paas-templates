@@ -1,0 +1,57 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gpm-sa"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ServiceAccount
+      metadata:
+        name: gatekeeper-policy-manager
+        namespace: gatekeeper-system
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gpm-cr"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRole
+      metadata:
+        name: gatekeeper-policy-manager-crd-view
+      rules:
+      - apiGroups: ["constraints.gatekeeper.sh"]
+        resources: ["*"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: ["templates.gatekeeper.sh"]
+        resources: ["*"]
+        verbs: ["get", "list", "watch"]
+      - apiGroups: ["config.gatekeeper.sh"]
+        resources: ["*"]
+        verbs: ["get", "list", "watch"]
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gpm-crb"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: rbac.authorization.k8s.io/v1
+      kind: ClusterRoleBinding
+      metadata:
+        name: gatekeeper-policy-manager-crd-view
+      roleRef:
+        apiGroup: rbac.authorization.k8s.io
+        kind: ClusterRole
+        name: gatekeeper-policy-manager-crd-view
+      subjects:
+      - kind: ServiceAccount
+        name: gatekeeper-policy-manager
+        namespace: gatekeeper-system

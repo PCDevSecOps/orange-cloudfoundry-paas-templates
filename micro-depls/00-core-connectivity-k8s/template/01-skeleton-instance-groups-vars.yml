@@ -1,0 +1,5 @@
+master_persistent_disk_type: xlarge
+worker_persistent_disk_type: xxlarge-performant
+masters_instance_count: 1
+worker_instance_count: 4
+cluster_name: 00-core-connectivity-k8s

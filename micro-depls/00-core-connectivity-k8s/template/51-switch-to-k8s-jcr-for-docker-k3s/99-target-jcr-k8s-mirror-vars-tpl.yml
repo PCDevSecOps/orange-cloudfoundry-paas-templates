@@ -1,0 +1,15 @@
+containerd_registry:
+  mirrors:
+    docker.io:
+      endpoint:
+      - ((/secrets/multi_region_region_1_corporate_internet_dockerhub_mirror_url))
+      - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+    quay.io:
+      endpoint:
+      - ((/secrets/multi_region_region_1_corporate_internet_quayio_mirror_url))
+      - https://quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+    '*':
+      endpoint:
+      - ((/secrets/multi_region_region_1_corporate_internet_dockerhub_mirror_url))
+      - ((/secrets/multi_region_region_1_corporate_internet_quayio_mirror_url))
+      - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))

@@ -1,0 +1,10 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      shield:
+      generic-scripting:
+      minio:
+    errands:
+      import:
+        display-name: shield-provisioning

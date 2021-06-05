@@ -1,0 +1,1 @@
+../../osb-reverse-proxy/template/post-deploy.sh

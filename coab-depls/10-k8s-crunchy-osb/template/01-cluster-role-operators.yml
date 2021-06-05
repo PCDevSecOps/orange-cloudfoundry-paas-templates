@@ -1,0 +1,38 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterrole1-pgo"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: ClusterRole
+      apiVersion: rbac.authorization.k8s.io/v1beta1
+      metadata:
+        name: pgo-osb
+      rules:
+      - apiGroups: ["authentication.k8s.io"]
+        resources: ["tokenreviews"]
+        verbs: ["create"]
+      - apiGroups: ["authorization.k8s.io"]
+        resources: ["subjectaccessreviews"]
+        verbs: ["create"]
+      - apiGroups: ["crunchydata.com"]
+        resources: ["pgclusters"]
+        verbs: ["list"]
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterrole-pgo"
+    cmd: "apply"
+    options: ""
+    content:
+      kind: ClusterRole
+      apiVersion: rbac.authorization.k8s.io/v1beta1
+      metadata:
+        name: access-pgo-osb
+      rules:
+      - nonResourceURLs: ["/v2", "/v2/*"]
+        verbs: ["GET", "POST", "PUT", "PATCH", "DELETE"]

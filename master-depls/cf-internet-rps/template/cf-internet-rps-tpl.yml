@@ -1,0 +1,53 @@
+---
+name: cf-internet-rps
+
+releases:
+  - {name: haproxy, version: latest}
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-240000
+  update_watch_time:  30000-240000
+  max_in_flight: 1 #<-- important to limit max in flight
+  serial: false
+
+# Stemcell details
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+instance_groups:
+
+- name: cf-internet-rp
+  instances: 1
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-exchange
+    default: [dns,gateway]
+    static_ips: [192.168.99.130]
+
+  jobs:
+  - name: haproxy
+    release: haproxy
+
+    properties:
+      ha_proxy:
+        accept_proxy: true #combined with internetrelay send-proxy, to propagate origin ip
+        log_level: info
+        stats_enable: true
+        stats_user: prometheus
+        stats_password: (( grab secrets.prometheus.password ))
+        trusted_stats_cidrs: 0.0.0.0/0
+        https_redirect_all: true  #<--no http open on cloudwatt sandbox.
+        backend_servers:
+        # - 192.168.26.30 # this is cf ha-proxy internal ip, to start
+        - 192.168.26.6   #router z1
+        - 192.168.26.105 #router z2
+
+        # pem file inluding certs+ private key. some say order matters ...
+        # https://www.digicert.com/ssl-support/pem-ssl-creation.htm
+        ssl_pem:
+        - "#--- ssl cert\n((/secrets/certs/internet.certificate))\n#--- ssl key\n((/secrets/certs/internet.private_key))"

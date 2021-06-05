@@ -1,0 +1,34 @@
+#activate prometheus scraping
+#TODO see https://gitlab.tech.orange/diod-marketplace-services/kafka/strimzi-operator-deployment/-/blob/master/examples/kafka-target.yaml
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kafka-cluster/content/spec/kafka/template?/pod?/metadata?/annotations?
+  value:
+    prometheus.io/path: '/metrics'
+    prometheus.io/port: '9404'
+    prometheus.io/scrape: 'true'
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kafka-cluster/content/spec/kafka/template?/pod?/metadata?/annotations?
+  value:
+    prometheus.io/path: '/metrics'
+    prometheus.io/port: '9404'
+    prometheus.io/scrape: 'true'
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kafka-cluster/content/spec/zookeeper/metricsConfig?
+  value:
+    type: jmxPrometheusExporter
+    valueFrom:
+      configMapKeyRef:
+        name: kafka-metrics
+        key: zookeeper-metrics-config.yml
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=kafka-cluster/content/spec/kafka/metricsConfig?
+  value:
+    type: jmxPrometheusExporter
+    valueFrom:
+      configMapKeyRef:
+        name: kafka-metrics
+        key: kafka-metrics-config.yml
+

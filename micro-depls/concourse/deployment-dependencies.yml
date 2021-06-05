@@ -1,0 +1,16 @@
+---
+deployment:
+  bosh-deployment:
+    bosh-options:
+      skip_drain:
+        - worker
+    resources:
+      secrets:
+        local_deployment_scan: false
+    releases:
+      routing:
+      haproxy:
+      concourse:
+      postgres:
+      backup-and-restore-sdk:
+      prometheus:

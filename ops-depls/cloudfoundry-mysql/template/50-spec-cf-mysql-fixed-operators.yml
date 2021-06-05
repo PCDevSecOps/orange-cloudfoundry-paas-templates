@@ -1,0 +1,19 @@
+---
+# disable_auto_sst:
+#   . when disable_auto_sst is true, nodes unable to IST will be prevented from automatically deleting their data and performing an SST
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/disable_auto_sst?
+  value: true
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/long_query_time?
+  value: 1
+
+# change pause 1s to 15s to restore dump
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker/quota_enforcer/pause?
+  value: 15
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/binlog_expire_days?
+  value: ((binlog_expire_days))

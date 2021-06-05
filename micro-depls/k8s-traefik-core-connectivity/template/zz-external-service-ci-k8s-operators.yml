@@ -1,0 +1,61 @@
+## creating service reference with an external fqdn, leveraging endpoint slides (fqdn is ok with ExternalName)
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "ci-k8s"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: ci-k8s
+        namespace: traefik
+      spec:
+        externalName: ci-k8s.bosh #bosh-dns alias
+        type: ExternalName
+
+
+
+#- type: replace
+#  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "ci-k8s"
+#    cmd: "apply"
+#    options: ""
+#    content:
+#      apiVersion: v1
+#      kind: Service
+#      metadata:
+#        name: ci-k8s
+#        namespace: traefik
+#      spec:
+#        ports:
+#        - protocol: TCP
+#          targetPort: 443
+#          port: 443
+#
+#- type: replace
+#  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "ci-k8s-endpoint-slice"
+#    cmd: "apply"
+#    options: ""
+#    content:
+#      apiVersion: discovery.k8s.io/v1beta1
+#      kind: EndpointSlice
+#      metadata:
+#        name: ci-k8s-endpoint-slice
+#        namespace: traefik
+#        labels:
+#          kubernetes.io/service-name: ci-k8s
+#      addressType: FQDN
+#      ports:
+#      - port: 443
+#      endpoints:
+#        - addresses:
+#          - "ci-k8s.bosh" #this is a bosh-dns alias

@@ -1,0 +1,2 @@
+cf-ops-automation-username: ((concourse_git_secrets_user))
+cf-ops-automation-password: ((concourse_git_secrets_password))

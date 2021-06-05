@@ -1,0 +1,31 @@
+---
+- type: replace
+  path: /instance_groups/name=elasticsearch_master/vm_type
+  value: ((elasticsearch_master_vm_type))
+
+  #- type: replace
+  #path: /instance_groups/name=cluster_monitor/vm_type
+  #value: 2cpu-8g
+
+- type: replace
+  path: /instance_groups/name=maintenance/vm_type
+  value: 1cpu-2g
+- type: replace
+  path: /instance_groups/name=elasticsearch_data/vm_type
+  value: ((elasticsearch_data_vm_type))
+- type: replace
+  path: /instance_groups/name=kibana/vm_type
+  value: ((ingestor_vm_type))
+- type: replace
+  path: /instance_groups/name=ingestor/vm_type
+  value: ((ingestor_vm_type))
+  
+- type: replace
+  path: /instance_groups/name=ls-router/vm_type
+  value: 1cpu-2g
+  
+- type: replace
+  path: /instance_groups/name=cluster_monitor/vm_type
+  value: ((elasticsearch_data_vm_type))
+  
+  

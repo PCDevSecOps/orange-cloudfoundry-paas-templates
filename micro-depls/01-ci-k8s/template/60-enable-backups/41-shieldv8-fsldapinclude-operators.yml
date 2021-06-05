@@ -1,0 +1,9 @@
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/0/name?
+  value: ((deployment_name))-ldap-(ip)
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/0/config/base_dir?
+  value: ((base_dir))/ldap
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/0/config/include?
+  value: "data.mdb"

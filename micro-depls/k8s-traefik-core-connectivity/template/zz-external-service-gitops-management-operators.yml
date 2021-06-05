@@ -1,0 +1,19 @@
+## creating service reference with an external fqdn, leveraging endpoint slides (fqdn is ok with ExternalName)
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "gitops-management"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: gitops-management
+        namespace: traefik
+      spec:
+        externalName: gitops-management.bosh
+        type: ExternalName

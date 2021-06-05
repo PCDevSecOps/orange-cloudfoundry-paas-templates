@@ -1,0 +1,13 @@
+---
+applications:
+  - name: overview-broker
+    path: overview-broker # i.e. ${GENERATE_DIR}/overview-broker
+    buildpacks:
+    - cached-nodejs-buildpack
+    instances: 1  # Must remain to 1: overview isn't 12 factor compliant and stores recordings in RAM
+    memory: 256M
+    disk_quota: 256M
+    routes:
+      - route: (( concat "overview-broker." secrets.cloudfoundry.system_domain ))
+    env:
+      ENABLE_EXAMPLE_SCHEMAS: true

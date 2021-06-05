@@ -1,0 +1,2 @@
+network: tf-net-exchange
+ops_domain: ((/secrets/cloudfoundry_ops_domain))

@@ -1,0 +1,19 @@
+#jobs on broker instance group
+- type: replace
+  path: /addons/name=monitoring/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=federation-bosh-promotheus-exporter-coab/params/match[]/-
+  value:
+    "{job='Redis-sentinel'}"
+
+- type: replace
+  path: /addons/name=monitoring/jobs/name=grafana/properties/grafana/prometheus/dashboard_folders/-
+  value:
+    name: Redis Sentinel
+    files:
+      - /var/vcap/jobs/redis_sentinel_dashboards/*.json
+
+- type: replace
+  path: /addons/name=monitoring/jobs/-
+  value:
+    name: redis_sentinel_dashboards
+    release: orange-prometheus-addons
+

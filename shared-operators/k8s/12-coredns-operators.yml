@@ -1,0 +1,17 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: exec
+    cmd: |
+      cat << EOF > /tmp/coredns.yml
+      ((coredns_clusterrole))
+      ---
+      ((coredns_clusterrolebinding))
+      ---
+      ((coredns_configmap))
+      ---
+      ((coredns_deployment))
+      ---
+      ((coredns_service))
+      EOF
+      kubectl apply -f  /tmp/coredns.yml

@@ -1,0 +1,39 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=postgres/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/bash
+          set -x
+          echo "prestart, configure wal2json extension"
+          
+          # configure apt for proxy access
+          cat - > /etc/apt/apt.conf <<EOF
+          Acquire::http::Proxy "http://system-internet-http-proxy.internal.paas:3128";
+          EOF
+          
+          apt-get -yq install git #FIXME: find a git package, or switch to a dedicated bosh release
+          
+          export PG_BIN=/var/vcap/packages/postgres-11.5/bin
+          pushd /var/vcap/data/postgres
+          
+          #use platform proxy
+          rm -rf wal2json
+          export https_proxy=http://system-internet-http-proxy.internal.paas:3128
+          #git clone https://github.com/dvarrazzo/wal2json.git
+          git clone https://github.com/eulerto/wal2json
+          cd wal2json
+          export PATH=$PG_BIN/:$PATH
+          make
+          make install
+          popd
+          echo "done prestart, wal2json extension is configured"

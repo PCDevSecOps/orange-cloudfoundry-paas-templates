@@ -1,0 +1,110 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: minio
+    url: https://helm.min.io/
+
+
+- type: replace
+  path: /variables?/-
+  value:
+    name: minio-secret-key
+    type: password
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: minio
+    chart: minio/minio
+    namespace: minio
+    version: ((helm_minio))
+    options: '--install --atomic --cleanup-on-fail --debug' # override default options (ie: '--install --atomic --cleanup-on-fail') and reset it
+    properties:
+    - name: mode
+      value: "distributed"
+    - name: accessKey
+      value: "private-s3"
+    - name: secretKey
+      value: ((minio-secret-key))
+    - name: persistence.storageClass
+      value: local-path
+    - name: persistence.enabled
+      value: 'true'
+    - name: persistence.size
+      value: 200Gi
+
+    values_file_content:
+      service:
+        type: NodePort
+        clusterIP: ~
+        port: 9000
+        nodePort: 32020
+        annotations:
+          prometheus.io/scrape: 'true'
+          prometheus.io/path: '/minio/prometheus/metrics'
+          prometheus.io/port: '9000'
+
+      #initialize buckets
+      buckets:
+
+      - name: bosh-releases
+        policy: download
+        purge: false
+
+      - name: cached-buildpacks
+        policy: download
+        purge: false
+
+      - name: stemcells
+        policy: download
+        purge: false
+
+      - name:  compiled-releases
+        policy: download
+        purge: false
+      # set legacy env var, allowing public scraping from bosh prometheus
+      environment:
+        MINIO_PROMETHEUS_AUTH_TYPE: "public"
+
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: nginx
+          nginx.ingress.kubernetes.io/proxy-body-size: "0" #unlimited (at least 700Mo required for stemcells upload"
+
+#          kubernetes.io/ingress.allow-http: "false"
+#          nginx.ingress.kubernetes.io/secure-backends: "true"
+#          nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+#          nginx.ingress.kubernetes.io/whitelist-source-range: 0.0.0.0/0
+        hosts:
+          - minio-k8s.((/secrets/cloudfoundry_ops_domain))
+        tls:
+          - secretName: minio-tls
+            hosts:
+              - minio-k8s.((/secrets/cloudfoundry_ops_domain))
+
+      #placement of minio pods for HA
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          #distinct host for each minio pod
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - minio
+            topologyKey: "kubernetes.io/hostname"
+            
+            #TBC: distinct az for each minio pod, but minio requires 4 pods and most iaas have at most 3 azs
+#          - labelSelector:
+#              matchExpressions:
+#              - key: app.kubernetes.io/name
+#                operator: In
+#                values:
+#                - minio
+#            topologyKey: topology.kubernetes.io/zone #should be failure-domain.beta.kubernetes.io/zone ?
+
+

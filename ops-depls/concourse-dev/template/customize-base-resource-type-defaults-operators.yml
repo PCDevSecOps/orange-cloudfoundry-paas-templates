@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=web/jobs/name=web/properties/base_resource_type_defaults?
+  value: ((base_resource_type_defaults))

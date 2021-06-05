@@ -1,0 +1,18 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets: {}
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+    releases:
+      cf-cli:
+      shared-redis:
+      routing:
+      shield:
+      minio:
+      generic-scripting:
+    errands:
+      import:
+        display-name: shield-provisioning

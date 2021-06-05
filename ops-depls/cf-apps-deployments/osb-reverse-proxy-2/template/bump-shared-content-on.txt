@@ -1,0 +1,1 @@
+../../osb-reverse-proxy/template/bump-shared-content-on.txt

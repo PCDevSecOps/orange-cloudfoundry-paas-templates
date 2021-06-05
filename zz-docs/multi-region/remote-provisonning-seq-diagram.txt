@@ -1,0 +1,62 @@
+@startuml
+
+
+box "R1 OSB"
+  participant OSBCMDB
+  participant COAB
+  participant git
+end box
+
+
+box "R1 COA"
+  participant COA
+  participant terraform_r2
+  participant bosh_remote
+  participant bosh_coab
+end box
+
+box "service_instance"
+participant service_vm_r1
+participant service_vm_r2
+end box
+
+
+box "R2 Iaas"
+  participant iaas_api_r2
+end box
+
+
+box "R2 Bootstrap"
+  participant bootstrap_vm
+end box
+
+== iaas network set up ==
+
+COA --> terraform_r2: terraform apply
+terraform_r2 --> iaas_api_r2: create network
+
+
+== Initialization ==
+
+bosh_remote -> iaas_api_r2: create_vm
+
+iaas_api_r2 --> bootstrap_vm
+
+bootstrap_vm --> bosh_remote: nats connection 4222
+bootstrap_vm --> bosh_remote: registry connection xx
+bootstrap_vm --> bosh_remote: blobstore connection xx
+
+
+
+== bosh multi cpi deploy  ==
+
+OSBCMDB --> COAB
+COAB --> git
+git --> COA
+COA --> bosh_coab
+
+service_vm_r2 --> bosh_coab: nats connection 4222
+service_vm_r2 --> bosh_coab: registry connection xx
+service_vm_r2 --> bosh_coab: blobstore connection xx
+
+@enduml

@@ -1,0 +1,14 @@
+- type: remove
+  path: /releases/name=routing
+
+- type: remove
+  path: /instance_groups/name=minio-s3/jobs/name=route_registrar
+
+- type: remove
+  path: /releases/name=haproxy
+
+- type: remove
+  path: /instance_groups/name=minio-s3/jobs/name=haproxy
+
+- type: remove
+  path: /variables/name=private_cert

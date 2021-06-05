@@ -1,0 +1,11 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+    releases:
+      docker:
+      generic-scripting:
+      routing:
+      os-conf:

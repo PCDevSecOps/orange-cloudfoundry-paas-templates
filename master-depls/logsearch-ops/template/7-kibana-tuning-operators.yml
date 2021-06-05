@@ -1,0 +1,14 @@
+---
+- type: replace
+  path: /instance_groups/name=maintenance/jobs/name=upload-kibana-objects/properties/kibana_objects?/upload_patterns?
+  value:
+    - {type: index-pattern, pattern: /var/vcap/jobs/upload-kibana-objects/kibana-objects/index-pattern/logs-platform.json}
+    - {type: config, pattern: /var/vcap/jobs/upload-kibana-objects/kibana-objects/config/*.json}
+    - {type: search, pattern: /var/vcap/jobs/upload-kibana-objects/kibana-objects/search/platform-*.json}
+    - {type: visualization, pattern: /var/vcap/jobs/upload-kibana-objects/kibana-objects/visualization/Platform-*.json}
+    - {type: dashboard, pattern: /var/vcap/jobs/upload-kibana-objects/kibana-objects/dashboard/Platform-*.json}
+
+- type: replace
+  path: /instance_groups/name=kibana/jobs/name=kibana/properties/kibana/default_app_id?
+  value: dashboard/Platform-Overview
+
