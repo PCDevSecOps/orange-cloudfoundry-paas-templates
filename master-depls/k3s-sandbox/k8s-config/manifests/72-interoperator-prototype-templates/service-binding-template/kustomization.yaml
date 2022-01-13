@@ -1,0 +1,14 @@
+# This is produced and maintained by authors
+# In this simple hello world example, each service binding provisions nothing
+# and a only returns a secret with dummy data.
+
+# In a more complex example, this would be creating a database user
+# and returning the response in a secret
+# TODO: clarify author syntax to template the credentials
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ${interoperator_namespace}
+resources:
+- service-binding-status-secret.yaml
+- service-binding-status-configmap.yaml
+- upstream-user-password-secret.yaml

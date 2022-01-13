@@ -1,0 +1,4 @@
+#--- Add vm_extension
+- type: replace
+  path: /instance_groups/name=vpn/vm_extensions?/-
+  value: disable-src-check

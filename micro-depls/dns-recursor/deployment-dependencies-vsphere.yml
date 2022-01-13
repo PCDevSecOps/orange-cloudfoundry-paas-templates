@@ -1,0 +1,5 @@
+---
+deployment:
+  dns-recursor:
+    releases:
+      networking:

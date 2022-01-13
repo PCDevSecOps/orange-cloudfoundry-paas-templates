@@ -1,0 +1,16 @@
+---
+#adapt AZ : [z1, z2, z3]
+#
+- path: /instance_groups/name=mongod/azs
+  type: replace
+  value: [z1,r2-z1]
+  #value: [z1,z2]
+
+- path: /instance_groups/name=arbiter/azs
+  type: replace
+  value: [r3-z1]
+  #value: [z3]
+
+- path: /instance_groups/name=proxy/azs
+  type: replace
+  value: [z1,r2-z1]

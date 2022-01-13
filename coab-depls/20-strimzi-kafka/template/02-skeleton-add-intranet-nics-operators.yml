@@ -1,0 +1,25 @@
+#--- add nic on intranet interco
+- type: replace
+  path: /releases/-
+  value:
+    name: networking
+    version: latest
+
+
+- type: replace
+  path: /instance_groups/name=worker/networks/-
+  value:
+   name: tf-net-osb-data-plane-dedicated-pub
+
+#--- Set routes to public internal subnets
+#- type: replace
+#  path: /instance_groups/name=worker/jobs/-
+#  value:
+#    name: routes
+#    release: networking
+#    properties:
+#      networking:
+#        routes:
+#        - net: 10.0.0.0
+#          netmask: 255.0.0.0
+#          gateway: ((osb_data_plane_dedicated_public_gateway)) #FIXME: invert routes to be multi az (default route 10.x, custom route to 192?)

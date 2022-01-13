@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: internet-proxy
+resources:
+- internet-proxy-deployment.yaml
+- internet-proxy-service.yaml
+- service-account.yaml
+- internet-proxy-ns.yaml
+- squid-config-configmap.yaml

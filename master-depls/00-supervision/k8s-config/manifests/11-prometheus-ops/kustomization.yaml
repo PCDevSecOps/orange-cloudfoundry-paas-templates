@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 11-prometheus-ops
+resources:
+  - ../../../../../shared-operators/k8s-kustomize-bases/observability
+  - ../../../../../shared-operators/k8s-kustomize-bases/helm/oauth2-proxy
+  - additional-scrape-config-secret.yaml
+  - cf-exporter-deployment.yaml
+  - cf-exporter-pod-monitor.yaml
+  - firehose-exporter-deployment.yaml
+  - firehose-exporter-service.yaml
+  - firehose-exporter-service-monitor.yaml
+  - generate-tls-configmap.yaml
+  - prometheus-tls-secret.yaml
+patchesStrategicMerge: []
+
+

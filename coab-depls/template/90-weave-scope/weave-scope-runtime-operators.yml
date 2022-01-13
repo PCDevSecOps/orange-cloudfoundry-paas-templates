@@ -1,0 +1,18 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: weave-scope 
+    version: 0.0.18
+
+- type: replace
+  path: /addons/-
+  value:
+    name: scope-probe
+    jobs:
+    - name: scope_probe
+      release: weave-scope
+      properties:
+        weave:
+          scope:
+            probe:
+              target_addr: weave-scope.internal.paas

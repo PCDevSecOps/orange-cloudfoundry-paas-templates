@@ -1,0 +1,9 @@
+#vm extension to apply on instance group hosting vip mechanism (vrrp / metallb k8s speakers)
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: dedicated-dataplane-vips
+    cloud_properties:
+      #--- vrrp config ops-depls/cloudfoundry-mysql/proxy (see https://github.com/cloudfoundry-incubator/bosh-openstack-cpi-release/pull/98)
+      allowed_address_pairs: 172.16.32.200 #enabled vips ips FIXME: define the list based on vip subnet in secrets
+      #--- NOTE: ports must be reserved in openstack by terraform rules (required by bosh cpi to retrieve port id from allowed ip)

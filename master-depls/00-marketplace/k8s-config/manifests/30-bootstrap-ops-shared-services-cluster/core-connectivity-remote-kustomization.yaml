@@ -1,0 +1,21 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: bootstrap
+spec:
+  interval: 5m
+  path: ./shared-operators/k8s-kustomize-bases/services/shared-services/infrastructure
+  prune: false
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+    namespace: fluxcd
+  #this targets ops-depls/00-shared-services
+  kubeConfig:
+    secretRef:
+      name: kubeconfig
+# targetNamespace: fluxcd
+  wait: true
+  timeout: 2m
+

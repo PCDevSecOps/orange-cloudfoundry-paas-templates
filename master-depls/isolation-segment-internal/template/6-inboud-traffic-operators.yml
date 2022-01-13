@@ -1,0 +1,36 @@
+#--- Add required bosh releases
+- type: replace
+  path: /releases/-
+  value:
+    name: os-conf
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: networking
+    version: latest
+
+#--- Define interco apps relay
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: apps-relay
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: ((apps_network))
+      static_ips:
+      - ((apps_ip))
+    jobs:
+    - {release: haproxy, name: haproxy}
+    properties:
+      ha_proxy:
+        https_redirect_all: true  #<--no inbound http permitted
+        #--- No backend defined. let bosh-link wire haproxy and gorouters inside the deployment
+        ssl_pem:
+        - "#--- ssl cert\n((router_ssl.certificate))\n#--- ssl key\n((router_ssl.private_key))" #is ca required?
+        rsp_headers:
+          Strict-Transport-Security: max-age=15768000

@@ -1,0 +1,69 @@
+apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: kyverno-discovery-file-side-car
+spec:
+  background: false
+  rules:
+    - name: kyverno-discovery-file-side-car
+      match:
+        resources:
+          kinds:
+            - StatefulSet #statefulset enrichment (only one)
+      mutate:
+        #this will be merged with pod yml
+        patchStrategicMerge:
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: bosh-exporter
+                    image: boshprometheus/bosh-exporter:v3.3.0
+                    ports:
+                      - containerPort: 9190
+                    env:
+                      - name: BOSH_EXPORTER_BOSH_URL
+                        value: https://${boshFqdn}:25555
+                      - name: BOSH_EXPORTER_BOSH_UAA_CLIENT_ID
+                        value: prometheus
+                      - name: BOSH_EXPORTER_BOSH_UAA_CLIENT_SECRET
+                        value: ${prometheusPassword}
+                      - name: BOSH_EXPORTER_BOSH_LOG_LEVEL
+                        value: DEBUG
+                      - name: BOSH_EXPORTER_BOSH_CA_CERT_FILE
+                        value: /etc/ssl/certs/ca-certificates.crt
+                      - name: BOSH_EXPORTER_METRICS_ENVIRONMENT
+                        value: ${site}
+                      - name: BOSH_EXPORTER_SD_FILENAME
+                        value: /tmp/bosh_target_groups.json
+                    volumeMounts:
+                      - name: cert-volume
+                        mountPath: /etc/ssl/certs
+                      - name: bosh-discovery-data
+                        mountPath: /tmp
+                  - name: prometheus
+                    volumeMounts:
+                      - name: bosh-discovery-data
+                        mountPath: /tmp
+
+                volumes: #pod level
+                  - name: cert-volume
+                    hostPath:
+                      path: /etc/ssl/certs
+                      type: Directory
+                  - name: bosh-discovery-data
+                    emptyDir: {}
+                  - name: entrypoint
+                    configMap:
+                      name: generate-tls
+                      defaultMode: 0744
+
+                initContainers:
+                  - image: rancherlabs/swiss-army-knife:2
+                    name: node-initializer
+                    command: ["/scripts/entrypoint.sh"]
+                    volumeMounts:
+                      - name: entrypoint
+                        mountPath: /scripts
+                      - name: bosh-discovery-data
+                        mountPath: /tmp

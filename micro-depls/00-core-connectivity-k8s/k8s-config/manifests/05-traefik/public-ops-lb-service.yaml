@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    metallb.universe.tf/address-pool: ops-public-vip-pool
+  labels:
+    app.kubernetes.io/instance: traefik
+  name: traefik-public-ops-lb
+
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: ssh-cli
+    #nodePort: 32241
+    port: 80
+    protocol: TCP
+    targetPort: ssh-cli
+  - name: websecure
+    #nodePort: 31849
+    port: 443
+    protocol: TCP
+    targetPort: websecure
+  selector:
+    app.kubernetes.io/instance: traefik
+    app.kubernetes.io/name: traefik
+  sessionAffinity: None
+  type: LoadBalancer
+  

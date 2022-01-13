@@ -1,0 +1,12 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+spec:
+  values:
+    controller:
+      service:
+        nodePorts:
+          http: "30726"
+          https: "30725"
+      kind: DaemonSet

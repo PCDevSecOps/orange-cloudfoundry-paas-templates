@@ -1,0 +1,55 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-taint-jobs
+    version: latest
+
+
+# master node
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: master
+    vm_type: 4cpu-16g #4 cpu 16Go
+    persistent_disk_type: ((master_persistent_disk_type))
+    stemcell: default
+    networks:
+    - name: ((network))
+      default: [dns,gateway]
+    
+    azs: [z1]
+    instances: ((masters_instance_count))
+    env:
+      bosh:
+        swap_size: 0
+    jobs:
+    - release: generic-taint-jobs
+      name: master-taint
+    - name: sysctl
+      release: os-conf
+      properties: &os_conf_properties
+        sysctl:
+        - net.bridge.bridge-nf-call-iptables=1
+        - net.ipv4.conf.all.rp_filter=0
+
+
+# worker node
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: worker
+    vm_type: 2cpu-8g
+    persistent_disk_type: ((worker_persistent_disk_type))
+    stemcell: default
+    networks:
+    - name: ((network))
+      default: [dns,gateway]
+    azs: [z1]
+    instances: ((workers_instance_count))
+    env:
+      bosh:
+        swap_size: 0
+    jobs:
+    - release: generic-taint-jobs
+      name: slave-taint
+

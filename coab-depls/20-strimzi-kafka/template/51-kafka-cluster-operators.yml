@@ -1,0 +1,84 @@
+# create namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: kafka-cluster-((instance_id))
+
+#use the operator to create a kafka cluster
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kafka-cluster"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: kafka.strimzi.io/v1beta2
+      kind: Kafka
+      metadata:
+        namespace: kafka-cluster-((instance_id)) #one ns per kafka cluster
+        name: kafka-cluster #63 char limitation, break strimzi derived objects
+      spec:
+        kafka:
+          version: 2.8.0
+          replicas: 3
+          authorization:
+            type: simple
+            superUsers:
+            - kafka-admin-user
+          rack:
+            topologyKey: topology.kubernetes.io/zone #https://strimzi.io/docs/operators/latest/using.html#type-Rack-reference
+          listeners:
+            - name: plain
+              port: 9092
+              type: internal
+              tls: false
+              authentication:
+                type: scram-sha-512
+
+            - name: tls
+              port: 9093
+              type: internal
+              tls: true
+              authentication:
+                type: scram-sha-512
+
+              
+          config:
+            #to define per plan
+            offsets.topic.replication.factor: 1
+            transaction.state.log.replication.factor: 1
+            transaction.state.log.min.isr: 1 #replicas de topics
+            log.message.format.version: "2.8"
+          storage:
+            type: jbod
+            volumes:
+            - id: 0
+              type: persistent-claim
+              size: 500Gi
+              deleteClaim: true #TBC: should keep the pvc? (and let the namespace deletion / cluster deletion do). For backup, could use a S3 connector with retention policy ?
+        zookeeper:
+          replicas: 3
+          storage:
+            type: persistent-claim
+            size: 5Gi
+            deleteClaim: true
+            
+          #troubleshootinh
+          logging:
+            type: inline
+            loggers:
+              #zookeeper.root.logger: "DEBUG"
+          readinessProbe:
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+
+
+        entityOperator:
+          topicOperator: {}
+          userOperator: {}

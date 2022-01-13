@@ -1,0 +1,31 @@
+servicebroker:
+  catalog:
+    services:
+      - id: k3s-ondemand-service
+        name: k3s-ondemand
+        description: "k3s On demand dedicated cluster"
+        bindable: true
+        plan_updateable: false
+        plans:
+          - id: plan-coab-k3s-default
+            name: default
+            description: Dedicated k3s
+            free: false
+            metadata:
+              bullets:
+                - 1 server + 3 agents
+              costs:
+                - amount:
+                    eur: 0
+                  unit: Monthly
+            displayName: Default
+        tags:
+          - k3s
+          - k8s
+        metadata:
+          displayName: k3s dedicated cluster
+          imageUrl: https://k3s.io/images/logo-k3s.svg
+          longDescription: "A dedicated on-demand k3s. This is beta: Not yet monitored and backed up. Default sizing can't yet be changed at creation or update."
+          providerDisplayName: Orange
+          documentationUrl: https://k3s.io/
+          supportUrl: https://github.com/orange-cloudfoundry/paas-templates

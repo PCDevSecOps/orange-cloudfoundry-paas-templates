@@ -1,0 +1,20 @@
+#base bosh-dns-aliases add-on, alias are added with separate operators
+- type: replace
+  path: /releases/-
+  value: 
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /addons?/-
+  value: 
+    name: bosh-dns-aliases
+    include:
+      stemcell:
+      - os: ubuntu-xenial
+      - os: ubuntu-bionic
+    jobs:
+    - name: bosh-dns-aliases
+      release: bosh-dns-aliases
+      properties:
+        aliases: []

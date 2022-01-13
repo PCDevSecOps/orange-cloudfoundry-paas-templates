@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: jcr
+resources:
+- jcr-ns.yaml
+- jcr-ssl-secret.yaml
+
+- script-localhost-configmap.yaml
+- jcr-config-configmap.yaml
+- jfrog-helm-repo.yaml
+
+- docker-jcr-artifactory-ingress.yaml
+- jcr-artifactory-ingress.yaml
+- jfrog-jcr-artifactory-active-service.yaml
+
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/reloader
+
+

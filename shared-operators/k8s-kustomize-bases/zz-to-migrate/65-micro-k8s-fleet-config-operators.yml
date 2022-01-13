@@ -1,0 +1,20 @@
+#configure rancher fleet
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "micro-k8s-fleet-git-repo"
+    cmd: "apply"
+    content:
+      apiVersion: fleet.cattle.io/v1alpha1
+      kind: GitRepo
+      metadata:
+        name: micro-k8s-fleet-git-repo
+        namespace: fleet-default
+      spec:
+        branch: master
+        clientSecretName: null
+        paths: [fleet/micro-depls/sample]
+        repo: https://gitlab-gitlab-k8s.((/secrets/cloudfoundry_ops_domain))/paas_templates_group/gitops-kapp-controller-repo.git
+        #FIXME: authent

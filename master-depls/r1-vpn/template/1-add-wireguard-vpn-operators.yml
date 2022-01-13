@@ -1,0 +1,65 @@
+#--- set up the vpn server to enable transparent inter region subnet traffic
+- type: replace
+  path: /releases/-
+  value:
+    name: wireguard
+    version: latest
+
+#dedicated vpn instance group
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: vpn
+    instances: 1
+    vm_type: 2cpu-8g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: intranet-ha-interco
+      static_ips:
+      - ((vpn_ip))
+    jobs: []
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    release: wireguard
+    name: wireguard
+    properties:
+      wireguard:
+        address: 192.168.2.2/32 #ip of the server on the virtal 192.168.2.0/24 VPN network
+        dns: []
+        listen_port: ((vpn_port))
+        private_key: ((/secrets/multi_region_region_1_private_key))
+        table: "off" #disable wireguard default route setting
+        peers: []
+        preup: []
+        postup:
+        - sysctl -w net.ipv4.ip_forward=1
+        - sysctl -w net.ipv4.conf.all.proxy_arp=1
+        - sysctl -w net.ipv4.conf.all.rp_filter=0 #https://access.redhat.com/solutions/53031
+        - sysctl -w net.ipv4.conf.wg0.rp_filter=0
+        - sysctl -w net.ipv4.conf.eth0.rp_filter=0
+#        - iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        predown: []
+        postdown: []
+#        - iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+#set the vm as router
+#--- set up the vpn server to enable transparent inter region subnet traffic
+- type: replace
+  path: /releases/-
+  value:
+    name: os-conf
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    release: os-conf
+    name: sysctl
+    properties:
+      sysctl:
+      #--- Enable linux tcp routing, see https://github.com/pirate/wireguard-docs#setup
+      - net.ipv4.ip_forward=1
+      - net.ipv4.conf.all.proxy_arp=1

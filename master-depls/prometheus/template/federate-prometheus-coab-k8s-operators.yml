@@ -1,0 +1,27 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: federation-coab-k8s
+    scrape_interval: 2m
+    scrape_timeout: 2m
+    honor_labels: true
+    metrics_path: /federate
+    params:
+      match[]:
+        - "{job='bosh-api-metrics-server'}"
+        - "{job='bosh-metrics-server'}"
+        - "{job='mysql'}"
+        - "{job='rabbitmq'}"
+        - "{job='mongodb'}"
+        - "{job='redis'}"
+        - "{job='Redis-sentinel'}"
+        - "{job='grafana'}"
+        - "{job='node_exporter'}"
+        - "{job='prometheus'}"
+        - "{job='bosh-exporter'}"
+        - "{job='shield_exporter'}"
+        - "{job='blackbox'}"
+        - "{job='blackbox-system-intranet-proxy'}"
+    static_configs:
+      - targets:
+        - q-s0.agents.tf-net-exchange.00-supervision.bosh:30002

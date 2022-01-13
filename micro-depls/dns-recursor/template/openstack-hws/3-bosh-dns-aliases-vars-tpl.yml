@@ -1,0 +1,8 @@
+#--- From shared secrets
+ops_ip: 192.168.116.19
+osb_ip: (( grab secrets.osb_interco.osb ))
+api_ip: (( grab secrets.intranet_interco_ips.api ))
+apps_ip: (( grab secrets.intranet_interco_ips.apps ))
+
+#--- From dns-recursor secrets
+public_s3_service_host: (( grab secrets.public_s3_service.host ))

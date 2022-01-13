@@ -1,0 +1,156 @@
+# add ops dedicated uaa
+
+- type: replace
+  path: /releases/-
+  value:
+    name: uaa
+    version: latest
+
+# FIXME
+#- type: replace
+#  path: /instance_groups/-
+#  value:
+#    name: uaa_key_rotator
+#    release: uaa
+#    lifecycle: errand
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: uaa
+    azs:
+    - z1
+    instances: 1
+    vm_type: 1cpu-4g
+    persistent_disk_type: medium
+    stemcell: default
+    networks:
+    - name: ((network))
+    jobs:
+    - name: uaa
+      release: uaa
+      properties:
+        bpm:
+          enabled: true
+        encryption:
+          active_key_label: 'key-1'
+          encryption_keys:
+            - label: 'key-1'
+              passphrase: 'MY-PASSPHRASE'
+            - label: 'key-2'
+              passphrase: 'MY-PASSPHRASE-TWO'
+        login:
+          saml:
+            serviceProviderKey: "((uaa_login_saml.private_key))"
+            serviceProviderCertificate: "((uaa_login_saml.certificate))"
+        uaa:
+          clients:
+            admin:
+              authorized-grant-types: client_credentials
+              scope: uaa.none
+              authorities: uaa.admin,clients.read,clients.write,clients.secret,scim.read,scim.write,clients.admin
+              secret: "((uaa_admin_client_secret))"
+          jwt:
+            policy:
+              active_key_id: key-1
+              keys:
+                key-1:
+                  signingKey: "((uaa_jwt_signing_key.private_key))"
+          scim:
+            user:
+              override: true
+            users:
+              - name: admin
+                password: "((uaa_admin_password))"
+                groups:
+                  - uaa.admin
+          sslCertificate: "((uaa_ssl.certificate))"
+          sslPrivateKey: "((uaa_ssl.private_key))"
+          url: https://uaa.((ops_domain))
+        uaadb:
+          address: postgres #bosh-dns alias to db
+          databases:
+          - name: uaadb
+            tag: uaa
+          db_scheme: postgresql
+          port: 5524
+          tls: disabled
+          roles:
+          - name: uaaadmin
+            password: ((uaa_admin_password))
+            tag: admin
+    #add route registar to expose uaa
+    - name: route_registrar
+      release: routing
+      properties:
+        nats:
+          machines:
+          - q-s0.ops-routing-nats.net-bosh-2.ops-routing.bosh
+          password: ((/micro-bosh/ops-routing/nats_password))
+          port: 4222
+          user: nats
+        route_registrar:
+          routes:
+          - health_check:
+              name: uaa-healthcheck
+              script_path: "/var/vcap/jobs/uaa/bin/health_check"
+            name: uaa
+            port: 8080
+            tls_port: 8443
+            server_cert_domain_san: uaa.((ops_domain)) #required for ssl backend route registrar 
+            registration_interval: 10s
+            tags:
+              component: uaa
+            uris:
+            - uaa.((ops_domain))
+            - "*.uaa.((ops_domain))"
+            - login.((ops_domain))
+            - "*.login.((ops_domain))"
+
+#keep for v50 to avoid credhub convergence error with the deleted ca
+- type: replace
+  path: /variables/-
+  value:
+    name: uaa_ca
+    type: certificate
+    options:
+      is_ca: true
+      common_name: uaaCA
+
+- type: replace
+  path: /variables/-
+  value:
+    name: uaa_ssl
+    type: certificate
+    update_mode: converge
+    options:
+      ca: /internalCA
+      common_name: uaa-ops
+      alternative_names:
+      - uaa.((ops_domain))
+      - "*.uaa.((ops_domain))"
+      - login.((ops_domain))
+      - "*.login.((ops_domain))"
+
+- type: replace
+  path: /variables/-
+  value:
+    name: uaa_login_saml
+    type: certificate
+    update_mode: converge
+    options:
+      ca: /internalCA
+      common_name: uaa_login_saml
+
+- type: replace
+  path: /variables/-
+  value:
+    name: uaa_admin_client_secret
+    type: password
+
+
+- type: replace
+  path: /variables/-
+  value:
+    name: uaa_jwt_signing_key
+    type: rsa

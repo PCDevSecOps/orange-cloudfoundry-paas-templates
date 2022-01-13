@@ -1,0 +1,23 @@
+#--- DNS
+dns: [192.168.116.156,192.168.116.166]
+
+#--- Networks Name
+bosh-2-network-name: (( grab secrets.networks.net-bosh-2 ))
+compilation-network-name: (( grab secrets.networks.compilation ))
+intranet_interco-name: (( grab secrets.intranet_interco_ips.net_id ))
+tf-net-cfcr-micro-name: (( grab secrets.networks.tf-net-cfcr-micro ))
+
+#--- Intranet interco
+intranet_interco_ips_range: (( grab secrets.intranet_interco_ips.range ))
+intranet_interco_ips_gateway: (( grab secrets.intranet_interco_ips.gateway ))
+intranet_interco_ips_inception: (( grab secrets.intranet_interco_ips.inception_ip ))
+intranet_interco_ips_concourse_to_internet_proxy: (( grab secrets.intranet_interco_ips.to_internet_proxy ))
+intranet_interco_ips_concourse_dns_recursor_1: (( grab secrets.intranet_interco_ips.dns_recursor_1 ))
+intranet_interco_ips_concourse_dns_recursor_2: (( grab secrets.intranet_interco_ips.dns_recursor_2 ))
+intranet_interco_ips_concourse_public_ip: (( grab secrets.intranet_interco_ips.concourse_public_ip ))
+
+#--- Intranet interco
+intranet_interco_net_id: (( grab secrets.multi_region.region_1.intranet-interco.net_id ))
+intranet_interco_range: (( grab secrets.multi_region.region_1.intranet-interco.range ))
+intranet_interco_gateway: (( grab secrets.multi_region.region_1.intranet-interco.gateway ))
+intranet_interco_reserved: (( grab secrets.multi_region.region_1.intranet-interco.reserved ))

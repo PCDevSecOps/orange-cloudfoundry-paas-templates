@@ -1,0 +1,23 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/k3s
+        - shared-operators/k8s-common
+        - shared-operators/shield
+        - shared-operators/paas-templates-version
+        - shared-operators/k8s-kustomize-bases
+        
+    releases:
+      routing:
+      bosh-dns-aliases:
+      k3s:
+      open-iscsi:
+      helm-kubectl:
+      pxc:
+      generic-taint-jobs:
+    errands:
+      action:
+      smoke-tests: #pxc smoke test

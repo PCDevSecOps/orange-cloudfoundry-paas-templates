@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-blackbox-exporter
+  labels:
+    app: prometheus-blackbox-exporter
+spec:
+  type: ClusterIP # default
+  ports:
+    - name: web
+      port: 9115
+      protocol: TCP
+      targetPort: 9115 #deployment port
+  selector:
+    app: prometheus-blackbox-exporter

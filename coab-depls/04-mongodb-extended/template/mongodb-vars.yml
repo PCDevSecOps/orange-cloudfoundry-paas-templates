@@ -1,0 +1,17 @@
+vm-cf-mongodb:
+  persistent_disk_type: xlarge
+  vm_type:              2cpu-8g
+  vm_size:              2
+
+cf:
+  api:
+    url: "https://api.((/secrets/cloudfoundry_system_domain))"
+  admin:
+    password: ((!/secrets/cloudfoundry_admin_password))
+  mongodb:
+    appdomain: ((!/secrets/cloudfoundry_apps_domain))
+
+broker:
+  password: ((!/secrets/cloudfoundry_service_brokers_mongodb_password))
+
+use_arbiter: 1

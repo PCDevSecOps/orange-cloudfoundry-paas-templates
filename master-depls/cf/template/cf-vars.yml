@@ -1,0 +1,72 @@
+#--- rename network name
+network_name: tf-net-cf
+deployment_name: cf
+
+#--- system_domain
+system_domain: "((/secrets/cloudfoundry_system_domain))"
+
+#--- vars-use-s3-blobstore.yml
+aws_region: us-east-1
+path_style: true
+aws_signature_version: 2
+
+blobstore_access_key_id: ((/bosh-master/cloudfoundry-datastores/cf_blobstore_s3_accesskey))
+blobstore_secret_access_key: ((/bosh-master/cloudfoundry-datastores/cf_blobstore_s3_secretkey))
+app_package_directory_key: "((/secrets/cloudfoundry_system_domain))-cc-packages"
+buildpack_directory_key: "((/secrets/cloudfoundry_system_domain))-cc-buildpacks"
+droplet_directory_key: "((/secrets/cloudfoundry_system_domain))-cc-droplets"
+resource_directory_key: "((/secrets/cloudfoundry_system_domain))-cc-resources"
+
+#--- vars-override-app-domains.yml
+app_domains:
+- name: "((/secrets/cloudfoundry_apps_domain))"
+- name: apps.internal
+  internal: true
+
+smoke_test_app_domain: "((/secrets/cloudfoundry_apps_domain))"
+#--- vars-use-external-dbs.yml
+external_database_type: mysql
+external_database_port: 3036
+external_cc_database_name: ccdb
+external_cc_database_address: 192.168.99.70 # postgres server from cloudfoundry-datastore deployment
+external_cc_database_username: ccadmin # credential_leak_validated
+external_cc_database_password: ((/secrets/cloudfoundry_ccdb_password))
+
+external_uaa_database_name: uaadb
+external_uaa_database_address: 192.168.99.70 # postgres server from cloudfoundry-datastore deployment
+external_uaa_database_username: uaaadmin # credential_leak_validated
+external_uaa_database_password: ((/secrets/cloudfoundry_uaadb_password))
+
+external_credhub_database_name: credhubdb
+external_credhub_database_address: 192.168.99.70 # postgres server from cloudfoundry-datastore deployment
+external_credhub_database_username: credhubadmin # credential_leak_validated
+external_credhub_database_password: ((/secrets/cloudfoundry_ccdb_password)) #from shared/secrets + credhub seeder FIX: same as ccdb ??
+
+external_locket_database_password: "((/cf/locket_database_password))"
+external_locket_database_address: 192.168.99.55
+external_locket_database_name: locket
+external_locket_database_username: locket # credential_leak_validated
+
+
+#--- diego
+external_bbs_database_name: diego
+external_bbs_database_address: 192.168.99.55
+external_bbs_database_username: diego # credential_leak_validated
+external_bbs_database_password: "((/cf/diego_database_password))"
+
+external_routing_api_database_name: routing-api
+external_routing_api_database_address: 192.168.99.55
+external_routing_api_database_username: routing-api # credential_leak_validated
+external_routing_api_database_password: "((/cf/routing_api_database_password))"
+
+external_policy_server_database_address: 192.168.99.55
+external_policy_server_database_name: network_policy
+external_policy_server_database_password: "((/cf/network_policy_database_password))"
+external_policy_server_database_username: network_policy # credential_leak_validated
+
+#--- cf_networking
+external_silk_controller_database_address: 192.168.99.55
+external_silk_controller_database_name: network_connectivity
+external_silk_controller_database_password: "((/cf/network_connectivity_database_password))"
+external_silk_controller_database_username: network_connectivity # credential_leak_validated
+

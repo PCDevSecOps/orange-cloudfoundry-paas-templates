@@ -1,0 +1,13 @@
+- type: replace
+  path: /addons/name=20-add-agents/jobs/-
+  value:
+    release: routing
+    name: route_registrar
+    properties:
+      nats:
+        machines: [q-s0.ops-routing-nats.net-bosh-2.ops-routing.bosh] 
+        password: ((/micro-bosh/ops-routing/nats_password))
+        user: nats
+        port: 4222
+      route_registrar:
+        routes: []

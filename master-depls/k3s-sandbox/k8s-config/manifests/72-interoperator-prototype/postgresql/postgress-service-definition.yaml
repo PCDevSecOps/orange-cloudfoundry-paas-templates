@@ -1,0 +1,43 @@
+apiVersion: osb.servicefabrik.io/v1alpha1
+kind: SFService
+metadata:
+  # Name maps to the name of the OSB Service.
+  name: &id '545f317a-025b-11ec-9a03-0242ac130003'
+spec:
+  # Name of the OSB Service.
+  name: &name postgresql
+
+  # Id of the OSB Service.
+  id: *id
+
+  # Description of the OSB Service.
+  description: 'Postgresql for internal development, testing, and documentation purposes of the Service Fabrik'
+
+  # The following details map one-to-one with the data in the OSB service offering objects in the OSB /v2/catalog response.
+  tags:
+  - 'postgresql'
+  requires: []
+  bindable: true
+  instancesRetrievable: true
+  bindingsRetrievable: true
+  metadata:
+    displayName: 'PostgreSQL'
+    longDescription: 'Postgresql for internal development, testing, and documentation purposes of the Service Fabrik'
+    providerDisplayName: 'SAP SE'
+    documentationUrl: 'https://sap.com/'
+    supportUrl: 'https://sap.com/'
+#  dashboardClient:
+#    id: postgresql-dashboard-client-id
+#    secret: postgresql-dashboard-client-secret
+#    redirectUri: 'https://sap.com/'
+  planUpdatable: true
+
+  # The following details are context input for Service Fabrik and the individual service operators.
+  context:
+    serviceFabrik:
+      backupEnabled: false
+    operator:
+      image: "servicefabrikjenkins/blueprint"
+      tag: "latest"
+      port: 8080
+

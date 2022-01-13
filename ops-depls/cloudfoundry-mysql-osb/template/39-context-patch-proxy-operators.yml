@@ -1,0 +1,35 @@
+---
+#add bpm job for route registrar on proxy instance group
+- path: /instance_groups/name=proxy/jobs/-
+  type: replace
+  value:
+    name: bpm
+    release: bpm
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar
+  value:
+    consumes:
+      nats: nil
+    name: route_registrar
+    properties:
+      nats:
+        machines:
+          - 192.168.62.23
+        password: ((/bosh-master/osb-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+          - name: cf-mysql-proxy
+            port: 8080
+            prepend_instance_index: true
+            registration_interval: 10s
+            uris:
+              - "proxy-p-mysql.((/secrets/osb_interco/osb_domain))"
+          - name: cf-mysql-proxy-aggregator
+            port: 8082
+            registration_interval: 10s
+            uris:
+              - "proxy-p-mysql.((/secrets/osb_interco/osb_domain))"
+    release: routing

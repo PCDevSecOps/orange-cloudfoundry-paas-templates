@@ -1,0 +1,5 @@
+#--- Osb data plane dedicated public
+tf-net-osb-data-plane-dedicated-pub-extension_id: (( grab secrets.osb_data_plane_dedicated_public_extension.net_id )) # <-- from terraform
+osb_data_plane_dedicated_public_extension_range: (( grab secrets.osb_data_plane_dedicated_public_extension.range ))
+osb_data_plane_dedicated_public_extension_gateway: (( grab secrets.osb_data_plane_dedicated_public_extension.gateway ))
+osb_data_plane_dedicated_public_extension_reserved_dhcp: (( grab secrets.osb_data_plane_dedicated_public_extension.reserved_dhcp ))

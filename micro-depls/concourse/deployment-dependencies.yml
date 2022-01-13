@@ -1,0 +1,19 @@
+---
+deployment:
+  bosh-deployment:
+    bosh-options:
+      skip_drain:
+        - worker
+    resources:
+      secrets:
+        local_deployment_scan: false
+      templates:
+        extended_scan_path:
+          - shared-operators/paas-templates-version
+    releases:
+      routing:
+      haproxy:
+      concourse:
+      postgres:
+      backup-and-restore-sdk:
+      prometheus:

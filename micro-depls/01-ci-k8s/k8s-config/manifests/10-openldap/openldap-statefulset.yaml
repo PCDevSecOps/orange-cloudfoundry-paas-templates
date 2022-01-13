@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: ldap
+  namespace: openldap
+spec:
+  serviceName: "ldap"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ldap
+  template:
+    metadata:
+      labels:
+        app: ldap
+    spec:
+      initContainers:
+      - name: provisionning
+        image: busybox:1.32.1
+        command:
+        - '/bin/sh'
+        - '-c'
+        - 'cp /custom/* /container/environment/01-custom/.'
+        volumeMounts:
+        - mountPath: /container/environment/01-custom
+          name: custom-volume
+        - mountPath: /custom/
+          name: secret-volume
+      containers:
+      - name: openldap
+        image: osixia/openldap:1.5.0
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 389
+        volumeMounts:
+        - mountPath: /var/lib/ldap
+          name: ldap-data
+        - mountPath: /etc/ldap/slapd.d
+          name: ldap-config
+        - mountPath: /container/service/slapd/assets/certs
+          name: ldap-certs
+        - mountPath: /usr/share/slapd/slapd.init.ldif
+          name: slapd-volume
+          subPath: slapd.init.ldif
+        - mountPath: /container/environment/01-custom
+          name: custom-volume
+      volumes:
+      - name: "secret-volume"
+        secret:
+          secretName: "ldap-secret"
+      - name: custom-volume
+        emptyDir: {}
+      - name: "slapd-volume"
+        configMap:
+          name: "slapd"
+  volumeClaimTemplates:
+  - metadata:
+      name: ldap-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
+      storageClassName: "local-path"
+  - metadata:
+      name: ldap-config
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Mi
+      storageClassName: "local-path"
+  - metadata:
+      name: ldap-certs
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 10Mi
+      storageClassName: "local-path"
+
+
+
+

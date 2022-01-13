@@ -1,0 +1,64 @@
+# Based on https://github.com/kubernetes/kubernetes/issues/82021
+# The admissionregistration.k8s.io/v1beta1 versions of MutatingWebhookConfiguration and ValidatingWebhookConfiguration are deprecated in 1.19. Migrate to use admissionregistration.k8s.io/v1 instead
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "define-k8s22"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: templates.gatekeeper.sh/v1beta1
+      kind: ConstraintTemplate
+      metadata:
+        name: k8s22
+
+      spec:
+        crd:
+          spec:
+            names:
+              kind: k8s22
+        targets:
+        - target: admission.k8s.gatekeeper.sh
+          rego: |
+            package main
+            violation[{"msg": msg, "details": {}}] {
+              input.review.object.apiVersion == "v1"
+              input.review.object.kind == "List"
+              obj := input.review.object.items[_]
+              msg := _warn with input as obj
+            }
+            violation[{"msg": msg, "details": {}}] {
+              input.review.object.apiVersion != "v1"
+              input.review.object.kind != "List"
+              obj := input.review.object;
+              msg := _warn with input as obj
+            }
+            _warn = msg {
+              kinds := ["MutatingWebhookConfiguration", "ValidatingWebhookConfiguration"]
+              input.apiVersion == "admissionregistration.k8s.io/v1beta1"
+              input.kind == kinds[_]
+              msg := sprintf("%s/%s: API admissionregistration.k8s.io/v1beta1 is deprecated in Kubernetes 1.22, use admissionregistration.k8s.io/v1 instead.", [input.kind, input.metadata.name])}
+
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "define-compliant-1-22"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: constraints.gatekeeper.sh/v1beta1
+      kind: k8s22
+      metadata:
+        name: compliant-1-22
+      spec:
+        enforcementAction: dryrun
+        match:
+          kinds:
+          - apiGroups:
+            - '*'
+            kinds:
+            - '*'

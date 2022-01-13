@@ -1,0 +1,1 @@
+../../../common-broker-scripts/post-deploy.sh

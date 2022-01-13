@@ -1,0 +1,195 @@
+---
+name: credhub-ha
+
+releases:
+- {name: credhub, version: latest}
+- {name: uaa, version: latest}
+- {name: postgres, version: latest}
+- {name: haproxy, version: latest}
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+instance_groups:
+- name: credhub-proxy
+  instances: 1
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    static_ips: [192.168.116.107]
+  jobs:
+  - name: haproxy
+    release: haproxy
+  properties:
+    ha_proxy:
+      disable_http: true
+      tcp:
+      - name: crehub-proxy
+        port: 8844
+        backend_port: 8844
+        backend_servers:
+        - 192.168.116.104
+        - 192.168.116.105
+
+- name: credhub-uaa-proxy
+  instances: 1
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    static_ips: [192.168.116.108]
+  jobs:
+  - name: haproxy
+    release: haproxy
+  properties:
+    ha_proxy:
+      disable_http: true
+      tcp:
+      - name: uaa-proxy
+        port: 8443
+        backend_port: 8443
+        backend_servers:
+        - 192.168.116.102
+        - 192.168.116.103
+
+- name: credhub-db
+  instances: 1
+  vm_type: 4cpu-16g
+  persistent_disk_type: medium
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    default: [gateway,dns]
+    static_ips:
+    - 192.168.116.106
+  jobs:
+  - name: postgres
+    release: postgres
+    properties:
+      databases:
+        address: 127.0.0.1
+        port: 5432
+        databases:
+        - name: credhub
+        - name: uaa
+        roles:
+        - name: admin
+          password: ((database_admin))
+
+- name: uaa-backend
+  instances: 2
+  vm_type: 1cpu-4g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: net-bosh-2
+    default: [gateway,dns]
+    static_ips:
+    - 192.168.116.102
+    - 192.168.116.103
+  jobs:
+  - name: uaa
+    release: uaa
+    properties:
+      encryption:
+        encryption_keys:
+        - label: uaa-encryption-key-1
+          passphrase: ((uaa_encryption_key_1))
+        active_key_label: uaa-encryption-key-1
+
+      uaa:
+        url: https://uaa-credhub.internal.paas:8443
+        catalina_opts: -Xms1024m -Xmx1024m -XX:MaxMetaspaceSize=256m -Djava.security.egd=file:///dev/urandom
+        scim:
+          users:
+          - name: admin
+            password: ((credhub_uaa_admin_client_secret))
+            groups:
+              - scim.write
+              - scim.read
+              - bosh.admin
+              - credhub.read
+              - credhub.write
+
+        clients:
+          credhub_cli:
+            override: true
+            authorized-grant-types: password,refresh_token
+            scope: credhub.read,credhub.write
+            authorities: uaa.resource
+            access-token-validity: 1200 #was 30s. raised cause credhub cli doesnt refresh the token ...
+            refresh-token-validity: 3600
+            secret: ""
+
+          director_to_credhub:
+            override: true
+            authorized-grant-types: client_credentials
+            scope: uaa.none
+            authorities: credhub.read,credhub.write
+            access-token-validity: 43200
+            secret: ((director_to_credhub_secret))
+
+        admin: {client_secret: ((uaa_admin_client_secret))}
+        login: {client_secret: ((uaa_login_client_secret))}
+        zones: {internal: {hostnames: []}}
+
+        sslCertificate: ((uaa_cert))
+        sslPrivateKey: ((uaa_key))
+
+        jwt:
+          revocable: true
+          policy:
+            active_key_id: key-1
+            keys:
+              key-1:
+                signingKey: ((uaa_signing_key))
+
+        ldap:
+          enabled: true
+          profile_type: search-and-bind
+          url: 'ldap://elpaaso-ldap.internal.paas:389/'
+          userDN: 'cn=manager,dc=orange,dc=com'
+          userPassword: ((ldap_root_password))
+          searchBase: 'ou=users,dc=orange,dc=com'
+          searchFilter: 'uid={0}'
+          mailAttributeName: mail
+          groups:
+            profile_type: groups-as-scopes
+            searchBase: 'ou=paas-groups,ou=groups,dc=orange,dc=com'
+            groupRoleAttribute: 'description'
+            groupSearchFilter: 'uniqueMember={0}'
+            searchSubtree: true
+            maxSearchDepth: 10
+            autoAdd: true
+
+      uaadb:
+        address: 192.168.116.106 #db ip
+        port: 5432
+        db_scheme: postgresql
+        tls: disabled
+        databases:
+        - tag: uaa
+          name: uaa
+        roles:
+        - tag: admin
+          name: admin
+          password: ((database_admin))
+
+      login:
+        saml:
+          serviceProviderCertificate: ((uaa_saml_cert))
+          serviceProviderKey: ((uaa_saml_key))
+          serviceProviderKeyPassword: ""
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: true
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000

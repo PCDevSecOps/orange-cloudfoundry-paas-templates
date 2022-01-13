@@ -1,0 +1,17 @@
+#--- vsphere tenant
+dns: [192.168.116.156,192.168.116.166]
+
+#--- networks name
+exchange-network-name: (( grab secrets.networks.tf_net_exchange ))
+intranet_interco-network-name: (( grab secrets.intranet_interco_ips.net_id ))
+compilation-network-name: (( grab secrets.networks.compilation ))
+tf-net-cf-name: (( grab secrets.networks.tf-net-cf ))
+tf-net-cfcr-master-name: (( grab secrets.networks.tf-net-cfcr-master ))
+
+#--- Intranet interco
+intranet_interco_ips_range: (( grab secrets.intranet_interco_ips.range ))
+intranet_interco_ips_gateway: (( grab secrets.intranet_interco_ips.gateway ))
+intranet_interco_ips_api: (( grab secrets.intranet_interco_ips.api ))
+intranet_interco_ips_ops: (( grab secrets.intranet_interco_ips.ops ))
+intranet_interco_ips_apps: (( grab secrets.intranet_interco_ips.apps ))
+intranet_interco_ips_to_intranet: (( grab secrets.intranet_interco_ips.to_intranet ))

@@ -1,0 +1,41 @@
+#set kyverno mutating policy  k8s pod have corporate ca mounted
+
+# pre-create namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cattle-system
+
+
+---
+# patch rancher agent Deployment to mount host ca cert files
+apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: kyverno-rancher-agent-add-ca-cert
+  namespace: cattle-system
+  
+spec:
+  background: false
+  rules:
+  - name: add-ca-cert-to-rancher-deployment
+    match:
+      resources:
+        kinds:
+        - Deployment
+    mutate:
+      #this will be merged
+      patchStrategicMerge:
+        spec:
+          template:
+            spec:
+              containers:
+              - name: cluster-register
+                volumeMounts:
+                - name: cert-volume
+                  mountPath: /etc/ssl/certs
+              volumes:
+              - name: cert-volume
+                hostPath:
+                  path: /etc/ssl/certs
+                  type: Directory

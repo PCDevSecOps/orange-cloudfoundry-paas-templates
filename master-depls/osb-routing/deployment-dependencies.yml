@@ -1,0 +1,15 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/paas-templates-version
+  osb-routing:
+    releases:
+      routing:
+      nats:
+      haproxy:
+      bosh-dns-aliases:
+    errands:
+

@@ -1,0 +1,50 @@
+# agents for persistent support
+- type: replace
+  path: /addons/-
+  value:
+    name: 20-add-agents-persistent
+    jobs: []
+    exclude:
+      jobs: []
+    include:
+      jobs: []
+
+- type: replace
+  path: /addons/name=20-add-agents-persistent/jobs/-
+  value:
+    name: k3s-agent
+    release: k3s
+    properties:
+      k3s:
+        cluster_name: ((cluster_name)
+        token: ((k3s_token))
+        
+        #set token-file
+        token-file-content: |
+          ((admin_token)),"admin","admin","system:masters"
+        
+        #set taint (only apply on agent creation)
+#        node-taints:
+#        - persistent=true:NoEffect
+
+        node-labels:
+        - "node.longhorn.io/create-default-disk=true"
+
+      containerd_registry:
+        mirrors:
+          docker.io:
+            endpoint:
+            - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          quay.io:
+            endpoint:
+            - https://quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          '*':
+            endpoint:
+            - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+
+- type: replace
+  path: /addons/name=20-add-agents-persistent/jobs/-
+  value:
+    name: open-iscsi-pkg-install
+    release: open-iscsi
+

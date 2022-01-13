@@ -1,0 +1,8 @@
+#--- Disable src/target src ip check for openstack vpn instances
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: disable-src-check
+    cloud_properties:
+      allowed_address_pairs: 1.1.1.1/0
+      #allowed_address_pairs: 192.168.99.45

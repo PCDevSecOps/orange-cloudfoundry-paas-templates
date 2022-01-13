@@ -1,0 +1,36 @@
+#declare internal k8s managed vips dns aliases
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/k8s-internal-ops-relay.internal.paas?
+  value: [192.168.116.19]
+
+
+# master-depls/k3s-sandbox vips alias
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/k3s-sandbox-vip.internal.paas?
+  value: [192.168.99.15]
+
+# master-depls/00-supervision vips alias
+#  a DNS-1035 label must consist of lower case alphanumeric chara │
+#  cters or '-', start with an alphabetic character, and end with an alphanumeric character (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/supervision-vip.internal.paas?
+  value: [192.168.99.16]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/loki.internal.paas?
+  value: [192.168.99.16]
+
+
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/supervision-syslog-vip.internal.paas?
+  value: [192.168.99.17]
+  
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/marketplace-vip.internal.paas?
+  value: [192.168.99.18]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/marketplace-vip.internal.paas?
+  value: [192.168.60.15]

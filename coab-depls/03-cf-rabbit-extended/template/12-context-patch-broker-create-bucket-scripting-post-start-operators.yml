@@ -1,0 +1,49 @@
+---
+#add mc job operator
+- type: replace
+  path: /instance_groups/name=broker/jobs/-
+  value:
+    name: mc
+    release: minio
+    templates:
+      - name: mc
+    consumes:
+      minio:
+        instances:
+          - address: fake.internal.paas
+        properties:
+          port: "1234"
+          credential:
+            accesskey: fake-s3
+            secretkey: "fake*1234"
+    properties:
+      script: |
+        #!/bin/sh
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=scripting/properties/scripting/post-start-script
+  value: |
+
+    #--- Initialize context
+    echo "- Start post-start"
+    > /var/vcap/sys/log/scripting/post-start.stderr.log
+    > /var/vcap/sys/log/scripting/post-start.stdout.log
+
+    #--- Configure S3
+    set +e
+
+    export http_proxy=((http_proxy))
+    export https_proxy=((http_proxy))
+    export no_proxy=localhost,127.0.0.1,((shield-alias-prefix))((instance_id))((shield-domain-suffix)),((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) #no proxy to connect to shield server
+
+    BUCKET=((s3_bucket_prefix))-03-cf-rabbit-extendedcoab
+
+    /var/vcap/packages/mc/mc config host add remote_s3 ((s3_host)) ((s3_access_key_id)) ((s3_secret_access_key)) --api s3v4
+    if [ $? != 0 ] ; then echo "remote S3 target configuration failed\n" ; exit 0 ; fi
+
+    /var/vcap/packages/mc/mc mb remote_s3/${BUCKET} --ignore-existing
+    if [ $? != 0 ] ; then echo "bucket ${BUCKET} creation failed in remote s3\n" ; exit 0 ; fi
+
+    unset http_proxy
+    unset https_proxy
+    unset no_proxy

@@ -1,0 +1,16 @@
+#add airgap images jobs on server and agent
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: k3s-server-airgaped-images
+    release: k3s
+
+- type: replace
+  path: /addons/name=20-add-agents/jobs/-
+  value:
+    name: k3s-agent-airgaped-images
+    release: k3s
+
+
+

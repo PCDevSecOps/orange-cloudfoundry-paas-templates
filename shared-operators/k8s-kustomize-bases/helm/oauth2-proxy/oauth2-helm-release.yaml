@@ -1,0 +1,22 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/bitnami/charts/tree/master/bitnami/oauth2-proxy" 
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: oauth2-proxy
+      version: 1.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd #https://artifacthub.io/packages/helm/bitnami/oauth2-proxy 1.1.0 / 7.2.0
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values: {}

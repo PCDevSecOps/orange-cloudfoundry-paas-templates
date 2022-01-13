@@ -1,0 +1,76 @@
+---
+name: cloudfoundry-datastores
+
+update:
+  canaries: 1
+  canary_watch_time: 10000-600000
+  update_watch_time: 10000-600000
+  max_in_flight: 1
+  serial: true # FIXME : you may need to set it to false for initial boostrap !
+
+instance_groups:
+
+#ha_proxy for minio-s3-cluster
+- name: minio-proxy
+  instances: 1
+  azs: [z1]
+  networks: [{name: tf-net-exchange}]
+  vm_type: 1cpu-2g
+  stemcell: default
+  persistent_disk_type: default
+  jobs:
+  - name: haproxy
+    release: haproxy
+    properties:
+      ha_proxy:
+        disable_http: false
+        stats_enable: true
+        stats_user: prometheus
+        stats_password: ((/secrets/prometheus_password))
+        trusted_stats_cidrs: 0.0.0.0/0
+        log_level: debug
+        backend_port: 9000
+        backend_servers:
+        - 192.168.99.120
+        - 192.168.99.121
+        - 192.168.99.122
+        - 192.168.99.123
+
+- name: minio-s3-cluster
+  instances: 4
+  azs: [z1, z2]
+  networks: [{name: tf-net-exchange}]
+  vm_type: 2cpu-8g
+  stemcell: default
+  persistent_disk_type: xxlarge-performant
+  jobs:
+  - name: minio-server
+    release: minio
+    consumes:
+      minio-server: {from: minio-server-minio-s3-cluster}
+    provides:
+      minio-server: {as: minio-server-minio-s3-cluster}
+    properties:
+      credential:
+        accesskey: ((cf_blobstore_s3_accesskey))
+        secretkey: ((cf_blobstore_s3_secretkey))
+      envs: |
+        export MINIO_PROMETHEUS_AUTH_TYPE=public
+
+variables:
+- name: cf_blobstore_s3_accesskey
+  type: password
+- name: cf_blobstore_s3_secretkey
+  type: password
+
+releases:
+- name: minio
+  version: latest
+- name: haproxy
+  version: latest
+  
+# Stemcell details
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest

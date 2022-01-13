@@ -1,0 +1,22 @@
+#--- Dns certs
+dns_api_client_tls:
+  ca: (( file "../../shared/certs/bosh-dns/dns_api_tls_ca.crt" ))
+  certificate: (( file "../../shared/certs/bosh-dns/dns_api_client_tls.crt" ))
+  private_key: (( file "../../shared/certs/bosh-dns/dns_api_client_tls.key" ))
+
+dns_api_server_tls:
+  ca: (( file "../../shared/certs/bosh-dns/dns_api_tls_ca.crt" ))
+  certificate: (( file "../../shared/certs/bosh-dns/dns_api_server_tls.crt" ))
+  private_key: (( file "../../shared/certs/bosh-dns/dns_api_server_tls.key" ))
+
+#--- From shared secrets
+api_domain: (( grab secrets.cloudfoundry.system_domain ))
+apps_domain: (( grab secrets.intranet_interco_1.apps_domain ))
+ops_domain: (( grab secrets.ops_interco.ops_domain ))
+osb_domain: (( grab secrets.osb_interco.osb_domain ))
+target_dns_recursor_1: (( grab secrets.bosh.iaas_dns[0] ))
+target_dns_recursor_2: (( grab secrets.bosh.iaas_dns[1] ))
+target_ntp_server_1: (( grab secrets.intranet_interco_1.ntp_server_1 ))
+target_ntp_server_2: (( grab secrets.intranet_interco_1.ntp_server_2 ))
+intranet_smtp_host: (( grab secrets.intranet_interco_1.smtp_server ))
+

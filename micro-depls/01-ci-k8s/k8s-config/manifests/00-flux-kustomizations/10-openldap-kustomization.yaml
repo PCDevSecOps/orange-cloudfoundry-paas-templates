@@ -1,0 +1,21 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 10-openldap
+spec:
+  interval: 2m0s
+  path: ./micro-depls/01-ci-k8s/k8s-config/manifests/10-openldap
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+
+  #post-build substitution
+  postBuild:
+    substitute:
+      clientID: "ci-client"
+      clientSecret: "((/uaa/ci-client-secret))"
+      cookieSecret: "((/uaa/ci-cookie-secret))"
+      opsDomain: ((/secrets/cloudfoundry_ops_domain))
+      oidc_issuer_url: "https://uaa.((/secrets/cloudfoundry_ops_domain))/oauth/token"
+

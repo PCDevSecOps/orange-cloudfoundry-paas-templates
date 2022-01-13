@@ -1,0 +1,13 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 40-loki
+resources:
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/loki
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/promtail
+- loki-ns.yaml
+
+
+
+patchesStrategicMerge:
+- promtail-syslog-helm-release-patch.yaml
+- loki-helm-release-patch.yaml

@@ -1,0 +1,12 @@
+---
+- type: replace
+  path: /releases/-
+  value:
+    name: cf-cli
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/-
+  value:
+    name: cf-cli-6-linux
+    release: cf-cli

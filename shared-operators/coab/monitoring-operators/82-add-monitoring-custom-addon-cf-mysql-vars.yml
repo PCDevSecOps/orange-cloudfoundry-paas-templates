@@ -1,0 +1,7 @@
+job_name: mysql
+exporter_name: mysqld_exporter
+exporter_port: 9104
+dashboard_release: orange-prometheus-addons
+dashboard_name: mysql_dashboards
+dashboard_folder_name: MySQL
+dashboard_folder_path: /var/vcap/jobs/mysql_dashboards/*.json

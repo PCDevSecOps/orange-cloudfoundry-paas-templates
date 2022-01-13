@@ -1,0 +1,12 @@
+---
+#this operators fixed the deployment for upgrade compatibility with existing bosh 1 manifest:
+#- define a single node broker
+#- set all vms on the legacy ips, legacy bosh 1 network
+
+- type: replace
+  path: /instance_groups/name=haproxy/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-pub
+      static_ips:
+      - 172.16.48.59
+      - 172.16.48.60

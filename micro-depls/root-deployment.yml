@@ -1,0 +1,121 @@
+---
+name: micro-depls
+releases:
+  backup-and-restore-sdk:
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+    sha1: 92b8ab09d88273803404c71b04c29c4ab5598d48
+    version: 1.18.28
+  bosh:
+    repository: cloudfoundry/bosh
+    sha1: 07a5a8b1ff03f98f784556c8e029a5a859f51f74
+    version: 271.18.0
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    sha1: 9ca2c07df9ea63f4e23c511bf39ccaac7e133b9d
+    version: 1.29.0
+  bosh-dns-aliases:
+    repository: cloudfoundry/bosh-dns-aliases-release
+    version: 0.0.4
+  bosh-openstack-cpi:
+    repository: cloudfoundry/bosh-openstack-cpi-release
+    sha1: aec512de92c14784cc90036dcc1e24a0c8bf7371
+    version: '46'
+  bosh-vsphere-cpi:
+    repository: cloudfoundry/bosh-vsphere-cpi-release
+    sha1: b59b606b3598106348883dada93ab3519cefeaa9
+    version: '70'
+  bpm:
+    repository: cloudfoundry/bpm-release
+    sha1: 0d48aa01a65b947b97570234eb2401e821a8bd35
+    version: 1.1.15
+  concourse:
+    repository: concourse/concourse-bosh-release
+    version: 7.6.0
+  credhub:
+    repository: pivotal-cf/credhub-release
+    skip_branch_checkout: false
+    tag_prefix: ''
+    version: 2.11.0
+  credhub-importer:
+    repository: cloudfoundry-community/credhub-importer-boshrelease
+    tag_prefix: ''
+    version: 1.1.0
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.1
+  docker:
+    repository: cloudfoundry-incubator/docker-boshrelease
+    version: 35.3.4
+  generic-scripting:
+    repository: orange-cloudfoundry/generic-scripting-release
+    sha1: 3198161324c49c670282f5c64b471204a3c510bb
+    version: '3'
+  generic-taint-jobs:
+    repository: orange-cloudfoundry/generic-taint-jobs-release
+    version: '1'
+  haproxy:
+    repository: cloudfoundry-community/haproxy-boshrelease
+    version: 11.4.2
+  helm-kubectl:
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+    tag_prefix: ''
+    version: '39'
+  k3s:
+    repository: orange-cloudfoundry/k3s-boshrelease
+    version: '22'
+  minio:
+    repository: minio/minio-boshrelease
+    tag_prefix: RELEASE.
+    version: 2021-10-23T03-28-24Z
+  networking:
+    repository: cloudfoundry/networking-release
+    sha1: 9b5f9d27917c3754e492470ac6c9af80d62963db
+    version: '9'
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    sha1: cea1edc938873b7204b889173002e0e9fa813e54
+    version: 5.0.0
+  nats:
+    version: '40'
+    repository: cloudfoundry/nats-release
+  ntp:
+    repository: cloudfoundry-community/ntp-release
+    tag_prefix: ''
+    version: 4.2.8p12
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    tag_prefix: ''
+    version: '1'
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    sha1: 4f653168954749992a541d228dd4f936f2eff2d6
+    version: 22.1.1
+  postgres:
+    repository: cloudfoundry/postgres-release
+    version: '43'
+  prometheus:
+    repository: cloudfoundry-community/prometheus-boshrelease
+    sha1: 33b4a873648e268b7a24d64e787f08816f85a3c0
+    version: 26.6.0
+  pxc:
+    repository: cloudfoundry-incubator/pxc-release
+    version: 0.37.0
+  routing:
+    repository: cloudfoundry/routing-release
+    version: 0.216.0
+  shield:
+    repository: starkandwayne/shield-boshrelease
+    version: 8.7.4
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.7.5
+  terraform:
+    repository: orange-cloudfoundry/terraform-release
+    tag_prefix: ''
+    version: '4'
+  uaa:
+    repository: cloudfoundry/uaa-release
+    sha1: 63750fa3fde9e8a325efc1edd613da58bb92a85b
+    version: 75.13.0
+stemcell:
+  version: '1.51'

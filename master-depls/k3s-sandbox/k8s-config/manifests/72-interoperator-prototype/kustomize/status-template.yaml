@@ -1,0 +1,78 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: status
+    type: gotemplate
+    content: |
+      # Status template for provision call
+      {{/* see   https://fluxcd.io/docs/components/kustomize/kustomization/#status */}}
+      {{ $provisionStateString := "in progress" }}
+      {{range .kustomizationInstance.status.conditions}}
+        {{if eq .type "Ready"}}
+          {{if eq .status "True"}}
+            {{ $provisionStateString = "succeeded" }}
+          {{end}}
+          {{if eq .status "False"}}
+            {{ $provisionStateString = "failed" }}
+          {{end}}
+        {{end}}
+      {{end}}
+      provision:
+        state: {{ $provisionStateString }}
+      # Status template for bind call
+      # See spec at https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator-templates.md#supported-status-template-fields-for-bind-and-unbind-field
+      {{ $bindStateString := "in progress" }}
+      {{ $bindDescriptionString := " " }}
+      {{range .kustomizationBinding.status.conditions}}
+        {{if eq .type "Ready"}}
+          {{ $bindDescriptionString = (printf "Reason=%s Message=%s LastTransitionTime=%s" .reason .message .lastTransitionTime) }}
+          {{if eq .status "True"}}
+            {{ $bindStateString = "succeeded" }}
+          {{end}}
+          {{if eq .status "False"}}
+            {{ $bindStateString = "failed" }}
+          {{end}}
+        {{end}}
+      {{end}}
+      {{- $responseString := "" }}
+      {{- if eq $bindStateString "succeeded"}}
+        {{- $pass := "" }}
+        {{- with .upstreamSecret.data.password }} {{- $pass = (b64dec .) }} {{- end }}
+        {{- $user := "" }}
+        {{- with .upstreamSecret.data.login }} {{- $user = (b64dec .) }} {{- end }}
+        {{/* hold on waiting for secret to come up */}}
+        {{- if or (eq $user "") (eq $pass "")  }}
+          {{ $bindStateString = "in progress" }}
+        {{- end }}
+        {{- $credsMap := dict "creationTimestamp" .kustomizationBinding.metadata.creationTimestamp "uid" .kustomizationBinding.metadata.uid "description" $bindDescriptionString "user" $user "password" $pass}}
+        {{- $responseMap := dict "credentials" $credsMap }}
+        {{- $responseString = mustToJson $responseMap | squote }}
+      {{ end }}
+      bind:
+        state: {{ $bindStateString }}
+        response: {{ $responseString }}
+    
+      # Status template for unbind call
+      {{ $unbindStateString := "in progress" }}
+      {{- with .kustomizationBinding.metadata.uid }}
+        {{if not .}}
+      {{- $unbindStateString = "succeeded" }}
+      {{- else }}
+      {{- $unbindStateString = "in progress" }}
+      {{- end }}
+      {{- end }}
+      unbind:
+        state: {{ $unbindStateString }}
+        error: ""
+      # Status template for deprovision call
+      {{ $deprovisionStateString := "in progress" }}
+      {{- with .kustomizationInstance.metadata.uid }}
+        {{if not .}}
+      {{- $deprovisionStateString = "succeeded" }}
+      {{- else }}
+      {{- $deprovisionStateString = "in progress" }}
+      {{- end }}
+      {{- end }}
+      deprovision:
+        state: {{ printf "%s" $deprovisionStateString }}
+        error: ""

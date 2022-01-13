@@ -1,0 +1,22 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: promtail
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/grafana/helm-charts/blob/main/charts/promtail/values.yaml" 
+
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: promtail
+      version: 3.8.1 #((helm_loki_stack))
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace

@@ -1,0 +1,53 @@
+# config routes
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postup/-
+  value: ip -4 route add 192.168.2.3/32 dev wg0
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postup/-
+  value: ip -4 route add 192.168.117.0/24 dev wg0
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postup/-
+  value: ip -4 route add 192.168.65.0/24 dev wg0
+  
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postup/-
+  value: ip -4 route add 192.168.71.0/24 dev wg0
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postup/-
+  value: ip -4 route add 192.168.74.0/24 dev wg0
+
+# ops private network r2 (shared-priv)
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postup/-
+  value: ip -4 route add 192.168.64.0/24 dev wg0
+
+
+# clean route
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postdown/-
+  value: ip -4 route del 192.168.2.3/32 dev wg0
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postdown/-
+  value: ip -4 route del 192.168.117.0/24 dev wg0
+  
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postdown/-
+  value: ip -4 route del 192.168.65.0/24 dev wg0
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postdown/-
+  value: ip -4 route del 192.168.71.0/24 dev wg0
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postdown/-
+  value: ip -4 route del 192.168.74.0/24 dev wg0
+
+# ops private network r2 (shared-priv)
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/postdown/-
+  value: ip -4 route del 192.168.64.0/24 dev wg0

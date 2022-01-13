@@ -1,0 +1,44 @@
+---
+- type: replace
+  path: /releases/name=orange-prometheus-addons?
+  value:
+    name: orange-prometheus-addons
+    version: latest
+
+- type: replace
+  path: /releases/name=prometheus?
+  value:
+    name: prometheus
+    version: latest
+
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-taint-jobs
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: persistent-taint
+    release: generic-taint-jobs
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: grafana-webui-coab-endpoint
+    registration_interval: 10s
+    port: 3000
+    uris:
+      - grafana-((parameters.x-osb-cmdb.labels.brokered_service_instance_guid)).((/secrets/cloudfoundry_system_domain))
+#      - grafana-((deployment_name)).((/secrets/cloudfoundry_system_domain))
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: prometheus-webui-coab-endpoint
+    registration_interval: 10s
+    port: 9090
+    uris:
+      - prometheus-((parameters.x-osb-cmdb.labels.brokered_service_instance_guid)).((/secrets/cloudfoundry_system_domain))
+#      - prometheus-((deployment_name)).((/secrets/cloudfoundry_system_domain))

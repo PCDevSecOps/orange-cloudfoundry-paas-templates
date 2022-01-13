@@ -1,0 +1,22 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: bpm
+    version: 1.1.15
+
+- type: replace
+  path: /addons/-
+  value:
+    name: bpm-addon
+    jobs:
+    - name: bpm
+      release: bpm
+    exclude:
+      deployments:
+      - cf
+      - isolation-segment-intranet-1
+      - isolation-segment-intranet-2
+      - isolation-segment-internet
+      - isolation-segment-internal
+      - logsearch-ops
+

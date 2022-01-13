@@ -1,0 +1,12 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: grafana-operator
+spec:
+  values:
+    operator:
+      extraEnvVars:
+        - name: https_proxy
+          value: http://system-internet-http-proxy.internal.paas:3128
+        - name: no_proxy
+          value: "127.0.0.1,localhost,.((/secrets/cloudfoundry_ops_domain)),.paas,.internal,.svc,.svc.cluster.local,192.168.0.0/16,10.43.0.0/16"

@@ -1,0 +1,16 @@
+documentation:
+ - zz-docs/**/*
+
+automated-upgrade:
+ - upgrade/releases/**/*
+ - upgrade/pipelines/**/*
+ - upgrade/pipeline-templates/**/*
+
+submodules-bump:
+ - submodules/*
+
+sanitize:
+ - bin/**/*
+
+github-meta:
+ - .github/**/*

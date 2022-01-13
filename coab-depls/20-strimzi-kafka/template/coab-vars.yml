@@ -1,0 +1,15 @@
+#Simulates what coab will generate for each deployment.
+deployment_name: "20-strimzi-kafka"
+
+#these are samples values for keys set by coab broker
+instance_id: "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+service_id: "strimzi-kafka-service"
+plan_id: "plan-strimzi-kafka-default"
+
+
+context:
+  platform: "cloudfoundry"
+  user_guid:  "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+  space_guid: "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+  organization_guid: "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+parameters: {}

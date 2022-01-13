@@ -1,0 +1,27 @@
+---
+kind: Probe
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: probe-no-proxy-200
+  labels:
+    team: master-probe
+spec:
+  interval: 5s
+  module: http_no_proxy_200
+  prober:
+    url: prometheus-blackbox-exporter:9115
+  targets:
+    staticConfig:
+      static:
+
+        #3-black-box-scrape-control-plane-operators.yml
+        - https://credhub.internal.paas:8844/info
+        - https://uaa-credhub.internal.paas:8443
+
+        #3-black-box-scrape-osb-cmdb-brokers-operators.yml
+        - https://osb-cmdb-broker-0.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://osb-cmdb-broker-1.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://osb-cmdb-broker-2.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://osb-cmdb-broker-3.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://osb-cmdb-broker-4.((/secrets/cloudfoundry_system_domain))/actuator/health
+

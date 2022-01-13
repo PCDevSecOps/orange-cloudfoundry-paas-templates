@@ -1,0 +1,36 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: concourse
+resources:
+#- ../../../../../shared-operators/k8s-kustomize-bases/helm/concourse
+- concourse-ns.yaml
+- concourse-helm-release.yaml
+- certificate-operators.yaml
+
+patchesStrategicMerge:
+- concourse-helm-release-patch.yaml
+- concourse-version-patch.yaml
+- concourse-postgres-patch.yaml
+- concourse-helm-release-http-proxy-patch.yaml
+- concourse-ldap-config-patch.yaml
+- concourse-worker-certs-patch.yaml
+- concourse-instances-patch.yaml
+- concourse-credhub-patch.yaml
+- concourse-worker-longhorn-patch.yaml
+
+commonLabels:
+  kusto.commonLabels: 07-concourse
+  requires-ldap: "true"
+  requires-proxy: "true"
+  requires-credhub: "true"
+  requires-docker-registry: "true"
+
+generatorOptions:
+  labels:
+    kusto.generator: 07-concourse
+  annotations:
+    kusto.generator: 07-concourse
+
+
+
+

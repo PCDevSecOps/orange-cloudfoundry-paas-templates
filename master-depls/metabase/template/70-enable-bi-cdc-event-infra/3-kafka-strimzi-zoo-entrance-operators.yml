@@ -1,0 +1,26 @@
+#install zookeeper entrance to let kafka manager connect to zookeeper
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kafka-cluster-zookeeper-entrance"
+    cmd: "apply"
+    options: "-n kafka"
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        labels:
+          app: zoo-entrance
+        name: zoo-entrance
+        namespace: kafka
+      spec:
+        ports:
+          - name: zoo
+            port: 2181
+            protocol: TCP
+            targetPort: 2181
+        selector:
+          app: zoo-entrance
+        type: ClusterIP

@@ -1,0 +1,11 @@
+#creating a direct helm repo ref via internet, because jcr cant cache loft chartmuseum repo
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: rancher-latest
+  #namespace: fluxcd
+spec:
+  interval: 10m
+  url: https://releases.rancher.com/server-charts/latest
+
+

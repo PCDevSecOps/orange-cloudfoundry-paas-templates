@@ -1,0 +1,6 @@
+- type: replace
+  path: /addons/name=20-add-agents-persistent/exclude/jobs/-
+  value:
+    release: ((agent_persistent_addon_exclude_release))
+    name: ((agent_persistent_addon_exclude_job))
+

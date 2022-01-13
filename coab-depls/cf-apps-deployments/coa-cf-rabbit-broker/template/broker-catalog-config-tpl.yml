@@ -1,0 +1,25 @@
+servicebroker:
+  catalog:
+    services:
+    - id: cf-rabbit-ondemand-service
+      name: (( grab secrets.coa-cf-rabbit-broker.serviceName )) #cf-rabbit-ondemand
+      description: (( grab secrets.coa-cf-rabbit-broker.serviceDescription )) #"On demand cf-rabbit dedicated cluster"
+      bindable: true
+      plans:
+      - id: cf-rabbit-ondemand-plan
+        name: (( grab secrets.coa-cf-rabbit-broker.plan-coab-rabbit.small.name ))
+        description: (( grab secrets.coa-cf-rabbit-broker.plan-coab-rabbit.small.description ))
+        metadata:
+          bullets: (( grab secrets.coa-cf-rabbit-broker.plan-coab-rabbit.small.bullets ))
+        maintenance_info:
+          version: "51.0.0"
+          description: "Grafana dashboard url"
+      tags: (( grab secrets.coa-cf-rabbit-broker.tags ))
+      metadata:
+        displayName: (( grab secrets.coa-cf-rabbit-broker.metadata.displayName ))
+        imageUrl: (( grab secrets.coa-cf-rabbit-broker.metadata.imageUrl ))
+        longDescription: (( grab secrets.coa-cf-rabbit-broker.metadata.longDescription )) #"A dedicated on-demand cf-rabbit cluster. This is beta: Not yet monitored and backed up. Default sizing can't yet be changed at creation or update."
+        providerDisplayName: Orange
+        documentationUrl: (( grab secrets.coa-cf-rabbit-broker.metadata.documentationUrl )) #https://github.com/orange-cloudfoundry/cf-rabbit-boshrelease#configuring-cf-to-use-cf-rabbit-service
+        supportUrl: (( grab secrets.coa-cf-rabbit-broker.metadata.supportUrl )) #https://github.com/orange-cloudfoundry/cf-rabbit-boshrelease#configuring-cf-to-use-cf-rabbit-service
+

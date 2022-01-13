@@ -1,0 +1,56 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: squid-config
+  namespace: intranet-proxy
+data:
+  squid.conf : |
+    http_port 3128
+    #debug_options ALL,7
+    dns_nameservers ((/secrets/intranet_interco_1/intranet_dns_1)) ((/secrets/intranet_interco_1/intranet_dns_2))
+    acl localnet src 10.0.0.0/8     # RFC 1918 possible internal network
+    acl localnet src 172.16.0.0/12  # RFC 1918 possible internal network
+    acl localnet src 192.168.0.0/16 # RFC 1918 possible internal network
+    acl localnet src fc00::/7       # RFC 4193 local private network range
+    acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+    
+    acl SSL_ports port 442 443 8442 8443
+    acl Safe_ports port 80          # http, soap http
+    acl Safe_ports port 442         # Soap https one way
+    acl Safe_ports port 443         # Soap https two way
+    acl Safe_ports port 8008        # Rest http
+    acl Safe_ports port 8442        # Rest https one way
+    acl Safe_ports port 8443        # Rest https two way
+    acl Safe_ports port 1025-65535  # Unregistered ports
+    acl CONNECT method CONNECT
+    
+    # Deny requests to unsafe ports
+    http_access deny !Safe_ports
+    
+    # Deny CONNECT to other than secure SSL ports
+    http_access deny CONNECT !SSL_ports
+    
+    # Only allow cachemgr access from localhost
+    http_access allow localnet
+    
+    #--- Log format
+    # ts  : Date of request, seconds since epoch
+    # tu  : Date of request, sub-second component
+    # tl  : Local time. Optional strftime format argument
+    # rm  : Request method
+    # ru  : Request URL, without the query string
+    # mt  : MIME type of the request
+    # >Hs : HTTP status code (200, 404, 407, etc)
+    # Ss  : Squid status code (TCP_HIT, TCP_MISS etc)
+    # tr  : Response time (milliseconds)
+    # >st : Total size of request
+    # <st : Total size of reply
+    # >a  : Client source IP address
+    # >p  : Client source port
+    # <a  : Server or peer IP address
+    # <p  : Server or peer port number
+    # un  : Authenticated user name or dash
+    # Sh  : Squid hierarchy code (FIRST_UP_PARENT, etc)
+    logformat squid %ts.%03tu %6tr %>a %Ss/%03>Hs %<st %rm %ru %[un %Sh/%<a %mt
+          

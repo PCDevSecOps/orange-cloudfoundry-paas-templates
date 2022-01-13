@@ -1,0 +1,20 @@
+#--- Add networking release
+- type: replace
+  path: /releases/name=networking?
+  value:
+    name: networking
+    version: latest
+
+#--- Set routes for internal access
+- type: replace
+  path: /instance_groups/name=inception/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+          #--- public network
+          - net: 10.0.0.0
+            netmask: 255.0.0.0
+            gateway: ((intranet_interco_gateway))

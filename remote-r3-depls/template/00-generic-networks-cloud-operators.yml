@@ -1,0 +1,28 @@
+- type: replace
+  path: /networks/-
+  value:
+    name: remote-r3-interco-network
+    type: manual
+    subnets:
+    - range: ((/secrets/multi_region_region_3_vpn_interco_range))
+      gateway: ((/secrets/multi_region_region_3_vpn_interco_gateway))
+      azs: [r3-z1]
+      reserved:
+      - ((/secrets/multi_region_region_3_vpn_interco_reserved))
+      static:
+      - ((/secrets/multi_region_region_3_vpn_interco_static)) #static ip, vpn private ip must be predictible for tf static routing
+
+- type: replace
+  path: /networks/-
+  value:
+    name: net-bosh-remote-3
+    type: manual
+    subnets:
+    - range: 192.168.118.0/24
+      gateway: 192.168.118.1
+      azs: [r3-z1]
+      reserved:
+      - 192.168.118.2 - 192.168.118.40
+      - 192.168.118.240- 192.168.118.254
+      static:
+      - 192.168.118.41 - 192.168.118.42 #static ip, vpn private ip must be predictible for tf static routing

@@ -1,0 +1,8 @@
+#--- Force use internal CA cert (openssl manually created) because credhub certs don't operate
+- type: replace
+  path: /variables/name=mbus_bootstrap_ssl/options/ca
+  value: /internalCA
+
+- type: replace
+  path: /variables/name=director_ssl/options/ca
+  value: /internalCA

@@ -1,0 +1,7 @@
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=wireguard/properties/wireguard/peers/-
+  value:
+    endpoint: ((/secrets/multi_region_region_3_vpn_interco_endpoint)):((vpn_port))
+    public_key: ((/secrets/multi_region_region_3_public_key)) 
+    allowed_ips: 192.168.2.4/32,192.168.118.0/24,192.168.68.0/24,192.168.72.0/24,192.168.75.0/24 #allowed source ips from the peer
+    persistent_keepalive: 25

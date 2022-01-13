@@ -1,0 +1,2 @@
+---
+osb_shared_gateway_r2_ip: "(( grab secrets.multi_region.region_2.data_plane_shared_public2.gateway ))"

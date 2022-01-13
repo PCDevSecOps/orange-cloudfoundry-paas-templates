@@ -1,0 +1,15 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 30-percona-mysql
+spec:
+  interval: 2m0s
+  path: ./master-depls/k3s-sandbox/k8s-config/manifests/30-percona-mysql
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+  wait: true
+  timeout: 2m
+
+

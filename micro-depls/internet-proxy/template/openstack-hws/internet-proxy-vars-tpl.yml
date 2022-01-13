@@ -1,0 +1,2 @@
+#floating ip for internet outbound traffic
+floating_ip: (( grab secrets.outbound_floating_ip ))

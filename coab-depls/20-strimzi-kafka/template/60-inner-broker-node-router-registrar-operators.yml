@@ -1,0 +1,32 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/-
+  value :
+    name: route_registrar
+    release: routing
+    properties: &registrar_properties
+      nats:
+        machines: [192.168.35.30,192.168.35.31]
+        password: ((/secrets/cloudfoundry_nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: inner-broker-strimzi-z-((instance_id))
+          registration_interval: 10s
+          port: 30000 #wsb node port
+          uris:
+          - inner-broker-strimzi-z-((instance_id)).((/secrets/cloudfoundry_system_domain))
+          
+        - name: inner-broker-interoperator-z-((instance_id))
+          registration_interval: 10s
+          port: 31000 #interoperator broker node port
+          uris:
+          - inner-interoperator-z-((instance_id)).((/secrets/cloudfoundry_system_domain))
+

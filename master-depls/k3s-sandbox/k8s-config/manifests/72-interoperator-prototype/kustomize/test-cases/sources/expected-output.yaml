@@ -1,0 +1,20 @@
+##################################################
+        
+kustomizationInstance:
+  apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+  kind: Kustomization
+  name: instance-sapcp-instance-guid
+  namespace: default
+kustomizationBinding:
+  apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+  kind: Kustomization
+  name: binding-sapcp-binding-guid
+  namespace: default
+upstreamSecret:
+  apiVersion: v1
+  kind: Secret
+  name: upstream-user-password-binding-guid
+  namespace: default
+
+
+##################################################

@@ -1,0 +1,32 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+
+# add keepalived daemon on each master vms
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: keepalived
+    release: haproxy
+    properties:
+      keepalived:
+        vip: ((k3s_server_vip))
+        #interface: eth0 bug. default is auto, interface has bug in haproxy bosh release 8.0.5
+        virtual_router_id: 250
+        healthcheck_name: k8s_api_is_up
+        healthcheck_command: nc -vz localhost 6443
+
+#activate vip on master
+#configure k3s server vip
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=k3s-server/properties/k3s/master_vip_api?
+  value: ((k3s_server_vip))
+
+#update agents with vip
+- type: replace
+  path: /addons/name=20-add-agents/jobs/name=k3s-agent/properties/k3s/master_vip_api?
+  value: ((k3s_server_vip))
+

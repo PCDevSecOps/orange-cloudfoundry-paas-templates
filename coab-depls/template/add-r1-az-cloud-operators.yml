@@ -1,0 +1,17 @@
+- type: replace
+  path: /azs/-
+  value:
+    name: z1
+    cpi: region-1
+
+- type: replace
+  path: /azs/-
+  value:
+    name: z2
+    cpi: region-1
+
+- type: replace
+  path: /azs/-
+  value:
+    name: z3
+    cpi: region-1

@@ -1,0 +1,52 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: jfrog-jcr-2
+spec:
+  postRenderers:
+    # Instruct helm-controller to use built-in "kustomize" post renderer.
+    - kustomize:
+        # Array of inline strategic merge patch definitions as YAML object.
+        # Note, this is a YAML object and not a string, to avoid syntax
+        # indention errors.
+        patchesStrategicMerge:
+          - kind: StatefulSet
+            apiVersion: apps/v1
+            metadata:
+              name: jfrog-jcr-2-artifactory
+              annotations:
+                configmap.reloader.stakater.com/reload: "custom-config,localhost-script"
+            spec:
+              template:
+                spec:
+                  volumes:
+                    - name: script
+                      configMap:
+                        name: localhost-script
+                        defaultMode: 0777
+                    - name: custom-config
+                      configMap:
+                        name: custom-config
+                  containers:
+                    - name: load-jcr-config
+                      image: curlimages/curl:7.75.0
+                      securityContext:
+                        runAsUser: 0
+                      command:
+                        - '/bin/sh'
+                        - '-ce'
+                        - '/scripts/wait-for-artifactory-startup.sh && /scripts/validate-artifactory-licence.sh && /scripts/update-artifactory-config.sh && sleep infinite'
+                      volumeMounts:
+                        - mountPath: "/scripts/wait-for-artifactory-startup.sh"
+                          subPath: wait-for-artifactory-startup.sh
+                          name: script
+                        - mountPath: "/scripts/update-artifactory-config.sh"
+                          subPath: update-artifactory-config.sh
+                          name: script
+                        - mountPath: "/scripts/validate-artifactory-licence.sh"
+                          subPath: validate-artifactory-licence.sh
+                          name: script
+                        - mountPath: "/scripts/param.yml"
+                          name: custom-config
+                          subPath: param.yml
+

@@ -1,0 +1,74 @@
+apiVersion: osb.servicefabrik.io/v1alpha1
+kind: SFPlan
+metadata:
+  # Name maps to the id of the OSB Service Plan.
+  name: &id 99d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+
+  labels:
+    # service_id of the OSB service to which this plan belongs.
+    serviceId: &serviceID 24731fb8-7b84-5f57-914f-c3d55d793dd4
+    planId: *id
+spec:
+  # Name of the OSB Service Plan.
+  name: 'configmap-large'
+
+  # Id of the OSB Service Plan.
+  id: *id
+
+  # Description of the OSB Service Plan.
+  description: 'configmap large plan '
+
+  # service_id of the OSB service to which this plan belongs.
+  serviceId: *serviceID
+
+  # The following details map one-to-one with the data in the OSB service plan objects in the OSB /v2/catalog response.
+  metadata:
+    service-inventory-key: SERVICE-TBD
+    costs:
+    - amount:
+        usd: 0.0
+      unit: 'MONTHLY'
+    bullets:
+    - 1 CPU
+    - 2 GB Memory
+    - 3 * 100 20 GB Disk
+  free: true
+  bindable: true
+  planUpdatable: true #TBC
+  # See https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator.md#solution
+  autoUpdateInstances: false
+
+  maintenance_info:
+    version: 2.1.0
+    description: "dashboard url template"
+
+
+  # This section is configuration for to the operator and Service Fabrik.
+  manager:
+    async: true   # enables async provisioning
+    asyncBinding: false   # enables async binding
+    settings:
+      #See https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator-Features.md#service-instance-dashboard
+      # echo -n 'https://${instance_id}.mydomain.com/ui' | base64
+      # aHR0cHM6Ly8ke2luc3RhbmNlX2lkfS5teWRvbWFpbi5jb20vdWk=
+      dashboard_url_template: "aHR0cHM6Ly8ke2luc3RhbmNlX2lkfS5teWRvbWFpbi5jb20vdWk="
+      # List valid plans from which upgrade is accepted
+      update_predecessors:
+        - '39d7d4c8-6fe2-4c2a-a5ca-b826937d5a88' # default
+
+  context:
+    namePrefix: sapcp
+    cpuCount: 1
+    memoryGB: 2
+    diskGB : 20
+    maxConnections: 100
+    version: 9.6
+    enableLoadBalancers: false
+    allowedSourceRanges:
+    - 0.0.0.0/0
+    requests:
+      cpu: 1
+      memory: 512Mi
+
+  # templates map the OSB actions to the templates of the custom resources of the operator.
+  templates: []

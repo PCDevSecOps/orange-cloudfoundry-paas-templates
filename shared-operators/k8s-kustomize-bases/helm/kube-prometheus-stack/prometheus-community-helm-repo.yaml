@@ -1,0 +1,9 @@
+#creating a direct helm repo ref via internet, because jcr cant cache loft chartmuseum repo
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: prometheus-community
+spec:
+  interval: 10m
+  url:  https://prometheus-community.github.io/helm-charts
+

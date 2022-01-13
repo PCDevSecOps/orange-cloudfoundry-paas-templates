@@ -1,0 +1,53 @@
+#configure metallb
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "config-metallb"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        namespace: metallb-system
+        name: config-metallb
+      data:
+        config: |
+          address-pools:
+            #public intranet vip for ops api
+          - name: ops-public-vip-pool
+            protocol: layer2
+            addresses:
+            - "((/secrets/multi_region_region_1_intranet_interco_ops))/32"
+
+            #private internal vip for internet proxy
+          - name: internet-proxy-private-vip-pool
+            protocol: layer2
+            addresses:
+            - "((internet_proxy_private_vip))/32"
+            
+            #private internal vip for intranet proxy
+          - name: intranet-proxy-private-vip-pool
+            protocol: layer2
+            addresses:
+            - "((intranet_proxy_private_vip))/32"
+            
+            #private internal vip for smtp proxy
+          - name: internal-smtp-private-vip-pool
+            protocol: layer2
+            addresses:
+            - "((internal_paas_smtp_private_vip))/32"
+
+
+            #private internal vip for ops domain internal split brain
+          - name: internal-ops-relay-vip-pool
+            protocol: layer2
+            addresses:
+            - "((internal_ops_relay_vip))/32"
+
+            #private internal vip for internal.paas services (private-s3, ldap)
+          - name: internal_paas_private_vip
+            protocol: layer2
+            addresses:
+            - "((internal_paas_private_vip))/32"

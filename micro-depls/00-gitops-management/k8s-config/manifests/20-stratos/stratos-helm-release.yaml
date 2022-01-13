@@ -1,0 +1,42 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: stratos
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/cloudfoundry/stratos/tree/master/deploy/kubernetes/console"
+
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: console
+      version: 4.4.0 #from https://cloudfoundry.github.io/stratos/
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+      interval: 1m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    console:
+      ssoLogin: true
+      techPreview: true
+      service:
+        ingress:
+          enabled: true
+          #see reference https://doc.traefik.io/traefik/v1.7/configuration/backends/kubernetes/#annotations
+          annotations:
+            ingress.kubernetes.io/protocol: https
+          host: stratos.((/secrets/cloudfoundry_ops_domain))
+          secretName: stratos-cert
+    uaa:
+      endpoint: https://uaa.((/secrets/cloudfoundry_ops_domain))
+      skipSSLValidation: false
+      consoleClient: stratos
+      consoleClientSecret: ((/uaa/stratos-client-secret))
+    consoleAdminIdentifier: bosh.admin
+

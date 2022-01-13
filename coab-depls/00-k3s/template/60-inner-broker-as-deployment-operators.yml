@@ -1,0 +1,108 @@
+
+- type: replace
+  path: /variables/-
+  value:
+    name: /bosh-coab/k3s/broker_password #global credhub namespace, all k3s service instance share same inner broker password
+    type: password
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "wsb-deployment"
+    cmd: "apply"
+    content:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: wsb-deployment
+        namespace: k3s-cluster-((instance_id))
+        labels:
+         app: wsb-osb
+      spec:
+        selector:
+          matchLabels:
+            app: wsb-osb
+        replicas: 1
+        strategy:
+          rollingUpdate:
+            maxSurge: 25%
+            maxUnavailable: 25%
+          type: RollingUpdate
+        template:
+          metadata:
+            labels:
+              app: wsb-osb
+          spec:
+            containers:
+            - name: worlds-simplest-service-broker
+              image: cfcommunity/worlds-simplest-service-broker:1.3.1
+              imagePullPolicy: IfNotPresent
+              env:
+              - name: CREDENTIALS
+                valueFrom:
+                  secretKeyRef:
+                    name: k3s-service-credentials
+                    key: credentials
+              - name: PORT
+                value: "3000"
+              - name: BASE_GUID
+                value: 0a6cc65a-6744-48ae
+              - name: SERVICE_NAME
+                value: some-helm-service-class
+              - name: SERVICE_PLAN
+                value: shared
+              - name: FAKE_ASYNC
+                value: "false"
+              - name: FAKE_STATEFUL
+                value: "false"
+              - name: CREDENTIALS
+                value: $(CREDENTIALS)
+              - name: TAGS
+                value: k3s,k8s
+              - name: IMAGE_URL
+              - name: AUTH_USER
+                value: k3s-inner-broker
+              - name: AUTH_PASSWORD
+                value: ((/bosh-coab/k3s/broker_password))
+              livenessProbe:
+                failureThreshold: 3
+                httpGet:
+                  path: /health
+                  port: http
+                  scheme: HTTP
+                periodSeconds: 10
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "wsb-node-port"
+    cmd: "apply"
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: wsb-node-port
+        namespace: k3s-cluster-((instance_id))
+      spec:
+        ports:
+        - protocol: TCP
+          port: 80
+          targetPort: 3000
+          nodePort: 30000
+        selector:
+          app: wsb-osb
+        type: NodePort
+                
+
+#wait for broker to be Available
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "k3s-cluster-((instance_id))-wait"
+    cmd: "wait"
+    options: "--for=condition=Available deployment/wsb-deployment -n k3s-cluster-((instance_id)) --timeout=300s"

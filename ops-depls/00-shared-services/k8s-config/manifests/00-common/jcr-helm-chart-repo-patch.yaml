@@ -1,0 +1,8 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: helm-repo
+spec:
+  url: https://jcr-k8s.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+
+

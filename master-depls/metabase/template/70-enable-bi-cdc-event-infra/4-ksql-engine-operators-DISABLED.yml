@@ -1,0 +1,37 @@
+# add singleton instance group to hold kafka engine
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: ksql-server
+    instances: 0
+    vm_type: 2cpu-8g
+    stemcell: default
+    azs: [z1]
+    networks:
+      - name: tf-net-exchange
+#    persistent_disk_type: small
+    jobs:
+    - name: docker
+      release: docker
+      properties:
+        registry_mirrors:
+        - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+        store_dir: /var/vcap/data
+
+    - name: containers
+      release: docker
+      properties:
+        containers:
+        - name: ksql_server
+          image: confluentinc/cp-ksql-server:((confluentinc/cp-ksql-server))
+          bind_ports:
+          - 8088:8088
+          env_vars:
+          - "KSQL_BOOTSTRAP_SERVERS=kafka:9092" #use bosh-dns alias to kafka instance group
+          - "KSQL_KSQL_SERVICE_ID=ksql_standalone_1_"
+          - "KSQL_PRODUCER_INTERCEPTOR_CLASSES=io.confluent.monitoring.clients.interceptor.MonitoringProducerInterceptor"
+          - "KSQL_CONSUMER_INTERCEPTOR_CLASSES=io.confluent.monitoring.clients.interceptor.MonitoringConsumerInterceptor"
+#          -"KSQL_KSQL_QUERIES_FILE=/path/in/container/queries.sql"
+          - "KSQL_LISTENERS=http://0.0.0.0:8088"
+          volumes:
+          - "/etc/ssl/certs:/etc/ssl/certs:ro"

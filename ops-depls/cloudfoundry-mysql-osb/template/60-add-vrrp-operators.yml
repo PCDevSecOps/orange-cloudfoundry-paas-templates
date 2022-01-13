@@ -1,0 +1,43 @@
+#--- add haproxy release
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+#--- configure keepalived
+- type: replace
+  path: /instance_groups/name=proxy/jobs/-
+  value:
+    release: haproxy
+    name: keepalived
+    properties:
+      keepalived:
+        vip: ((cf_mysql_host)) #port ip reserved in cloud-config
+        interface: eth0
+        healthcheck_command: killall -0 switchboard
+        healthcheck_name: check_switchboard
+        virtual_router_id: 201
+
+#--- configure host with vip on broker
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/host?
+  value: ((vrrp_ip))
+
+#--- configure shutdown_delay
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=proxy/properties/proxy?/shutdown_delay?
+  value: 2
+
+#--- configure startup_delay
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=proxy/properties/proxy?/startup_delay?
+  value: 2
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=keepalived/properties/keepalived/vip?
+  value: ((vrrp_ip))
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=keepalived/properties/keepalived/virtual_router_id?
+  value: 202

@@ -1,0 +1,1 @@
+All files are managed by fluxcd, which will dynamically-generate a kustomization.yaml

@@ -1,0 +1,29 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: sources
+    type: gotemplate
+    content: |
+      {{- $instanceID := "" }}
+      {{- with .instance.metadata.name }} {{ $instanceID = . }} {{ end }}
+      {{- $bindingID := "" }}
+      {{- with .binding.metadata.name }} {{ $bindingID = . }} {{ end }}
+      {{- $namespace := "" }}
+      {{- with .instance.metadata.namespace }} {{ $namespace = . }} {{ end }}
+      {{- $namePrefix := "" }}
+      {{- with .plan.spec.context.namePrefix }} {{ $namePrefix = . }} {{ end }}
+      kustomizationInstance:
+        apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+        kind: Kustomization
+        name: instance-{{ $namePrefix }}-{{ $instanceID }}
+        namespace: {{ $namespace }}
+      kustomizationBinding:
+        apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+        kind: Kustomization
+        name: binding-{{ $namePrefix }}-{{ $bindingID }}
+        namespace: {{ $namespace }}
+      upstreamSecret:
+        apiVersion: v1
+        kind: Secret
+        name: upstream-user-password-{{ $bindingID }}
+        namespace: {{ $namespace }}

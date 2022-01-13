@@ -1,0 +1,24 @@
+#--- Stemcell
+url_stemcell: (( grab $URL_STEMCELL ))
+sha1_stemcell: (( grab $SHA1_STEMCELL ))
+
+#--- vcap password
+vcap_password_sha512: (( grab $VCAP_PASSWORD_SHA512 ))
+
+#--- Network properties
+intranet_interco_name: (( grab $INTRANET_INTERCO_NAME ))
+intranet_interco_range: (( grab $INTRANET_INTERCO_RANGE ))
+intranet_interco_gateway: (( grab $INTRANET_INTERCO_GW ))
+
+micro_bosh_network_name: (( grab $MICRO_BOSH_NETWORK_NAME ))
+micro_bosh_range:  (( grab $MICRO_BOSH_RANGE ))
+micro_bosh_gateway:  (( grab $MICRO_BOSH_GW ))
+micro_bosh_inception_ip: (( grab $MICRO_BOSH_INCEPTION_IP ))
+
+#--- dns recursor
+dns_recursor_1: (( grab $DNS_RECURSOR_1 ))
+dns_recursor_2: (( grab $DNS_RECURSOR_2 ))
+
+#--- IAAS dns server
+iaas_dns_1: (( grab secrets.bosh.iaas_dns[0] ))
+iaas_dns_2: (( grab secrets.bosh.iaas_dns[1] ))

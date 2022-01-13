@@ -1,0 +1,14 @@
+#--- scrape logsearch-ops
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: logsearch-ops
+    scrape_interval: 30s
+    scrape_timeout: 10s
+    static_configs:
+    - targets:
+      - localhost:9114
+    relabel_configs:
+      - source_labels: [instance]
+        target_label: instance
+        replacement: "logsearch-ops"

@@ -1,0 +1,11 @@
+# See # See https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator.md#new-custom-resources-introduced
+apiVersion: resource.servicefabrik.io/v1alpha1
+kind: SFCluster
+metadata:
+  name: sfcluster
+  namespace: interoperator
+spec:
+  secretRef: k3s-sandbox-kubeconfig
+  #See https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/interoperator-scheduler.md#input-from-service-operatorsservice-owners
+  # total capacity is automatically computed from the node capacity
+  # can be overriden to perform overbooking

@@ -1,0 +1,1 @@
+osb_data_plane_dedicated_public_gateway: (( grab secrets.osb_data_plane_dedicated_public.gateway ))

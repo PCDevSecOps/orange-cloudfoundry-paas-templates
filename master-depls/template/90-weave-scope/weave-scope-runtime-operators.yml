@@ -1,0 +1,21 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: weave-scope
+    version: 0.0.18
+
+- type: replace
+  path: /addons/-
+  value:
+    name: scope-probe
+    jobs:
+    - name: scope_probe
+      release: weave-scope
+      consumes:
+        weave_scope_app:
+          from: weave_scope_app
+          deployment: weave-scope
+    exclude:
+      deployments:
+      - ops-routing
+      - shield

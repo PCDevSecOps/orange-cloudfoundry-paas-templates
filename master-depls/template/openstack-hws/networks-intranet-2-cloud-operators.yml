@@ -1,0 +1,41 @@
+#--- Add intranet-2 interco network definition
+- type: replace
+  path: /networks/-
+  value:
+    name: intranet-2-interco
+    type: manual
+    subnets:
+    - range: ((/secrets/intranet_interco_2/range))
+      gateway: ((/secrets/intranet_interco_2/gateway))
+      az: z1
+      reserved:
+      - ((/secrets/intranet_interco_2/gateway)) #--- Exclude gateway
+      static:
+      - ((/secrets/intranet_interco_2/apps))    #--- vip apps
+      - ((/secrets/intranet_interco_2/to_intranet))
+
+      cloud_properties:
+        net_id: ((/secrets/intranet_interco_2/net_id))
+        security_groups:
+        - tf-default-sg
+        - tf-intranet-http-sg
+        - tf-intranet-https-sg
+
+#--- Add intranet-2 private network definition
+- type: replace
+  path: /networks/-
+  value:
+    name: tf-net-intranet-2
+    type: manual
+    subnets:
+    - range: 192.168.29.0/24
+      gateway: 192.168.29.1
+      azs: [z1,z2,z3]
+      reserved:
+      - 192.168.29.1 - 192.168.29.20          #--- Exclude dhcp address (see terraform )
+      static:
+      - 192.168.29.21 - 192.168.29.61
+      cloud_properties:
+        net_id: ((/tf/networks_net-intranet-2))
+        security_groups:
+        - tf-default-sg

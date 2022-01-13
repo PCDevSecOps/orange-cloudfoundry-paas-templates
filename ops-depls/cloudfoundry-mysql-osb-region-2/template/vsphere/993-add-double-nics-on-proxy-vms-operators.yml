@@ -1,0 +1,103 @@
+---
+#add double nic on proxy VM
+- type: replace
+  path: /instance_groups/name=proxy/networks/-
+  value:
+    name: tf-net-osb-data-plane-shared-priv
+    default: [dns,gateway]
+
+#--- Load os-conf release
+- type: replace
+  path: /releases/name=os-conf?
+  value:
+    name: os-conf
+    version: latest
+
+#--- Set system flag in order to allow traffic incoming on eth0 (public ip) and outcoming on eth1 (private ip)
+- type: replace
+  path: /instance_groups/name=proxy/jobs/-
+  value:
+    release: os-conf
+    name: sysctl
+    properties:
+      sysctl:
+        - net.ipv4.conf.all.rp_filter=2 #https://access.redhat.com/solutions/53031
+
+#--- Add scripting on proxy vm
+- type: replace
+  path: /instance_groups/name=proxy/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "pre-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        pre-stop-script: |
+          echo "pre-stop !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+
+#--- Set static routing in order to join proxy by using its public ip (eth0)
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=scripting/properties/scripting/pre-start-script
+  value: |
+
+    #--- Skip errors and initialize logs
+    set +e
+    > /var/vcap/sys/log/scripting/pre-start.stderr.log
+    > /var/vcap/sys/log/scripting/pre-start.stdout.log
+    GATEWAYS="((osb_shared_gateway_r2_ip))"
+
+    CHECK_EXISTS="$(ip route list | grep "10.0.0.0")"
+    if [ "${CHECK_EXISTS}" = "" ] ; then
+      added=0
+      for gateway in $(echo ${GATEWAYS} | tr "|" " "); do
+        sudo route add -net 10.0.0.0 netmask 255.0.0.0 gw ${gateway}
+        if [ $? = 0 ] ; then
+          echo "- $(date): Add route to 10.0.0.0/8 via ${gateway} succeeded."
+          added=1
+        else
+          echo "- $(date): Add route to 10.0.0.0/8 via ${gateway} failed."
+        fi
+      done
+      if [ ${added} = 0 ] ; then
+        echo "- $(date): No gateway added" ; exit 1
+      fi
+    fi #end existence check
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=scripting/properties/scripting/post-stop-script
+  value: |
+
+    #--- Skip errors and initialize logs
+    set +e
+    > /var/vcap/sys/log/scripting/post-stop.stderr.log
+    > /var/vcap/sys/log/scripting/post-stop.stdout.log
+    GATEWAYS="((osb_shared_gateway_r2_ip))"
+
+    CHECK_EXISTS="$(ip route list | grep "10.0.0.0")"
+    if [ "${CHECK_EXISTS}" != "" ] ; then
+      deleted=0
+      for gateway in $(echo ${GATEWAYS} | tr "|" " "); do
+        sudo route del -net 10.0.0.0 netmask 255.0.0.0 gw ${gateway}
+        if [ $? = 0 ] ; then
+          echo "- $(date): Delete route to 10.0.0.0/8 via ${gateway} succeeded."
+          deleted=1
+        else
+          echo "- $(date): Delete route to 10.0.0.0/8 via ${gateway} failed."
+        fi
+      done
+      if [ ${deleted} = 0 ] ; then
+        echo "- $(date): No gateway deleted" ; exit 1
+      fi
+    fi #end existence check

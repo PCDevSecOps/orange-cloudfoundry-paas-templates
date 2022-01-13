@@ -1,0 +1,45 @@
+# this is the bosh declaration of bootstrap base vms.
+- type: replace
+  path: /variables/-
+  value:
+    name: bootstrap_node_ssh_key
+    type: ssh
+
+# master node
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: vpn
+    vm_type: 2cpu-8g
+    persistent_disk_type: medium
+    stemcell: default
+    networks:
+    - name: ((network))
+      static_ips: [192.168.118.41] #set fixed ip to be usable as a gateway for R3 vms
+    azs: [r3-z1]
+    instances: 1
+    env:
+      bosh:
+        swap_size: 0
+        ipv6:
+          enable: false
+
+    jobs:
+    - name: jumpbox
+      release: jumpbox
+      properties: &jumpbox_properties
+        jumpbox:
+          one_time_setup: false
+          setup:
+            enabled: false
+            env:
+            - name: test-env
+              value: test-value
+
+          users:
+          - name: bootstrap
+            shell: /bin/bash
+            hosts:
+            - "localhost 127.0.0.1" #enables ssh tcp forwarding without ip v6 issues.(bosh-agent sets an ip v6 compatible /etc/hosts entry)
+            ssh_keys:
+              - ((bootstrap_node_ssh_key.public_key))

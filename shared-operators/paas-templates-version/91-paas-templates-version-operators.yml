@@ -1,0 +1,8 @@
+---
+# This adds the content of the paas-templates/meta.inf file as an extra tags "paas_templates_version"
+# which gets ignored by bosh director, but preserved in the resulting manifest.
+# The triggering of COA deployment jobs when paas-templates/meta.inf change is described into https://github.com/orange-cloudfoundry/paas-templates/issues/1366
+# This was also updated for V52.0.4
+- type: replace
+  path: /tags?/paas_templates_version?
+  value: ((paas-templates-version))

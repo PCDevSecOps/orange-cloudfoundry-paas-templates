@@ -1,0 +1,41 @@
+#--- Add bosh-dns job
+- type: replace
+  path: /instance_groups/name=inception/jobs/name=bosh-dns?
+  value:
+    name: bosh-dns
+    release: bosh-dns
+    properties:
+      cache:
+        enabled: true
+      health:
+        enabled: true
+        server:
+          tls:
+            ca: ((dns_healthcheck_server_tls.ca))
+            certificate: ((dns_healthcheck_server_tls.certificate))
+            private_key: ((dns_healthcheck_server_tls.private_key))
+        client:
+          tls:
+            ca: ((dns_healthcheck_client_tls.ca))
+            certificate: ((dns_healthcheck_client_tls.certificate))
+            private_key: ((dns_healthcheck_client_tls.private_key))
+      api:
+        server:
+          tls:
+            ca: ((dns_api_server_tls.ca))
+            certificate: ((dns_api_server_tls.certificate))
+            private_key: ((dns_api_server_tls.private_key))
+        client:
+          tls:
+            ca: ((dns_api_client_tls.ca))
+            certificate: ((dns_api_client_tls.certificate))
+            private_key: ((dns_api_client_tls.private_key))
+      aliases:
+        (( append ))
+
+      #--- Use dns-recursor for internal.paas domain
+      recursors:
+        - 192.168.116.156
+        - 192.168.116.166
+        - ((iaas_dns_1))
+        - ((iaas_dns_2))

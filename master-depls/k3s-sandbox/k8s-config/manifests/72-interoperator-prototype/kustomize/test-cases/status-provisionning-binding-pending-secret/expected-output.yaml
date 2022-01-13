@@ -1,0 +1,52 @@
+##################################################
+# Status template for provision call
+
+
+
+  
+    
+      
+    
+    
+  
+
+  
+
+provision:
+  state: succeeded
+# Status template for bind call
+# See spec at https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator-templates.md#supported-status-template-fields-for-bind-and-unbind-field
+
+
+
+  
+    
+    
+      
+    
+    
+  
+
+  
+
+  
+    
+
+bind:
+  state: in progress
+  response: '{"credentials":{"creationTimestamp":"2021-12-17T07:47:45Z","description":"Reason=ReconciliationSucceeded Message=Applied revision: master/7fb87ddca4cbd9b0613d3192b24f363776b73de1 LastTransitionTime=2021-12-15T10:29:46Z","password":"","uid":"b43b987c-b5ca-412d-b442-6aca91b84e8a","user":""}}'
+
+# Status template for unbind call
+
+  
+unbind:
+  state: in progress
+  error: ""
+# Status template for deprovision call
+
+  
+deprovision:
+  state: in progress
+  error: ""
+
+##################################################

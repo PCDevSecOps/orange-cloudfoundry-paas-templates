@@ -1,0 +1,26 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: federation-master-k8s
+    scrape_interval: 2m
+    scrape_timeout: 2m
+    honor_labels: true
+    metrics_path: /federate
+    params:
+      match[]:
+        - "{job='node_exporter'}"
+        - "{job='bosh-api-metrics-server'}"
+        - "{job='bosh-metrics-server'}"
+        - "{job='cf_minio_exporter'}"
+        - "{job='concourse_db_exporter'}"
+        - "{job='nats-exporter'}"
+        - "{job='probe/13-prometheus-master/probe-internet-proxy-200'}"
+        - "{job='probe/13-prometheus-master/probe-intranet-proxy'}"
+        - "{job='probe/13-prometheus-master/probe-no-proxy-200'}"
+        - "{job='probe/13-prometheus-master/probe-no-proxy-401'}"
+        - "{job='bosh-exporter'}"
+        - "{job='es-exporter'}"
+        - "{job='prometheus'}"
+    static_configs:
+      - targets:
+        - q-s0.agents.tf-net-exchange.00-supervision.bosh:30003

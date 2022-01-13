@@ -1,0 +1,38 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vcluster
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/loft-sh/vcluster/tree/main/chart"
+
+spec:
+  chart:
+    spec:
+      chart: vcluster
+      version: 0.4.1
+      interval: 5m
+      sourceRef:
+        kind: HelmRepository
+        name: loft
+
+  install:
+    crds: Create
+  interval: 3m
+  upgrade:
+    crds: CreateReplace
+  values:
+    #see https://www.vcluster.com/docs/config-reference#control-plane-k3s
+    vcluster:
+      #image: rancher/k3s:v1.21.0-k3s1 #default for vcluster 0.3.3
+      image: rancher/k3s:v1.20.9-k3s1 #k3s bosh release 18
+      extraArgs: []
+      #- --service-cidr=10.96.0.0/12
+    #see https://www.vcluster.com/docs/config-reference#syncer-flags
+    syncer: 
+      extraArgs:
+      - --fake-persistent-volumes=false
+    #vcluster k3s storage
+    storage:
+      persistence: true
+      className: longhorn
+

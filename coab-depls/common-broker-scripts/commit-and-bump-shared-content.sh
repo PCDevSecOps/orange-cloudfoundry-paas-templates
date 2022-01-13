@@ -1,0 +1,1 @@
+../../shared-operators/k8s-kustomize-bases/common-broker-scripts/commit-and-bump-shared-content.sh

@@ -1,0 +1,44 @@
+---
+#replace deployment name
+- type: replace
+  path: /name
+  value: ((deployment_name))
+
+# add job section
+- type: replace
+  path: /instance_groups/name=broker/jobs/-
+  value:
+    name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+
+          - script:
+              name: discovery.sh
+              contents: |
+
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Start discovery file pulling "
+
+                #curl -X GET http://192.168.99.150:9095 > /tmp/bosh_target_groups.json
+                curl -X GET http://prometheus-coab.internal.paas:9095 > /tmp/bosh_target_groups.json
+
+                cat /tmp/bosh_target_groups.json
+
+                echo "- End discovery file pulling "
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+            log: /var/vcap/sys/log/cron/discovery.log
+            lock: /var/vcap/sys/run/cron/discovery.lock
+            day: '*'
+            hour: '*'
+            minute: '*/5'
+            month: '*'
+            user: root
+            wday: '*'

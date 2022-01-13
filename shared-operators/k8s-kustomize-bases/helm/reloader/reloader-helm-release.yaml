@@ -1,0 +1,23 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: reloader
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/stakater/Reloader/blob/master/deployments/kubernetes/chart/reloader/values.yaml"
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: reloader
+      version: "v0.0.103"
+      sourceRef:
+        kind: HelmRepository
+        name: stakater-repo #direct internet access helm repo to avoid cyclid dep
+        namespace: jcr
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values: {}
+

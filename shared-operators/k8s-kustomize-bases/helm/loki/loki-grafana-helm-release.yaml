@@ -1,0 +1,44 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: loki-grafana
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/grafana/helm-charts/tree/main/charts"
+
+spec:
+  interval: 4m
+  chart:
+    spec:
+      chart: grafana
+      version: 6.15.0 #((helm_grafana))
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  #see https://github.com/grafana/helm-charts/blob/main/charts/grafana/values.yaml
+  values:
+    persistence:
+      enabled: true
+      size: 10Gi
+    ldap:
+      enabled: true
+      existingSecret: "grafana-ldap"
+    grafana.ini:
+      auth.ldap:
+        enabled: true
+        allow_sign_up: true
+        config_file: /etc/grafana/ldap.toml
+    #proxy config to access internet dashboard from grafana ui
+    env:
+      https_proxy: http://system-internet-http-proxy.internal.paas:3128
+      no_proxy: "127.0.0.1,localhost,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.internal.paas,.cluster.local."
+    downloadDashboards:
+      env:
+        https_proxy: http://system-internet-http-proxy.internal.paas:3128
+        no_proxy: "127.0.0.1,localhost,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.internal.paas,.cluster.local."
+

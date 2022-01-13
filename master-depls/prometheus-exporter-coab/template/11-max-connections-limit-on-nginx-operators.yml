@@ -1,0 +1,6 @@
+# Limit concurrent connection on prometheus via nginx
+# as of v51, this limits service instance embedded prometheus federate (getting metrics from central prometheus-exporter-coabs metrics).
+# note that federation from master-depls/prometheus with prometheus-coab bosh-dns alias target directly. This ops file prioritize operators métrics versus end users prometheus/grafana dashboards
+- type: replace
+  path: /instance_groups/name=nginx/jobs/name=nginx/properties/nginx/worker_connections?
+  value: 50

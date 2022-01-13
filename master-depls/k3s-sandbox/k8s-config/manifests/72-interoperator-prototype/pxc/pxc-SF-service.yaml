@@ -1,0 +1,46 @@
+# kafka service definition
+apiVersion: osb.servicefabrik.io/v1alpha1
+kind: SFService
+metadata:
+  # Name maps to the name of the OSB Service.
+  name: &id '24731fb8-7b84-5f57-914f-c3d55d793dd4'
+spec:
+  # Name of the OSB Service.
+  name: &name pxc
+
+  # Id of the OSB Service.
+  id: *id
+
+  # Description of the OSB Service.
+  description: &description 'PerconaXtraDBCluster Mysql'
+
+  # The following details map one-to-one with the data in the OSB service offering objects in the OSB /v2/catalog response.
+  tags:
+  - 'Mysql'
+  requires: []
+  bindable: true
+  instancesRetrievable: true
+  bindingsRetrievable: true
+  metadata:
+    displayName: 'pxc mysql'
+    longDescription: 'PerconaXtraDBCluster Mysql' #*description
+    providerDisplayName: 'Percona'
+    documentationUrl: 'https://github.com/percona/percona-xtradb-cluster-operator'
+    supportUrl: 'https://github.com/percona/percona-xtradb-cluster-operator'
+# Don't y declare a dashboard client since we don't yet expose a ui, and the dashboard client needs to be declared
+# in master-depls/cf or auto-declared
+#  dashboardClient:
+#    id: postgresql-dashboard-client-id
+#    secret: postgresql-dashboard-client-secret
+#    redirectUri: 'https://sap.com/' ##not recognized
+  planUpdatable: false #TBC
+
+  # The following details are context input for Service Fabrik and the individual service operators.
+  context:
+    serviceFabrik:
+      backupEnabled: false
+    operator:
+      image: "servicefabrikjenkins/blueprint"
+      tag: "latest"
+      port: 8080
+

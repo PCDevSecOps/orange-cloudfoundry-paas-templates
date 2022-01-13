@@ -1,0 +1,4 @@
+#scale bosh-coab disk (bigger and performant disk on openstack hws)
+- type: replace
+  path: /instance_groups/name=bosh/persistent_disk_type?
+  value: xlarge-performant

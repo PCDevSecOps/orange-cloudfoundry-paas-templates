@@ -1,0 +1,59 @@
+# starting with k8S 1.21
+#apiVersion: batch/v1
+#Up to K8S 1.19
+#More into https://stackoverflow.com/a/67521713/1484823
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: osb-smoke-test
+spec:
+# currently triggering manually
+  schedule: "0 8 * * *"
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 60
+      template:
+        spec:
+          volumes:
+          - name: common-broker-scripts
+            configMap:
+              name: common-broker-scripts
+              defaultMode: 0777
+          containers:
+          - name: osb-smoke-test
+            # Image is same than coa cf-apps-generated see cf-ops-automation/concourse/tasks/post_bosh_deploy.yml
+            image: governmentpaas/cf-cli:469ceea7a619b0abdd6cb27efd4d3bd5e9be3ddb
+            securityContext:
+              runAsUser: 0
+            command:
+              - '/bin/sh'
+              - '-c'
+              - '/scripts/osb-smoke-test-cronjob-script.sh'
+            # expose all envs from the configmap. https://kubernetes.io/docs/tasks/configure-pod-container/configure-pod-configmap/#configure-all-key-value-pairs-in-a-configmap-as-container-environment-variables
+            envFrom:
+              - configMapRef:
+                  name: osb-smoke-test-envs
+            volumeMounts:
+              - mountPath: "/scripts/osb-smoke-test-cronjob-script.sh"
+                subPath: osb-smoke-test-cronjob-script.sh
+                name: common-broker-scripts
+              - mountPath: "/scripts/common-lib.bash"
+                subPath: common-lib.bash
+                name: common-broker-scripts
+              - mountPath: "/scripts/post-deploy.sh"
+                subPath: post-deploy.sh
+                name: common-broker-scripts
+              - mountPath: "/scripts/svcat-functions.bash"
+                subPath: svcat-functions.bash
+                name: common-broker-scripts
+              - mountPath: "/scripts/setup_interactive_debug_env.bash"
+                subPath: setup_interactive_debug_env.bash
+                name: common-broker-scripts
+          restartPolicy: Never
+      backoffLimit: 4
+
+
+
+
+
+

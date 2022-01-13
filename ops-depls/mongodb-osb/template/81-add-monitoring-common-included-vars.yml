@@ -1,0 +1,3 @@
+#colocate prometheus jobs with existing kafka instance groups
+monitoring_include_release: generic-taint-jobs
+monitoring_include_job: persistent-taint

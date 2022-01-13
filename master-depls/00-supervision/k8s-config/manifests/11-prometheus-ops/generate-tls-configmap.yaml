@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: generate-tls
+data:
+  entrypoint.sh: |
+    #!/usr/bin/env bash
+    echo "start generate tls information"
+    set -x debug
+    set -e #fail on errors
+
+    #--- Set metrics server certs for prometheus
+    echo "- Set metrics server certs for prometheus."
+    echo "((/bosh-master/bosh-ops/metrics_server_client_tls.ca))" > /tmp/metrics_server_ca.crt
+    echo "((/bosh-master/bosh-ops/metrics_server_client_tls.certificate))" > /tmp/metrics_server_cert.crt
+    echo "((/bosh-master/bosh-ops/metrics_server_client_tls.private_key))" > /tmp/metrics_server_key.crt
+    echo "((/secrets/certs/intranet-ca))" > /tmp/intranet.crt
+
+    echo "end generate tls information"
+

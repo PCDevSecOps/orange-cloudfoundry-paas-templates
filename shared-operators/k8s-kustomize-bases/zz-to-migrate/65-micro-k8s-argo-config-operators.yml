@@ -1,0 +1,16 @@
+#use argocd to create a argo cluster
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "micro-k8s-argocd"
+    cmd: "apply"
+    content:
+      apiVersion: argoproj.io/v1alpha1
+      kind: ArgoCD
+      metadata:
+        name: micro-k8s-argocd
+        labels:
+          example: basic
+      spec: {}

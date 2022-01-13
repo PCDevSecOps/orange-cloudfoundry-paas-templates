@@ -1,0 +1,13 @@
+#let vpshere cpi use intranet http proxy
+- path: /instance_groups/name=bosh/properties/env?/http_proxy?
+  type: replace
+  value: http://system-internet-http-proxy.internal.paas:3128
+
+- path: /instance_groups/name=bosh/properties/env?/https_proxy?
+  type: replace
+  value: http://system-internet-http-proxy.internal.paas:3128
+
+#avoid using proxy for private access
+- path: /instance_groups/name=bosh/properties/env?/no_proxy?
+  type: replace
+  value: 127.0.0.1,localhost,((internal_ip)),.internal.paas,.((/secrets/cloudfoundry_ops_domain)),.nor.fr.intraorange

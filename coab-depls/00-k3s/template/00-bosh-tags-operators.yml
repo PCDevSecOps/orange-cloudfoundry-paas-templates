@@ -1,0 +1,8 @@
+# define coab broker provided vars as bosh cpi tags for audit trail
+- type: replace
+  path: /tags?
+  value:
+    deployment_name: ((deployment_name))
+    instance_id: ((instance_id))
+    service_id: ((service_id))
+    plan_id: ((plan_id))

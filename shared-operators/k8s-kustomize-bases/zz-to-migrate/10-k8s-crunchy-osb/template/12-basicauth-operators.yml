@@ -1,0 +1,16 @@
+- type: replace
+  path: /variables?/-
+  value:
+    name: pgo_osb_password
+    type: password
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: basic_auth_secret
+    name: pgo-osb-basicauth
+    namespace: ((namespace))
+    user: admin
+    password: ((pgo_osb_password))
+
+

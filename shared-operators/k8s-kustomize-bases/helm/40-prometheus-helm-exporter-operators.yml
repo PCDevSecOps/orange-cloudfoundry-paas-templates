@@ -1,0 +1,24 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: sstarcher
+    url:  https://shanestarcher.com/helm-charts/
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: helm-exporter
+    chart: sstarcher/helm-exporter
+    namespace: kube-system
+    version: ((helm_helm_exporter))
+    values_file_content:
+      service:
+        type: NodePort
+        port: 39080
+      config:
+        helmRegistries:
+          override:
+          - registry:
+              url: https://jcr.((/secrets/cloudfoundry_ops_domain))/artifactory/helm

@@ -1,0 +1,13 @@
+---
+deployment:
+  prometheus-exporter-coab:
+    resources:
+      templates:
+        extended_scan_path:
+        - submodules/prometheus-boshrelease
+        - shared-operators/paas-templates-version
+    releases:
+      prometheus:
+      postgres:
+      routing:
+      nginx:

@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: es-exporter
+  labels:
+    app: es-exporter
+spec:
+  selector:
+    matchLabels:
+      app: es-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: es-exporter
+    spec:
+      containers:
+        - name: es-exporter
+          image: prometheuscommunity/elasticsearch-exporter:v1.3.0
+          ports:
+            - containerPort: 9114
+          args:
+            - "--es.uri=http://es-master-ops.internal.paas:9200"
+            - "--es.all"
+          volumeMounts:
+            - name: cert-volume
+              mountPath: /etc/ssl/certs
+      volumes:
+        - name: cert-volume
+          hostPath:
+            path: /etc/ssl/certs
+            type: Directory

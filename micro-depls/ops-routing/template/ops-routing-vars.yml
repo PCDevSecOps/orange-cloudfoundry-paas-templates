@@ -1,0 +1,2 @@
+network: net-bosh-2
+ops_domain: ((/secrets/cloudfoundry_ops_domain))

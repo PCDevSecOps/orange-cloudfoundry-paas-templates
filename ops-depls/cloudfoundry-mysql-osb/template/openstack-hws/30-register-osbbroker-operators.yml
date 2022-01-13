@@ -1,0 +1,58 @@
+- type: replace
+  path: /instance_groups/name=broker/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/bash
+          echo "pre-start !!"
+
+        post-start-script: |
+          #!/bin/bash
+          echo "post-start !!"
+
+        post-stop-script: |
+          #!/bin/bash
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          #!/bin/bash
+          echo "post-deploy !!"
+
+          #--- Set scripting tmp directory
+          TMP_SCRIPTING="/var/vcap/data/tmp/scripting"
+          rm -fr ${TMP_SCRIPTING} > /dev/null 2>&1 ; mkdir ${TMP_SCRIPTING}
+          echo "begin" > ${TMP_SCRIPTING}/post-deploy.log
+
+          #--- Connect to CF as admin
+          export PATH=$PATH:/var/vcap/jobs/cf-cli-6-linux/packages/cf-cli-6-linux/bin
+          cf api ((cf_api_url)) --skip-ssl-validation
+          cf auth admin ((cf_admin_password))
+          if [ $? != 0 ] ; then
+            echo "connect to cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+          else
+            echo "connect to cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+          fi
+
+          #--- Register broker or update its registration
+          service=$( cf service-brokers | grep "mariadb-shared" | wc -l)
+          if [ $service -eq 0 ] ; then
+            cf create-service-broker mariadb-shared cc ((cf_mysql_broker_auth_password)) https://p-mysql.((/secrets/osb_interco/osb_domain))
+          else
+            cf update-service-broker mariadb-shared cc ((cf_mysql_broker_auth_password)) https://p-mysql.((/secrets/osb_interco/osb_domain))
+          fi
+          if [ $? != 0 ] ; then
+            echo "register (create or update) in cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+          else
+            echo "register (create or update) in cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+          fi
+          cf enable-service-access mariadb-shared
+          if [ $? != 0 ] ; then
+            echo "enable access in cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+          else
+            echo "enable access in cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+          fi
+
+          echo "end" >> ${TMP_SCRIPTING}/post-deploy.log

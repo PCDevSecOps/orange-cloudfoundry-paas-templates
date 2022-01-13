@@ -1,0 +1,45 @@
+---
+helm_akhq: "0.2.2" #https://artifacthub.io/packages/helm/akhq/akhq 0.2.2 / 0.18.0
+helm_artifactory: "3.4.1" #https://artifacthub.io/packages/helm/jfrog/artifactory-jcr 4.0.0
+helm_catalog: "0.3.1"
+helm_cf_operator: "v7.1.3-0.g0ce050b"
+helm_coredns: "1.15.0"
+helm_concourse: "15.5.0" #https://artifacthub.io/packages/helm/concourse/concourse 15.5.0 / 7.3.1
+helm_consul: "0.31.1"
+helm_crossplane: "1.2.1" #https://github.com/crossplane/crossplane/releases/tag/v1.2.1
+helm_elasticsearch_exporter: "4.0.1"
+helm_externaldns: "5.1.3" #https://github.com/bitnami/charts/tree/master/bitnami/external-dns
+helm_falco: "1.1.8"
+helm_gitea: "2.0.2"
+helm_grafana: "6.1.13"
+helm_gitlab: "4.6.1" #https://artifacthub.io/packages/helm/gitlab/gitlab 4.11.3 / 13.11.3
+helm_interoperator: "0.15.0" #https://github.com/cloudfoundry-incubator/service-fabrik-broker/releases/tag/v0.15.0
+helm_isaaguilar_terraform_operator: "v0.1.13" #chart for v0.3.6
+helm_kubecf: "2.7.12"
+helm_kube_obs_view: "1.2.1"
+helm_kube_state_metrics: "2.8.13"
+helm_kube_state_metrics_by_bitnamy: "1.1.3"
+helm_kubeapps: "6.0.0" #https://artifacthub.io/packages/helm/bitnami/kubeapps 6.1.2 / 2.3.2
+helm_helm_operator: "1.2.0"
+helm_kafka_manager: "2.3.2"
+helm_kubernetes_dashboard: "2.8.1"
+helm_kyverno: "2.0.2" #matches kyverno 1.4.2 
+helm_kibana: "7.8.1"
+helm_loki_stack: "2.3.1"
+helm_longhorn: "1.1.2" #https://artifacthub.io/packages/helm/longhorn/longhorn 1.1.2/1.1.2
+helm_metallb: "2.4.2" #https://artifacthub.io/packages/helm/bitnami/metallb 2.4.2 / 0.10.0
+helm_minio: "8.0.9"   #https://artifacthub.io/packages/helm/minio/minio 8.0.10
+helm_ingress_nginx: "3.30.0" #https://artifacthub.io/packages/helm/ingress-nginx/ingress-nginx 3.30.0 / 0.46.0
+helm_oauth2: "3.2.3" #https://artifacthub.io/packages/helm/oauth2-proxy/oauth2-proxy 3.2.10 / 5.1.0
+helm_opendistro: "1.13.0"
+helm_prometheus: "13.0.2"
+helm_prometheus_node_exporter: "1.12.0"
+helm_pxc_operator: "0.1.11" #app 1.7.0
+helm_rancher: "2.5.8" #https://artifacthub.io/packages/helm/rancher-stable/rancher  2.5.8
+helm_stratos: "4.4.0"
+helm_strimzi: "0.23.0" #https://artifacthub.io/packages/olm/community-operators/strimzi-kafka-operator 0.23.0
+helm_traefik: "9.19.1" #https://artifacthub.io/packages/helm/traefik/traefik 9.19.1 / 2.4.8
+helm_velero: "2.12.13"
+helm_worlds-simplest-service-broker: 1.3.3
+helm_rundeck: "0.3.4"
+helm_vcluster: "0.3.0"

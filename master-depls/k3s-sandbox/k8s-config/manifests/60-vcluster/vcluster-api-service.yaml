@@ -1,0 +1,25 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+  name: vcluster-ingress
+spec:
+  tls:
+  - hosts:
+    - vcluster-sandbox.((/secrets/cloudfoundry_ops_domain))
+
+  rules:
+  - host: vcluster-sandbox.((/secrets/cloudfoundry_ops_domain))
+    http:
+      paths:
+      - path: /
+        pathType: Exact
+        backend:
+          service:
+            name: vcluster
+            port:
+              number: 443

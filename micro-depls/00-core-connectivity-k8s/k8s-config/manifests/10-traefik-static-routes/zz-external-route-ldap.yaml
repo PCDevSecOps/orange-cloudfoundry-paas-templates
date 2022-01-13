@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: routingmapldap
+  namespace: traefik
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  entryPoints:
+  - ldap
+  routes:
+  - match: HostSNI(`*`)
+    kind: Rule
+    priority: 10
+    services:
+    - name: ci-k8s
+      namespace: traefik
+      kind: Service
+      port: 389

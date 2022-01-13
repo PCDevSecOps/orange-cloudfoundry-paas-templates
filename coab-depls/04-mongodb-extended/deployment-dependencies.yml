@@ -1,0 +1,41 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+          - coab-depls/04-mongodb-extended
+          - shared-operators/multi-region-common/04-mongodb-extended
+          - shared-operators/coab/monitoring-operators
+          - shared-operators/paas-templates-version
+          - shared-operators/coab/coa-hooks
+    releases:
+      prometheus:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry-community/prometheus-boshrelease
+      routing:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/routing-release
+      shield:
+        base_location: https://bosh.io/d/github.com/
+        repository: starkandwayne/shield-boshrelease
+      bosh-dns-aliases:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/bosh-dns-aliases-release
+      generic-scripting:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/generic-scripting-release
+      mongodb-services:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/mongodb-boshrelease
+      minio:
+        base_location: https://bosh.io/d/github.com/
+        repository: minio/minio-boshrelease
+      orange-prometheus-addons:
+        base_location: https://bosh.io/d/github.com/
+        repository: orange-cloudfoundry/orange-prometheus-addons-boshrelease
+      cron:
+      haproxy:
+    errands:
+      import:
+        display-name: provisioning

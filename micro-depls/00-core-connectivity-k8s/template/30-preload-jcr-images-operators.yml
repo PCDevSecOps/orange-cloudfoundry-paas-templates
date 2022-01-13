@@ -1,0 +1,56 @@
+# create namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: preload-jcr-images
+
+# preload daemonset ---------------------------------------------
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "preload-jcr-images-daemonset"
+    cmd: "apply"
+    content:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: preload-jcr-images-daemonset
+        namespace: preload-jcr-images
+      spec:
+        selector:
+          matchLabels:
+            app: preload-jcr-images
+        template:
+          metadata:
+            labels:
+              name: preload-jcr-images
+              app: preload-jcr-images
+          spec:
+            initContainers:
+            
+            - image: releases-docker.jfrog.io/bitnami/postgresql:13.2.0-debian-10-r55 
+              name: preload-jcr-postgres-image
+              command:
+              - echo
+              - "done preloading postgres"
+              
+            - image: releases-docker.jfrog.io/jfrog/artifactory-jcr:7.27.10
+              name: preload-jcr-artifactory-image
+              command:
+              - echo
+              - "done preloading artifactory"
+            containers:
+            - image: "rancher/pause:3.1"
+              name: pause
+
+#wait for DaemonSet to be available (time for the image to download from internet, jcr to k3s)
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "preload-jcr-images-daemonset-wait"
+    cmd: "rollout"
+    options: "status daemonset -n preload-jcr-images    preload-jcr-images-daemonset  --timeout 600s" #https://starkandwayne.com/blog/silly-kubectl-trick-5-waiting-for-things-to-finish-up-2/
+

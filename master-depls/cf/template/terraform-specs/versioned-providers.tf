@@ -1,0 +1,1 @@
+../../../../shared-operators/00-terraform/versioned-providers.tf

@@ -1,0 +1,33 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: kube-prometheus-stack
+  annotations:
+    paas-templates-helm-source-url: "https://artifacthub.io/packages/helm/prometheus-community/kube-prometheus-stack"
+
+spec:
+  chart:
+    spec:
+      chart: kube-prometheus-stack
+      version: 18.0.3
+      interval: 10m
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+
+#      sourceRef:
+#        kind: HelmRepository
+#        name: kube-prometheus-stack
+
+  install:
+    crds: Create
+  interval: 10m
+  timeout: 10m
+  upgrade:
+    crds: CreateReplace
+  values:
+    nodeExporter:
+      enabled: false #avoid conflict with bosh node exporter
+    prometheusOperator:
+      logLevel: debug

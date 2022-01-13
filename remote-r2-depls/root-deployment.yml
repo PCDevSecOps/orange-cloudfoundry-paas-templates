@@ -1,0 +1,30 @@
+---
+name: remote-r2-depls
+releases:
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.29.0
+  bosh-dns-aliases:
+    repository: cloudfoundry/bosh-dns-aliases-release
+    version: 0.0.4
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  jumpbox:
+    version: 4.6.4
+    repository: cloudfoundry-community/jumpbox-boshrelease
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 5.0.0
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 22.1.1
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.7.5
+  wireguard:
+    repository: orange-cloudfoundry/wireguard-boshrelease
+    version: '6'
+    tag_prefix: ''
+stemcell:
+  version: '1.51'

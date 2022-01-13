@@ -1,0 +1,15 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: ci-k8s-longhorn-ui
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: HostSNI(`longhorn-ui-ci-k8s.((/secrets/cloudfoundry_ops_domain))`)
+    services:
+    - name: ci-k8s
+      port: 443
+  tls:
+    passthrough: true

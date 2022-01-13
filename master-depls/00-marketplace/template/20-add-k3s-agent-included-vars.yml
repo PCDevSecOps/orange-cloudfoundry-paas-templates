@@ -1,0 +1,2 @@
+agent_addon_include_release: generic-taint-jobs
+agent_addon_include_job: slave-taint

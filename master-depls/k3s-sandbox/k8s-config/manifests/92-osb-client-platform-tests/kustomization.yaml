@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 92-osb-client-platform-tests
+resources:
+- osb-client-plateform-tests-ns.yaml
+# one-off execution
+# TODO: find a way to trigger. See https://github.com/fluxcd/flux2/discussions/1879
+#- osb-smoke-test-job.yaml
+# designed to trigger interactively
+- osb-smoke-test-cronjob.yaml
+# Osb tests are performed by common-broker-scripts
+#- service-instance.yaml
+#- pxc-service-instance.yaml
+
+# Mount common-broker-scripts as config maps to execute them in cronjobs
+# See https://kubectl.docs.kubernetes.io/references/kustomize/configmapgenerator/#configmap-from-file
+configMapGenerator:
+  - name: common-broker-scripts
+    files:
+      - ../../../../../shared-operators/k8s-kustomize-bases/common-broker-scripts/osb-smoke-test-cronjob-script.sh
+      - ../../../../../shared-operators/k8s-kustomize-bases/common-broker-scripts/common-lib.bash
+      - ../../../../../shared-operators/k8s-kustomize-bases/common-broker-scripts/post-deploy.sh
+      - ../../../../../shared-operators/k8s-kustomize-bases/common-broker-scripts/svcat-functions.bash
+      - ../../../../../shared-operators/k8s-kustomize-bases/common-broker-scripts/setup_interactive_debug_env.bash
+
+  - name: osb-smoke-test-envs
+    env:
+      osb-smoke-test.env

@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: prometheus-service-monitor
+  labels:
+    team: ${team}
+spec:
+  selector:
+    matchLabels:
+      app: prometheus # service label
+  endpoints:
+    - path: /metrics
+      port: web            # must be the name of the service port
+#      interval: 30s         # scrape the endpoint every 30 seconds
+#  namespaceSelector:
+#    matchNames:
+#      - ${namespace}

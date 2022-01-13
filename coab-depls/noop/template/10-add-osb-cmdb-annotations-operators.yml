@@ -1,0 +1,27 @@
+---
+- type: replace
+  path: /defaulted_coab_vars_orange_annotation_basicat?
+  value: ((osb_client_orange_annotation_basicat)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+- type: replace
+  path: /defaulted_coab_vars_orange_annotation_entity?
+  value: ((osb_client_orange_annotation_entity)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+- type: replace
+  path: /defaulted_coab_vars_orange_annotation_orangecarto?
+  value: ((osb_client_orange_annotation_orangecarto)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+- type: replace
+  path: /defaulted_coab_vars_orange_annotation_mod26e?
+  value: ((osb_client_orange_annotation_mod26e)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+- type: replace
+  path: /defaulted_coab_vars_orange_annotation_production?
+  value: ((osb_client_orange_annotation_production)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+- type: replace
+  path: /defaulted_coab_vars_osb_client_cf_orgName?
+  value: ((osb_client_cf_org_name)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+- type: replace
+  path: /defaulted_coab_vars_osb_client_cf_spaceName?
+  value: ((osb_client_cf_space_name)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+- type: replace
+  path: /defaulted_coab_vars_osb_client_cf_instanceName?
+  value: ((osb_client_cf_instance_name)) # fetched from extracted-osb-cmdb-params-for-coab-vars.yml
+
+

@@ -1,0 +1,6 @@
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((rancher-longhorn-app-tf))
+
+

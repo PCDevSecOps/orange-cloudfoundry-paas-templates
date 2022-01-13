@@ -1,0 +1,19 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/docker-images
+        - shared-operators/k8s-common
+        - shared-operators/k3s
+        - master-depls/metabase/template/70-enable-bi-cdc-event-infra/k8s-manifests
+    releases:
+      docker:
+      bosh-dns-aliases:
+      k3s:
+      jumpbox:
+    errands:
+      action:
+        display-name: apply-k8s
+

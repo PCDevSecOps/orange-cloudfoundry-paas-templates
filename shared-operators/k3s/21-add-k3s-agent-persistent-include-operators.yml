@@ -1,0 +1,6 @@
+- type: replace
+  path: /addons/name=20-add-agents-persistent/include/jobs/-
+  value:
+    release: ((agent_persistent_addon_include_release))
+    name: ((agent_persistent_addon_include_job))
+

@@ -1,0 +1,34 @@
+---
+#--- add routing
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+#--- add bosh-dns-alias release
+- type: replace
+  path: /releases/name=bosh-dns-aliases?
+  value:
+    name: bosh-dns-aliases
+    version: latest
+
+#--- add generic-scripting release
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: latest
+
+#--- Load os-conf release
+- type: replace
+  path: /releases/name=os-conf?
+  value:
+    name: os-conf
+    version: latest
+
+- type: replace
+  path: /releases/name=cron?
+  value:
+    name: cron
+    version: latest

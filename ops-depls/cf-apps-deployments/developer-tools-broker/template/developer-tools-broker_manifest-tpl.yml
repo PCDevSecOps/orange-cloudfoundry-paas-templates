@@ -1,0 +1,40 @@
+---
+applications:
+#Inspired from https://github.com/orange-cloudfoundry/static-creds-broker/blob/master/manifest.tmpl.yaml-config.yml
+- name: developer-tools-broker
+  instances: 1
+  path: static-creds-broker.jar
+  memory: 1G
+  stack: cflinuxfs3
+  routes:
+    - route: (( concat "developer-tools-broker." secrets.cloudfoundry.system_domain ))
+  timeout: 180
+  buildpacks:
+    - java_buildpack
+
+  env:
+    # broker basic auth user used by OSB clients to access OSB API
+    SECURITY_USER_NAME: (( grab secrets.developer-tools-broker.name ))
+    # broker basic auth password. Declaration controlled in credhub-var-broker-password.json dynamically file
+    SECURITY_USER_PASSWORD: "((broker-password))" # credhub namespaced into /${root_deployment}/cf-apps-deployments/${deployment}
+
+    SPRING_PROFILES_ACTIVE: native
+    JAVA_OPTS: "-Djava.security.egd=file:///dev/urandom"
+
+    # Loading yaml file that static-cred-broker expects as a string in the APPLICATION_YML environment variable
+    # the catalog.yml is located in secrets repo to ease its editing (i.e. does not require a feature branch to be merged)
+    APPLICATION_YML: (( file "./secrets/catalog.yml" ))
+
+# TODO: Future static http resources serving
+#- name: developer-tools-statics
+#  instances: 1
+#  path: static/
+#  memory: 1G
+#  stack: cflinuxfs3
+#  routes:
+#    - route: (( concat "developer-tools-statics." secrets.cloudfoundry.system_domain ))
+#  timeout: 180
+#  buildpacks:
+#    - java_buildpack
+#
+

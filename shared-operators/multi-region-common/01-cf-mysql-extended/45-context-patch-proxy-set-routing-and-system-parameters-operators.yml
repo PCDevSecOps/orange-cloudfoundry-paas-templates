@@ -1,0 +1,230 @@
+---
+#--- Load os-conf release
+- type: replace
+  path: /releases/name=os-conf?
+  value:
+    name: os-conf
+    version: latest
+
+#--- Set system flag in order to allow traffic incoming on eth0 (public ip) and outcoming on eth1 (private ip)
+- type: replace
+  path: /instance_groups/name=proxy/jobs/-
+  value:
+    release: os-conf
+    name: sysctl
+    properties:
+      sysctl:
+        - net.ipv4.conf.all.rp_filter=2 #https://access.redhat.com/solutions/53031
+
+
+#--- Set static routing in order to join proxy by using its public ip (eth0)
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=scripting?
+  value:
+    name: scripting
+    properties:
+      scripting:
+        pre-start-script: |
+
+          #--- Initialize context
+          echo "- Start pre-start"
+          > /var/vcap/sys/log/scripting/pre-start.stderr.log
+          > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+          set +e
+
+          GATEWAYS="((osb_dedicated_gateway_r1_ip))|((osb_dedicated_gateway_r2_ip))|((osb_dedicated_gateway_extension_r1_ip))|((osb_dedicated_gateway_extension_r2_ip))"
+
+          CHECK_EXISTS="$(ip route list | grep "10.0.0.0")"
+          if [ "${CHECK_EXISTS}" = "" ] ; then
+            added=0
+            for gateway in $(echo ${GATEWAYS} | tr "|" " "); do
+              sudo route add -net 10.0.0.0 netmask 255.0.0.0 gw ${gateway}
+              if [ $? = 0 ] ; then
+                echo "- $(date): Add route to 10.0.0.0/8 via ${gateway} succeeded."
+                added=1
+              else
+                echo "- $(date): Add route to 10.0.0.0/8 via ${gateway} failed."
+              fi
+            done
+            if [ ${added} = 0 ] ; then
+              echo "- $(date): No gateway added" ; exit 1
+            fi
+          fi #end existence check
+
+        post-start-script: |
+
+          #--- Skip errors and initialize logs
+          > /var/vcap/sys/log/scripting/post-start.stderr.log
+          > /var/vcap/sys/log/scripting/post-start.stdout.log
+
+          set +e
+
+          #-------------------------------------
+          #--- Retrieve ip
+          #-------------------------------------
+          echo "- Start retrieve ip"
+          ip=$(hostname -I | grep -oE '10.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}') #retrieve only public ip
+          echo "ip is ${ip}"
+          echo "- End retrieve ip"
+
+          #-------------------------------------
+          #--- Retrieve index
+          #-------------------------------------
+          echo "- Start retrieve index"
+          #10.118.42.211 82457ecc-4cbd-41db-8ec7-467693ae9bf4.proxy.tf-net-osb-data-plane-dedicated-pub.t-14f055a1-22af-4ee9-b15e-f281d61075b8.bosh
+          #10.118.42.211 1.proxy.tf-net-osb-data-plane-dedicated-pub.t-14f055a1-22af-4ee9-b15e-f281d61075b8.bosh
+          index=$(cat /etc/hosts | grep ${ip} | cut -d ' ' -f 2 | grep -o '^[0-1]\.proxy' | cut -d '.' -f 1)
+          echo "index is ${index}"
+          echo "- End retrieve index"
+
+          #-------------------------------------
+          #--- Generate nsupdate file
+          #-------------------------------------
+          echo "- Start nsupdate file generation"
+          cat <<EOF > /tmp/nsupdate.txt
+          server ((/secrets/multi_region_region_1_rfc2136_host))
+          zone ((/secrets/multi_region_region_1_rfc2136_zone_backend_services))
+          key hmac-sha256:((/secrets/multi_region_region_1_rfc2136_tsigKeyname)) ((/secrets/multi_region_region_1_rfc2136_tsigSecret))
+          update add ((instance_id))-${index}.((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) 28800 A ${ip}
+          show
+          send
+          EOF
+          echo "- End nsupdate file generation"
+
+          #-------------------------------------
+          #--- Add record in DNS
+          #-------------------------------------
+          echo "- Start add record"
+          nsupdate -v /tmp/nsupdate.txt
+          if [ $? -ne 0 ]; then
+          echo "- nsupdate command failure"
+          exit 1
+          fi
+          echo "- End add record"
+
+          #-------------------------------------
+          #--- Assert record has been added (need ip and index)
+          #-------------------------------------
+          echo "- Start assert record"
+          record=$(nslookup ((instance_id))-${index}.((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) | grep ${ip} | wc -l)
+          if [ "${record}" -eq 1 ]; then
+          echo "record has been added to DNS4CLOUD"
+          else
+          echo "record has not been added to DNS4CLOUD"
+          fi
+          echo "- End assert record"
+
+
+        post-stop-script: |
+          #--- Skip errors and initialize logs
+          set +e
+          > /var/vcap/sys/log/scripting/post-stop.stderr.log
+          > /var/vcap/sys/log/scripting/post-stop.stdout.log
+
+          GATEWAYS="((osb_dedicated_gateway_r1_ip))|((osb_dedicated_gateway_r2_ip))|((osb_dedicated_gateway_extension_r1_ip))|((osb_dedicated_gateway_extension_r2_ip))"
+
+          CHECK_EXISTS="$(ip route list | grep "10.0.0.0")"
+          if [ "${CHECK_EXISTS}" != "" ] ; then
+            deleted=0
+            for gateway in $(echo ${GATEWAYS} | tr "|" " "); do
+              sudo route del -net 10.0.0.0 netmask 255.0.0.0 gw ${gateway}
+              if [ $? = 0 ] ; then
+                echo "- $(date): Delete route to 10.0.0.0/8 via ${gateway} succeeded."
+                deleted=1
+              else
+                echo "- $(date): Delete route to 10.0.0.0/8 via ${gateway} failed."
+              fi
+            done
+            if [ ${deleted} = 0 ] ; then
+              echo "- $(date): No gateway deleted" ; exit 1
+            fi
+          fi #end existence check
+
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+        pre-stop-script: |
+          #--- Initialize context
+          echo "- Start pre-stop"
+          > /var/vcap/sys/log/scripting/pre-stop.stderr.log
+          > /var/vcap/sys/log/scripting/pre-stop.stdout.log
+
+          set +e
+
+          if [[ "${BOSH_DEPLOYMENT_NEXT_STATE}" == "delete" ]] ; then
+          // at the end of stop process this deployment is going to be deleted
+          // eg. shutdown_without_saving_data
+
+            #-------------------------------------
+            #--- Retrieve ip
+            #-------------------------------------
+            echo "- Start retrieve ip"
+            ip=$(hostname -I | grep -oE '10.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}') #retrieve only public ip
+            echo "ip is ${ip}"
+            echo "- End retrieve ip"
+
+            #-------------------------------------
+            #--- Retrieve index
+            #-------------------------------------
+            echo "- Start retrieve index"
+            index=$(cat /etc/hosts | grep ${ip} | cut -d ' ' -f 2 | grep -o '[0-1]\.proxy' | cut -d '.' -f 1)
+            echo "index is ${index}"
+            echo "- End retrieve index"
+
+            #-------------------------------------
+            #--- Generate nsupdate file
+            #-------------------------------------
+            echo "- Start nsupdate file generation"
+            cat <<EOF > /tmp/nsupdate.txt
+            server ((/secrets/multi_region_region_1_rfc2136_host))
+            zone ((/secrets/multi_region_region_1_rfc2136_zone_backend_services))
+            key hmac-sha256:((/secrets/multi_region_region_1_rfc2136_tsigKeyname)) ((/secrets/multi_region_region_1_rfc2136_tsigSecret))
+            update delete ((instance_id))-${index}.((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) A
+            show
+            send
+          EOF
+            echo "- End nsupdate file generation"
+
+            #-------------------------------------
+            #--- Remove record in DNS
+            #-------------------------------------
+            echo "- Start remove record"
+            nsupdate -v /tmp/nsupdate.txt
+            if [ $? -ne 0 ]; then
+              echo "- nsupdate command failure"
+              exit 1
+            fi
+            echo "- End remove record"
+
+            #-------------------------------------
+            #--- Assert record has been removed (need ip and index)
+            #-------------------------------------
+
+            echo "- Start assert record"
+            record=$(nslookup ((instance_id))-${index}.((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) | grep ${ip} | wc -l)
+            if [ "${record}" -eq 0 ]; then
+              echo "record has been removed from DNS4CLOUD"
+            else
+              echo "record has not been removed from DNS4CLOUD"
+            fi
+            echo "- End assert record"
+          fi
+
+
+    release: generic-scripting
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar/properties/route_registrar/routes/name=cf-mysql-proxy
+  value:
+    name: cf-mysql-proxy
+    port: 8080
+    prepend_instance_index: true
+    registration_interval: 10s
+    uris:
+      - &proxy_base_uri proxy-((cf_mysql_external_host_ops))
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar?/properties/nats
+  value: ((nats_ops))

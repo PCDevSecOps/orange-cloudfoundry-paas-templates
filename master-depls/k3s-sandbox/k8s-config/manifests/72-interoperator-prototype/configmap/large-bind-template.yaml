@@ -1,0 +1,24 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: bind
+    type: gotemplate
+    content: |
+      {{- $namePrefix := "" }}
+      {{- with .plan.spec.context }}
+        {{- with .namePrefix }} {{ $namePrefix = . }} {{ end }}
+      {{- end }}
+      {{- $instanceID := "" }}
+      {{- with .instance.metadata.name }} {{ $instanceID = . }} {{ end }}
+      {{- $bindingID := "" }}
+      {{- with .binding.metadata.name }} {{ $bindingID = . }} {{ end }}
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: binding-{{ $namePrefix }}-{{ $bindingID }}
+        annotations:
+          operator-broker/service-id: {{ .plan.spec.serviceId }}
+          operator-broker/plan-id: {{ .plan.spec.id }}
+      data:
+        config: |
+          A sample LARGE config map provisionned by interoperator for service binding in version 2.1.0

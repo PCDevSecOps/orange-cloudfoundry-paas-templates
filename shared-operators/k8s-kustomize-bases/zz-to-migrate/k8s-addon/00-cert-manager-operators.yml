@@ -1,0 +1,29 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: ca-key-cert-secret
+    namespace: cert-manager
+    data:
+
+    - name: tls.crt
+      value: ((/internalCA.certificate))
+
+    - name: tls.key
+      value: ((/internalCA.private_key))
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "clusterissuer"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: ((cluster_issuer_api_version))
+      kind: ClusterIssuer
+      metadata:
+        name: issuer
+      spec:
+        ca:
+          secretName: ca-key-cert-secret

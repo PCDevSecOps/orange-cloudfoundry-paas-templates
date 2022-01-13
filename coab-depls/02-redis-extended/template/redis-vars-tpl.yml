@@ -1,0 +1,56 @@
+---
+##############################################################################################################
+# network
+private_network_name   : tf-net-osb-data-plane-dedicated-priv
+public_network_name   : tf-net-osb-data-plane-dedicated-pub
+
+##############################################################################################################
+# plan
+# +--------------++-----------------+------+-----+----++--------------------+-------------------------++-----+----------------------------------------------------------------------------------
+# |   type       ||     Name        | Size |  NB | NB ||persistent_disk_type|         vm_type         || FS  |             description
+# |              ||                 |  GB  |Node |Sent||                    |                         ||store|
+# +--------------++-----------------+------+-----+----++--------------------+-------------------------++-----+----------------------------------------------------------------------------------
+# | sentinel     || sentinelsmallha |    3 |   2 |  4 || small              | small                   ||   3 | Dedicated Redis HA 2 nodes (Sentinel 4 nodes) 3GB data storage with 4GB RAM/1CPU 
+
+##############################################################################################################
+# vm_type
+vm-redis:
+  persistent_disk_type: small
+  vm_type:              1cpu-2g
+  master_node_count:    2
+  slave_node_count:     2
+
+##############################################################################################################
+# release
+redis_bind: true
+redis_exporter_debug: false
+redis_sentinel_exporter_debug : false
+redis_maxmemory: 3221225472
+redis_maxmemory_policy: "allkeys-lru"
+
+##############################################################################################################
+# sentinel 
+redis_replication: true
+redis_sentinel_bind: true
+redis_min_replicas_to_write: 0
+
+##############################################################################################################
+#
+##############################################################################################################
+cf:
+  api:
+    url: "https://api.((!/secrets/cloudfoundry_system_domain))"
+  admin:
+    password: ((!/secrets/cloudfoundry_admin_password))
+  redis:
+    appdomain: ((!/secrets/cloudfoundry_apps_domain))
+
+broker:
+  password: ((!/secrets/cloudfoundry_service_brokers_redis_password))
+
+osb_dedicated_gateway_r1_ip: "(( grab secrets.osb_data_plane_dedicated_public.gateway ))"
+osb_dedicated_gateway_r2_ip: "(( grab secrets.multi_region.region_2.data_plane_dedicated_public.gateway ))"
+
+#osb_dedicated pub extension
+osb_dedicated_gateway_extension_r1_ip: "(( grab secrets.osb_data_plane_dedicated_public_extension.gateway ))"
+osb_dedicated_gateway_extension_r2_ip: "(( grab secrets.multi_region.region_2.data_plane_dedicated_public_extension.gateway ))"

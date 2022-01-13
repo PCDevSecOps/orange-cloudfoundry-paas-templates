@@ -1,0 +1,14 @@
+#configure external dns for rfc 2136
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/provider?
+  value: rfc2136
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/rfc2136?
+  value:
+    host: ((/secrets/multi_region_region_1_rfc2136_host))
+    zone: ((/secrets/multi_region_region_1_rfc2136_zone_backend_services))
+    tsigKeyname: ((/secrets/multi_region_region_1_rfc2136_tsigKeyname))
+    tsigSecret: ((/secrets/multi_region_region_1_rfc2136_tsigSecret))
+    tsigSecretAlg: hmac-sha256 #default value
+

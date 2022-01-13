@@ -1,0 +1,13 @@
+#--- Set openstack cpi timeouts
+#--- https://github.com/excon/excon#options
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/connect_timeout
+  value: 900 #--- Default value 60
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/read_timeout
+  value: 900 #--- Default value 60
+
+- type: replace
+  path: /instance_groups/name=bosh/properties/openstack/connection_options?/write_timeout
+  value: 900 #--- Default value 60

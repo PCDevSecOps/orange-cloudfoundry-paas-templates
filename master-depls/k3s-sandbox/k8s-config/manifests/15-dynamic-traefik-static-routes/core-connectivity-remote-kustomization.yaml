@@ -1,0 +1,22 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: static-route-kustomization
+spec:
+  interval: 5m
+  path: ./master-depls/k3s-sandbox/k8s-config/manifests/15-dynamic-traefik-static-routes/routes
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+    namespace: fluxcd
+  #this targets micro-depls/00-core-connectivity
+  kubeConfig:
+    secretRef:
+      name: kubeconfig
+  targetNamespace: 15-dynamic-static-routes-ns
+  wait: true
+  timeout: 2m
+
+

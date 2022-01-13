@@ -1,0 +1,62 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - "submodules/cf-deployment"
+        - "shared-operators/cf-isolation-segments"
+        - shared-operators/paas-templates-version
+    releases:
+#      bosh-dns:
+#        base_location: https://bosh.io/d/github.com/
+#        repository: cloudfoundry/bosh-dns-release
+
+      cflinuxfs3:
+
+      cf-networking:
+
+      silk:
+
+      routing:
+
+      cf-syslog-drain:
+
+      cf-smoke-tests:
+
+      diego:
+
+      garden-runc:
+
+      haproxy:
+
+      loggregator:
+
+      loggregator-agent:
+
+      nats:
+
+      networking:
+
+      os-conf:
+
+      statsd-injector:
+
+      cf-cli:
+
+      bosh-dns-aliases:
+
+      bpm:
+
+      generic-scripting:
+
+      metrics-discovery:
+
+    errands:
+      post-bosh-deploy-errand:
+    manual-errands:
+      load-test-cf-apps-deploy-errand:  
+      purge-test-cf-apps-errand:
+

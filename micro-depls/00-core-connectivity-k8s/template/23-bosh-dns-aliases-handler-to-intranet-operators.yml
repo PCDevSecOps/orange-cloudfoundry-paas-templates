@@ -1,0 +1,31 @@
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/-
+  value: 
+    name: bosh-dns-handlers
+    release: bosh-dns-aliases
+    properties:
+      handlers:
+      #handler for docker registry access in corporate intranet
+      #FIXME: hardcoded for Orange
+      - domain: dockerproxy.tech.orange. 
+        cache:
+          enabled: true
+        source:
+          type: dns
+          recursors:
+          - ((/secrets/intranet_interco_1/intranet_dns_1))
+          - ((/secrets/intranet_interco_1/intranet_dns_2))
+          
+      - domain: dockerfactory-playground.tech.orange. 
+        cache:
+          enabled: true
+        source:
+          type: dns
+          recursors:
+          - ((/secrets/intranet_interco_1/intranet_dns_1))
+          - ((/secrets/intranet_interco_1/intranet_dns_2))
+
+          
+#should leverage secrets
+#- name: /secrets/multi_region_region_1_corporate_internet_quayio_mirror_url
+#- name: /secrets/multi_region_region_1_corporate_internet_dockerhub_mirror_url

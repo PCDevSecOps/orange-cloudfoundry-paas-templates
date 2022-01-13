@@ -1,0 +1,82 @@
+#uaa
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/ldap?
+  value:
+    enabled: true
+    profile_type: search-and-bind
+    url: 'ldap://elpaaso-ldap.internal.paas:389/' #switch to alias (ip 192.168.99.60 was for dns failure resilience)
+    userDN: 'cn=manager,dc=orange,dc=com'
+    userPassword: ((/secrets/ldap_root_password))
+    searchBase: 'ou=users,dc=orange,dc=com'
+    searchFilter: 'uid={0}'
+    mailAttributeName: mail
+    groups:
+      profile_type: groups-as-scopes
+      searchBase: 'ou=paas-groups,ou=groups,dc=orange,dc=com'
+      groupRoleAttribute: 'description'
+      groupSearchFilter: 'uniqueMember={0}'
+      searchSubtree: true
+      maxSearchDepth: 10
+      autoAdd: true
+    externalGroupsWhitelist:
+      - '*'
+
+# coa - cfops automation user
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/scim/users/-
+  value:
+    name: coa-cf
+    password: ((coa_cf_password))
+    groups:
+    - cloud_controller.admin
+    - doppler.firehose
+    - network.admin
+    - openid
+    - routing.router_groups.read
+    - routing.router_groups.write
+    - scim.read
+    - scim.write
+
+
+- type: replace
+  path: /variables/-
+  value:
+    name: coa_cf_password #password for coa pipelines
+    type: password
+
+
+
+
+
+# Change login prompt: Email -> Username
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/login?/prompt/username
+  value:
+    text: Username
+ 
+# Change login prompt: Email -> Username
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/login?/prompt/username
+  value:
+    text: Username
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/login?/links/passwd
+  value: "https://elpaaso-pwm.((/secrets/cloudfoundry_system_domain))/public/forgottenpassword"
+
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/login?/links/signup
+  value: "https://elpaaso-pwm.((/secrets/cloudfoundry_system_domain))/public/newuser"
+ 
+#add links 
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/login?/branding?/footer_links
+  value:
+    CAP documentation: https://cap.((/secrets/cloudfoundry_system_domain))
+    CF-console: https://console.((/secrets/cloudfoundry_system_domain)) 
+ 
+ #for uaa 73, applied on cf-deployment 7. configure route registrar to expose on tls
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=route_registrar/properties/route_registrar/routes/name=uaa/tls_port?
+  value: 8443

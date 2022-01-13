@@ -1,0 +1,2 @@
+internal_ops_http_ip: 192.168.116.19  #--- metallb vip
+internal_ops_ssh_ip: 192.168.116.100  #--- docker bosh cli fixed ip

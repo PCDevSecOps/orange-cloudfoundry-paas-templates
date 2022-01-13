@@ -1,0 +1,18 @@
+# During Paas-Templates upgrade, branches already merged are automatically proposed for deletion.
+# Additional branches to remove (when branch names are inconsistent among platforms) need to be listed below
+# a line starting with # is a comment
+
+feature-hotfix-v51-coab-issue-1256
+feature-coab-hotfix-v51-510-gone-issue-1261
+
+# feature-fix-51.0.6 is empty, should be removed from production, however may be used by ops team as emergency fix,
+# so we don't remove it. Instead should be removed by ops team during branch rebases.q
+#feature-fix-51.0.6
+
+# feature-extend-mysql-osb-proxy-limit which Bumps to 8000 file descriptors was integrated in 3d6441e3a5a12f7907453462dce78bd30b61bb4d in branch #893 from orange-cloudfoundry/feature-clean-ocb-services. However, the branch is owned by ops team which could choose to add
+# more commits to it, so we don't list it here.
+# feature-extend-mysql-osb-proxy-limit
+
+#Ops contrib got merged in v47 without a merge commit. Branch is now empty. Should be removed from production.
+# Although owned by ops team, this branch is unlikely to be completed in the future and can be safely removed
+feature-fix-docker-release-name

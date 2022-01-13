@@ -1,0 +1,6 @@
+#--- From shared secrets
+#--- Internal ip used with multi-nic interco
+ops_ip: 192.168.116.19
+osb_ip: 192.168.99.35
+api_ip: 192.168.35.59
+apps_ip: 192.168.35.60

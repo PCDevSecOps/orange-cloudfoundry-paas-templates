@@ -1,0 +1,21 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - submodules/shield/manifests
+        - shared-operators/shield
+        - shared-operators/paas-templates-version
+    releases:
+      shield:
+      routing:
+      minio:
+      haproxy:
+      generic-scripting:
+      shield-addon-bbr:
+      cron:
+    errands:
+      import:
+        display-name: provisioning
+      errand-scripting:

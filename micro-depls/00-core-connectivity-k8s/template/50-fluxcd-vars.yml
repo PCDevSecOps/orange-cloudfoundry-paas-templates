@@ -1,0 +1,1 @@
+fluxcd-paas-templates-initial-path: ./micro-depls/00-core-connectivity-k8s/k8s-config/manifests/00-flux-kustomizations

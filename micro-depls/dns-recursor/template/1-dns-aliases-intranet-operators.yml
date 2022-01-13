@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/intranet-http-proxy.internal.paas?
+  value: [192.168.116.17]

@@ -1,0 +1,6 @@
+#--- Paas-template version
+template_version: ((/meta/template_version))
+
+#--- vpn probe web-server properties
+nginx_conf: (( file "../../../additional-resource/coab-depls/vpn-probe/template/nginx/nginx.conf" ))
+default_conf: (( file "../../../additional-resource/coab-depls/vpn-probe/template/nginx/default.conf" ))

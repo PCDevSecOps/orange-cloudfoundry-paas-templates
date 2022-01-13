@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+  labels:
+    app: ldap
+    statefulset.kubernetes.io/pod-name: ldap-0
+  name: ldap-0
+  namespace: openldap
+spec:
+  ports:
+  - port: 389
+    protocol: TCP
+    targetPort: 389
+  selector:
+    app: ldap
+    statefulset.kubernetes.io/pod-name: ldap-0
+  type: LoadBalancer

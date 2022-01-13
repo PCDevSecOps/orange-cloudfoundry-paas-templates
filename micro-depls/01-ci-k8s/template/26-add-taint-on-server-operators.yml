@@ -1,0 +1,8 @@
+# add taint to master node
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "add-taint"
+    cmd: "taint"
+    options: "--overwrite nodes server-0 node-role.kubernetes.io/master=effect:NoSchedule"

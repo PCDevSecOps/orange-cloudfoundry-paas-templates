@@ -1,0 +1,42 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - githubRelease:
+      url: https://api.github.com/repos/vmware-tanzu/carvel-kapp-controller/releases/53486936
+    path: github.com/vmware-tanzu/carvel-kapp-controller
+  - githubRelease:
+      url: https://api.github.com/repos/operator-framework/operator-lifecycle-manager/releases/33379512
+    path: github.com/operator-framework/operator-lifecycle-manager
+  - githubRelease:
+      url: https://api.github.com/repos/strimzi/strimzi-kafka-operator/releases/55191414
+    path: github.com/strimzi/strimzi-kafka-operator
+  - githubRelease:
+      url: https://api.github.com/repos/tektoncd/pipeline/releases/53655535
+    path: github.com/tektoncd/pipeline
+  - githubRelease:
+      url: https://api.github.com/repos/tektoncd/dashboard/releases/55179912
+    path: github.com/tektoncd/dashboard
+  - githubRelease:
+      url: https://api.github.com/repos/fluxcd/flux2/releases/53253912
+    path: github.com/fluxcd/flux2
+  - git:
+      commitTitle: 'Merge pull request #21 from iSignal/tls-full-remove...'
+      sha: 16977b571c4a59256b468e37f14ed154fa3b799a
+    path: github.com/yugabyte/yugabyte-operator
+  - git:
+      commitTitle: 'chore: use UUID for service instance ID (#202)...'
+      sha: 94d74a425a3ebdf0ab3339c9d755f724ef8525fa
+      tags:
+      - 0.2.5
+    path: github.com/cloudfoundry-incubator/cloud-service-broker
+  - githubRelease:
+      url: https://api.github.com/repos/shipwright-io/build/releases/55069656
+    path: github.com/shipwright-io/build
+  - git:
+      commitTitle: Bump uaa-k8s-release to 6e652626f00d50b02d146a194f09106bc630a685
+      sha: ab34ad75982d2e651e2243da2e92011c04687165
+      tags:
+      - v5.4.2-rc.1
+    path: github.com/cloudfoundry/cf-for-k8s
+  path: k8s-manifests
+kind: LockConfig

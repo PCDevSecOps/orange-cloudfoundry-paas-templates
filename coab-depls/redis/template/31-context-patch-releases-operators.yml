@@ -1,0 +1,13 @@
+---
+#add routing
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+- type: replace
+  path: /releases/name=cron?
+  value:
+    name: cron
+    version: latest

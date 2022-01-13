@@ -1,0 +1,29 @@
+# create namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: kafka #TODO: convention mpms-strimzi-operator pour le namespace qui contient l'operator
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_repo
+    name: strimzi
+    url: https://strimzi.io/charts/
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: strimzi
+    chart: strimzi/strimzi-kafka-operator
+    namespace: kafka
+    version: ((helm_strimzi))
+    option: "--set installCRDs=true"
+    values_file_content:
+      watchAnyNamespace: true
+
+
+

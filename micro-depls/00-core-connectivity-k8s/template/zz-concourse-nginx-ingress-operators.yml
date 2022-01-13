@@ -1,0 +1,47 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: concourse-ssl
+    secret_type: kubernetes.io/tls
+    namespace: ingress-nginx
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/ops.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/ops.private_key))
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "concourse-ingress"
+    cmd: "apply"
+    content:
+      apiVersion: networking.k8s.io/v1
+      kind: Ingress
+      metadata:
+        name: concourse-ingress
+        namespace: ingress-nginx
+        annotations:
+          nginx.ingress.kubernetes.io/rewrite-target: /
+          # fix for issue #1364
+          # see https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#custom-timeouts
+          nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+      spec:
+        ingressClassName: nginx 
+        rules:
+        - host: elpaaso-concourse.((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: concourse-route
+                  port:
+                    number: 8080
+        tls:
+        - hosts:
+          - elpaaso-concourse.((/secrets/cloudfoundry_ops_domain))
+          secretName: concourse-ssl

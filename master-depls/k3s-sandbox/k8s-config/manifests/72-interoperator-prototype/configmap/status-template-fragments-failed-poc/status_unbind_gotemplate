@@ -1,0 +1,12 @@
+# Status template for unbind call
+{{ $unbindStateString := "in progress" }}
+{{- with .configmapBinding.metadata.uid }}
+  {{if not .}}
+    {{- $unbindStateString = "succeeded" }}
+  {{- else }}
+    {{- $unbindStateString = "in progress" }}
+  {{- end }}
+{{- end }}
+unbind:
+  state: {{ $unbindStateString }}
+  error: ""

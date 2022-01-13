@@ -1,0 +1,9 @@
+#--- Osb data plane dedicated private (other information are hard-coded since it is a private network)
+osb-data-plane-shared-priv-2-network-name: (( grab secrets.multi_region.region_2.tf-net-osb-data-plane-shared-priv ))
+
+osb-data-plane-shared-pub-2-network-name: (( grab secrets.multi_region.region_2.data_plane_shared_public2.net_id ))
+osb-data-plane-shared-pub-2-range: (( grab secrets.multi_region.region_2.data_plane_shared_public2.range ))
+osb-data-plane-shared-pub-2-gateway: (( grab secrets.multi_region.region_2.data_plane_shared_public2.gateway ))
+osb-data-plane-shared-pub-2-reserved-dhcp: (( grab secrets.multi_region.region_2.data_plane_shared_public2.reserved_dhcp ))
+osb-data-plane-shared-pub-2-reserved-vrrp: (( grab secrets.multi_region.region_2.data_plane_shared_public2.reserved_vrrp ))
+osb-data-plane-shared-pub-2-static: (( grab secrets.multi_region.region_2.data_plane_shared_public2.static ))

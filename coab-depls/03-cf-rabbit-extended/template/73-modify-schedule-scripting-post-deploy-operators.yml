@@ -1,0 +1,64 @@
+---
+- type: replace
+  path: /instance_groups/name=rmq/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "post-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          #--- Initialize context
+          echo "- Start post-deploy"
+          > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+          > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+          set +u
+          cat <<EOF > /var/vcap/jobs/import/bin/addon
+          tenant=\$(\${bin}/shield tenants | grep ((deployment_name)) | grep -oE '[0-9a-z]{8,8}' | head -n 1)
+          #i holds the instance group index
+          i=\$(cat /etc/hosts | grep `hostname -I` | grep -oE ' [0-9]{1,1}\.' | grep -oE '[0-9]{1,1}')
+          if [ "\${i}" -eq 0 ]; then
+          hour0=\$(expr \${RANDOM} % 8) || true #https://unix.stackexchange.com/questions/63166/bash-e-exits-when-let-or-expr-evaluates-to-0
+          minute=\$(expr \${RANDOM} % 59) || true #https://unix.stackexchange.com/questions/63166/bash-e-exits-when-let-or-expr-evaluates-to-0
+          if [ \${minute} -lt 10 ] ; then
+          minute="0"\${minute}
+          fi
+          hour1=\$(expr \${hour0} + 8)
+          hour2=\$(expr \${hour1} + 8)
+          when0="daily \${hour0}:\${minute}"
+          when1="daily \${hour1}:\${minute}"
+          when2="daily \${hour2}:\${minute}"
+          \${bin}/shield update-job -t \${tenant} 03-cf-rabbit-extended/0-daily --schedule "\${when0}"
+          \${bin}/shield update-job -t \${tenant} 03-cf-rabbit-extended/1-daily --schedule "\${when1}"
+          \${bin}/shield update-job -t \${tenant} 03-cf-rabbit-extended/2-daily --schedule "\${when2}"
+          fi
+          EOF
+
+          #test if addon already presents in /var/vcap/jobs/import/bin/run
+          addon=$(cat /var/vcap/jobs/import/bin/run | grep '#i' | wc -l)
+          if [ "${addon}" -eq 0 ]; then
+          #addon is not present so concat at the end
+          echo "nothing to do"
+          elif [ "${addon}" -eq 1 ]; then
+          #addon is already present so clean and afterwards concat at the end
+          line_counter=18
+          head -n -${line_counter} /var/vcap/jobs/import/bin/run > /var/vcap/jobs/import/bin/run.tmp
+          mv /var/vcap/jobs/import/bin/run.tmp /var/vcap/jobs/import/bin/run
+          else
+          echo "unexpected case"
+          exit 1
+          fi
+
+          #add addon to the end and change rights
+          cat /var/vcap/jobs/import/bin/addon >> /var/vcap/jobs/import/bin/run
+          chown root:vcap /var/vcap/jobs/import/bin/run
+          chmod +x /var/vcap/jobs/import/bin/run

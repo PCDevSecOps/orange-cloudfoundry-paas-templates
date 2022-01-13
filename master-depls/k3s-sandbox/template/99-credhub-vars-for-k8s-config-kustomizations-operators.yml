@@ -1,0 +1,5 @@
+- type: replace
+  path: /variables/-
+  value:
+    name: interoperator_password
+    type: password

@@ -1,0 +1,19 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: catalog
+spec:
+  values:
+    webhook:
+      service:
+        type: ClusterIP
+
+#- type: replace
+#  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "patch-svc"
+#    cmd: "patch"
+#    options: deployment -n catalog catalog-catalog-controller-manager -p '{"spec":{"volumes":[{"name":"run", "emptyDir":"{}"}],"containers":[{"name":"controller-manager", "volumeMounts":[{"mountPath":"/var/run", "name":"run"}]}]}}'
+
+

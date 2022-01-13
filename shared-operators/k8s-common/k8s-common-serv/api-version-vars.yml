@@ -1,0 +1,6 @@
+certificate_api_version: cert-manager.io/v1alpha2
+cluster_issuer_api_version: cert-manager.io/v1alpha2
+deployment_api_version: apps/v1
+ingressroute_api_version: traefik.containo.us/v1alpha1
+middleware_api_version: traefik.containo.us/v1alpha1
+pod_security_policy_api_version: policy/v1beta1

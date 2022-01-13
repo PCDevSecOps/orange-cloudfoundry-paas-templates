@@ -1,0 +1,49 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: oauth2-proxy
+spec:
+  values:
+    configuration:
+      ## @param configuration.clientID OAuth client ID
+      ##
+      clientID: "${clientID}"
+      ## @param configuration.clientSecret OAuth client secret
+      ##
+      clientSecret: "${clientSecret}"
+      ## Create a new secret with the following command openssl rand -base64 32 | head -c 32 | base64
+      ## Use an existing secret for OAuth2 credentials (see secret.yaml for required fields)
+      ##
+      ## @param configuration.cookieSecret OAuth cookie secret
+      ##
+      cookieSecret: "${cookieSecret}"
+      
+      ## Custom configuration file: oauth2_proxy.cfg
+      content: |
+        email_domains = [ "*" ]
+        upstreams = [ "file:///dev/null" ]
+        provider = "oidc"
+        oidc_issuer_url = "${oidc_issuer_url}"
+        insecure_oidc_allow_unverified_email = true
+        scope = "openid bosh.admin"
+
+    #additional volume for plateform ca
+    extraVolumes:
+    - name: cert-volume
+      hostPath:
+        path: /etc/ssl/certs
+        type: Directory
+    
+    extraVolumeMounts:
+    - name: cert-volume
+      mountPath: /etc/ssl/certs
+    
+    #disable auth on embedded redis
+    redis:
+      ## @param redis.enabled Deploy Redis&trade; sub-chart
+      ##
+      enabled: false
+      auth:
+        ## @param redis.auth.enabled Enable Redis&trade; authentication
+        ##
+        enabled: false

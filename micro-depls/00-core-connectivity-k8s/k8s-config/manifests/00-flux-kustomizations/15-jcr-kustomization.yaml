@@ -1,0 +1,41 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 15-jcr
+spec:
+  interval: 2m0s
+  path: ./micro-depls/00-core-connectivity-k8s/k8s-config/manifests/15-jcr
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 15-jcr-1
+spec:
+  interval: 2m0s
+  path: ./micro-depls/00-core-connectivity-k8s/k8s-config/manifests/15-jcr-1
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+  dependsOn:
+    - name: 15-jcr
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 15-jcr-2
+spec:
+  interval: 2m0s
+  path: ./micro-depls/00-core-connectivity-k8s/k8s-config/manifests/15-jcr-2
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+  dependsOn:
+    - name: 15-jcr-1

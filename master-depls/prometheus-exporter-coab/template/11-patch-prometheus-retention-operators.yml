@@ -1,0 +1,7 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/storage?/tsdb?/retention?/time?
+  value: 1d
+
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/storage/tsdb/min_block_duration?
+  value: 1h

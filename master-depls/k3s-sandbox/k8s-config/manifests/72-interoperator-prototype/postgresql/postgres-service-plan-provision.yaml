@@ -1,0 +1,60 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: provision
+    type: gotemplate
+    content: |
+      {{- $version := 9.6 }}
+      {{- $cpu_count := 0 }}
+      {{- $memory_gb := 1 }}
+      {{- $disk_gb := 5 }}
+      {{- $max_connections := 100 }}
+      {{- $namePrefix := "" }}
+      {{- $enableLoadBalancers := false }}
+      {{- with .plan.spec.context }}
+        {{- with .namePrefix }} {{ $namePrefix = . }} {{ end }}
+        {{- with .version }} {{ $version = . }} {{ end }}
+        {{- with .cpuCount }} {{ $cpu_count = . }} {{ end }}
+        {{- with .memoryGB }} {{ $memory_gb = . }} {{ end }}
+        {{- with .diskGB }} {{ $disk_gb = . }} {{ end }}
+        {{- with .maxConnections }} {{ $max_connections = . }} {{ end }}
+        {{- with .enableLoadBalancers }} {{ $enableLoadBalancers = . }} {{ end }}
+      {{- end }}
+      {{- $instanceID := "" }}
+      {{- with .instance.metadata.name }} {{ $instanceID = . }} {{ end }}
+      {{- $users := (dict "main" (list "superuser" "createdb")) }}
+      apiVersion: acid.zalan.do/v1
+      kind: postgresql
+      metadata:
+        name: {{ $namePrefix }}-{{ $instanceID }}
+        annotations:
+          operator-broker/service-id: {{ .plan.spec.serviceId }}
+          operator-broker/plan-id: {{ .plan.spec.id }}
+      spec:
+        teamId: {{ $namePrefix }}
+        postgresql:
+          version: "{{ $version }}"
+          parameters:
+            max_connections: "{{ $max_connections }}"
+        numberOfInstances: 2
+        databases:
+          main: main
+        users:
+          {{- toYaml $users | nindent 4 }}
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+          limits:
+            cpu: "{{ $cpu_count }}"
+            memory: {{ $memory_gb }}Gi
+        volume:
+          size: {{ $disk_gb }}Gi
+        {{- if $enableLoadBalancers }}
+        enableMasterLoadBalancer: {{ $enableLoadBalancers }}
+        enableReplicaLoadBalancer: {{ $enableLoadBalancers }}
+          {{- with .plan.spec.context.allowedSourceRanges }}
+        allowedSourceRanges:
+            {{ toYaml . | nindent 4 }}
+          {{- end }}
+        {{- end }}

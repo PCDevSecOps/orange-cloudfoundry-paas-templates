@@ -1,0 +1,8 @@
+#diego_cell count instances
+- type: replace
+  path: /instance_groups/name=diego-cell/instances
+  value: ((diego_cell_instance))
+
+- type: replace
+  path: /instance_groups/name=doppler/instances
+  value: ((doppler_instance))

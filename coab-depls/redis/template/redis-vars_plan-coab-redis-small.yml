@@ -1,0 +1,42 @@
+---
+##############################################################################################################
+# network
+network_name   : tf-net-coab-depls-instance
+
+##############################################################################################################
+# plan
+# +--------------++---------------+------+-----++--------------------+-------------------------++-----+----------------------------------------------------------------------------------
+# |   type       ||     Name      | Size |  NB ||persistent_disk_type|         vm_type         || FS  |             description
+# |              ||               |  GB  |Node ||                    |                         ||store|
+# +--------------++---------------+------+-----++--------------------+-------------------------++-----+----------------------------------------------------------------------------------
+# | standard     || small         |    3 |   1 || small              | small                   ||   3 | Dedicated Redis (Standalone) 3GB data storage with 4GB RAM/1CPU
+# | sentinel     || sentinelsmall |    3 |   3 || small              | small                   ||   3 | Dedicated Redis (Sentinel 3 nodes) 3GB data storage with 4GB RAM/1CPU
+
+##############################################################################################################
+# vm_type
+vm-redis:
+  persistent_disk_type: small
+  vm_type:              1cpu-2g
+  node_count:           1
+
+##############################################################################################################
+# release
+redis_bind: true
+redis_exporter_debug: false
+redis_maxmemory: 3221225472
+redis_maxmemory_policy: "allkeys-lru"
+
+
+##############################################################################################################
+#
+##############################################################################################################
+cf:
+  api:
+    url: "https://api.((!/secrets/cloudfoundry_system_domain))"
+  admin:
+    password: ((!/secrets/cloudfoundry_admin_password))
+  redis:
+    appdomain: ((!/secrets/cloudfoundry_apps_domain))
+
+broker:
+  password: ((!/secrets/cloudfoundry_service_brokers_redis_password))

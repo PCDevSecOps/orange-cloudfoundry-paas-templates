@@ -1,0 +1,152 @@
+#--- Availability zones
+azs:
+- name: z1
+  cloud_properties:
+    availability_zone: ((az_1))
+- name: z2
+  cloud_properties:
+    availability_zone: ((az_2))
+- name: z3
+  cloud_properties:
+    availability_zone: ((az_3))
+
+#--- VM flavors
+vm_types: []
+
+#--- Vm extensions
+vm_extensions: []
+
+#--- disk sizes
+disk_types: []
+
+#--- Intranet interco network
+networks:
+- name: intranet-ha-interco
+  type: manual
+  subnets:
+  - range: ((intranet_interco_ips_range))
+    gateway: ((intranet_interco_ips_gateway))
+    az: z1
+    reserved:
+    - ((intranet_interco_ips_gateway)) #--- Exclude gateway
+    static:
+    - ((intranet_interco_ips_api)) #use grab instead of credhub to void bugs (bosh 268.5/credhub 1.9.9)
+    - ((intranet_interco_ips_apps))
+    - ((intranet_interco_ips_ops))
+    - ((intranet_interco_ips_to_intranet))
+
+#--- master-depls network
+- name: tf-net-exchange
+  type: manual
+  subnets:
+  - range: 192.168.99.0/24
+    gateway: 192.168.99.1
+    azs: [z1,z2]
+    reserved:
+    - 192.168.99.1 - 192.168.99.20          #--- Exclude dhcp address (see terraform )
+    - 192.168.99.245 - 192.168.99.254       #--- Exclude addresses for vrrp keep-alived ports
+    static:
+    - 192.168.99.21 - 192.168.99.90
+    - 192.168.99.100 - 192.168.99.110
+    - 192.168.99.120 - 192.168.99.130
+    - 192.168.99.150 - 192.168.99.170
+    - 192.168.99.200 - 192.168.99.220
+
+#--- Cloud foundry network
+- name: tf-net-cf
+  type: manual
+  subnets:
+  - range: 192.168.35.0/24
+    gateway: 192.168.35.1
+    azs: [z1,z2,z3]
+    reserved:
+    - 192.168.35.1 - 192.168.35.20          #--- Exclude dhcp address (see terraform )
+    static:
+    - 192.168.35.21 - 192.168.35.61
+
+- name: tf-is-internet
+  type: manual
+  subnets:
+  - range: 192.168.37.0/24
+    gateway: 192.168.37.1
+    azs: [z1,z2,z3]
+    reserved:
+    - 192.168.37.1 - 192.168.37.20          #--- Exclude dhcp address (see terraform )
+    static:
+    - 192.168.37.21 - 192.168.37.61
+
+- name: tf-vpn-interco-net
+  type: manual
+  subnets:
+  - range: 172.24.99.0/24
+    gateway: 172.24.99.1
+    azs: [z1,z2,z3]
+    reserved:
+    - 172.24.99.1 - 172.24.99.3
+    static:
+    - 172.24.99.20
+
+- name: tf-net-osb-interco
+  type: manual
+  subnets:
+  - range: ((osb_interco_range))
+    gateway: ((osb_interco_gateway))
+    azs: [z1,z2,z3]
+    reserved:
+    - ((osb_interco_gateway)) #--- Exclude gateway
+    static:
+    - ((osb_interco_osb))    #--- vip osb
+
+- name: tf-net-osb-control-plane
+  type: manual
+  subnets:
+  - range: 192.168.62.0/24
+    gateway: 192.168.62.1
+    azs: [z1,z2,z3]
+    reserved:
+    - 192.168.62.1 - 192.168.62.20          #--- Exclude dhcp address (see terraform )
+    static:
+    - 192.168.62.21 - 192.168.62.61
+
+#--- tcp-router-relay floating ip
+- name: net-floating
+  type: vip
+
+#--- Compilation network
+- name: compilation-network
+  type: manual
+  subnets:
+  - range: 192.168.100.0/24
+    gateway: 192.168.100.1
+    dns: ((dns))
+    azs: [z1,z2,z3]
+    reserved:
+    - 192.168.100.2 - 192.168.100.40
+    - 192.168.100.61- 192.168.100.254
+
+#--- Cfcr network
+- name: tf-net-cfcr-master
+  type: manual
+  subnets:
+  - range: 192.168.244.0/24
+    gateway: 192.168.244.1
+    azs:
+    - z1
+    - z2
+    - z3
+    reserved:
+    - 192.168.244.1 - 192.168.244.150  # <-- exclude dhcp address (see terraform )
+    static:
+    - 192.168.244.151 - 192.168.244.200  # <-- all bosh static ip
+
+compilation:
+  workers: 2
+  reuse_compilation_vms: true
+  az: z1
+  vm_type: 4cpu-16g
+  network: compilation-network
+  env:
+    bosh:
+      ipv6:
+        enable: false
+

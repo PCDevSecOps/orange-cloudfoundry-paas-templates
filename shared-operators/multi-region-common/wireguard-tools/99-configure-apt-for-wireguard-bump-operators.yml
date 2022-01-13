@@ -1,0 +1,36 @@
+#this enables to setup the vm for live download of compatible ubuntu package
+# as wireguard is a kernel module, provided as dkms, the bosh release provided package might be unsuitable for a simple stemcell bump.
+# This configuration can help operators getting an updated version for live fix
+
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        errand-script: |
+          #!/bin/bash
+          set -x
+          echo "prestart, configure apt for wireguard"
+          
+          # configure apt for proxy access
+          cat - > /etc/apt/apt.conf <<EOF
+          Acquire::http::Proxy "http://system-internet-http-proxy.internal.paas:3128";
+          EOF
+          
+          cd /tmp
+          #get wireguard sources
+          apt-get -yq download wireguard
+          
+          #get wireguard tools sources
+          apt-get -yq download wireguard-tools
+          apt-get -yq download wireguard-dkms
+          
+          echo "done prestart, compatible wireguard packages downloaded"

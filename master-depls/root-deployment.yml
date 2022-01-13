@@ -1,0 +1,214 @@
+---
+name: master-depls
+releases:
+  app-autoscaler:
+    version: 1.2.2
+    repository: cloudfoundry-incubator/app-autoscaler-release
+  backup-and-restore-sdk:
+    version: 1.18.28
+    repository: cloudfoundry-incubator/backup-and-restore-sdk-release
+  binary-buildpack:
+    version: 1.0.36
+    repository: cloudfoundry/binary-buildpack-release
+  bosh:
+    version: 271.18.0
+    repository: cloudfoundry/bosh
+  bosh-dns:
+    repository: cloudfoundry/bosh-dns-release
+    version: 1.29.0
+  bosh-dns-aliases:
+    repository: cloudfoundry/bosh-dns-aliases-release
+    version: 0.0.4
+  bosh-openstack-cpi:
+    repository: cloudfoundry/bosh-openstack-cpi-release
+    version: '46'
+  bosh-vsphere-cpi:
+    repository: cloudfoundry/bosh-vsphere-cpi-release
+    version: '70'
+  bpm:
+    repository: cloudfoundry/bpm-release
+    version: 1.1.15
+  capi:
+    version: 1.119.0
+    repository: cloudfoundry/capi-release
+  cf-cli:
+    version: 1.34.0
+    repository: bosh-packages/cf-cli-release
+  cf-mysql:
+    repository: orange-cloudfoundry/cf-mysql-release
+    skip_branch_checkout: false
+    version: 38.1.0
+    tag_prefix: ''
+  cf-networking:
+    version: 2.39.0
+    repository: cloudfoundry/cf-networking-release
+  cf-smoke-tests:
+    version: 41.0.2
+    repository: cloudfoundry/cf-smoke-tests-release
+  cf-syslog-drain:
+    version: 10.2.11
+    repository: cloudfoundry/cf-syslog-drain-release
+  cflinuxfs3:
+    version: 0.271.0
+    repository: cloudfoundry/cflinuxfs3-release
+  credhub:
+    version: 2.11.0
+    repository: pivotal-cf/credhub-release
+  cron:
+    repository: cloudfoundry-community/cron-boshrelease
+    version: 1.3.1
+  diego:
+    version: 2.53.0
+    repository: cloudfoundry/diego-release
+  docker:
+    version: 35.3.4
+    repository: cloudfoundry-incubator/docker-boshrelease
+  dotnet-core-buildpack:
+    version: 2.3.23
+    repository: cloudfoundry/dotnet-core-buildpack-release
+  garden-runc:
+    version: 1.19.30
+    repository: cloudfoundry/garden-runc-release
+  generic-scripting:
+    version: '3'
+    repository: orange-cloudfoundry/generic-scripting-release
+  generic-taint-jobs:
+    version: '1'
+    repository: orange-cloudfoundry/generic-taint-jobs-release
+  go-buildpack:
+    version: 1.9.26
+    repository: cloudfoundry/go-buildpack-release
+  haproxy:
+    version: 11.4.2
+    repository: cloudfoundry-community/haproxy-boshrelease
+  helm-kubectl:
+    repository: orange-cloudfoundry/helm-kubectl-boshrelease
+    tag_prefix: ''
+    version: '39'
+  java-buildpack:
+    version: '4.46'
+    repository: cloudfoundry/java-buildpack-release
+  jumpbox:
+    repository: cloudfoundry-community/jumpbox-boshrelease
+    version: 4.8.14
+    comments: |
+      This release is a used at least by master-depls/metabase/deployment-dependencies-70-enable-bi-cdc-event-infra.yml.
+      We should check in future version (in v54, at least) if we can remove it.
+      Currently in v53, this profile seems not enabled.
+  k3s:
+    repository: orange-cloudfoundry/k3s-boshrelease
+    version: '22'
+  log-cache:
+    version: 2.11.4
+    repository: cloudfoundry/log-cache-release
+  loggregator:
+    version: 106.6.0
+    repository: cloudfoundry/loggregator-release
+  loggregator-agent:
+    version: 6.3.4
+    repository: cloudfoundry/loggregator-agent-release
+  logsearch:
+    version: 211.1.0
+    repository: cloudfoundry-community/logsearch-boshrelease
+  logsearch-for-cloudfoundry:
+    version: 211.1.0
+    repository: cloudfoundry-community/logsearch-for-cloudfoundry
+  metabase:
+    repository: orange-cloudfoundry/metabase-boshrelease
+    version: '5'
+  metrics-discovery:
+    repository: cloudfoundry/metrics-discovery-release
+    version: 3.0.6
+  minio:
+    version: 2021-10-23T03-28-24Z
+    repository: minio/minio-boshrelease
+  nats:
+    version: '40'
+    repository: cloudfoundry/nats-release
+  networking:
+    version: '9'
+    repository: cloudfoundry/networking-release
+  nginx-buildpack:
+    version: 1.1.21
+    repository: cloudfoundry/nginx-buildpack-release
+  nginx:
+    repository: cloudfoundry-community/nginx-release
+    tag_prefix: ''
+    version: 1.19.1
+  node-exporter:
+    repository: cloudfoundry-community/node-exporter-boshrelease
+    version: 5.0.0
+  nodejs-buildpack:
+    version: 1.7.44
+    repository: cloudfoundry/nodejs-buildpack-release
+  oauth2-proxy:
+    repository: cloudfoundry-community/oauth2-proxy-boshrelease
+    version: 0.3.0
+  open-iscsi:
+    repository: orange-cloudfoundry/open-iscsi-boshrelease
+    version: '1'
+    tag_prefix: ''
+  orange-prometheus-addons:
+    repository: orange-cloudfoundry/orange-prometheus-addons-boshrelease/
+    version: '3'
+  os-conf:
+    repository: cloudfoundry/os-conf-release
+    version: 22.1.1
+  php-buildpack:
+    version: 4.4.32
+    repository: cloudfoundry/php-buildpack-release
+  postgres:
+    version: '43'
+    repository: cloudfoundry/postgres-release
+  prometheus:
+    version: 26.6.0
+    repository: cloudfoundry-community/prometheus-boshrelease
+  python-buildpack:
+    version: 1.7.31
+    repository: cloudfoundry/python-buildpack-release
+  pxc:
+    repository: cloudfoundry-incubator/pxc-release
+    version: 0.39.0
+  r-buildpack:
+    version: 1.1.13
+    repository: cloudfoundry/r-buildpack-release
+  routing:
+    version: 0.225.0
+    repository: cloudfoundry/routing-release
+  ruby-buildpack:
+    version: 1.8.32
+    repository: cloudfoundry/ruby-buildpack-release
+  shield:
+    version: 8.7.4
+    repository: starkandwayne/shield-boshrelease
+  shield-addon-bbr:
+    repository: shieldproject/shield-addon-bbr-boshrelease
+    version: 0.2.1
+  silk:
+    version: 2.39.0
+    repository: cloudfoundry/silk-release
+  squid:
+    repository: cloudfoundry-community/squid-boshrelease
+    version: 1.0.1
+  staticfile-buildpack:
+    version: 1.5.15
+    repository: cloudfoundry/staticfile-buildpack-release
+  statsd-injector:
+    version: 1.11.16
+    repository: cloudfoundry/statsd-injector-release
+  syslog:
+    repository: cloudfoundry/syslog-release
+    version: 11.7.5
+  terraform:
+    repository: orange-cloudfoundry/terraform-release
+    version: '4'
+    tag_prefix: ''
+  uaa:
+    version: 75.13.0
+    repository: cloudfoundry/uaa-release
+  wireguard:
+    repository: orange-cloudfoundry/wireguard-boshrelease
+    version: '6'
+    tag_prefix: ''
+stemcell:
+  version: '1.51'

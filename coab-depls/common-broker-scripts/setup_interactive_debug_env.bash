@@ -1,0 +1,1 @@
+../../shared-operators/k8s-kustomize-bases/common-broker-scripts/setup_interactive_debug_env.bash

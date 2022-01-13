@@ -1,0 +1,11 @@
+# add bosh-dns aliases for internet isolation segment
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/-
+  value:
+    domain: apps-internet-http-proxy.internal.paas
+    targets:
+    - deployment: isolation-segment-internet
+      domain: bosh
+      instance_group: internet-proxy
+      network: tf-is-internet
+      query: '*'

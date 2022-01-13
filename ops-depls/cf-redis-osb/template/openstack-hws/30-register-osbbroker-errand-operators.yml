@@ -1,0 +1,59 @@
+#errand leveraging scripting release (errand script) and cf-cli release (cf cli binary)
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: register-broker
+    instances: 1
+    lifecycle: errand
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: tf-net-osb-data-plane-shared-priv
+    jobs:
+    - name: errand-scripting
+      release: generic-scripting
+      properties:
+        scripting:
+          errand-script: |
+
+            #!/bin/bash
+
+            #--- Set scripting tmp directory
+            TMP_SCRIPTING="/var/vcap/data/tmp/scripting"
+            rm -fr ${TMP_SCRIPTING} > /dev/null 2>&1 ; mkdir ${TMP_SCRIPTING}
+            echo "begin" > ${TMP_SCRIPTING}/errand.log
+
+            #--- Connect to CF as admin
+            export PATH=$PATH:/var/vcap/jobs/cf-cli-6-linux/packages/cf-cli-6-linux/bin
+            cf api ((cf.api_url)) --skip-ssl-validation
+            cf auth admin ((cf.admin_password))
+            if [ $? != 0 ] ; then
+            echo "connect to cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+            else
+            echo "connect to cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+            fi
+
+            #--- Register broker or update its registration
+            service=$( cf service-brokers | grep "((service_name))" | wc -l)
+            if [ $service -eq 0 ] ; then
+            cf create-service-broker ((service_name)) ((broker.username)) ((broker-password)) https://redis-broker.((/secrets/osb_interco/osb_domain))
+            else
+            cf update-service-broker ((service_name)) ((broker.username)) ((broker-password)) https://redis-broker.((/secrets/osb_interco/osb_domain))
+            fi
+            if [ $? != 0 ] ; then
+            echo "register (create or update) in cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+            else
+            echo "register (create or update) in cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+            fi
+            cf enable-service-access ((service_name))
+            if [ $? != 0 ] ; then
+            echo "enable access in cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+            else
+            echo "enable access in cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+            fi
+
+            echo "end" >> ${TMP_SCRIPTING}/errand.log
+
+    - name: cf-cli-6-linux
+      release: cf-cli

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-metallb
+data:
+  config: |
+    address-pools:
+      #web vip
+    - name: marketplace-vip-pool
+      protocol: layer2
+      addresses:
+      - "192.168.99.18/32"

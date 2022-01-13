@@ -1,0 +1,5 @@
+#--- Osb data plane dedicated public extension
+osb-data-plane-dedicated-pub-extension-network-name: (( grab secrets.osb_data_plane_dedicated_public_extension.net_id ))
+osb_data_plane_dedicated_public_extension_range: (( grab secrets.osb_data_plane_dedicated_public_extension.range ))
+osb_data_plane_dedicated_public_extension_gateway: (( grab secrets.osb_data_plane_dedicated_public_extension.gateway ))
+osb_data_plane_dedicated_public_extension_reserved_dhcp: (( grab secrets.osb_data_plane_dedicated_public_extension.reserved_dhcp ))

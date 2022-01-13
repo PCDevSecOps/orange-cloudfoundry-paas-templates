@@ -1,0 +1,10 @@
+#creating a direct helm repo ref via internet, to avoid jcr cyclic dependency
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: jfrog
+spec:
+  interval: 10m
+  url: https://charts.jfrog.io
+
+

@@ -1,0 +1,102 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: concourse
+spec:
+  chart:
+    spec:
+      chart: concourse
+      version: "overridden by concourse-version-patch.yaml"
+      interval: 5m
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+
+  install:
+    crds: Create
+  interval: 3m
+  upgrade:
+    crds: CreateReplace
+  values:
+    concourse:
+      baseResourceTypeDefaults: |
+       registry-image:
+         registry_mirror:
+           host: https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+      web:
+        clusterName: concourse-k8s
+        externalUrl: https://concourse-k8s.((/secrets/cloudfoundry_ops_domain))
+        localAuth:
+          enabled: true
+        postgres:
+          port: 5432
+          database: atc
+        defaultBuildLogsToRetain: 50 # Default: unlimited
+        maxBuildLogsToRetain: 100 # Default: unlimited
+        enableBuildRerunWhenWorkerDisappears: true # Default: false
+        containerPlacementStrategy: limit-active-tasks # Default: volume-locality
+        limitActiveTasks: 4 # Default: unlimited
+
+        prometheus:
+          enabled: true
+          bindPort: 9391
+      worker:
+        baggageclaim:
+          logLevel: "info"
+          driver: btrfs
+        #use containerd (default is gdn garden)
+        runtime: containerd
+        containerd:
+          allowHostAccess: false #Default: false
+
+    web:
+      resources:
+        requests:
+          cpu: "100m"
+          memory: "128Mi"
+      service:
+        api:
+          type: NodePort
+        workerGateway:
+          type: ClusterIP
+          clusterIP: None
+      ingress:
+        enabled: true
+        hosts:
+          - concourse-k8s.((/secrets/cloudfoundry_ops_domain))
+        tls:
+          - hosts:
+            - concourse-k8s.((/secrets/cloudfoundry_ops_domain))
+            secretName: concourse
+        annotations:
+          kubernetes.io/ingress.class: nginx
+    worker:
+      hardAntiAffinity: true
+      hardAntiAffinityLabels:
+        release: concourse
+      resources:
+        requests:
+          cpu: "500m"
+          memory: "2048Mi"
+    persistence:
+      enabled: true
+      worker:
+        storageClass: local-path
+        accessMode: ReadWriteOnce
+        size: 50Gi
+    rbac:
+      create: true
+    secrets:
+      create: true
+      teamAuthorizedKeys:
+      - team: main
+        key: |-
+          ((worker_key.public_key))
+      hostKey: ((tsa_host_key.private_key))
+      hostKeyPub: ((tsa_host_key.public_key))
+      sessionSigningKey: ((token_signing_key.private_key))
+      workerKey: ((worker_key.private_key))
+      workerKeyPub: ((worker_key.public_key))
+      postgresUser: concourse
+      postgresPassword: ((concourse-postgres-password))
