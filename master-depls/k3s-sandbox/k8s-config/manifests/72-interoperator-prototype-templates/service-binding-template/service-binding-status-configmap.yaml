@@ -1,0 +1,38 @@
+# This is a research spike for service authors to return a config map with expected status to interoperator
+# instead of authoring gotemplate status
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-binding-status-${binding_id}
+  annotations:
+    service_instance_id: ${instance_id}
+data:
+  # the service binding status returned if the Kustomization is status is successfull
+#  state: "failed"
+#  state: "in progress"
+  state: "succeeded"
+
+  # This can support authors performing input validation or returning status of a job
+#  error: "failed to provision service binding: invalid parameter x requested"
+  # Typical response include
+  # - access url templated from ${instance_id}
+  # - login/password looked up from a secret produced by a 3rd party author (e.g. PerconaXtraDb cluster)
+
+  # Alternative ways to produce this resulting ConfigMap/secret (brainstorming)
+  # - A Job/CronJob with k8S api credential, polling for objects & writing the resource
+  #    - Indirectly by writing to a file in a volume (simpler for authors), and a side car reflects it as a secret
+  # - A Job/CronJob with git push credential, writing a file used by Flux Kustomize Config Generator
+  # - A kyverno policy watching expected Secret and mutating this ConfigMap
+  #     - A Policy can look up external data, including a configmap https://kyverno.io/docs/writing-policies/external-data-sources/
+  #     - A Policy can look up any K8S resource with a K8S api call, https://kyverno.io/docs/writing-policies/external-data-sources/#variables-from-kubernetes-api-server-calls
+  # - A naming convention in the returned response, and the interoperator go template performs the secret lookup and injects it
+  #   -
+  # - Modifying the 3rd party artefact to also create this expected secret
+  #   - helm post-renderer
+  #   - kyverno policy
+  response: |
+    # Should conform to osb specs at https://github.com/openservicebrokerapi/servicebroker/blob/master/spec.md#body-11
+    credentials: 
+      uri: "fake-uri-with-interpolated-variables-instance_id-${instance_id}-binding_id-${binding_id}"
+      syslog_drain_url: "syslog://redacted-fqdn/"
+  

@@ -1,0 +1,40 @@
+#--- Add generic scripting template
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: latest
+
+#--- Create directory for prometheus dynamic service discovery output file and set bosh server metrics certs
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=scripting?
+  value:
+    name: scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #--- Initialize logs
+          > /var/vcap/sys/log/scripting/pre-start.stderr.log
+          > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+          if [ ! -d /var/vcap/store/bosh_exporter ] ; then
+            echo "- Create directory for prometheus bosh_exporter."
+            sudo mkdir -p /var/vcap/store/bosh_exporter
+          fi
+
+          #--- Set metrics server certs for prometheus
+          echo "- Set metrics server certs for prometheus."
+          echo "((/bosh-master/bosh-ops/metrics_server_client_tls.ca))" > /var/vcap/data/scripting/metrics_server_ca.crt
+          echo "((/bosh-master/bosh-ops/metrics_server_client_tls.certificate))" > /var/vcap/data/scripting/metrics_server_cert.crt
+          echo "((/bosh-master/bosh-ops/metrics_server_client_tls.private_key))" > /var/vcap/data/scripting/metrics_server_key.crt
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+    release: generic-scripting

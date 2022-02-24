@@ -1,0 +1,30 @@
+#--- add nic on intranet interco
+- type: replace
+  path: /releases/-
+  value:
+    name: networking
+    version: latest
+
+
+- type: replace
+  path: /instance_groups/name=agents/networks/-
+  value:
+   name: intranet-interco
+
+#--- Set routes to public internal subnets
+- type: replace
+  path: /instance_groups/name=agents/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+        - net: 10.0.0.0
+          netmask: 255.0.0.0
+          gateway: ((/secrets/multi_region_region_1_intranet_interco_gateway))
+
+        #to enable response to dedicated pub network via private router, must set a more precise route than 10.x
+#        - net: ((dedicated_pub_net)) #dedicated pub network
+#          netmask: 255.255.255.0 #FIXME: dedicated pub netmask netmask for /24
+#          gateway: 192.168.99.1 #tf-net-exchange gateway

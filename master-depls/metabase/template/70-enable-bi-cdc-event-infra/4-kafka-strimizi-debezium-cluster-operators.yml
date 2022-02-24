@@ -1,0 +1,47 @@
+# connect cluster
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "debezium-connect-cluster"
+    cmd: "apply"
+    options: "-n kafka"
+    content:
+      apiVersion: kafka.strimzi.io/v1beta1
+      kind: KafkaConnect
+      metadata:
+        name: debezium-connect-cluster
+        annotations:
+        # use-connector-resources configures this KafkaConnect
+        # to use KafkaConnector resources to avoid
+        # needing to call the Connect REST API directly
+          strimzi.io/use-connector-resources: "true"
+      spec:
+        #image: debezium/connect:((debezium/connect)) KO, ,need to extend strimzi image with debezium-postgres
+        replicas: 1
+        bootstrapServers: paas-templates-bi-kafka-bootstrap:9093
+        tls:
+          trustedCertificates:
+            - secretName:  paas-templates-bi-cluster-ca-cert
+              certificate: ca.crt
+        config:
+          group.id: debezium-connect-cluster
+          offset.storage.topic: debezium-cluster-offsets
+          config.storage.topic: debezium-cluster-configs
+          status.storage.topic: debezium-cluster-status
+          config.storage.replication.factor: 3
+          offset.storage.replication.factor: 3
+          status.storage.replication.factor: 3
+
+#          key.converter: org.apache.kafka.connect.json.JsonConverter
+#          value.converter: org.apache.kafka.connect.json.JsonConverter
+#          key.converter.schemas.enable: true
+#          value.converter.schemas.enable: true
+          config.providers: file
+          config.providers.file.class: org.apache.kafka.common.config.provider.FileConfigProvider
+          
+#        externalConfiguration:
+#          volumes:
+#            - name: connector-config
+#              secret:
+#                secretName: my-sql-credentials

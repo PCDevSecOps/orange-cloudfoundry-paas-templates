@@ -1,0 +1,28 @@
+##################################################
+      
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+    name: instance-sapcp-instance-guid
+    annotations:
+      operator-broker/service-id: 74726c04-7011-11e9-a923-1681be663d3e
+      operator-broker/plan-id: 872131dc-7011-11e9-a923-1681be663d3e
+spec:
+  interval: 2m0s
+  path: ./master-depls/k3s-sandbox/k8s-config/manifests/72-interoperator-prototype-templates/service-instance-template
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+    namespace: fluxcd
+  wait: true
+  timeout: 2m
+  postBuild:
+    substitute:
+      instance_id: instance-guid
+      service_id: 74726c04-7011-11e9-a923-1681be663d3e
+      plan_id: 872131dc-7011-11e9-a923-1681be663d3e
+      interoperator_namespace: default
+
+
+##################################################

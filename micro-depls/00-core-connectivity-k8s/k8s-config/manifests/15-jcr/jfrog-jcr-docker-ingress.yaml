@@ -1,0 +1,44 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    #try to enable docker login session with multiple jcr
+#    nginx.ingress.kubernetes.io/affinity: "cookie"
+#    nginx.ingress.kubernetes.io/affinity-mode: persistent
+#    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
+#    nginx.ingress.kubernetes.io/session-cookie-name: "jcr-docker-cookie"
+
+  labels:
+    app: artifactory
+  name: jfrog-jcr-docker
+  namespace: jcr
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jfrog-jcr-artifactory-active
+            port:
+              number: 8081
+
+  - host: quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jfrog-jcr-artifactory-active
+            port:
+              number: 8081
+
+  tls:
+  - hosts:
+    - docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+    - quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+    secretName: jcr-ssl

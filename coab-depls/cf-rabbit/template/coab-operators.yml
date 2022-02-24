@@ -1,0 +1,438 @@
+- type: replace
+  path: /releases/name=generic-scripting?
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /releases/name=minio?
+  value:
+    name: minio
+    version: latest
+
+- type: replace
+  path: /releases/name=cron?
+  value:
+    name: cron
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "pre-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+#add mc job operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: mc
+    release: minio
+    templates:
+      - name: mc
+    consumes:
+      minio:
+        instances:
+          - address: fake.internal.paas
+        properties:
+          port: "1234"
+          credential:
+            accesskey: fake-s3
+            secretkey: "fake*1234"
+    properties:
+      script: |
+        #!/bin/sh
+
+#define pre-start script in order to purge tasks and shrink database and to update nginx configuration for service metrics file
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=scripting/properties/scripting/pre-start-script
+  value: |
+
+    #--- Initialize context
+    echo "- Start pre-start"
+    > /var/vcap/sys/log/scripting/pre-start.stderr.log
+    > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+    set +e
+
+    #-------------------------------------
+    #--- Use sqlite cli in order to purge old tasks (greater than 10 days i.e 864000 seconds)
+    #-------------------------------------
+    echo "- Start old tasks purge"
+    cp /var/vcap/store/shield/shield.db /var/vcap/store/shield/shield.db.backup #keep a copy before purge and shrink
+    chown vcap:vcap /var/vcap/store/shield/shield.db.backup
+    /var/vcap/packages/sqlite3/bin/sqlite3 /var/vcap/store/shield/shield.db <<END_SQL
+    DELETE FROM tasks WHERE strftime('%s','now') - requested_at > 864000;
+    END_SQL
+    /var/vcap/packages/sqlite3/bin/sqlite3 /var/vcap/store/shield/shield.db 'VACUUM;'  #shrink database in order to save space
+    echo "- Old tasks purge done"
+
+    #-------------------------------------
+    #--- Generate additional server config for nginx in order to serve metrics
+    #-------------------------------------
+    echo "- Start config generation "
+
+    cat <<EOF > /var/vcap/jobs/core/config/addon
+    #metrics#
+        server {
+          listen       9091;
+          server_name  metrics;
+          location / {
+              root   /tmp;
+              index  metrics;
+              add_header Content-Type text/plain;
+              autoindex on;
+          }
+        }
+    }
+    EOF
+
+    #test if addon already presents in /var/vcap/jobs/core/config/nginx.conf
+    addon=$(cat /var/vcap/jobs/core/config/nginx.conf | grep '#metrics#' | wc -l)
+    if [ "${addon}" -eq 0 ]; then
+    #addon is not present so concat at the end
+    length=$(cat /var/vcap/jobs/core/config/nginx.conf | wc -l)
+    size=$(expr ${length} - 1)
+    head -${size} /var/vcap/jobs/core/config/nginx.conf > /var/vcap/jobs/core/config/nginx.conf.tmp
+    mv /var/vcap/jobs/core/config/nginx.conf.tmp /var/vcap/jobs/core/config/nginx.conf
+    elif [ "${addon}" -eq 1 ]; then
+    #addon is already present so clean and afterwards concat at the end
+    line_counter=13
+    head -n -${line_counter} /var/vcap/jobs/core/config/nginx.conf > /var/vcap/jobs/core/config/nginx.conf.tmp
+    mv /var/vcap/jobs/core/config/nginx.conf.tmp /var/vcap/jobs/core/config/nginx.conf
+    else
+    echo "unexpected case"
+    exit 1
+    fi
+
+    cat /var/vcap/jobs/core/config/addon >> /var/vcap/jobs/core/config/nginx.conf
+    chown root:vcap /var/vcap/jobs/core/config/nginx.conf
+    echo "- End config generation "
+
+#define post-start script in order to create bucket
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=scripting/properties/scripting/post-start-script
+  value: |
+
+    #--- Initialize context
+    echo "- Start post-start"
+    > /var/vcap/sys/log/scripting/post-start.stderr.log
+    > /var/vcap/sys/log/scripting/post-start.stdout.log
+
+    #--- Configure S3
+    set +e
+
+    export http_proxy=((http_proxy))
+    export https_proxy=((http_proxy))
+    export no_proxy=localhost,127.0.0.1,((shield-alias-prefix))((instance_id))((shield-domain-suffix)),((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) #no proxy to connect to shield server
+
+    BUCKET=((s3_bucket_prefix))-cf-rabbitcoab
+
+    /var/vcap/packages/mc/mc config host add remote_s3 ((s3_host)) ((s3_access_key_id)) ((s3_secret_access_key)) --api s3v4
+    if [ $? != 0 ] ; then echo "remote S3 target configuration failed\n" ; exit 0 ; fi
+
+    /var/vcap/packages/mc/mc mb remote_s3/${BUCKET} --ignore-existing
+    if [ $? != 0 ] ; then echo "bucket ${BUCKET} creation failed in remote s3\n" ; exit 0 ; fi
+
+    unset http_proxy
+    unset https_proxy
+    unset no_proxy
+
+#define post-deploy script in order to init and unlock
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=scripting/properties/scripting/post-deploy-script
+  value: |
+
+    #--- Initialize context
+    echo "- Start post-deploy"
+    > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+    > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+    #-------------------------------------
+    #--- Use shield cli in order to unlock
+    #-------------------------------------
+    echo "- Begin unlock"
+
+    set +e
+
+    #wait for bosh-dns startup (30s max)
+    counter=$(ps -aux | grep "bosh-dns" | wc -l)
+    retry_counter=0
+    while [ ${retry_counter} -lt 10 ]; do
+        echo "waiting"
+        sleep 3
+        retry_counter=$[${retry_counter} + 1]
+        counter=$(ps -aux | grep "bosh-dns" | wc -l)
+    done
+    if [ ${counter} -eq 4 ]; then
+        /var/vcap/packages/shield/bin/shield api -k https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) ((shield-core))
+        /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p shield
+        /var/vcap/packages/shield/bin/shield --core ((shield-core)) init --master shield
+        /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master ((failsafe-password))
+        if [ $? -eq 1 ]; then
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master shield
+        fi
+        echo "- Unlock done"
+    else
+        echo "- Unlock failure (timeout waiting for bosh-dns... it is not possible to unlock shield)"
+    fi
+
+    echo "- End unlock"
+
+    #-------------------------------------
+    #--- Clean useless jobs
+    #-------------------------------------
+    echo "- Begin cleaning useless jobs"
+
+    #Database cleaning
+    set +e #skip errors (database is locked)
+    /var/vcap/packages/sqlite3/bin/sqlite3 /var/vcap/store/shield/shield.db <<END_SQL
+    DELETE FROM jobs WHERE name LIKE '192%daily%';
+    END_SQL
+
+    echo "- End cleaning useless jobs"
+
+- type: replace
+  path: /instance_groups/name=rmq/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "post-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          #--- Initialize context
+          echo "- Start post-deploy"
+          > /var/vcap/sys/log/scripting/post-deploy.stderr.log
+          > /var/vcap/sys/log/scripting/post-deploy.stdout.log
+
+          set +u
+          cat <<EOF > /var/vcap/jobs/import/bin/addon
+          tenant=\$(\${bin}/shield tenants | grep ((deployment_name)) | grep -oE '[0-9a-z]{8,8}' | head -n 1)
+          #i holds the instance group index
+          i=\$(cat /etc/hosts | grep `hostname -I` | grep -oE ' [0-9]{1,1}\.' | grep -oE '[0-9]{1,1}')
+          if [ "\${i}" -eq 0 ]; then
+          hour0=\$(expr \${RANDOM} % 8) || true #https://unix.stackexchange.com/questions/63166/bash-e-exits-when-let-or-expr-evaluates-to-0
+          minute=\$(expr \${RANDOM} % 59) || true #https://unix.stackexchange.com/questions/63166/bash-e-exits-when-let-or-expr-evaluates-to-0
+          if [ \${minute} -lt 10 ] ; then
+          minute="0"\${minute}
+          fi
+          hour1=\$(expr \${hour0} + 8)
+          hour2=\$(expr \${hour1} + 8)
+          when0="daily \${hour0}:\${minute}"
+          when1="daily \${hour1}:\${minute}"
+          when2="daily \${hour2}:\${minute}"
+          \${bin}/shield update-job -t \${tenant} cf-rabbit/0-daily --schedule "\${when0}"
+          \${bin}/shield update-job -t \${tenant} cf-rabbit/1-daily --schedule "\${when1}"
+          \${bin}/shield update-job -t \${tenant} cf-rabbit/2-daily --schedule "\${when2}"
+          fi
+          EOF
+
+          #test if addon already presents in /var/vcap/jobs/import/bin/run
+          addon=$(cat /var/vcap/jobs/import/bin/run | grep '#i' | wc -l)
+          if [ "${addon}" -eq 0 ]; then
+          #addon is not present so concat at the end
+          echo "nothing to do"
+          elif [ "${addon}" -eq 1 ]; then
+          #addon is already present so clean and afterwards concat at the end
+          line_counter=18
+          head -n -${line_counter} /var/vcap/jobs/import/bin/run > /var/vcap/jobs/import/bin/run.tmp
+          mv /var/vcap/jobs/import/bin/run.tmp /var/vcap/jobs/import/bin/run
+          else
+          echo "unexpected case"
+          exit 1
+          fi
+
+          #add addon to the end and change rights
+          cat /var/vcap/jobs/import/bin/addon >> /var/vcap/jobs/import/bin/run
+          chown root:vcap /var/vcap/jobs/import/bin/run
+          chmod +x /var/vcap/jobs/import/bin/run
+
+#errand leveraging scripting release (errand script) to reset shield v8 password
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          #--- Initialize context
+          > /var/vcap/sys/log/scripting/errand-scripting.stderr.log
+          > /var/vcap/sys/log/scripting/errand-scripting.stdout.log
+
+          echo "- Begin errand-scripting in order to reset shield admin password to failsafe password"
+
+          #deploy with failsafe password (done by manifest)
+
+          #delete admin user with SHIELD-CLI
+          echo "delete admin user"
+          /var/vcap/packages/shield/bin/shield api -k https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) ((shield-core))
+          set +e
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+          if [ $? -eq 1 ]; then
+            /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p shield
+          fi
+          set -e
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) delete-user admin -y
+
+          #stop shield core
+          echo "stop shield core and wait for 10 seconds"
+          sudo monit stop shieldd;sudo sleep 10
+
+          #start shield core
+          echo "start shield core and wait for 10 seconds"
+          sudo monit start shieldd;sudo sleep 10
+
+          #unlock shield
+          echo "unlock shield"
+          /var/vcap/packages/shield/bin/shield api -k https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) ((shield-core))
+          set +e
+          /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master ((failsafe-password))
+          if [ $? -eq 1 ]; then
+            /var/vcap/packages/shield/bin/shield --core ((shield-core)) unlock --master shield
+          fi
+          set -e
+
+          echo "- End errand-scripting in order to reset shield admin password to failsafe password"
+
+# add job section
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+          - script:
+              name: prometheus.sh
+              contents: |
+
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Start metrics generation "
+
+                /var/vcap/packages/shield/bin/shield api -k https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) ((shield-core))
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+
+                #prepare files
+                >/tmp/metrics
+                >/tmp/paused
+                >/tmp/job_status
+                >/tmp/header_paused
+                echo "# HELP shield_job_paused Shield Job pause status (1 for paused, 0 for unpaused)." >> /tmp/header_paused
+                echo "# TYPE shield_job_paused gauge" >> /tmp/header_paused
+                >/tmp/header_status
+                echo "# HELP shield_job_status Shield Job status (0 for unknow, 1 for pending, 2 for running, 3 for canceled, 4 for failed, 5 for done)." >>/tmp/header_status
+                echo "# TYPE shield_job_status gauge" >>/tmp/header_status
+
+                #use SHIELD CLI in order to get jobs information in order to populate files
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) --tenant ((deployment_name)) jobs | grep -oE '^[0-9a-z]{8,8}' > /tmp/jobs.lst
+                for job in $(cat /tmp/jobs.lst); do
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) --tenant ((deployment_name)) job ${job} > /tmp/job.lst
+                status=$(cat /tmp/job.lst | grep -oE '[healthy]{7,7}|[failed]{6,6}|[paused]{6,6}')
+                echo ${status}
+                name=$(cat /tmp/job.lst | grep 'Data System')
+                n=$(echo ${name} | cut -d ' ' -f 3)
+                echo ${n}
+                #shield_job_status{environment="fe-prod",job_name="bosh_coab_backup"} 5
+                if [ "${status}" = "paused" ] ; then
+                echo "shield_job_paused{environment=\"((/secrets/site))\",job_name=\"${n}\"} 1" >> /tmp/paused
+                elif [ "${status}" = "healthy" ] ; then
+                echo "shield_job_paused{environment=\"((/secrets/site))\",job_name=\"${n}\"} 0" >> /tmp/paused
+                echo "shield_job_status{environment=\"((/secrets/site))\",job_name=\"${n}\"} 5" >> /tmp/job_status
+                else #failed
+                echo "shield_job_paused{environment=\"((/secrets/site))\",job_name=\"${n}\"} 0" >> /tmp/paused
+                echo "shield_job_status{environment=\"((/secrets/site))\",job_name=\"${n}\"} 4" >> /tmp/job_status
+                fi
+                done
+
+                #bosh metric
+                >/tmp/bosh
+                grep [0-2]\.rmq.tf-net-osb-data-plane-dedicated-priv.((deployment-name)) /etc/hosts | cut -d ' ' -f 1 > /tmp/ips.lst
+                for ip in $(cat /tmp/ips.lst); do
+                  echo "bosh_job_healthy{bosh_deployment=\"((deployment_name))\",bosh_job_ip=\"${ip}\",bosh_job_name=\"rmq\",environment=\"coab\"} 1" >> /tmp/bosh
+                done
+
+                #concat all files together
+                cat /tmp/header_paused >> /tmp/metrics
+                cat /tmp/paused >> /tmp/metrics
+                cat /tmp/header_status >> /tmp/metrics
+                cat /tmp/job_status >> /tmp/metrics
+                cat /tmp/bosh >> /tmp/metrics
+
+                #display metrics file
+                cat /tmp/metrics
+
+                echo "- End metrics generation "
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+            log: /var/vcap/sys/log/cron/prometheus.log
+            lock: /var/vcap/sys/run/cron/prometheus.lock
+            day: '*'
+            hour: '*'
+            minute: '0'
+            month: '*'
+            user: root
+            wday: '*'
+
+          - script:
+              name: discovery.sh
+              contents: |
+
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Start discovery file pulling "
+
+                curl -X GET http://prometheus-coab.internal.paas:9095 > /tmp/bosh_target_groups.tmp
+                mv /tmp/bosh_target_groups.tmp /tmp/bosh_target_groups.json
+
+                cat /tmp/bosh_target_groups.json
+
+                echo "- End discovery file pulling "
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+            log: /var/vcap/sys/log/cron/discovery.log
+            lock: /var/vcap/sys/run/cron/discovery.lock
+            day: '*'
+            hour: '*'
+            minute: '*/5'
+            month: '*'
+            user: root
+            wday: '*'
+
+#--- patch cluster name for rabbitmq_prometheus plugin
+#- type: replace
+#  path: /instance_groups/name=rmq/jobs/name=rabbitmq-server/properties/rabbitmq-server/cluster_name?
+#  value: ((deployment_name))

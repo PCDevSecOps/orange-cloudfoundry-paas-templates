@@ -1,0 +1,25 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-default-config
+  namespace: ops-portal
+data:
+  default.conf : |
+    server {
+      listen 80 default_server;
+      server_name _;
+      server_tokens off;
+      root /var/www/htdocs;
+      index index.html index.htm;
+
+      location / {
+        try_files $uri $uri/ =404;
+      }
+
+      location = /favicon.ico {
+        return 204;
+        access_log     off;
+        log_not_found  off;
+      }
+    }

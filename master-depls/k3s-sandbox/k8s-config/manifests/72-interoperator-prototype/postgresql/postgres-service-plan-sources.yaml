@@ -1,0 +1,31 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: sources
+    type: gotemplate
+    content: |
+      {{- $instanceID := "" }}
+      {{- with .instance.metadata.name }} {{ $instanceID = . }} {{ end }}
+      {{- $bindingID := "" }}
+      {{- with .binding.metadata.name }} {{ $bindingID = . }} {{ end }}
+      {{- $namespace := "" }}
+      {{- with .instance.metadata.namespace }} {{ $namespace = . }} {{ end }}
+      {{- $namePrefix := "" }}
+      {{- with .plan.spec.context.namePrefix }} {{ $namePrefix = . }} {{ end }}
+      postgresql:
+        apiVersion: acid.zalan.do/v1
+        kind: postgresql
+        name: {{ $namePrefix }}-{{ $instanceID }}
+        namespace: {{ $namespace }}
+      {{- with .binding.metadata.name }}
+      secret:
+        apiVersion: v1
+        kind: Secret
+        name: {{ . }}.{{ $namePrefix }}-{{ $instanceID }}.credentials.postgresql.acid.zalan.do
+        namespace: {{ $namespace }}
+      svc:
+        apiVersion: v1
+        kind: Service
+        name: {{ $namePrefix }}-{{ $instanceID }}
+        namespace: {{ $namespace }}
+      {{- end }}

@@ -1,0 +1,53 @@
+#configure GitRepositories for paas-template
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: paas-template-credentials-secret
+    namespace: fluxcd
+    data:
+    - name: username
+      value:  ((/secrets/git_template_user))
+    - name: password
+      value:  ((/secrets/git_template_password))
+
+#wip merged branch, only /shared-operators/k8s-kustomize-bases
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "template-wip-shared"
+    cmd: "apply"
+    content:
+      apiVersion: source.toolkit.fluxcd.io/v1beta1
+      kind: GitRepository
+      metadata:
+        name: template-wip-shared
+        namespace: fluxcd
+      spec:
+        interval: 1m0s
+        ref:
+          branch: ((/secrets/git_template_wip_merged_branch))
+        secretRef:
+          name: paas-template-credentials-secret
+        url: ((/secrets/git_template_uri))
+        ignore: |
+          # exclude all
+          /*
+          !/shared-operators/k8s-kustomize-bases
+
+
+#patch gitops GitRepositories to include wip paas-template / shared-operators
+- type: remove
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=paas-k8s-gitops-repo/content/spec/ignore
+
+#patch gitops GitRepositories to include paas-template / shared-operators from wip
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=paas-k8s-gitops-repo/content/spec/include?
+  value:
+    #merge interpolated repo with direct paas-templates merged branch for shared kustomization
+  - repository:
+      name: template-wip-shared
+    fromPath: /shared-operators/k8s-kustomize-bases
+    toPath: /shared-operators/k8s-kustomize-bases
+

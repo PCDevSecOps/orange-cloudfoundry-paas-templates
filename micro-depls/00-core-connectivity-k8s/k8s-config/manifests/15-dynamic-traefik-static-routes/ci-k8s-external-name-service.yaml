@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ci-k8s
+spec:
+  externalName: q-s0.agents.net-bosh-2.01-ci-k8s.bosh #bosh dns query to target healthy ci-k8s agent
+  type: ExternalName

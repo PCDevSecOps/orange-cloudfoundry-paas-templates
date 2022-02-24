@@ -1,0 +1,8 @@
+---
+# This indirectly propagates the content of the coab-vars.yml to the bosh manifest as an extra toplevel "coab_completion_marker" field
+# which gets ignored by bosh director, but preserved in the resulting manifest.
+# This is used by COAB to track the propagation/completion of changes of coab-vars through COA pipeline
+# The
+- type: replace
+  path: /coab_completion_marker?
+  value: ((coab_completion_marker)) # fetched from coab-completion-marker-vars.yml copied from coab-vars.yml by pre-deploy.sh script

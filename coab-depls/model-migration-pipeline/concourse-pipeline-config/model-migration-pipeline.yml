@@ -1,0 +1,1620 @@
+---
+meta:
+  tasks:
+    - &pause-upgrade-coab-remaining-instances
+      put: fly
+      params:
+        options:  |
+          pause-job -j $BUILD_PIPELINE_NAME/upgrade-coab-remaining-instances --team main
+
+    - &notify_on_failure
+      put: failure-alert
+      params:
+        channel: ((slack-channel))
+        text: Failed to run [[$BUILD_PIPELINE_NAME/$BUILD_JOB_NAME ($BUILD_NAME)]($ATC_EXTERNAL_URL/teams/main/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME)].
+        icon_url: http://cl.ly/image/3e1h0H3H2s0P/concourse-logo.png
+        username: Concourse # credential_leak_validated
+    - &setup-orange-cf-bosh-cli-task
+        platform: linux
+        image_resource: &orange-cf-bosh-cli-image
+          type: registry-image
+          source:
+            repository: orange-cloudfoundry/orange-cf-bosh-cli
+            tag: ((orange-bosh-cli-version))
+        inputs:
+          - name: secrets
+          - name: paas-templates
+          - name: additional-resource
+            optional: true
+        outputs:
+          - name: secrets-updated
+          - name: logs
+        run:
+          path: bash
+          args:
+            - -ce
+            - |
+              #--- Colors and styles
+              export GREEN='\033[1;32m'
+              export YELLOW='\033[1;33m'
+              export RED='\033[1;31m'
+              export STD='\033[0m'
+              export BOLD='\033[1m'
+              export REVERSE='\033[7m'
+
+              echo "Check ruby version"
+              ruby --version
+              echo "Bosh CLI: $(bosh --version)"
+              echo -e "Credhub:\n$(credhub --version)"
+              cf --version
+
+              mkdir -p /usr/local/bin
+              FLY=/usr/local/bin/fly
+              echo "Fetching fly...";
+              curl -SsL "$CONCOURSE_URL/api/v1/cli?arch=amd64&platform=linux" -k > $FLY;
+              chmod +x $FLY;
+
+              echo "Concourse CLI(Fly) version: $(fly --version)"
+              git config --global user.email "$GIT_USER_EMAIL"
+              git config --global user.name "$GIT_USER_NAME"
+              git config --global advice.detachedHead false
+              export TERM=xterm-256color
+              git clone secrets ${FINAL_REPO}
+              mkdir -p ~/bosh
+              ln -s $PWD/${FINAL_REPO} $HOME/bosh/secrets
+              ln -s $PWD/paas-templates $HOME/bosh/template
+              echo "check credhub configuration. Getting  '/meta/template_version': $(credhub g -q -n /meta/template_version)"
+              echo "creating upgrade file from BASH_SCRIPT_CONTENT environment variable"
+              printenv BASH_SCRIPT_CONTENT > script.sh
+              chmod +x script.sh
+              ./script.sh
+        params:
+          FINAL_REPO: secrets-updated
+          CREDHUB_CA_CERT: |
+            ((internalCA2))
+            ((internalCA))
+          BOSH_CA_CERT: ((internalCA2))((internalCA))
+          CREDHUB_CLIENT: ((credhub-client))
+          CREDHUB_SECRET: ((credhub-secret))
+          CREDHUB_SERVER: ((credhub-server))
+          OPS_DOMAIN: ((cloudfoundry_ops_domain))
+          GIT_USER_NAME: "Orange Cloud Foundry SKC CI Server" # credential_leak_validated
+          GIT_USER_EMAIL: "codex.clara-cloud-ops@orange.com" # credential_leak_validated
+          CONCOURSE_URL: ((concourse-url))
+          CONCOURSE_USERNAME: ((concourse-admin.username))
+          CONCOURSE_PASSWORD: ((concourse-admin.password))
+          CONCOURSE_INSECURE: ((concourse-insecure))
+          FLY_TARGET: concourse
+          IAAS_TYPE: ((iaas-type))
+          PROFILES: ((profiles))
+
+    - &apply-migration-task
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: governmentpaas/bosh-cli-v2 #credhub var
+          tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+      inputs:
+        - name: paas-templates-model
+        - name: service-instances-input
+      outputs:
+        - name: service-instances-output
+      run:
+        path: /bin/sh
+        args:
+          - -c
+          - |
+
+            MODEL_REPOSITORY=paas-templates-model
+            INPUT_INSTANCES=service-instances-input
+            OUTPUT_INSTANCES=service-instances-output
+
+            echo "begin cloning repository"
+            GIT_USER_NAME="Orange Cloud Foundry SKC CI Server" # credential_leak_validated
+            GIT_USER_EMAIL="codex.clara-cloud-ops@orange.com" # credential_leak_validated
+            GIT_COMMIT_MESSAGE="migration of dedicated services instances"
+            git config --global user.email "${GIT_USER_EMAIL}"
+            git config --global user.name "${GIT_USER_NAME}"
+            git clone ${INPUT_INSTANCES} ${OUTPUT_INSTANCES}
+            echo "end cloning repository"
+
+            echo "begin coab migration pipeline - building"
+            ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${MODEL_REPOSITORY} -b > /tmp/migrate_coab_pipeline_build.log 2>&1
+            cat /tmp/migrate_coab_pipeline_build.log
+            echo "end coab migration pipeline - building"
+
+            echo "begin coab migration pipeline - migrating"
+            ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${OUTPUT_INSTANCES} -m > /tmp/migrate_coab_pipeline_migrate.log 2>&1
+            cat /tmp/migrate_coab_pipeline_migrate.log
+            echo "end coab migration pipeline - migrating"
+
+            echo "begin display status"
+            cd ${OUTPUT_INSTANCES}
+            git status
+
+            git add .
+            echo "Git Diff:"
+            git diff
+            CHANGE_DETECTED_COUNTER=$(git status --porcelain|wc -l)
+            if [ ${CHANGE_DETECTED_COUNTER} -gt 0 ]; then
+            echo "commiting"
+            git commit --no-verify -a -m "$GIT_COMMIT_MESSAGE"
+            git --no-pager show HEAD
+            else
+            echo "No change detected, skip commit"
+            fi
+
+    - &check-triggered-jobs |
+        set -e
+        echo "Login to Concourse"
+        fly login -t $FLY_TARGET -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name coab-depls 2>&1 # credential_leak_validated
+
+        trigger_jobs_logs=$(find additional-resource -type f -name "*.log" 2>/dev/null)
+        exit_code=0
+        for j in $trigger_jobs_logs;do
+          status=$(cat $j|tail -1)
+          job_name=${j##additional-resource/}
+          job_name=${job_name%%.log}
+          echo "$job_name: $status"
+          if [ "$status" != "succeeded" ]; then
+            echo "Model migration failure detected !"
+            exit_code=1
+          fi
+        done
+        exit $exit_code
+
+resource_types:
+  - name: slack-notification
+    type: registry-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+      tag: v1.4.2
+  - name: fly-current-resource
+    type: registry-image
+    source:
+      repository: orangecloudfoundry/concourse-fly-resource
+      tag: 2.0.1-orange
+
+resources:
+  - name: daily
+    type: time
+    source:
+      start: 23:00
+      stop:  23:59
+      location: "Europe/Paris"
+
+  - name: paas-templates-reference
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((paas-templates-reference-branch))
+      skip_ssl_verification: true
+      paths: ["coab-depls"]
+
+  - name: noop-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((noop-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: noop-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((noop-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: noop-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((noop-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-extended-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-extended-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-mysql-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-mysql-extended-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-mysql-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-extended-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-extended-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((mongodb-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: mongodb-extended-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((mongodb-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-extended-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-extended-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((cf-rabbit-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: cf-rabbit-extended-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((cf-rabbit-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-extended-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-extended-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((redis-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: redis-extended-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((redis-extended-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: strimzi-service-instances
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((strimzi-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: strimzi-service-instances-backup
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: backup-((strimzi-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: strimzi-service-instances-updated
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((strimzi-service-instances-branch))
+      skip_ssl_verification: true
+
+  - name: coab-maintenance-windows
+    type: time
+    source:
+      interval: ((coab-managed-upgrade.trigger.scan-frequency))
+      location: Europe/Paris
+      start: ((coab-managed-upgrade.trigger.start))
+      stop: ((coab-managed-upgrade.trigger.stop))
+
+  - name: secrets
+    type: git
+    source:
+      uri: ((secrets-uri))
+      branch: ((secrets-branch))
+      skip_ssl_verification: true
+      git_config:
+        - name: advice.detachedHead
+          value: false
+
+  - name: secrets-no-skip
+    type: git
+    source:
+      uri: ((secrets-uri))
+      branch: ((secrets-branch))
+      skip_ssl_verification: true
+      disable_ci_skip: true
+      git_config:
+        - name: advice.detachedHead
+          value: false
+
+  - name: fly
+    type: fly-current-resource
+    source:
+      url: ((concourse-url))
+      username: ((concourse-admin.username))
+      password: ((concourse-admin.password))
+      insecure: ((concourse-insecure))
+#      debug: true  # debug: Optional. Set to true to print commands for troubleshooting, including credentials.
+#      secure_output: Optional. Set to true to suppress output from fly.
+#      multiline_lines: Optional. Set to true to interpret \ as one line (mostly for big options line).
+
+  - name: paas-templates
+    type: git
+    source:
+      uri: ((paas-templates-uri))
+      branch: ((paas-templates-branch))
+      skip_ssl_verification: true
+      git_config:
+        - name: advice.detachedHead
+          value: false
+
+  - name: cf-ops-automation
+    type: git
+    source:
+      uri: ((cf-ops-automation-uri))
+      branch: ((cf-ops-automation-branch))
+      tag_filter: ((cf-ops-automation-tag-filter))
+      skip_ssl_verification: true
+      git_config:
+        - name: advice.detachedHead
+          value: false
+
+  - name: failure-alert
+    type: slack-notification
+    source:
+      url: ((slack-webhook))
+      proxy: ((slack-proxy))
+      proxy_https_tunnel: ((slack-proxy-https-tunnel))
+      disable: ((slack-disable))
+
+groups:
+  - name: all
+    jobs:
+      - "*"
+
+  - name: migration-on-noop
+    jobs:
+      - backup-noop-service-instances-branch
+      - plan-coab-migration-on-noop-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-noop-service-instances-based-on-reference-branch
+
+  - name: migration-on-cf-mysql
+    jobs:
+      - backup-cf-mysql-service-instances-branch
+      - plan-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+
+  - name: migration-on-cf-mysql-extended
+    jobs:
+      - backup-cf-mysql-extended-service-instances-branch
+      - plan-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+
+  - name: migration-on-mongodb
+    jobs:
+      - backup-mongodb-service-instances-branch
+      - plan-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+
+  - name: migration-on-mongodb-extended
+    jobs:
+      - backup-mongodb-extended-service-instances-branch
+      - plan-coab-migration-on-mongodb-extended-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-mongodb-extended-service-instances-based-on-reference-branch
+
+  - name: migration-on-cf-rabbit
+    jobs:
+      - backup-cf-rabbit-service-instances-branch
+      - plan-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+
+  - name: migration-on-cf-rabbit-extended
+    jobs:
+      - backup-cf-rabbit-extended-service-instances-branch
+      - plan-coab-migration-on-cf-rabbit-extended-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-cf-rabbit-extended-service-instances-based-on-reference-branch
+
+  - name: migration-on-redis
+    jobs:
+      - backup-redis-service-instances-branch
+      - plan-coab-migration-on-redis-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-redis-service-instances-based-on-reference-branch
+
+  - name: migration-on-redis-extended
+    jobs:
+      - backup-redis-extended-service-instances-branch
+      - plan-coab-migration-on-redis-extended-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-redis-extended-service-instances-based-on-reference-branch
+
+  - name: migration-on-strimzi
+    jobs:
+      - backup-strimzi-service-instances-branch
+      - plan-coab-migration-on-strimzi-service-instances-based-on-reference-branch
+      - apply-coab-migration-on-strimzi-service-instances-based-on-reference-branch
+
+  - name: upgrade
+    jobs:
+      - manual-step-upgrade-coab-models
+      - trigger-after-checking-coab-models-upgrade
+      - canary-coab-instances
+      - trigger-after-checking-coab-canaries
+      - upgrade-coab-remaining-instances
+      - ensure-coab-instances-are-upgraded
+      - trigger-after-checking-coab-instances-upgraded
+      - pause-coab-jobs
+
+jobs:
+
+  - name: backup-cf-mysql-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: cf-mysql-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-mysql-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-service-instances }
+
+        config: &plan-migration-task
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: governmentpaas/bosh-cli-v2 #credhub var
+              tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+          inputs:
+            - name: paas-templates-model
+            - name: service-instances-input
+          outputs:
+            - name: service-instances-output
+
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+
+                MODEL_REPOSITORY=paas-templates-model
+                INPUT_INSTANCES=service-instances-input
+                OUTPUT_INSTANCES=service-instances-output
+
+                echo "begin cloning repository"
+                git clone ${INPUT_INSTANCES} ${OUTPUT_INSTANCES}
+                echo "end cloning repository"
+
+                echo "begin coab migration pipeline - building"
+                ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${MODEL_REPOSITORY} -b > /tmp/migrate_coab_pipeline_build.log 2>&1
+                cat /tmp/migrate_coab_pipeline_build.log
+                echo "end coab migration pipeline - building"
+
+                echo "begin coab migration pipeline - migrating"
+                ${MODEL_REPOSITORY}/coab-depls/model-migration-pipeline/concourse-pipeline-config/migrate_coab_pipeline.sh -r ${OUTPUT_INSTANCES} -m > /tmp/migrate_coab_pipeline_migrate.log 2>&1
+                cat /tmp/migrate_coab_pipeline_migrate.log
+                echo "end coab migration pipeline - migrating"
+
+      - task: display-status
+
+        config: &display-status-task
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: governmentpaas/bosh-cli-v2 #credhub var
+              tag: 2857fdbaea59594c06cf9c6e32027091b67d4767
+          inputs:
+            - name: service-instances-output
+          run:
+            path: /bin/sh
+            args:
+              - -c
+              - |
+                echo "creating status script from BASH_SCRIPT_CONTENT environment variable"
+                printenv BASH_SCRIPT_CONTENT > script.sh
+                chmod +x script.sh
+                ./script.sh
+        params:
+          ALIAS: y_
+          BASH_SCRIPT_CONTENT: &display-status-script |
+            echo "displaying status"
+            OUTPUT_INSTANCES=service-instances-output
+            cd ${OUTPUT_INSTANCES}
+            display=$(git status | grep "coab-depls/${ALIAS}")
+            if [ $? -eq 0 ]; then
+              git status | grep "coab-depls/${ALIAS}"
+            else
+              echo "no migration planned"
+            fi
+
+  - name: apply-coab-migration-on-cf-mysql-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: cf-mysql-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-mysql-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-service-instances}
+        config: *apply-migration-task
+      - put: cf-mysql-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-noop-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: noop-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: noop-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: noop-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-noop-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: noop-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: noop-service-instances }
+
+        config: *plan-migration-task
+
+      - task: display-status
+
+        config: *display-status-task
+
+        params:
+          ALIAS: x_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-noop-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: noop-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-noop-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: noop-service-instances}
+
+        config: *apply-migration-task
+
+      - put: noop-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-strimzi-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: strimzi-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: strimzi-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: strimzi-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-strimzi-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: strimzi-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: strimzi-service-instances }
+
+        config: *plan-migration-task
+
+      - task: display-status
+
+        config: *display-status-task
+
+        params:
+          ALIAS: z_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-strimzi-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: strimzi-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-strimzi-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: strimzi-service-instances}
+
+        config: *apply-migration-task
+
+      - put: strimzi-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-cf-mysql-extended-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-mysql-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: cf-mysql-extended-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-mysql-extended-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-mysql-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-extended-service-instances }
+
+        config: *plan-migration-task
+
+      - task: display-status
+
+        config: *display-status-task
+
+        params:
+          ALIAS: t_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-cf-mysql-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: cf-mysql-extended-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-mysql-extended-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-mysql-extended-service-instances}
+        config: *apply-migration-task
+
+      - put: cf-mysql-extended-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-mongodb-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: mongodb-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: mongodb-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: mongodb-service-instances }
+
+        config: *plan-migration-task
+
+      - task: display-status
+
+        config: *display-status-task
+
+        params:
+          ALIAS: m_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-mongodb-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: mongodb-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-mongodb-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: mongodb-service-instances}
+
+        config: *apply-migration-task
+
+      - put: mongodb-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-mongodb-extended-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: mongodb-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: mongodb-extended-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: mongodb-extended-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-mongodb-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: mongodb-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: mongodb-extended-service-instances }
+
+        config: *plan-migration-task
+
+      - task: display-status
+
+        config: *display-status-task
+
+        params:
+          ALIAS: o_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-mongodb-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+
+          - get: mongodb-extended-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-mongodb-extended-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: mongodb-extended-service-instances}
+
+        config: *apply-migration-task
+
+      - put: mongodb-extended-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-cf-rabbit-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: cf-rabbit-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-rabbit-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-rabbit-service-instances }
+        config: *plan-migration-task
+
+      - task: display-status
+        config: *display-status-task
+        params:
+          ALIAS: r_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-cf-rabbit-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-rabbit-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-rabbit-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-rabbit-service-instances}
+        config: *apply-migration-task
+
+      - put: cf-rabbit-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-cf-rabbit-extended-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: cf-rabbit-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: cf-rabbit-extended-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: cf-rabbit-extended-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-cf-rabbit-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-rabbit-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-rabbit-extended-service-instances }
+        config: *plan-migration-task
+
+      - task: display-status
+        config: *display-status-task
+        params:
+          ALIAS: a_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-cf-rabbit-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: cf-rabbit-extended-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-cf-rabbit-extended-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: cf-rabbit-extended-service-instances}
+        config: *apply-migration-task
+
+      - put: cf-rabbit-extended-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-redis-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: redis-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: redis-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-redis-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: redis-service-instances }
+        config: *plan-migration-task
+
+      - task: display-status
+        config: *display-status-task
+        params:
+          ALIAS: e_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-redis-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: redis-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-redis-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: redis-service-instances}
+        config: *apply-migration-task
+
+      - put: redis-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  - name: backup-redis-extended-service-instances-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: redis-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+      - put: redis-extended-service-instances-backup #resource
+        get_params: { submodules: none }
+        params:
+          repository: redis-extended-service-instances
+          force: true
+
+  - name: plan-coab-migration-on-redis-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: redis-extended-service-instances #resource
+            params: { submodules: none }
+            trigger: false
+          - get: daily
+            trigger: true
+
+      - task: plan-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: redis-extended-service-instances }
+        config: *plan-migration-task
+
+      - task: display-status
+        config: *display-status-task
+        params:
+          ALIAS: s_
+          BASH_SCRIPT_CONTENT: *display-status-script
+
+  - name: apply-coab-migration-on-redis-extended-service-instances-based-on-reference-branch
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates-reference #resource
+            params: { submodules: none }
+            trigger: false
+          - get: redis-extended-service-instances #resource
+            params: { submodules: none }
+            passed: [ backup-redis-extended-service-instances-branch ]
+            trigger: false
+
+      - task: apply-migration
+        input_mapping: { paas-templates-model: paas-templates-reference, service-instances-input: redis-extended-service-instances}
+        config: *apply-migration-task
+
+      - put: redis-extended-service-instances-updated #resource
+        get_params: {submodules: none}
+        params:
+          repository: service-instances-output
+          rebase: false
+
+  #1.  ensure models are upgraded with manual approval
+  #2.  unpause latest created services (one per service type) with manual approval
+  #3.  process remaining deployments, either:
+  #    2 steps, each steps holding 50% of deployments
+  #    and/or
+  #    unpause all COAB jobs on maintenance period start and pause all COAB jobs on maintenance period stop (8pm -> 8 am)
+
+  - name: manual-step-upgrade-coab-models
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - *pause-upgrade-coab-remaining-instances
+          - get: secrets
+            params: { submodules: none, depth: 1 }
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+
+      - task: unpause-all-jobs-except-deploy-jobs
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          BASH_SCRIPT_CONTENT: |
+            set -e
+            TEAM_NAME="coab-depls"
+            fly login -t concourse -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k -n "$TEAM_NAME" >/dev/null 2>&1 # credential_leak_validated
+
+            pipelines=$(fly -t concourse pipelines --json|jq -r '.[]|.name| select(test("coab-depls-bosh-generated"))')
+            echo "Selected pipelines: <$pipelines>"
+
+            for pipeline in ${pipelines};do
+              echo "Selecting jobs to unpause for ${pipeline}"
+              jobs_to_unpause=$(fly -t concourse js -p $pipeline --json --team "$TEAM_NAME" | jq -r '.[].name|select(startswith("deploy")|not)')
+              for job in ${jobs_to_unpause} ; do
+                printf " - %s\n" "${job}"
+                fly -t concourse uj --team "$TEAM_NAME" -j ${pipeline}/${job} >/dev/null
+              done
+            done
+      - task: unpause-and-upgrade-models
+        output_mapping: { logs: trigger-logs }
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          EXCLUDED_MODELS: ((upgrade.exclude-models))
+          BASH_SCRIPT_CONTENT: |
+            set -e
+            export YELLOW='\033[1;33m'
+            export STD='\033[0m'            
+            printf "%bModels excluded from COAB automatic migration: $EXCLUDED_MODELS%b\n" "${YELLOW}" "${STD}"
+            printf "%bCustomize exclusions using 'secrets.upgrade.exclude-service-prefixes' or 'secrets.upgrade.exclude-models' in <secret-repo>/coab-depls/model-migration-pipeline/secrets/secrets.yml%b\n" "${YELLOW}" "${STD}"            
+            echo "Login to Concourse"
+            fly login -t $FLY_TARGET -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name coab-depls 2>&1 # credential_leak_validated
+
+            fly -t $FLY_TARGET unpause-pipeline -p coab-depls-bosh-generated || (echo "/!\ Cannot upgrade COAB, pipeline is missing" && exit 1)
+
+            coab_models=$(fly -t $FLY_TARGET jobs -p coab-depls-bosh-generated --team coab-depls --json|jq -r '.[].name|select(startswith("deploy-"))|select(length < 45)')
+
+            for model in $coab_models; do
+              exclusion_required="$(echo "$EXCLUDED_MODELS"|grep -c "${model##deploy-}"||true)"
+              if [ "$exclusion_required" != "0" ] ; then
+                echo "Skipping - Job ${model} detected as excluded (listed in $EXCLUDED_MODELS)"
+              else
+                filtered_coab_models="$filtered_coab_models $model"
+              fi
+            done
+            set +e
+            for model in $filtered_coab_models; do
+              fly -t $FLY_TARGET unpause-job -j coab-depls-bosh-generated/$model --team coab-depls
+              echo "Triggering job: $model"
+              fly -t $FLY_TARGET trigger-job -j coab-depls-bosh-generated/$model --team coab-depls -w 2>&1 >"logs/trigger-job-$model.log" &
+              sleep 10
+            done
+            source paas-templates/coab-depls/model-migration-pipeline/concourse-pipeline-config/utils.sh
+            wait_for_job_ends
+      - task: checks-models
+        config: *setup-orange-cf-bosh-cli-task
+        input_mapping: {additional-resource: trigger-logs}
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          BASH_SCRIPT_CONTENT: *check-triggered-jobs
+
+  - name: trigger-after-checking-coab-models-upgrade
+    serial: true
+    plan:
+      - in_parallel:
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+            passed: [ manual-step-upgrade-coab-models ]
+
+  - name: canary-coab-instances
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - *pause-upgrade-coab-remaining-instances
+          - get: secrets-no-skip
+            params: { submodules: none } # We require full git history, as we use git log
+          #            passed: [trigger-after-checking-coab-models-upgrade]
+          #            trigger: true
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+            passed: [trigger-after-checking-coab-models-upgrade]
+            trigger: true
+          - get: cf-ops-automation
+            passed: [trigger-after-checking-coab-models-upgrade]
+            params: { submodules: none, depth: 1 }
+            trigger: true
+      - task: upgrade-one-instances-of-each-models
+        input_mapping: { secrets: secrets-no-skip }
+        output_mapping: { logs: trigger-logs }
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          PIPELINE: "coab-depls-bosh-generated"
+          TEAM: "coab-depls"
+          BASE_DIR: "./coab-depls"
+          WATCHED_JOBS_FILEPATH: "secrets-updated/.git/watched_jobs.txt"
+          EXCLUDED_SERVICES: ((upgrade.exclude-service-prefixes))
+          BASH_SCRIPT_CONTENT: |
+            echo "" > $WATCHED_JOBS_FILEPATH
+            export YELLOW='\033[1;33m'
+            export STD='\033[0m'            
+            printf "%bService instance prefixes excluded from COAB automatic migration: $EXCLUDED_SERVICES%b\n" "${YELLOW}" "${STD}"
+            printf "%bCustomize exclusions using 'secrets.upgrade.exclude-service-prefixes' or 'secrets.upgrade.exclude-models' in <secret-repo>/coab-depls/model-migration-pipeline/secrets/secrets.yml%b\n" "${YELLOW}" "${STD}"            
+            echo "Login to Concourse"
+            fly login -t $FLY_TARGET -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name coab-depls 2>&1 # credential_leak_validated
+
+            source paas-templates/coab-depls/model-migration-pipeline/concourse-pipeline-config/utils.sh
+            cd secrets-updated
+            upgrade_one_instance_per_service "$EXCLUDED_SERVICES"
+            cd ..
+            echo "Status"
+            echo "#############################"
+            cat $WATCHED_JOBS_FILEPATH
+            echo "#############################"
+            wait_for_job_ends
+      - task: checks-models
+        config: *setup-orange-cf-bosh-cli-task
+        input_mapping: {secrets: secrets-no-skip, additional-resource: trigger-logs}
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          BASH_SCRIPT_CONTENT: *check-triggered-jobs
+  - name: trigger-after-checking-coab-canaries
+    serial: true
+    plan:
+      - in_parallel:
+          - get: secrets-no-skip
+            params: { submodules: none, depth: 1 }
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+            passed: [canary-coab-instances]
+          - put: fly
+            params:
+              options:  |
+                unpause-job -j $BUILD_PIPELINE_NAME/upgrade-coab-remaining-instances --team main
+
+
+  - name: upgrade-coab-remaining-instances
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - get: secrets-no-skip # We require full git history, as we use git log
+            params: { submodules: none }
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            passed: [ trigger-after-checking-coab-canaries ]
+            params: { submodules: none, depth: 1 }
+            trigger: true
+          - get: coab-maintenance-windows
+            trigger: true
+      - task: upgrade-instances-by-ten
+        input_mapping: { secrets: secrets-no-skip }
+        config: *setup-orange-cf-bosh-cli-task
+        on_failure:
+          put: fly
+          params:
+            options:  |
+              pause-job -j $BUILD_PIPELINE_NAME/upgrade-coab-remaining-instances --team main
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          PIPELINE: "coab-depls-bosh-generated"
+          TEAM: "coab-depls"
+          BASE_DIR: "./coab-depls"
+          WATCHED_JOBS_FILEPATH: "secrets-updated/.git/watched_jobs.txt"
+          MAX_RUNNING_JOBS: ((coab-managed-upgrade.jobs.max-running))
+          MAX_JOBS_ON_ERROR: ((coab-managed-upgrade.jobs.max-errors))
+          EXCLUDED_SERVICES: ((upgrade.exclude-service-prefixes))
+          EXCLUDED_MODELS: ((upgrade.exclude-models))
+          BASH_SCRIPT_CONTENT: |
+            echo "" > $WATCHED_JOBS_FILEPATH
+            export YELLOW='\033[1;33m'
+            export STD='\033[0m'            
+            printf "%bService instance prefixes excluded from COAB automatic migration: $EXCLUDED_SERVICES%b\n" "${YELLOW}" "${STD}" 
+            printf "%bModels excluded from COAB automatic migration: $EXCLUDED_MODELS%b\n" "${YELLOW}" "${STD}"            
+            printf "%bCustomize exclusions using 'secrets.upgrade.exclude-service-prefixes' or 'secrets.upgrade.exclude-models' in <secret-repo>/coab-depls/model-migration-pipeline/secrets/secrets.yml%b\n" "${YELLOW}" "${STD}"            
+            set -o pipefail
+            source paas-templates/coab-depls/model-migration-pipeline/concourse-pipeline-config/utils.sh
+            echo "Login to Concourse"
+            fly login -t $FLY_TARGET -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name coab-depls 2>&1 # credential_leak_validated
+            echo "________________________________________"
+            echo "Checking running COAB jobs"
+            running_jobs_count=$(fly -t "${FLY_TARGET}" builds -c 500 -p $PIPELINE --json 2>/dev/null|jq '.[]?|select(.status=="pending" or .status=="started")|select(.job_name |startswith("deploy-"))|.job_name'|wc -l)
+            if [ $running_jobs_count -ge $MAX_RUNNING_JOBS ]; then
+                echo "Exiting - Max concurrent deployments reached $running_jobs_count/$MAX_RUNNING_JOBS"
+                exit 0
+            fi
+            echo "________________________________________"
+            cd secrets
+            git_log_history_size=$((MAX_RUNNING_JOBS * 2))
+            echo "Checking deployment failure in git. Expecting to have less than $MAX_JOBS_ON_ERROR errors in last $git_log_history_size git commit messages"
+            deployment_failure_count=$(git --no-pager log -$git_log_history_size --date=format:'%Y-%m-%d %H:%M:%S' --pretty=format:"%s%n" coab-depls 2>/dev/null|grep -E "^Failed to deploy"|wc -l)
+            if [ $deployment_failure_count -ge $MAX_JOBS_ON_ERROR ]; then
+              echo "ERROR - Too much deployment failure detected in git commit"
+              exit 1
+            elif [ $deployment_failure_count -eq 0 ]; then
+              echo "No deployment failure detected"
+            else
+              echo "Detected deployment failure count: $deployment_failure_count - Max failure allowed: $MAX_JOBS_ON_ERROR"
+            fi
+            cd ..
+            echo "________________________________________"
+
+            deployments_to_migrate=$(paas-templates/admin/check-deployments-version.sh -s secrets -t $PAAS_TEMPLATES_VERSION -c -r coab-depls -x "$EXCLUDED_SERVICES" -m "$EXCLUDED_MODELS" 2>/dev/null|cut -d':' -f1)
+            if [ $? -ne 0 ]; then
+              echo "ERROR: failed to run check-deployments-version.sh"
+              exit 1
+            fi
+            cd secrets
+            job_counter=0
+            for instance in $deployments_to_migrate; do
+              echo "Processing $instance";
+              instance_full_name=$(echo $instance|cut -d':' -f1)
+              instance_tag=$(echo $instance|cut -d':' -f2)
+
+              instance_name=$(echo $instance_full_name|cut -d'/' -f2)
+              instance_job_name="${instance_name/#/deploy-}"
+              instance_service_prefix=${instance_name:0:1} #extract first char only as service prefix
+
+              exclusion_required="$(echo "$EXCLUDED_SERVICES"|grep -c ${instance_service_prefix}||true)"
+              if [ "$exclusion_required" != "0" ] ; then
+                  echo "Skipping - instance ${instance_name} is detected as excluded (prefix listed in $EXCLUDED_SERVICES)"
+                  continue 
+              fi
+
+              if [ $((job_counter++)) -ge $MAX_RUNNING_JOBS ]; then
+                  echo "Exiting - Max concurrent deployments reached"
+                  break 2
+              fi
+
+              trigger_job $TEAM $PIPELINE $instance_job_name ../logs
+              echo "$PIPELINE/$instance_job_name" >> ../$WATCHED_JOBS_FILEPATH
+            done
+            if [ -z "$deployments_to_migrate" ]; then
+              printf "%bMigration completed: No deployment left%b\n" "$GREEN" "$STD"
+            fi
+            echo "________________________________________"
+            echo "It is possible to tune this behaviour (like start/stop period, scan frequency, max allowed errors, etc...) using <secret-repo>/coa/config/credentials-coab-managed-upgrade.yml"
+
+  - name: ensure-coab-instances-are-upgraded
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - get: secrets-no-skip
+            params: { submodules: none, depth: 1 }
+            passed: [ upgrade-coab-remaining-instances ]
+            trigger: true
+          - get: paas-templates
+            trigger: true
+            params: { submodules: none, depth: 1 }
+            passed: [ upgrade-coab-remaining-instances ]
+          - get: cf-ops-automation
+            passed: [ upgrade-coab-remaining-instances ]
+            params: { submodules: none, depth: 1 }
+            trigger: true
+      - task: check-coab-instances
+        input_mapping: { secrets: secrets-no-skip }
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          PAAS_TEMPLATES_VERSION: ((paas-templates-version))
+          COA_VERSION: ((cf-ops-automation-version))
+          PIPELINE: "coab-depls-bosh-generated"
+          TEAM: "coab-depls"
+          BASE_DIR: "./coab-depls"
+          WATCHED_JOBS_FILEPATH: "secrets-updated/.git/watched_jobs.txt"
+          EXCLUDED_SERVICES: ((upgrade.exclude-service-prefixes))
+          EXCLUDED_MODELS: ((upgrade.exclude-models))
+          BASH_SCRIPT_CONTENT: |
+            set -o pipefail
+            export YELLOW='\033[1;33m'
+            export STD='\033[0m'            
+            printf "%bService instance prefixes excluded from COAB automatic migration: $EXCLUDED_SERVICES%b\n" "${YELLOW}" "${STD}" 
+            printf "%bModels excluded from COAB automatic migration: $EXCLUDED_MODELS%b\n" "${YELLOW}" "${STD}"
+            printf "%bCustomize exclusions using 'secrets.upgrade.exclude-service-prefixes' or 'secrets.upgrade.exclude-models' in <secret-repo>/coab-depls/model-migration-pipeline/secrets/secrets.yml%b\n" "${YELLOW}" "${STD}"            
+            echo "Login to Concourse"
+            fly login -t $FLY_TARGET -c "$CONCOURSE_URL" --username="$CONCOURSE_USERNAME" --password="$CONCOURSE_PASSWORD" -k --team-name coab-depls 2>&1 # credential_leak_validated
+
+            echo "________________________________________"
+            remaining_deployment_count=$(paas-templates/admin/check-deployments-version.sh -s secrets -t $PAAS_TEMPLATES_VERSION -c -r coab-depls -x "$EXCLUDED_SERVICES" -m "$EXCLUDED_MODELS" 2>/dev/null|wc -l)
+            if [ $? -ne 0 ]; then
+              echo "ERROR: failed to run check-deployments-version.sh"
+              exit 1
+            fi
+            echo "Checking COAB remaining instances to migrate (expecting all instances to use Paas Templates $PAAS_TEMPLATES_VERSION)"
+            paas-templates/admin/check-deployments-version.sh -s secrets -t $PAAS_TEMPLATES_VERSION -c -r coab-depls -x "$EXCLUDED_SERVICES" -m "$EXCLUDED_MODELS"
+            echo "" # add a newline
+            if [ $? -ne 0 ]; then
+              echo "ERROR: failed to run check-deployments-version.sh"
+              exit 1
+            fi
+            if [ $remaining_deployment_count -eq 0 ]; then
+                echo "SUCCESS - All COAB instances are up-to-date"
+                RETURN_CODE=0
+            else
+              echo "Still remaining $remaining_deployment_count deployment(s)"
+              RETURN_CODE=1
+            fi
+
+
+            echo ""
+            printf "%bLegend:%b\n" "${YELLOW}" "${STD}"
+            echo "unknown: the paas_templates_version attribute is missing from bosh manifest of this deployment"
+            echo "<x.y.z>: the paas_templates_version attribute is indicating this instance was last upgraded in version x.y.z. It has therefore not been upgraded in current version"
+            echo "_____________________"
+
+            echo "This pipeline is designed to track how much of the coab service instances have between migrated to the paas-templates version=$PAAS_TEMPLATES_VERSION."
+            echo "It would be failing until all coab instances are upgraded. Checking whether a service instances is upgraded is based on the presence of the "paas_templates_version" attribute within the sucessful bosh manifest file."
+            echo "________________________________________"
+            echo "It is possible to tune 'upgrade-coab-remaining-instances' job (like start/stop period, scan frequency, max allowed errors, etc...) using <secret-repo>/coa/config/credentials-coab-managed-upgrade.yml"
+            exit $RETURN_CODE
+      - *pause-upgrade-coab-remaining-instances
+
+
+  - name: trigger-after-checking-coab-instances-upgraded
+    serial: true
+    plan:
+      - in_parallel:
+          - get: secrets-no-skip
+            params: { submodules: none, depth: 1 }
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+            passed: [ensure-coab-instances-are-upgraded]
+      - *pause-upgrade-coab-remaining-instances
+
+  - name: pause-coab-jobs
+    serial: true
+    on_failure: *notify_on_failure
+    plan:
+      - in_parallel:
+          - get: secrets-no-skip
+            params: { submodules: none, depth: 1 }
+            passed: [trigger-after-checking-coab-instances-upgraded]
+            trigger: true
+          - get: paas-templates
+            params: { submodules: none, depth: 1 }
+          - get: cf-ops-automation
+            params: { submodules: none, depth: 1 }
+            passed: [trigger-after-checking-coab-instances-upgraded]
+            trigger: true
+      - task: execute-from-orange-cf-bosh-cli
+        input_mapping: { secrets: secrets-no-skip }
+        config: *setup-orange-cf-bosh-cli-task
+        params:
+          BASH_SCRIPT_CONTENT: |
+            set -e
+            TOOLS_PATH=${PWD}/paas-templates/admin
+            . ${TOOLS_PATH}/functions.sh
+            ${TOOLS_PATH}/pause-jobs.sh -p coab

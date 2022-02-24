@@ -1,0 +1,63 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - submodules/cf-deployment
+        - shared-operators/cf-isolation-segments
+        - shared-operators/docker-images
+        - shared-operators/paas-templates-version
+    releases:
+      bosh-dns:
+
+      cflinuxfs3:
+
+      cf-networking:
+
+      silk:
+
+      routing:
+
+      cf-syslog-drain:
+
+      cf-smoke-tests:
+
+      diego:
+
+      garden-runc:
+
+#      nfs-volume:
+#
+#      mapfs:
+
+      haproxy:
+
+      loggregator:
+
+      loggregator-agent:
+
+      nats:
+
+      networking:
+
+      os-conf:
+
+      statsd-injector:
+
+      cf-cli:
+
+      bosh-dns-aliases:
+
+      docker:
+
+      bpm:
+
+      generic-scripting:
+
+      metrics-discovery:
+
+    errands:
+      post-bosh-deploy-errand:

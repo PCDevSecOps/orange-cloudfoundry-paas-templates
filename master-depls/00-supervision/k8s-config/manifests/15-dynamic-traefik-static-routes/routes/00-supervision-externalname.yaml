@@ -1,0 +1,12 @@
+---
+## creating service reference with an external fqdn, leveraging endpoint slides (fqdn is ok with ExternalName)
+##  a DNS-1035 label must consist of lower case alphanumeric chara │
+##  cters or '-', start with an alphabetic character, and end with an alphanumeric character (e.g. 'my-name',  or 'abc-123', regex used for validation is '[a-z]([-a-z0-9]*[a-z0-9])?')
+apiVersion: v1
+kind: Service
+metadata:
+  name: supervision-vip
+spec:
+  externalName: supervision-vip.internal.paas #00-supervision internal vip (
+  type: ExternalName
+

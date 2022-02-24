@@ -1,0 +1,16 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: routingmap-k3ssandbox-longhorn-ui
+spec:
+  entryPoints:
+  - websecure
+  routes:
+  - match: HostSNI(`longhorn-ui-sandbox.((/secrets/cloudfoundry_ops_domain))`)
+    services:
+    - name: k3s-sandbox-vip
+      namespace: 15-dynamic-static-routes-ns
+      port: 443
+  tls:
+    passthrough: true

@@ -1,0 +1,51 @@
+---
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar
+  value:
+    consumes:
+      nats: nil
+    name: route_registrar
+    properties:
+      nats: ((nats))
+      route_registrar:
+        routes:
+          - name: cf-mysql-proxy
+            port: 8080
+            prepend_instance_index: true
+            registration_interval: 10s
+            uris:
+              - "proxy-p-mysql2.((/secrets/cloudfoundry_system_domain))"
+          - name: cf-mysql-proxy-aggregator
+            port: 8082
+            registration_interval: 10s
+            uris:
+              - "proxy-p-mysql2.((/secrets/cloudfoundry_system_domain))"
+    release: routing
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=route_registrar
+  value:
+    consumes:
+      nats: nil
+    name: route_registrar
+    properties:
+      nats: ((nats))
+      route_registrar:
+        routes:
+          - health_check:
+              name: script
+              script_path: /var/vcap/jobs/cf-mysql-broker/bin/healthcheck.sh
+            name: cf-mysql-broker
+            port: 8081
+            registration_interval: 10s
+            uris:
+              - "p-mysql2.((/secrets/cloudfoundry_system_domain))"
+    release: routing
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/external_host
+  value: p-mysql2.((/secrets/cloudfoundry_system_domain))
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=proxy/properties/cf_mysql/proxy/api_uri
+  value: proxy-p-mysql2.((/secrets/cloudfoundry_system_domain))

@@ -1,0 +1,77 @@
+# create namespace
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: fluxcd
+
+# gitops repo credentials ---------------------------------------------
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: paas-secrets-credentials-secret
+    namespace: fluxcd
+    data:
+    - name: username
+      value:  ((/secrets/concourse_git_secrets_user))
+    - name: password
+      value:  ((/secrets/concourse_git_secrets_password))
+
+# gitops repo definition ---------------------------------------------
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "paas-k8s-gitops-repo"
+    cmd: "apply"
+    content:
+      apiVersion: source.toolkit.fluxcd.io/v1beta1
+      kind: GitRepository
+      metadata:
+        name: paas-k8s-gitops-repo
+        namespace: fluxcd
+      spec:
+        interval: 1m0s
+        suspend: false #explictly set to false, to reactivate fluxcd reconciliation if a pause has been set (use case, upgrade pipeline)
+        ref:
+          branch: master
+        secretRef:
+          name: paas-secrets-credentials-secret
+        url: https://gitlab-gitlab-k8s.((/secrets/cloudfoundry_ops_domain))/paas_templates_group/gitops-fluxcd-repo.git
+        ignore: |
+          # exclude all
+          /*
+          # include deploy dir (root-deployments)
+          !/*-depls
+          !/shared-operators/k8s-kustomize-bases
+          !/vendor/k8s-manifests
+          # exclude file extensions from deploy dir (TBC as default filtering is not applied)
+
+# provision root Kustomizations (wich triggers standard + per iaas type) 
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "paas-k8s-gitops-bridge-kustomizations"
+    cmd: "apply"
+    content:
+      apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+      kind: Kustomization
+      metadata:
+        name: paas-k8s-gitops-bridge-kustomizations
+        namespace: fluxcd
+      spec:
+        interval: 1m0s
+        prune: false #for security reason, should never prune at bridge level
+        sourceRef:
+          kind: GitRepository
+          name: paas-k8s-gitops-repo
+        path: ./((coa_root_deployment_name))/((coa_deployment_name))/k8s-config/manifests/00-bridge-kustomizations
+        targetNamespace: fluxcd
+        #inject coa root and deployment from bosh (as the child Kustomization do not respect standardization)
+        postBuild:
+          substitute:
+            coa_root_deployment_name: "((coa_root_deployment_name))"
+            coa_deployment_name: "((coa_deployment_name))"
+            iaas_type: "vsphere"

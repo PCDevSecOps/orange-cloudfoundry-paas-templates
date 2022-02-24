@@ -1,0 +1,18 @@
+#--- Create directory for prometheus dynamic service discovery output file
+- type: replace
+  path: /instance_groups/name=bosh/jobs/name=scripting/properties/scripting/pre-start-script?
+  value: |
+    #--- Initialize logs
+    > /var/vcap/sys/log/scripting/pre-start.stderr.log
+    > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+    if [ ! -d /var/vcap/store/bosh_exporter ] ; then
+      echo "- Create directory for prometheus bosh_exporter."
+      sudo mkdir -p /var/vcap/store/bosh_exporter
+    fi
+
+    #--- Set metrics server certs for prometheus
+    echo "- Set metrics server certs for prometheus."
+    echo "((metrics_server_client_tls.ca))" > /var/vcap/data/scripting/metrics_server_ca.crt
+    echo "((metrics_server_client_tls.certificate))" > /var/vcap/data/scripting/metrics_server_cert.crt
+    echo "((metrics_server_client_tls.private_key))" > /var/vcap/data/scripting/metrics_server_key.crt

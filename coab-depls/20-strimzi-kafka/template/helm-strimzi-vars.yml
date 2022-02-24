@@ -1,0 +1,2 @@
+---
+helm_strimzi: "0.25.0" #https://artifacthub.io/packages/olm/community-operators/strimzi-kafka-operator 0.25.0

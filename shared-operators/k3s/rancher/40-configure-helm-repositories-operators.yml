@@ -1,0 +1,16 @@
+
+#add cluster repo
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "paas-templates-helm-mirror"
+    cmd: "apply"
+    content:
+      apiVersion: catalog.cattle.io/v1
+      kind: ClusterRepo
+      metadata:
+        name: paas-templates-helm-mirror
+      spec:
+        url: https://jcr-k8s.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+

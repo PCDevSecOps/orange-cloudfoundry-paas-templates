@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: firehose-exporter
+  labels:
+    app: firehose-exporter
+spec:
+  selector:
+    matchLabels:
+      app: firehose-exporter
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: firehose-exporter
+    spec:
+      containers:
+        - name: firehose-exporter
+          image: boshprometheus/firehose-exporter:v6.2.0
+          ports:
+            - containerPort: 9186
+          env:
+            - name: FIREHOSE_EXPORTER_SKIP_SSL_VERIFY
+              value: "true"
+            - name: FIREHOSE_EXPORTER_LOGGING_URL
+              value: "wss://doppler.((/secrets/cloudfoundry_system_domain)):443"
+            - name: USE_LEGACY_FIREHOSE
+              value: "true"
+            - name: FIREHOSE_EXPORTER_DOPPLER_MAX_RETRY_COUNT
+              value: "300"
+            - name: FIREHOSE_EXPORTER_UAA_URL
+              value: "https://uaa.((/secrets/cloudfoundry_system_domain))"
+            - name: FIREHOSE_EXPORTER_UAA_CLIENT_ID
+              value: "prometheus-firehose"
+            - name: FIREHOSE_EXPORTER_UAA_CLIENT_SECRET
+              value: "((/uaa/prometheus-firehose-secret))"
+            - name: FIREHOSE_EXPORTER_METRICS_ENVIRONMENT
+              value: ((/secrets/site))
+          volumeMounts:
+            - name: cert-volume
+              mountPath: /etc/ssl/certs
+      volumes:
+        - name: cert-volume
+          hostPath:
+            path: /etc/ssl/certs
+            type: Directory

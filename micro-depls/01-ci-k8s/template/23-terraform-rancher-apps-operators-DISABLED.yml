@@ -1,0 +1,9 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((rancher-provider-tf))
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=terraform-apply/properties/terraform/specs/-
+  value: ((rancher-monitoring-logging-apps-tf))
+
+

@@ -1,0 +1,7 @@
+osb_dedicated_gateway_r1_ip: "(( grab secrets.osb_data_plane_dedicated_public.gateway ))"
+osb_dedicated_gateway_r2_ip: "(( grab secrets.multi_region.region_2.data_plane_dedicated_public.gateway ))"
+#osb_dedicated pub extension
+osb_dedicated_gateway_extension_r1_ip: "(( grab secrets.osb_data_plane_dedicated_public_extension.gateway ))"
+osb_dedicated_gateway_extension_r2_ip: "(( grab secrets.multi_region.region_2.data_plane_dedicated_public_extension.gateway ))"
+private_network_name: tf-net-osb-data-plane-dedicated-priv
+public_network_name: tf-net-osb-data-plane-dedicated-pub

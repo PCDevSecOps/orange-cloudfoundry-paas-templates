@@ -1,0 +1,8 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: concourse
+spec:
+  chart:
+    spec:
+      version: 16.1.1 #((helm_concourse)) #https://artifacthub.io/packages/helm/concourse/concourse

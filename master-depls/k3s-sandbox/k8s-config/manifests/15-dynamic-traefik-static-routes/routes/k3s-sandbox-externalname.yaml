@@ -1,0 +1,10 @@
+---
+## creating service reference with an external fqdn, leveraging endpoint slides (fqdn is ok with ExternalName)
+apiVersion: v1
+kind: Service
+metadata:
+  name: k3s-sandbox-vip
+spec:
+  externalName: k3s-sandbox-vip.internal.paas #k3s-sandbox internal vip
+  type: ExternalName
+

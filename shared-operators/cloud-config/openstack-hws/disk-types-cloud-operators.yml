@@ -1,0 +1,25 @@
+#--- Flexible Engine Openstack Disks flavors
+- type: replace
+  path: /disk_types/name=xlarge-performant/cloud_properties?
+  value:
+    type: SSD
+
+- type: replace
+  path: /disk_types/name=xxlarge-performant/cloud_properties?
+  value:
+    type: SSD
+
+- type: replace
+  path: /disk_types/name=database/cloud_properties?
+  value:
+    type: SSD
+
+- type: replace
+  path: /disk_types/name=logsearch-ops-es-data/cloud_properties?
+  value:
+    type: SSD
+
+- type: replace
+  path: /disk_types/name=x3large-performant/cloud_properties?
+  value:
+    type: SSD #leverages FE performant disk

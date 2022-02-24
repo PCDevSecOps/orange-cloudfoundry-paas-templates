@@ -1,0 +1,143 @@
+# create the secrets expected by KafkaUser to override with our password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: kafka-admin-user-password #bosh deployment scoped password
+    type: password
+
+# generate kafka admin user as Secret
+#- type: replace
+#  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "kafka-admin-user-secret"
+#    cmd: "apply"
+#    options: ""
+#    content:
+#      apiVersion: v1
+#      kind: Secret
+#      type: Opaque
+#
+#      metadata:
+#        labels:
+#          app.kubernetes.io/instance: kafka-admin-user
+#          app.kubernetes.io/managed-by: strimzi-user-operator
+#          app.kubernetes.io/name: strimzi-user-operator
+#          app.kubernetes.io/part-of: strimzi-kafka-admin-user
+#          strimzi.io/cluster: kafka-cluster
+#          strimzi.io/kind: KafkaUser
+#        name: kafka-admin-user
+#        namespace: kafka-cluster-((instance_id))
+#      data:
+#        password: ((kafka-admin-user-password)) #reiPC9YNtGy2
+#        #FIXME: find a way to automate
+#        sasl.jaas.config: b3JnLmFwYWNoZS5rYWZrYS5jb21tb24uc2VjdXJpdHkuc2NyYW0uU2NyYW1Mb2dpbk1vZHVsZSByZXF1aXJlZCB1c2VybmFtZT0ia2Fma2EtYWRtaW4tdXNlciIgcGFzc3dvcmQ9InJlaVBDOVlOdEd5MiI7Cg==
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: kafka-admin-user-secret
+    namespace: kafka-cluster-((instance_id))
+    data:
+      - name: password
+        value: '((kafka-admin-user-password))'
+
+# create admin user
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kafka-admin-user"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: kafka.strimzi.io/v1beta2
+      kind: KafkaUser
+      metadata:
+        name: kafka-admin-user
+        namespace: kafka-cluster-((instance_id))
+        labels:
+          strimzi.io/cluster: kafka-cluster
+      spec:
+        authentication: #https://github.com/strimzi/strimzi-kafka-operator/blob/main/install/cluster-operator/044-Crd-kafkauser.yaml
+          type: scram-sha-512
+          password:
+            valueFrom:
+              secretKeyRef:
+                name: kafka-admin-user-secret
+                key: password
+        authorization:
+          type: simple
+          acls:
+            # Admin user allow to do anything
+            - resource:
+                type: topic
+                name: "*"
+                patternType: literal
+              operation: All
+              host: "*"
+
+
+# create binding user (to be replaced by on the fly cf bind users).
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kafka-service-instance-user"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: kafka.strimzi.io/v1beta2
+      kind: KafkaUser
+      metadata:
+        name: kafka-service-instance-user
+        namespace: kafka-cluster-((instance_id))
+        labels:
+          strimzi.io/cluster: kafka-cluster
+      spec:
+        authentication:
+          type: scram-sha-512
+        authorization:
+          type: simple
+          acls:
+            # Example consumer Acls for topic my-topic using consumer group my-group
+            - resource:
+                type: topic
+                name: service-instance-topic #service binding topic
+                patternType: literal
+              operation: Read
+              host: "*"
+            - resource:
+                type: topic
+                name: service-instance-topic #service binding topic
+                patternType: literal
+              operation: Describe
+              host: "*"
+            - resource:
+                type: group
+                name: my-group
+                patternType: literal
+              operation: Read
+              host: "*"
+            # Example Producer Acls for topic my-topic
+            - resource:
+                type: topic
+                name: service-instance-topic #service binding topic
+                patternType: literal
+              operation: Write
+              host: "*"
+            - resource:
+                type: topic
+                name: service-instance-topic #service binding topic
+                patternType: literal
+              operation: Create
+              host: "*"
+            - resource:
+                type: topic
+                name: service-instance-topic #service binding topic
+                patternType: literal
+              operation: Describe
+              host: "*"

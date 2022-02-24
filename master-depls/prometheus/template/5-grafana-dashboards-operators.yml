@@ -1,0 +1,59 @@
+#--- Integrate additional grafana json dashboard
+- type: replace
+  path: /instance_groups/name=grafana/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          #!/bin/bash
+          #--- Initialize context
+          > /var/vcap/sys/log/scripting/pre-start.stderr.log
+          > /var/vcap/sys/log/scripting/pre-start.stdout.log
+
+          #--- Install grafana plugins
+          echo "$(date +"%d/%m/%Y %H:%M"): Install grafana plugins..."
+          #export https_proxy=http://system-internet-http-proxy.internal.paas:3128
+          export https_proxy=http://192.168.116.15:3128
+          /var/vcap/jobs/grafana/packages/grafana/bin/grafana-cli --pluginsDir "/var/vcap/packages/grafana_plugins" plugins install yesoreyeram-boomtable-panel > /dev/null 2>&1
+
+          if [ $? != 0 ] ; then echo "$(date +"%d/%m/%Y %H:%M"): plugin installation failed\n" ; exit 1 ; fi
+          unset https_proxy
+
+          #--- Install grafana plugins
+          echo "$(date +"%d/%m/%Y %H:%M"): Install additional dashboard..."
+          TARGET_DIR="/var/vcap/data/scripting/additional_dashboard"
+          rm -fr ${TARGET_DIR} > /dev/null 2>&1
+          mkdir -p ${TARGET_DIR} > /dev/null 2>&1
+
+          #--- Set "vmware stats" dashboard
+          cat > ${TARGET_DIR}/vmware_stats.json <<'EOF'
+          ((vmware_stats_content))
+          EOF
+
+          #--- Set "dedicated services general view" dashboard
+          cat > ${TARGET_DIR}/dedicated_services_general_view.json <<'EOF'
+          ((dedicated_services_general_view_content))
+          EOF
+
+          #--- Set "vmware stats" dashboard
+          cat > ${TARGET_DIR}/squid_stats.json <<'EOF'
+          ((squid_stats_content))
+          EOF
+
+          #--- Set "multi region vpn stats" dashboard
+          cat > ${TARGET_DIR}/multi-region-vpn-status.json <<'EOF'
+          ((multi_region_vpn_content))
+          EOF
+
+          #--- Set "RabbitMQ-Overview" dashboard
+          cat > ${TARGET_DIR}/RabbitMQ-Overview.json <<'EOF'
+          ((rabbitmq_overview_content))
+          EOF
+
+          #--- Reset "uid" property and "))" with ") )" (to avoid bosh variable interpolation) in all json files
+          for file in ${TARGET_DIR}/*.json ; do
+            echo "$(date +"%d/%m/%Y %H:%M"): Reset uid property and validate ${file}..."
+            sed -i -e 's+"uid":.*+"uid": null,+g' ${file}
+          done

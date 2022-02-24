@@ -1,0 +1,52 @@
+---
+#use ops domain (only tf_net_exchange is configured in static routing on vsphere side)
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=route_registrar
+  value:
+    consumes:
+      nats: nil
+    name: route_registrar
+    properties:
+      nats: ((nats_ops))
+      route_registrar:
+        routes:
+          - name: cf-mysql-proxy
+            port: 8080
+            prepend_instance_index: true
+            registration_interval: 10s
+            uris:
+              - "proxy-p-mysql.((/secrets/cloudfoundry_ops_domain))"
+          - name: cf-mysql-proxy-aggregator
+            port: 8082
+            registration_interval: 10s
+            uris:
+              - "proxy-p-mysql.((/secrets/cloudfoundry_ops_domain))"
+    release: routing
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=route_registrar
+  value:
+    consumes:
+      nats: nil
+    name: route_registrar
+    properties:
+      nats: ((nats_ops))
+      route_registrar:
+        routes:
+          - health_check:
+              name: script
+              script_path: /var/vcap/jobs/cf-mysql-broker/bin/healthcheck.sh
+            name: cf-mysql-broker
+            port: 8081
+            registration_interval: 10s
+            uris:
+              - "p-mysql.((/secrets/cloudfoundry_ops_domain))"
+    release: routing
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/external_host
+  value: p-mysql.((/secrets/cloudfoundry_ops_domain))
+
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=proxy/properties/cf_mysql/proxy/api_uri
+  value: proxy-p-mysql.((/secrets/cloudfoundry_ops_domain))

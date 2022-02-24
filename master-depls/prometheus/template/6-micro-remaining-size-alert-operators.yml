@@ -1,0 +1,24 @@
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/custom_rules?/-
+  value:
+    name: Micro-depls-minio-alerts
+    rules:
+    - alert: MicroDeplsMinioRemainingSizeWarning
+      expr: (disk_storage_available{disk="/export"} * 100) / disk_storage_total{disk="/export"} > 80
+      for: 5m
+      labels:
+        service: concourse
+        severity: warning
+      annotations:
+        summary: "The minio disk storage available is over 80% the total disk capacity"
+        description: "`{{$labels.disk_storage_available}}` on `{{$labels.disk_storage_total}}` available"
+
+    - alert: MicroDeplsMinioRemainingSizeCritical
+      expr: (disk_storage_available{disk="/export"} * 100) / disk_storage_total{disk="/export"} > 90
+      for: 5m
+      labels:
+        service: concourse
+        severity: critical
+      annotations:
+        summary: "The minio disk storage available is over 90% the total disk capacity"
+        description: "`{{$labels.disk_storage_available}}` on `{{$labels.disk_storage_total}}` available"

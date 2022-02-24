@@ -1,0 +1,42 @@
+#=========================================================================================
+#--- Flexible Engine Openstack VM flavors (with default 50Go system disk flavor included)
+#=========================================================================================
+- type: replace
+  path: /vm_types/name=1cpu-1g/cloud_properties?/instance_type?
+  value: s3.small.1
+
+- type: replace
+  path: /vm_types/name=1cpu-2g/cloud_properties?/instance_type?
+  value: s3.medium.2
+
+- type: replace
+  path: /vm_types/name=1cpu-4g/cloud_properties?/instance_type?
+  value: s3.medium.4
+
+- type: replace
+  path: /vm_types/name=2cpu-4g/cloud_properties?/instance_type?
+  value: s3.large.2
+
+- type: replace
+  path: /vm_types/name=2cpu-8g/cloud_properties?/instance_type?
+  value: s3.large.4
+
+- type: replace
+  path: /vm_types/name=4cpu-8g/cloud_properties?/instance_type?
+  value: s3.xlarge.2
+
+- type: replace
+  path: /vm_types/name=4cpu-16g/cloud_properties?/instance_type?
+  value: s3.xlarge.4
+
+- type: replace
+  path: /vm_types/name=8cpu-16g/cloud_properties?/instance_type?
+  value: s3.2xlarge.2
+
+- type: replace
+  path: /vm_types/name=8cpu-32g/cloud_properties?/instance_type?
+  value: s3.2xlarge.4
+
+- type: replace
+  path: /vm_types/name=16cpu-64g/cloud_properties?/instance_type?
+  value: s3.4xlarge.4

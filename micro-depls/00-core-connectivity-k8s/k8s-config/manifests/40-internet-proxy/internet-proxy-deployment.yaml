@@ -1,0 +1,52 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: internet-proxy
+  name: internet-proxy
+  namespace: internet-proxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: internet-proxy
+      
+  template:
+    metadata:
+      labels:
+        app: internet-proxy
+    spec:
+      serviceAccountName: internet-proxy
+      volumes:
+      - name: config-volume
+        configMap:
+          name: squid-configmap
+      - name: cert-volume
+        hostPath:
+          path: /etc/ssl/certs
+          type: Directory
+          
+      nodeSelector:
+        bosh.io/name: "agents"
+      
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - internet-proxy
+            topologyKey: "kubernetes.io/hostname"
+            
+      containers:
+      - image: sameersbn/squid:3.5.27-2
+        name: squid
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/squid/
+        - name: cert-volume
+          mountPath: /etc/ssl/certs
+    

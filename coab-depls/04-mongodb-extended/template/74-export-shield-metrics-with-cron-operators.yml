@@ -1,0 +1,114 @@
+---
+# add job section
+- type: replace
+  path: /instance_groups/name=broker/jobs/-
+  value:
+    name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+          - script:
+              name: prometheus.sh
+              contents: |
+
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Start metrics generation "
+
+                /var/vcap/packages/shield/bin/shield api -k https://((shield-alias-prefix))((deployment_name))((shield-alias-suffix)) ((shield-core))
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+
+                #prepare files
+                >/tmp/metrics
+                >/tmp/paused
+                >/tmp/job_status
+                >/tmp/header_paused
+                echo "# HELP shield_job_paused Shield Job pause status (1 for paused, 0 for unpaused)." >> /tmp/header_paused
+                echo "# TYPE shield_job_paused gauge" >> /tmp/header_paused
+                >/tmp/header_status
+                echo "# HELP shield_job_status Shield Job status (0 for unknow, 1 for pending, 2 for running, 3 for canceled, 4 for failed, 5 for done)." >>/tmp/header_status
+                echo "# TYPE shield_job_status gauge" >>/tmp/header_status
+
+                #use SHIELD CLI in order to get jobs information in order to populate files
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) --tenant ((deployment_name)) jobs | grep -oE '^[0-9a-z]{8,8}' > /tmp/jobs.lst
+                for job in $(cat /tmp/jobs.lst); do
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) --tenant ((deployment_name)) job ${job} > /tmp/job.lst
+                status=$(cat /tmp/job.lst | grep -oE '[healthy]{7,7}|[failed]{6,6}|[paused]{6,6}')
+                echo ${status}
+                name=$(cat /tmp/job.lst | grep 'Data System')
+                n=$(echo ${name} | cut -d ' ' -f 3)
+                echo ${n}
+                #shield_job_status{environment="brmc-prod",job_name="bosh_coab_backup"} 5
+                if [ "${status}" = "paused" ] ; then
+                echo "shield_job_paused{environment=\"((/secrets/site))\",job_name=\"${n}\"} 1" >> /tmp/paused
+                elif [ "${status}" = "healthy" ] ; then
+                echo "shield_job_paused{environment=\"((/secrets/site))\",job_name=\"${n}\"} 0" >> /tmp/paused
+                echo "shield_job_status{environment=\"((/secrets/site))\",job_name=\"${n}\"} 5" >> /tmp/job_status
+                else #failed
+                echo "shield_job_paused{environment=\"((/secrets/site))\",job_name=\"${n}\"} 0" >> /tmp/paused
+                echo "shield_job_status{environment=\"((/secrets/site))\",job_name=\"${n}\"} 4" >> /tmp/job_status
+                fi
+                done
+
+                #bosh metric
+                >/tmp/bosh
+                grep [0-2]\.mongod.tf-net-osb-data-plane-dedicated-priv.((deployment-name)) /etc/hosts | cut -d ' ' -f 1 > /tmp/ips.lst
+                for ip in $(cat /tmp/ips.lst); do
+                  echo "bosh_job_healthy{bosh_deployment=\"((deployment_name))\",bosh_job_ip=\"${ip}\",bosh_job_name=\"mongod\",environment=\"coab\"} 1" >> /tmp/bosh
+                done
+
+                #concat all files together
+                cat /tmp/header_paused >> /tmp/metrics
+                cat /tmp/paused >> /tmp/metrics
+                cat /tmp/header_status >> /tmp/metrics
+                cat /tmp/job_status >> /tmp/metrics
+                cat /tmp/bosh >> /tmp/metrics
+
+                #display metrics file
+                cat /tmp/metrics
+
+                echo "- End metrics generation "
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+            log: /var/vcap/sys/log/cron/prometheus.log
+            lock: /var/vcap/sys/run/cron/prometheus.lock
+            day: '*'
+            hour: '*'
+            minute: '0'
+            month: '*'
+            user: root
+            wday: '*'
+
+          - script:
+              name: discovery.sh
+              contents: |
+
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Start discovery file pulling "
+
+                curl -X GET http://prometheus-coab.internal.paas:9095 > /tmp/bosh_target_groups.tmp
+                mv /tmp/bosh_target_groups.tmp /tmp/bosh_target_groups.json
+
+                cat /tmp/bosh_target_groups.json
+
+                echo "- End discovery file pulling "
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+            log: /var/vcap/sys/log/cron/discovery.log
+            lock: /var/vcap/sys/run/cron/discovery.lock
+            day: '*'
+            hour: '*'
+            minute: '*/5'
+            month: '*'
+            user: root
+            wday: '*'

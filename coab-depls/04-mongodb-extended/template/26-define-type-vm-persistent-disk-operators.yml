@@ -1,0 +1,27 @@
+---
+#adapt disk size
+- type: remove
+  path: /instance_groups/name=mongod/persistent_disk?
+
+- type: replace
+  path: /instance_groups/name=mongod/persistent_disk_type?
+  value: ((vm-cf-mongodb.persistent_disk_type))
+
+- type: replace
+  path: /instance_groups/name=mongod/vm_type?
+  value: ((vm-cf-mongodb.vm_type))
+
+- type: replace
+  path: /instance_groups/name=mongod/instances
+  value: ((vm-cf-mongodb.vm_size))
+
+- type: replace
+  path: /instance_groups/name=arbiter/vm_type?
+  value: ((vm-cf-mongodb.vm_type))
+
+- type: remove
+  path: /instance_groups/name=arbiter/persistent_disk?
+
+- type: replace
+  path: /instance_groups/name=arbiter/persistent_disk_type?
+  value: ((vm-cf-mongodb.persistent_disk_type))

@@ -1,0 +1,45 @@
+---
+name: vpn-probe
+
+releases:
+- {name: docker, version: latest}
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-1200000
+  update_watch_time:  30000-60000
+  max_in_flight: 32
+  serial: false
+
+instance_groups:
+- name: vpn-probe
+  instances: 2
+  vm_type: 1cpu-1g
+  stemcell: default
+  azs:
+  - r2-z1
+  - r3-z1
+  networks:
+  - name: tf-net-osb-data-plane-dedicated-priv
+  jobs:
+  - name: docker
+    release: docker
+    properties:
+      log_driver: syslog
+      store_dir: /var/vcap/data
+      registry_mirrors:
+      - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+
+      #--- Set docker bridge network on "172.18" to allow bosh ssh access on "172.17.xxx" internal subnets
+      bridge: docker0
+      cidr_prefix: 172.18
+
+  - name: containers
+    release: docker
+    properties:
+      containers: []

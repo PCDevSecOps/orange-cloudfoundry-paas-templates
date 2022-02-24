@@ -1,0 +1,103 @@
+---
+# modifying community  plans to avoid conflict
+####################################################################################################################################
+# job : broker
+
+- type: remove
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker?/services/name=p-mysql/plans
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker?/services/name=p-mysql/plans?/-
+  value: &broker_plan_10m
+    description: Shared MySQL/MariaDB Galera Cluster
+    id: 6ca6446a-cec2-11e7-abc4-cec278b6b50a
+    max_storage_mb: 10
+    max_user_connections: 5
+    name: 10mb
+    free: false
+    metadata:
+      bullets:
+      - 10 MB storage
+      - 5 concurrent connections
+      costs:
+      - amount:
+          eur: ((!/secrets/plan-prices/plan-shared-mariadb-10mb-price))
+        unit: Monthly        
+      displayName: 10 MB
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker?/services/name=p-mysql/plans/-
+  value: &broker_plan_20m
+    description: Shared MySQL/MariaDB Galera Cluster
+    id: 7240804e-cf61-11e7-abc4-cec278b6b50a
+    max_storage_mb: 20
+    max_user_connections: 5
+    name: 20mb
+    free: false    
+    metadata:
+      bullets:
+      - 20 MB storage
+      - 5 concurrent connections
+      costs:
+      - amount:
+          eur: ((!/secrets/plan-prices/plan-shared-mariadb-20mb-price))
+        unit: Monthly   
+      displayName: 20 MB
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker?/services/name=p-mysql/plans/-
+  value: &broker_plan_100m
+    description: Shared MySQL/MariaDB Galera Cluster
+    id: ab08f1bc-e6fc-4b56-a767-ee0fea6e3f20
+    max_storage_mb: 100
+    max_user_connections: 10
+    name: 100mb
+    free: false
+    metadata:
+      bullets:
+      - 100 MB storage
+      - 10 concurrent connections
+      costs:
+      - amount:
+          eur: ((!/secrets/plan-prices/plan-shared-mariadb-100mb-price))
+        unit: Monthly   
+      displayName: 100 MB
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker?/services/name=p-mysql/plans/-
+  value: &broker_plan_1g
+    description: Shared MySQL/MariaDB Galera Cluster
+    id: 11d0aa36-dcec-4021-85f5-ea4d9a5c8342
+    max_storage_mb: 1024
+    max_user_connections: 20
+    name: 1gb
+    free: false    
+    metadata:
+      bullets:
+        - 1 GB storage
+        - 20 concurrent connections
+      costs:
+      - amount:
+          eur: ((!/secrets/plan-prices/plan-shared-mariadb-1gb-price))
+        unit: Monthly   
+      displayName: 1 GB
+
+
+- type: replace
+  path: /instance_groups/name=broker/jobs/name=cf-mysql-broker/properties/cf_mysql/broker?/services/name=p-mysql/plans/-
+  value: &broker_plan_15g
+    description: Shared MySQL/MariaDB Galera Cluster
+    id: c3683fa8-dc72-4ea6-b95c-722a074f5e82
+    max_storage_mb: 15360
+    max_user_connections: 20
+    name: 15gb
+    free: false    
+    metadata:
+      bullets:
+        - 15 GB storage
+        - 20 concurrent connections
+      costs:
+      - amount:
+          eur: ((!/secrets/plan-prices/plan-shared-mariadb-15gb-price))
+        unit: Monthly        
+      displayName: 15 GB

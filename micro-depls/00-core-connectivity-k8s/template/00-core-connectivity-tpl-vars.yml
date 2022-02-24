@@ -1,0 +1,2 @@
+deployment_name: 00-core-connectivity-k8s
+corporate_proxy_domain: tech.orange #FIXME: externalize 

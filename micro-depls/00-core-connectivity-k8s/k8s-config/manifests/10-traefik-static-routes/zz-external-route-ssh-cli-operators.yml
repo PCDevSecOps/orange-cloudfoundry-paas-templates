@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: routingmapsshcli
+  namespace: traefik
+  annotations:
+    kubernetes.io/ingress.class: traefik
+spec:
+  entryPoints:
+  - ssh-cli
+  routes:
+  - match: HostSNI(`*`)
+    kind: Rule
+    priority: 10
+    services:
+    - name: docker-bosh-cli
+      namespace: traefik
+      kind: Service
+      port: 22

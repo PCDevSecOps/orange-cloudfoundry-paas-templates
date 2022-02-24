@@ -1,0 +1,1 @@
+This is only scanned by a root Kustomization for vsphere iaas type.

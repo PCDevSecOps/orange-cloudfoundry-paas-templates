@@ -1,0 +1,16 @@
+---
+deployment:
+  cloudfoundry-datastores:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/paas-templates-version
+    releases:
+      cf-mysql:
+      minio:
+      postgres:
+      haproxy:
+      cron:
+      prometheus:
+    errands:
+      smoke-tests:

@@ -1,0 +1,3 @@
+#--- Inception properties
+intranet_interco_gateway: (( grab secrets.intranet_interco_ips.gateway ))
+intranet_interco_inception_ip: (( grab secrets.intranet_interco_ips.inception_ip ))

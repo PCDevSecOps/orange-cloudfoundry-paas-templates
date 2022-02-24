@@ -1,0 +1,14 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: vcluster
+spec:
+  values:
+    syncer:
+      extraArgs:
+      - --tls-san=vcluster-sandbox.((/secrets/cloudfoundry_ops_domain)) #public api for the vcluster
+      - --out-kube-config-server=https://vcluster-sandbox.((/secrets/cloudfoundry_ops_domain))
+#see https://www.vcluster.com/docs/operator/accessing-vcluster#externally-accessible-vclusters      
+    #vcluster k3s storage
+    storage:
+      className: longhorn

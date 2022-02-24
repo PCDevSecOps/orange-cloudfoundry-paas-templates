@@ -1,0 +1,9 @@
+#vars to cf (for bosh dns aliases)
+deployment_name: cf
+network_name: tf-net-cf
+
+#--- Properties used by cf deployment
+system_domain: ((/secrets/cloudfoundry_system_domain))
+
+number_of_router: (( grab meta.isolation_segment.gorouter_instances_count ))
+number_of_cell: (( grab meta.isolation_segment.diego_cell_instances_count ))

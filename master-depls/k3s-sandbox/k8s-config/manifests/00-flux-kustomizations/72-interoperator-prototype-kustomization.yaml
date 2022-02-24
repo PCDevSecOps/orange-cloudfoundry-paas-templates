@@ -1,0 +1,23 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 72-interoperator-prototype
+
+#spec:
+#  interval: 2m0s
+#  path: ./master-depls/k3s-sandbox/k8s-config/manifests/72-interoperator-prototype
+#  prune: true
+#  sourceRef:
+#    kind: GitRepository
+#    name: paas-k8s-gitops-repo
+#  wait: true
+#  timeout: 2m
+
+  # Initially tried to install CDR with helm release before declaring interoperator cr.
+  #See https://github.com/orange-cloudfoundry/paas-templates/issues/1390
+  #  dependsOn:
+  #    - name: 72-interoperator
+  #      namespace: fluxcd
+  #
+  # However this slows down future reconcialiations (waiting for each helm upgrade),
+  # or blocks reconciliations when jcr is unavailable

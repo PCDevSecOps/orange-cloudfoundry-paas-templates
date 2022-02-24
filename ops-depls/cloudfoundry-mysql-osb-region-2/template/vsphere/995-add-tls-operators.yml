@@ -1,0 +1,12 @@
+---
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/tls?/ca_certificate
+  value: '' #force useSSL=true&enabledTLSProtocols=TLSv1.2&enabledSslProtocolSuites=TLSv1.2 in jdbcUrl during binding
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/tls?/server_certificate
+  value: ((/secrets/certs/dnsaas.certificate))
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/tls?/server_key
+  value: ((/secrets/certs/dnsaas.private_key))

@@ -1,0 +1,20 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 40-loki
+spec:
+  interval: 2m0s
+  path: ./master-depls/00-supervision/k8s-config/manifests/40-loki
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+
+  #post-build substitution
+  postBuild:
+    substitute:
+      clientID: "supervision-client"
+      clientSecret: "((/uaa/supervision-client-secret))"
+      cookieSecret: "((/uaa/supervision-cookie-secret))"
+      opsDomain: ((/secrets/cloudfoundry_ops_domain))
+      oidc_issuer_url: "https://uaa.((/secrets/cloudfoundry_ops_domain))/oauth/token"

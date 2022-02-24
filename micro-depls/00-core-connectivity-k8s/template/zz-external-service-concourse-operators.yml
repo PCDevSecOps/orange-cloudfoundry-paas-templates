@@ -1,0 +1,15 @@
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "concourse-route"
+    cmd: "apply"
+    content:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: concourse-route
+        namespace: ingress-nginx #to be accessible from nginx-ingress
+      spec:
+        externalName: q-s0.web.net-bosh-2.concourse.bosh
+        type: ExternalName

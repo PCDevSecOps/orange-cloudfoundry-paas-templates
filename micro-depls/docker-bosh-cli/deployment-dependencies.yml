@@ -1,0 +1,13 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+          - shared-operators/paas-templates-version
+    releases:
+      docker:
+      generic-scripting:
+      os-conf:

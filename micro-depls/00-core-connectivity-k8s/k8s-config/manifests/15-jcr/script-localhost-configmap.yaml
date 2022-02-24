@@ -1,0 +1,39 @@
+# jfrog-jcr-artifactory  configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: localhost-script
+  namespace: jcr
+  annotations:
+    kustomize.toolkit.fluxcd.io/substitute: disabled #required so shell vars in config script get not replaced with ""
+
+data:
+  wait-for-artifactory-startup.sh: |-
+    echo "$(date): This is a post-start script - $0"
+    timeout 240 sh -c 'JCR="";until [ "$JCR" = "OK" ]; do JCR="$(curl -sSL http://$0/artifactory/api/system/ping)";printf ".";sleep 1;done;echo ""' localhost:8081
+    echo ""
+    if curl -sSLf "http://localhost:8081/artifactory/api/system/ping"; then
+      echo "$(date): JCR is available"
+    else
+      echo "$(date): JCR is not available - $0"
+      exit 1
+    fi
+
+  update-artifactory-config.sh: |-
+    echo "$(date): This is a post-start script - $0"
+    export AUTH="-u admin:((jcr_admin_password))"
+    if curl ${AUTH} -X PATCH -sSLf "http://localhost:8081/artifactory/api/system/configuration" -H "Content-Type:application/yaml" -T /scripts/param.yml; then
+      echo "Done - $0"
+    else
+      echo "$(date): fail to load JCR config - $0"
+      exit 1
+    fi
+  validate-artifactory-licence.sh: |-
+    echo "This is a post-start script - $0"
+    export AUTH="-u admin:((jcr_admin_password))"
+    if curl -XPOST -v $AUTH -sSLf http://localhost:8081/artifactory/ui/jcr/eula/accept;then
+      echo "Done - $0"
+    else
+      echo "$(date): cannot validate JCR EULA - $0"
+      exit 1
+    fi

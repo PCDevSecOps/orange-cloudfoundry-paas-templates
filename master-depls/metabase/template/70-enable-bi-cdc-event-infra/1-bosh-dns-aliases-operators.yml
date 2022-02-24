@@ -1,0 +1,49 @@
+#base bosh-dns-aliases add-on, alias are added with separate operators
+- type: replace
+  path: /releases/-
+  value: 
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /addons?/-
+  value: 
+    name: bosh-dns-aliases
+    jobs:
+    - name: bosh-dns-aliases
+      release: bosh-dns-aliases
+      properties:
+        aliases:
+        - domain: kafka #local alias
+          targets:
+          - query: '*'
+            instance_group: kafka
+            deployment: metabase
+            network: tf-net-exchange
+            domain: bosh
+
+        - domain: postgres-cf #local alias
+          targets:
+          - query: '*'
+            instance_group: postgres
+            deployment: cloudfoundry-datastores
+            network: tf-net-exchange
+            domain: bosh
+
+        - domain: yb-master #local alias
+          targets:
+          - query: '*'
+            instance_group: kafka
+            deployment: metabase
+            network: tf-net-exchange
+            domain: bosh
+            
+        - domain: yb-tservers #local alias
+          targets:
+          - query: '*'
+            instance_group: kafka
+            deployment: metabase
+            network: tf-net-exchange
+            domain: bosh
+
+

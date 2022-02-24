@@ -1,0 +1,16 @@
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: to-intranet
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: intranet-ha-interco
+      default: [dns] #--- Use intranet DNS for resolution
+      static_ips:
+      - ((to-intranet-ip))
+
+    jobs:
+    - {release: prometheus, name: blackbox_exporter }

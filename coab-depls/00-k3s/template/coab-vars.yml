@@ -1,0 +1,25 @@
+#Simulates what coab will generate for each deployment.
+deployment_name: "00-k3s"
+
+#these are samples values for keys set by coab broker
+instance_id: "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+
+service_id: "k3s-ondemand-service"
+plan_id: "plan-coab-k3s-default"
+
+
+context:
+  platform: "cloudfoundry"
+  user_guid:  "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+  space_guid: "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+  organization_guid: "kkkkkkk-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
+parameters:
+  x-osb-cmdb:
+    annotations:
+      brokered_service_context_spaceName: "smoke-tests"
+      brokered_service_context_organizationName: "osb-cmdb-brokered-services-org-client-0"
+      brokered_service_api_info_location: "endpoint/v2/info"
+      brokered_service_context_instanceName: "osb-cmdb-broker-0-smoketest-1591105235"
+    labels:
+      brokered_service_originating_identity_user_id: "0d02117b-aa21-43e2-b35e-8ad6f8223519"
+

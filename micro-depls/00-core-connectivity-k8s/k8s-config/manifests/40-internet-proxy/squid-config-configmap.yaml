@@ -1,0 +1,64 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: squid-configmap
+  namespace: internet-proxy
+data:
+  squid.conf : |
+    http_port 3128
+    debug_options ALL,7
+    dns_nameservers 8.8.8.8 8.8.4.4
+    acl localnet src 10.0.0.0/8     # RFC 1918 possible internal network
+    acl localnet src 172.16.0.0/12  # RFC 1918 possible internal network
+    acl localnet src 192.168.0.0/16 # RFC 1918 possible internal network
+    acl localnet src fc00::/7       # RFC 4193 local private network range
+    acl localnet src fe80::/10      # RFC 4291 link-local (directly plugged) machines
+    
+    #--- Disable caching and log cache
+    cache deny all
+    cache_log /dev/null
+    
+    #--- Deny connect from unsafe ports
+    acl Safe_CONNECT_ports port 80 442 443
+    acl CONNECT method CONNECT
+    http_access deny CONNECT !Safe_CONNECT_ports
+    
+    #--- Deny requests to unsafe ports
+    acl Safe_ports port 80            # http
+    acl Safe_ports port 443           # https
+    acl Safe_ports port 5281          # elk
+    acl Safe_ports port 1025-65535    # Unregistered ports
+    http_access deny !Safe_ports
+    
+    #--- Allow paas-template access for prometheus manager metrics collection 
+    acl prometheus src 192.168.0.0/16
+    http_access allow manager prometheus
+    
+    #--- Allow localhost connections
+    acl localhost src 127.0.0.1/32
+    http_access allow localhost
+    
+    #--- Allow inbound connections
+    http_access allow localnet
+    cache_peer ((/secrets/multi_region_region_1_corporate_internet_proxy_host)) parent ((/secrets/multi_region_region_1_corporate_internet_proxy_port)) 0 proxy-only no-query login=((/secrets/multi_region_region_1_corporate_internet_proxy_login)):((/secrets/multi_region_region_1_corporate_internet_proxy_password))
+    never_direct allow all
+    #--- Log format
+    # ts  : Date of request, seconds since epoch
+    # tu  : Date of request, sub-second component
+    # tl  : Local time. Optional strftime format argument
+    # rm  : Request method
+    # ru  : Request URL, without the query string
+    # mt  : MIME type of the request
+    # >Hs : HTTP status code (200, 404, 407, etc)
+    # Ss  : Squid status code (TCP_HIT, TCP_MISS etc)
+    # tr  : Response time (milliseconds)
+    # >st : Total size of request
+    # <st : Total size of reply
+    # >a  : Client source IP address
+    # >p  : Client source port
+    # <a  : Server or peer IP address
+    # <p  : Server or peer port number
+    # un  : Authenticated user name or dash
+    # Sh  : Squid hierarchy code (FIRST_UP_PARENT, etc)
+    logformat squid %ts.%03tu %6tr %>a %Ss/%03>Hs %<st %rm %ru %[un %Sh/%<a %mt

@@ -1,0 +1,30 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: pxc-operator
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/percona/percona-helm-charts/tree/main/charts/pxc-operator"
+
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: pxc-operator #percona/pxc-operator
+      version: 1.10.0
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    resources:
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      requests:
+        cpu: 100m
+        memory: 128Mi

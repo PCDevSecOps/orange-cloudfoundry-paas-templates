@@ -1,0 +1,60 @@
+#--- Delete intranet interco network (inception uses EIP) and set micro-bosh network properties
+- type: remove
+  path: /networks/name=intranet_interco
+
+- type: remove
+  path: /instance_groups/name=inception/networks/name=intranet_interco
+
+- type: replace
+  path: /networks/name=micro_bosh/subnets/0/cloud_properties?
+  value:
+    net_id: ((micro_bosh_network_name))
+    security_groups: ((bootstrap_security_groups))
+
+- type: replace
+  path: /networks/name=micro_bosh/subnets/0/dns?
+  value: [((dns_recursor_1)), ((dns_recursor_2))]
+
+#--- Delete bosh-dns aliases
+- type: remove
+  path: /instance_groups/name=inception/jobs/name=bosh-dns/properties/aliases
+
+#--- Setup openstack CPI
+- type: replace
+  path: /resource_pools/name=vms/stemcell?
+  value:
+    sha1: ((sha1_stemcell))
+    url: ((url_stemcell))
+
+- type: replace
+  path: /resource_pools/name=vms/cloud_properties?
+  value:
+    availability_zone: ((az))
+    instance_type: ((instance_type))
+
+- type: replace
+  path: /cloud_provider/template?
+  value:
+    name: openstack_cpi
+    release: bosh-openstack-cpi
+
+- type: replace
+  path: /cloud_provider/properties/openstack?
+  value:
+    api_key: ((openstack_password))
+    auth_url: ((auth_url))
+    connection_options:
+      connect_timeout: 900
+      read_timeout: 900
+      ssl_verify_peer: false
+      write_timeout: 900
+    default_key_name: bosh
+    default_security_groups: ((default_security_groups))
+    domain: ((openstack_domain))
+    human_readable_vm_names: false
+    ignore_server_availability_zone: false
+    project: ((openstack_project))
+    region: ((region))
+    stemcell_public_visibility: false
+    username: ((openstack_username))
+    state_timeout: 900    #--- Specific FE (workaround for timeout when loading stemcell)

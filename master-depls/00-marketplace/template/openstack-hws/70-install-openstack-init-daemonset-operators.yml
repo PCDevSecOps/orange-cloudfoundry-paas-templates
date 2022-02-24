@@ -1,0 +1,112 @@
+#install daemonset for first boot openstack allowed address
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: namespace
+    name: openstack-init
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "openstack-init-config"
+    cmd: "apply"
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: openstack-init-config
+        namespace: openstack-init
+        labels:
+          app: openstack-init-config
+      data:
+        entrypoint.sh: |
+          #!/usr/bin/env bash
+          echo "post-deploy allowed address pairs for vip"
+          set -x debug
+          
+          
+          #function to allow any private subnet ip to be used as a arp vip
+          Allowed_private(){
+          
+          PORT="$(openstack port list |grep $1 |cut -d '|' -f 2)"
+          
+          openstack port set --no-allowed-address $PORT
+          openstack port set --allowed-address ip-address=192.168.99.0/24 $PORT
+          }
+          
+          #find agents private ip with bosh dns
+          Allowed_private "${HOST_IP}"
+          echo "done allowing address pairs for vip on ${HOST_IP}"
+
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "openstack-init-daemonset"
+    cmd: "apply"
+    content:
+      apiVersion: apps/v1
+      kind: DaemonSet
+      metadata:
+        name: openstack-init-daemonset
+        namespace: openstack-init
+        labels:
+          app: openstack-init-daemonset
+      spec:
+        selector:
+          matchLabels:
+            app: openstack-init-daemonset
+        updateStrategy:
+          type: RollingUpdate
+        template:
+          metadata:
+            labels:
+              name: node-initializer
+              app: openstack-init-daemonset
+          spec:
+            volumes:
+            - name: root-mount
+              hostPath:
+                path: /
+            - name: entrypoint
+              configMap:
+                name: openstack-init-config
+                defaultMode: 0744
+            initContainers:
+            - image: openstacktools/openstack-client
+              name: node-initializer
+              command: ["/scripts/entrypoint.sh"]
+              env:
+              #use downward API to retrieve host ip, as env var
+              - name: HOST_IP
+                valueFrom:
+                  fieldRef:
+                    fieldPath: status.hostIP
+              - name: ROOT_MOUNT_DIR
+                value: /root
+              - name: OS_AUTH_URL
+                value: ((/secrets/openstack_auth_url))
+              - name: OS_IDENTITY_API_VERSION
+                value: "3"
+              - name: OS_PROJECT_NAME
+                value: ((/secrets/openstack_project))
+              - name: OS_PROJECT_DOMAIN_NAME
+                value: ((/secrets/openstack_domain))
+              - name: OS_USERNAME
+                value: ((/secrets/openstack_username))
+              - name: OS_USER_DOMAIN_NAME
+                value: ((/secrets/openstack_domain))
+              - name: OS_PASSWORD
+                value: ((/secrets/openstack_password))
+              - name: https_proxy
+                value: "http://system-internet-http-proxy.internal.paas:3128"
+              volumeMounts:
+              - name: root-mount
+                mountPath: /root
+              - name: entrypoint
+                mountPath: /scripts
+            containers:
+            - image: "rancher/pause:3.1"
+              name: pause

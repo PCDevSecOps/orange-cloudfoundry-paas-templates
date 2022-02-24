@@ -1,0 +1,19 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: paas-k8s-gitops-kustomization-iaas
+  namespace: fluxcd
+spec:
+  interval: 1m0s
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+  path: ../${coa_root_deployment_name}/${coa_deployment_name}/k8s-config/manifests//00-flux-kustomizations-${iaas_type} #k8s cluster specific path in paas-templates repo
+  targetNamespace: fluxcd #root Kustomization must be created in same ns as GitRepositories
+  
+  #post-build substitution
+  postBuild:
+    substituteFrom:
+    - kind: ConfigMap
+      name: coa-metadata

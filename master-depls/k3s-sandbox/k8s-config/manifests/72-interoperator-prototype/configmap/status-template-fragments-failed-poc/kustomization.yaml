@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: fluxcd #this is where 72-interoperator-prototype Kustomization would perform variable substitution
+
+# Generate a ConfigMap with gotemplate fragments used in variable substitution
+configMapGenerator:
+  - name: pxc-default-plan-status-fragments
+    files:
+      - status_bind_gotemplate
+      - status_unbind_gotemplate
+      - status_provision_gotemplate
+      - status_unprovision_gotemplate
+generatorOptions:
+  # disableNameSuffixHash is true disables the default behavior of adding a
+  # suffix to the names of generated resources that is a hash of
+  # the resource contents.
+  disableNameSuffixHash: true

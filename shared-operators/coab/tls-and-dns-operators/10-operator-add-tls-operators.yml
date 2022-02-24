@@ -1,0 +1,25 @@
+---
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/tls?/ca_certificate
+#  value: ((cf_mysql_mysql_tls_server_certificate.ca))
+  value: '' #force useSSL=true&enabledTLSProtocols=TLSv1.2&enabledSslProtocolSuites=TLSv1.2 in jdbcUrl during binding
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/tls?/server_certificate
+#  value: ((cf_mysql_mysql_tls_server_certificate.certificate))
+  value: ((/secrets/certs/dnsaas.certificate))
+
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/tls?/server_key
+#  value: ((cf_mysql_mysql_tls_server_certificate.private_key))
+  value: ((/secrets/certs/dnsaas.private_key))
+
+#- type: replace
+#  path: /variables?/-
+#  value:
+#    name: cf_mysql_mysql_tls_server_certificate
+#    type: certificate
+#    options:
+#      common_name: "cf_mysql_host"
+#      #ca: trusted_cert_for_apps
+#      is_ca: true

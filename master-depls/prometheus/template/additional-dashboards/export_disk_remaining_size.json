@@ -1,0 +1,191 @@
+{ 
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 161,
+  "links": [],
+  "panels": [
+    {
+      "cacheTimeout": null,
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {
+          "color": { 
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "from": "",
+              "id": 1,
+              "text": "",
+              "to": "",
+              "type": 1
+            }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "interval": null,
+      "links": [],
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true,
+        "text": {}
+      },
+      "pluginVersion": "7.5.11",
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "disk_storage_total{disk=\"/export\"}",
+          "instant": true,
+          "interval": "",
+          "legendFormat": "total space",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "disk_storage_used{disk=\"/export\"}",
+          "hide": false,
+          "instant": true,
+          "interval": "",
+          "legendFormat": "space used ",
+          "refId": "B"
+        }
+      ],
+      "title": "Space used on \"/export\"",
+      "transformations": [
+        {
+          "id": "calculateField",
+          "options": {
+            "alias": "free space ",
+            "binary": {
+              "left": "total space",
+              "operator": "-",
+              "reducer": "sum",
+              "right": "space used "
+            },
+            "mode": "binary",
+            "reduce": {
+              "reducer": "sum"
+            }
+          }
+        }
+      ],
+      "type": "gauge"
+    },
+    {
+      "aliasColors": {
+        "space used ": "#8F3BB8",
+        "total space": "#37872D"
+      },
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": 0
+      },
+      "datasource": null,
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "fontSize": "80%",
+      "format": "bytes",
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 3,
+      "interval": null,
+      "legend": {
+        "percentage": true,
+        "show": true,
+        "values": true
+      },
+      "legendType": "Under graph",
+      "links": [],
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "pluginVersion": "7.5.11",
+      "strokeWidth": 1,
+      "targets": [
+        {
+          "exemplar": true,
+          "expr": "disk_storage_total{disk=\"/var/vcap/store/minio-server\"}",
+          "interval": "",
+          "legendFormat": "total space",
+          "refId": "A"
+        },
+        {
+          "exemplar": true,
+          "expr": "disk_storage_used{disk=\"/var/vcap/store/minio-server\"}",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "space used ",
+          "refId": "B"
+        }
+      ],
+      "title": "Space used on \"/var/vcap/store/minio-server\"",
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    }
+  ],
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Minio remaining size",
+  "uid": "sD_gMw17w",
+  "version": 9
+}

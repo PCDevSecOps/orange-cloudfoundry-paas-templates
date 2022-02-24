@@ -1,0 +1,16 @@
+#--- Add intranet interco public ip for concourse webui bootstrap
+- type: replace
+  path: /instance_groups/name=web/networks/-
+  value:
+    name: intranet-ha-interco
+    static_ips:
+    - ((concourse_public_ip))
+
+- type: replace
+  path: /instance_groups/name=web/networks/0/default?
+  value: [dns, gateway]
+
+#--- Don't use proxy for concourse intranet interco ip
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=worker/properties/no_proxy/-
+  value: 192.168.116.160

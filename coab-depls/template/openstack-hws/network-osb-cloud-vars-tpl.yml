@@ -1,0 +1,13 @@
+#--- Osb data plane dedicated public
+tf-net-osb-data-plane-dedicated-pub_id: (( grab secrets.osb_data_plane_dedicated_public.net_id )) # <-- from terraform
+osb_data_plane_dedicated_public_range: (( grab secrets.osb_data_plane_dedicated_public.range ))
+osb_data_plane_dedicated_public_gateway: (( grab secrets.osb_data_plane_dedicated_public.gateway ))
+osb_data_plane_dedicated_public_reserved_dhcp: (( grab secrets.osb_data_plane_dedicated_public.reserved_dhcp ))
+osb_data_plane_dedicated_public_reserved_vips: (( grab secrets.osb_data_plane_dedicated_public.reserved_vips ))
+
+#--- Osb data plane dedicated private (other information are hard-coded since it is a private network)
+tf-net-osb-data-plane-dedicated-priv_id: (( grab secrets.networks.tf-net-osb-data-plane-dedicated-priv )) # <-- from terraform
+tf-net-osb-data-plane-dedicated-priv-extension_id: (( grab secrets.networks.tf-net-osb-data-plane-dedicated-priv-extension )) # <-- from terraform
+tf-net-osb-data-plane-dedicated-priv-extension_id-3: (( grab secrets.networks.tf-net-osb-data-plane-dedicated-priv-extension-3 )) # <-- from terraform
+tf-net-osb-data-plane-dedicated-priv-extension_id-4: (( grab secrets.networks.tf-net-osb-data-plane-dedicated-priv-extension-4 )) # <-- from terraform
+tf-net-osb-data-plane-dedicated-priv-extension_id-5: (( grab secrets.networks.tf-net-osb-data-plane-dedicated-priv-extension-5 )) # <-- from terraform

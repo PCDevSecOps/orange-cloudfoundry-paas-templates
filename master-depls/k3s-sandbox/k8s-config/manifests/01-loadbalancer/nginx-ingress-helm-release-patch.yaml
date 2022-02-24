@@ -1,0 +1,12 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+spec:
+  values:
+      controller:
+        ingressClassResource:
+          # Set as default ingress class on the cluster for helm charts that don't support tuning the ingressclass
+          default: true
+
+

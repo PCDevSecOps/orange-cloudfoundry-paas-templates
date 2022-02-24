@@ -1,0 +1,4 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: service-instance-7a543afd-3578-4ca4-8013-6aa4c52d27a7

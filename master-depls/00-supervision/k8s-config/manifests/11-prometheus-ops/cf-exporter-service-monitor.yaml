@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: cf-exporter-service-monitor
+  labels:
+    team: ops-exporter
+spec:
+  namespaceSelector:
+    matchNames:
+      - 11-prometheus-ops
+  selector:
+    matchLabels:
+      app: cf-exporter # service label
+  endpoints:
+    - path: /metrics
+      port: web            # must be the name of the service port (file cf-exporter-service.yaml)

@@ -1,0 +1,60 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+  labels: {}
+spec:
+  alerting:
+    alertmanagers:
+      - apiVersion: v2
+        name: kube-prometheus-stack-alertmanager
+        namespace: ${namespace}
+        pathPrefix: /
+        port: web
+  enableAdminAPI: false
+  externalUrl: http://kube-prometheus-stack-prometheus.${namespace}:9090
+  listenLocal: false
+  logFormat: logfmt
+  logLevel: info
+  portName: web
+  replicas: 1
+  retention: 1d
+  routePrefix: /
+  probeNamespaceSelector: {}
+  probeSelector:
+    matchLabels:
+      team: probe
+  serviceAccountName: ${name}
+  serviceMonitorNamespaceSelector: {}
+  serviceMonitorSelector:
+    matchLabels:
+      team: ${team}
+  podMonitorNamespaceSelector: {}
+  podMonitorSelector:
+    matchLabels:
+      team: ${team}
+  additionalScrapeConfigs:
+    name: additional-scrape-configs
+    key: prometheus-additional.yaml
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - prometheus
+          topologyKey: "kubernetes.io/hostname" #node
+  resources:
+    requests: #reserved
+      memory: 30G
+    limits:
+      memory: 31G
+  storage:
+    volumeClaimTemplate:
+      spec:
+        storageClassName: "local-path"
+        resources:
+          requests:
+            storage: 10Gi

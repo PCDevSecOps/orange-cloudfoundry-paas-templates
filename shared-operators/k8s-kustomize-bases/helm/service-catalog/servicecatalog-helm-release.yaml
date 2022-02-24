@@ -1,0 +1,101 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: catalog
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/kubernetes-sigs/service-catalog/tree/master/charts/catalog"
+
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: catalog #svc-cat/catalog
+      version: 0.3.1
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    controllerManager:
+      resources:
+        limits:
+          cpu: 500m
+          memory: 300Mi
+    securityContext:
+      runAsUser:  1001
+
+    webhook:
+      service:
+        type: ClusterIP
+
+  #helm post rendering
+  postRenderers:
+  - kustomize: 
+       patchesStrategicMerge:
+       -  kind: Deployment
+          apiVersion: apps/v1
+          metadata:
+            name: catalog-catalog-controller-manager
+          spec:
+            template:
+              spec:
+                containers:
+                - name: controller-manager
+                  volumeMounts:
+                  - mountPath: /var/run
+                    name: run
+                volumes:
+                - name: run
+                  emptyDir: {}
+
+    # We initially increased replica to 3 to reproduce concurrent calls observed from Orange openshift 3.X kermit platform which osb-cmdb aims to support
+    # Note this has no effect due to https://github.com/kubernetes-sigs/service-catalog/issues/2888 "migration job ignores specified controller replica"
+    # However, under certain error conditions the controller Manager indeed honor the replicatset to 3 and we observe
+    # apparent related bugs such as the following when trying to declare osb-cmdb-0.
+    # Suspecting this is linked to the replicas=3
+    # - lastTransitionTime: "2021-07-21T15:09:57Z"
+    #    message: 'Error syncing catalog from ClusterServiceBroker.Error reconciling ServiceClass
+    #      (K8S: "osb-cmdb-brokered-services-org-client-0-smoke-tests-1626880196/4fc76ee2-496c-48f5-93db-0e2af6ffd8ca"
+    #      ExternalName: "memcache") (broker "osb-cmdb-broker-0"): serviceclasses.servicecatalog.k8s.io
+    #      "4fc76ee2-496c-48f5-93db-0e2af6ffd8ca" already exists'
+    #    reason: ErrorSyncingCatalog
+    #    status: "False"
+    #    type: Ready
+    # Therefore we leave the default replicas=1 configuration, which is also the configuration used in production
+    # in paas-templates k8s clients (metalikaas)
+    #    - name: controllerManager.replicas
+    #      value: 3
+#    - name: controllerManager.resources.limits.cpu
+#      value: 500m
+#    - name: controllerManager.resources.limits.memory
+#      value: 300Mi
+#
+#      # Configure to not run as root. Otherwise observing Observing Controller manager to fail with
+#      #GET https://10.43.0.1:443/api/v1/namespaces/catalog/configmaps/cluster-info 401 Unauthorized in 252 milliseconds
+#    - name: securityContext.runAsUser
+#      value: 1001
+#
+#      #Remove this when svcat 0.3.2 or higher gets released.
+#      #Error: release catalog failed, and has been uninstalled due to atomic being set: Service "catalog-catalog-webhook" is invalid: spec.ports[0].nodePort: Invalid value: 31443: provided port is already allocated
+#      #helm.go:81: [debug] Service "catalog-catalog-webhook" is invalid: spec.ports[0].nodePort: Invalid value: 31443: provided port is already allocated
+#    - name: webhook.service.type
+#      value: ClusterIP
+
+
+
+
+
+#- type: replace
+#  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+#  value:
+#    type: kubectl
+#    name: "patch-svc"
+#    cmd: "patch"
+#    options: deployment -n catalog catalog-catalog-controller-manager -p '{"spec":{"volumes":[{"name":"run", "emptyDir":"{}"}],"containers":[{"name":"controller-manager", "volumeMounts":[{"mountPath":"/var/run", "name":"run"}]}]}}'
+
+

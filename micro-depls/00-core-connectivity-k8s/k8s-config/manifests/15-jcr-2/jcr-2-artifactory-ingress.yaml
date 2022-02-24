@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingress.kubernetes.io/proxy-body-size: "0"
+    ingress.kubernetes.io/proxy-read-timeout: "600"
+    ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^/v2/token /artifactory/api/docker/null/v2/token;
+      rewrite ^/v2/([a-z-]*)/(.*) /artifactory/api/docker/$1/v2/$2;
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+
+#NB: the rewrite rule limits the docker org
+
+  labels:
+    app: artifactory
+  name: jfrog-jcr-2
+  namespace: jcr
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: jcr-2-k8s.((/secrets/cloudfoundry_ops_domain))
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: jfrog-jcr-2-artifactory
+            port:
+              number: 8082
+  tls:
+  - hosts:
+    - jcr-2-k8s.((/secrets/cloudfoundry_ops_domain))
+    secretName: jcr-ssl

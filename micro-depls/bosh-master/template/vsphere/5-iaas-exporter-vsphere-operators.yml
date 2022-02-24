@@ -1,0 +1,40 @@
+#vsphere exporter, as a docker container- type: replace
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: docker
+    release: docker
+    properties:
+      #--- Set docker bridge network on "172.18" to allow bosh ssh access on "172.17.xxx" internal subnets
+      bridge: docker0
+      cidr_prefix: 172.18
+      registry_mirrors:
+      - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+      store_dir: /var/vcap/data
+
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    name: containers
+    release: docker
+    properties:
+      containers:
+      - name: vsphere_iaas_exporter
+        image: pryorda/vmware_exporter:((pryorda/vmware_exporter))
+        bind_ports:
+        - "9272:9272"
+        env_vars:
+        - "VSPHERE_USER=((/secrets/vsphere_vcenter_user))"
+        - "VSPHERE_PASSWORD=((/secrets/vsphere_vcenter_password))"
+        - "VSPHERE_HOST=((/secrets/vsphere_vcenter_ip))"
+        - "VSPHERE_IGNORE_SSL=True"
+        - "VSPHERE_SPECS_SIZE=2000"
+        - "VSPHERE_FETCH_CUSTOM_ATTRIBUTES=True"
+        - "VSPHERE_FETCH_TAGS=True"
+        

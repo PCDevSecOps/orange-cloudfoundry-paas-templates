@@ -1,0 +1,39 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: cron
+    version: 1.3.1
+
+- type: replace
+  path: /addons/-
+  value:
+    name: cron-ro-disk-repair
+    jobs:
+    - name: cron
+      release: cron
+      properties:
+        cron:
+          entries:
+          - script:
+              name: re-disk-repair.sh
+              contents: |
+                #!/bin/bash
+                echo "testing disk"
+                touch /var/vcap/data/testfile
+                if [ $? != 0 ] ; then
+                  echo "root disk is RO!!"
+                  sv stop agent
+                fi  
+                rm /var/vcap/data/testfile
+
+            month: '*'
+            day: '*'
+            hour: '*'
+            minute: '/15'
+            wday: '*'
+            user: root
+
+    include:
+      deployments:
+      - docker-bosh-cli
+      - bosh-master

@@ -1,0 +1,13 @@
+---
+applications:
+- name: cf-networking-sample-frontend
+  memory: 32M
+  stack: cflinuxfs3
+  disk_quota: 32M
+  buildpacks:
+  - cached-go-buildpack
+  path: cf-networking-examples/frontend
+  env:
+    GOPACKAGENAME: example-apps/cats-and-dogs/frontend
+  routes:
+  - route: (( concat "front-end." secrets.cloudfoundry.system_domain ))

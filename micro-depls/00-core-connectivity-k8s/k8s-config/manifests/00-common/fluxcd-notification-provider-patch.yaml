@@ -1,0 +1,6 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Provider
+metadata:
+  name: slack
+spec:
+  channel: ((/secrets/multi_region_region_1_slack_notifications_channel))

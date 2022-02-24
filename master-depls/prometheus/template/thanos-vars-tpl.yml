@@ -1,0 +1,4 @@
+#--- Thanos compact configuration
+thanos-metrics-retention-days: 365
+thanos-compact-interval-mn : 10
+thanos-compact-concurrency : 4

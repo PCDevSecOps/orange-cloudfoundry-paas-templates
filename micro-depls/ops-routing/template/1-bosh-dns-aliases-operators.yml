@@ -1,0 +1,26 @@
+#--- Add bosh-dns-aliases add-on
+- type: replace
+  path: /releases/-
+  value: 
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /addons?/-
+  value: 
+    name: bosh-dns-aliases
+    include:
+      stemcell:
+      - os: ubuntu-bionic
+    jobs:
+    - name: bosh-dns-aliases
+      release: bosh-dns-aliases
+      properties:
+        aliases:
+        - domain: postgres
+          targets:
+          - query: '*'
+            instance_group: postgres
+            deployment: ops-routing
+            network: ((network))
+            domain: bosh

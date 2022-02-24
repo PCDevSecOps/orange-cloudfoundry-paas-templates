@@ -1,0 +1,22 @@
+#create admin password. to set manually in rancher-ui at first start
+- type: replace
+  path: /variables/-
+  value:
+    name: rancher_admin_password
+    type: password
+
+#create access key / secret key. to set manually in rancher-ui, creating a api key logged as admin
+#NB: if need bearer token is ((rancher_access_key)):((rancher_secret_key))
+- type: replace
+  path: /variables/-
+  value:
+    name: rancher_access_key
+    type: password
+
+- type: replace
+  path: /variables/-
+  value:
+    name: rancher_secret_key
+    type: password
+
+

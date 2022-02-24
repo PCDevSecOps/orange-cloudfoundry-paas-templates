@@ -1,0 +1,48 @@
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=worker/properties/http_proxy_url?
+  value: http://system-internet-http-proxy.internal.paas:3128
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=worker/properties/https_proxy_url?
+  value: http://system-internet-http-proxy.internal.paas:3128
+
+# Note that the no_proxy environment variable is handled differently by different http clients
+# curl does not support domains in the no_proxy env:
+# --- Curl manual ----
+# NO_PROXY <comma-separated list of hosts>
+#              list of host names that shouldn't go through any proxy. If set to a asterisk '*' only, it matches all hosts.
+- type: replace
+  path: /instance_groups/name=worker/jobs/name=worker/properties/no_proxy?
+  value: &noproxy
+  - localhost
+  - 127.0.0.1
+  - 192.168.10.10 #bosh-micro
+  - 192.168.99.152 #bosh-ops
+  - 192.168.99.154 #bosh-kubo
+  - 192.168.99.155 #bosh-coab
+  - 192.168.99.153 #bosh-remote-r2
+  - 192.168.99.156 #bosh-remote-r3
+  - 192.168.116.158 #bosh-master
+  - private-s3.internal.paas
+  - minio-k8s.((ops_domain))
+  - credhub.internal.paas
+  - uaa-credhub.internal.paas
+  - elpaaso-gitlab.((ops_domain))
+  - gitlab-gitlab-k8s.((ops_domain))
+  - gitea.((ops_domain))
+  - docker.jcr-k8s.((ops_domain))
+  - jcr.((ops_domain))
+  - docker.jcr-k8s.((ops_domain))
+  - jcr-k8s.((ops_domain))
+  - elpaaso-concourse-micro.((ops_domain))
+  - elpaaso-concourse.((ops_domain)) #concourse 5
+  - doppler.((api_domain)) #wss websockets failure though proxy
+  - api.((api_domain)) #cf api
+  - login.((api_domain)) #cf uaa
+  - uaa.((api_domain)) #cf uaa
+  - log-cache.((api_domain)) #required by cf deployment 15
+
+#KO - '*.internal.paas'
+#KO - '*.((api_domain))'
+#KO - '*.((ops_domain))'
+#KO - 192.168.0.0/16 #exclude private addressing (including minio-s3, credhub, bosh directors)

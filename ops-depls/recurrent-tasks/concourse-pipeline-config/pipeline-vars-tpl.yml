@@ -1,0 +1,9 @@
+
+concourse-url: (( grab secrets.concourse.url || "https://elpaaso-concourse.((cloudfoundry_ops_domain))"))
+concourse-insecure: (( grab secrets.concourse.insecure || "false"))
+
+retrigger-failed-jobs:
+  excluded-pipelines: (( grab secrets.retrigger-failed-jobs.excluded-pipelines || "")) # Space separated string
+  included-pipelines: (( grab secrets.retrigger-failed-jobs.included-pipelines || "")) # Space separated string
+  dry-run: (( grab secrets.retrigger-failed-jobs.dry-run || "false")) # Set to true in secrets to enable dry run mode
+  interval: (( grab secrets.retrigger-failed-jobs.interval || "6h")) # Triggering interval. Valid examples: 60s, 90m, 1h

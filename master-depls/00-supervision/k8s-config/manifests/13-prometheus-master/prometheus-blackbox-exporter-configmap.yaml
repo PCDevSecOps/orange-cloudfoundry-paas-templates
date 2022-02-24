@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-blackbox-exporter
+  labels:
+    app: prometheus-blackbox-exporter
+data:
+  blackbox.yaml: |
+    modules:
+      http_no_proxy_401:
+        http:
+          no_follow_redirects: false
+          preferred_ip_protocol: ip4
+          tls_config:
+            insecure_skip_verify: false
+          valid_http_versions:
+            - HTTP/1.1
+            - HTTP/2.0
+          valid_status_codes:
+            - 401
+        prober: http
+        timeout: 5s
+      http_no_proxy_200:
+        http:
+          no_follow_redirects: false
+          preferred_ip_protocol: ip4
+          tls_config:
+            insecure_skip_verify: false
+          valid_http_versions:
+            - HTTP/1.1
+            - HTTP/2.0
+          valid_status_codes:
+            - 200
+        prober: http
+        timeout: 5s
+      http_internet_proxy_200:
+        http:
+          no_follow_redirects: false
+          preferred_ip_protocol: ip4
+          proxy_url: http://system-internet-http-proxy.internal.paas:3128
+          tls_config:
+            insecure_skip_verify: false
+          valid_http_versions:
+            - HTTP/1.1
+            - HTTP/2.0
+          valid_status_codes:
+            - 200
+        prober: http
+        timeout: 5s
+      http_intranet_proxy:
+        http:
+          no_follow_redirects: false
+          preferred_ip_protocol: ip4
+          proxy_url: http://intranet-http-proxy.internal.paas:3129
+          tls_config:
+            insecure_skip_verify: false
+          valid_http_versions:
+            - HTTP/1.1
+            - HTTP/2.0
+          valid_status_codes:
+            - 200
+            - 401
+        prober: http
+        timeout: 5s
+      http_intranet_proxy_403:
+        http:
+          no_follow_redirects: false
+          preferred_ip_protocol: ip4
+          proxy_url: http://intranet-http-proxy.internal.paas:3129
+          tls_config:
+            insecure_skip_verify: false
+          valid_http_versions:
+            - HTTP/1.1
+            - HTTP/2.0
+          valid_status_codes:
+            - 403
+        prober: http
+        timeout: 5s

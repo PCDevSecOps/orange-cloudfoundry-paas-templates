@@ -1,0 +1,240 @@
+instance:
+  metadata:
+    name: instance-guid
+    namespace: default
+  spec:
+    parameters:
+      esaccess: false
+binding:
+  metadata:
+    name: binding-guid
+    namespace: default
+  spec:
+    parameters:
+      esaccess: false
+
+plan:
+  spec:
+    bindable: true
+    context:
+      namePrefix: sapcp
+      clusterdomain: .abd.efg.hij.io
+      elasticsearch:
+        ingrsessEnabled: true
+        data:
+          cpu: 500m
+          disk: 1Gi
+          memory: 2048Mi
+        master:
+          cpu: 500m
+          disk: 1Gi
+          memory: 1024Mi
+      fluentd:
+        cpu: 200m
+        memory: 512Mi
+      kibana:
+        cpu: 500m
+        memory: 1024Mi
+      functiongetspace: '{{ getSpace .Spec.Es.Data.MaxNodeCount .Spec.Es.Data.VolumeStorage
+        .Spec.Es.Data.Percentage }}'
+    description: hello world
+    free: true
+    id: 872131dc-7011-11e9-a923-1681be663d3e
+    manager:
+      async: true
+      settings:
+        dashboard_url_template: aHR0cHM6Ly9hYmMtc2YtaW5zdGFuY2VpZC5hYmMuZGVmLmhpai5pbwo=
+    metadata:
+      bullets:
+      - Container Deployment
+      - 512MB Elastic search node
+      - 1GB Disk
+      costs:
+      - amount:
+          usd: 0
+        unit: MONTHLY
+      service-inventory-key: SERVICE-TBD
+    name: standard
+    serviceId: 74726c04-7011-11e9-a923-1681be663d3e
+
+secret:
+  data:
+    POSTGRES_PASSWORD: cGFzc3dvcmQK
+    fluentdPassword_24731fb8-7b84-5f57-914f-d3d55d793dd4: cGFzc3dvcmQK
+
+service:
+  spec:
+    clusterIP: 192.168.55.65
+
+xsuaaBinding:
+  status:
+    state: succeeded
+    response: '{"uaa":{"apiurl":"sss","clientid":"ssss","clientsecret":"sss=","identityzone":"service-fabrik","identityzoneid":"service-fabrik","sburl":"sss","tenantid":"service-fabrik","tenantmode":"dedicated","uaadomain":"authentication.com","url":"https://service.com","verificationkey":"-----BEGIN PUBLIC KEY-----MI-----END PUBLIC KEY-----","xsappname":"products"}}'
+
+configmapInstance:
+  apiVersion: v1
+  data:
+    config: A sample config map provisionned by interoperator for service instance
+  kind: ConfigMap
+  metadata:
+    annotations:
+      operator-broker/plan-id: 39d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+      operator-broker/service-id: 24731fb8-7b84-5f57-914f-c3d55d793dd4
+    creationTimestamp: "2021-12-08T14:42:16Z"
+    labels:
+      OWNER_INTEROPERATOR_NAMESPACE: 72-interoperator
+    name: sapcp-ee24fc98-45b4-45ef-ad83-688bf11f72df
+    namespace: sf-ee24fc98-45b4-45ef-ad83-688bf11f72df
+    ownerReferences:
+      - apiVersion: osb.servicefabrik.io/v1alpha1
+        kind: SFServiceInstance
+        name: ee24fc98-45b4-45ef-ad83-688bf11f72df
+        uid: 0a440c45-ae30-4bef-b83f-e8a5e5a9216f
+    resourceVersion: "41938773"
+#    uid: e5622cce-6d80-4d9b-901f-7a76477faa19
+
+configmapBinding:
+  apiVersion: v1
+  data:
+    config: A sample config map provisionned by interoperator for service binding
+  kind: ConfigMap
+  metadata:
+    annotations:
+      operator-broker/plan-id: 39d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+      operator-broker/service-id: 24731fb8-7b84-5f57-914f-c3d55d793dd4
+    creationTimestamp: "2021-12-08T14:42:16Z"
+    labels:
+      OWNER_INTEROPERATOR_NAMESPACE: 72-interoperator
+    name: sapcp-ee24fc98-45b4-45ef-ad83-688bf11f72df
+    namespace: sf-ee24fc98-45b4-45ef-ad83-688bf11f72df
+    ownerReferences:
+      - apiVersion: osb.servicefabrik.io/v1alpha1
+        kind: SFServiceInstance
+        name: ee24fc98-45b4-45ef-ad83-688bf11f72df
+        uid: 0a440c45-ae30-4bef-b83f-e8a5e5a9216f
+    resourceVersion: "41938773"
+    uid: e5622cce-6d80-4d9b-901f-7a76477faa19
+
+kustomizationInstance:
+  apiVersion: v1
+  data:
+    config: A sample config map provisionned by interoperator for service instance
+  kind: ConfigMap
+  metadata:
+    annotations:
+      operator-broker/plan-id: 39d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+      operator-broker/service-id: 24731fb8-7b84-5f57-914f-c3d55d793dd4
+    creationTimestamp: "2021-12-08T14:42:16Z"
+    labels:
+      OWNER_INTEROPERATOR_NAMESPACE: 72-interoperator
+    name: sapcp-ee24fc98-45b4-45ef-ad83-688bf11f72df
+    namespace: sf-ee24fc98-45b4-45ef-ad83-688bf11f72df
+    ownerReferences:
+      - apiVersion: osb.servicefabrik.io/v1alpha1
+        kind: SFServiceInstance
+        name: ee24fc98-45b4-45ef-ad83-688bf11f72df
+        uid: 0a440c45-ae30-4bef-b83f-e8a5e5a9216f
+    resourceVersion: "41938773"
+    uid: e5622cce-6d80-4d9b-901f-7a76477faa19
+  spec:
+    force: false
+    interval: 2m0s
+    path: ./master-depls/k3s-sandbox/k8s-config/manifests/72-interoperator-prototype-templates/service-binding-template
+    postBuild:
+      substitute:
+        binding_id: 920b3854-24ff-47d3-bc87-918a318e6894
+        instance_id: c28b948f-08fe-48b7-b8b5-b8a0544a670b
+        plan_id: 00d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+        service_id: 24731fb8-7b84-5f57-914f-c3d55d793dd4
+    prune: true
+    sourceRef:
+      kind: GitRepository
+      name: paas-k8s-gitops-repo
+      namespace: fluxcd
+    timeout: 2m0s
+    wait: true
+  status:
+    conditions:
+      - lastTransitionTime: "2021-12-15T10:29:46Z"
+        message: 'Applied revision: master/7fb87ddca4cbd9b0613d3192b24f363776b73de1'
+        reason: ReconciliationSucceeded
+        status: "True"
+        type: Ready
+      - lastTransitionTime: "2021-12-15T10:29:46Z"
+        message: ReconciliationSucceeded
+        reason: ReconciliationSucceeded
+        status: "True"
+        type: Healthy
+    inventory:
+      entries:
+        - id: service-instance-c28b948f-08fe-48b7-b8b5-b8a0544a670b_service-binding-920b3854-24ff-47d3-bc87-918a318e6894__ConfigMap
+          v: v1
+        - id: service-instance-c28b948f-08fe-48b7-b8b5-b8a0544a670b_service-binding-920b3854-24ff-47d3-bc87-918a318e6894__Secret
+          v: v1
+        - id: service-instance-c28b948f-08fe-48b7-b8b5-b8a0544a670b_upstream-user-password-920b3854-24ff-47d3-bc87-918a318e6894__Secret
+          v: v1
+    lastAppliedRevision: master/7fb87ddca4cbd9b0613d3192b24f363776b73de1
+    lastAttemptedRevision: master/7fb87ddca4cbd9b0613d3192b24f363776b73de1
+    observedGeneration: 2
+
+kustomizationBinding:
+  apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+  kind: Kustomization
+  metadata:
+    annotations:
+      operator-broker/plan-id: 00d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+      operator-broker/service-id: 24731fb8-7b84-5f57-914f-c3d55d793dd4
+    creationTimestamp: "2021-12-17T07:47:45Z"
+    generation: 1
+    labels:
+      OWNER_INTEROPERATOR_NAMESPACE: 72-interoperator
+    name: binding-sapcp-24b275aa-592e-4f6c-b447-c8832caa2edd
+    namespace: sf-093075b3-2fb1-401c-8388-a8e837285d24
+    ownerReferences:
+      - apiVersion: osb.servicefabrik.io/v1alpha1
+        kind: SFServiceBinding
+        name: 24b275aa-592e-4f6c-b447-c8832caa2edd
+        uid: adf5516f-9db1-4af1-b88b-bd2d4d5042cc
+    resourceVersion: "2089400"
+    uid: b43b987c-b5ca-412d-b442-6aca91b84e8a
+  spec:
+    force: false
+    interval: 2m0s
+    path: ./master-depls/k3s-sandbox/k8s-config/manifests/72-interoperator-prototype-templates/service-binding-template
+    postBuild:
+      substitute:
+        binding_id: 24b275aa-592e-4f6c-b447-c8832caa2edd
+        instance_id: 093075b3-2fb1-401c-8388-a8e837285d24
+        plan_id: 00d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+        service_id: 24731fb8-7b84-5f57-914f-c3d55d793dd4
+    prune: true
+    sourceRef:
+      kind: GitRepository
+      name: paas-k8s-gitops-repo
+      namespace: fluxcd
+    timeout: 2m
+    wait: true
+  status:
+    conditions:
+      - lastTransitionTime: "2021-12-15T10:29:46Z"
+        message: 'Applied revision: master/7fb87ddca4cbd9b0613d3192b24f363776b73de1'
+        reason: ReconciliationSucceeded
+        status: "True"
+        type: Ready
+      - lastTransitionTime: "2021-12-15T10:29:46Z"
+        message: ReconciliationSucceeded
+        reason: ReconciliationSucceeded
+        status: "True"
+        type: Healthy
+    inventory:
+      entries:
+        - id: service-instance-c28b948f-08fe-48b7-b8b5-b8a0544a670b_service-binding-920b3854-24ff-47d3-bc87-918a318e6894__ConfigMap
+          v: v1
+        - id: service-instance-c28b948f-08fe-48b7-b8b5-b8a0544a670b_service-binding-920b3854-24ff-47d3-bc87-918a318e6894__Secret
+          v: v1
+        - id: service-instance-c28b948f-08fe-48b7-b8b5-b8a0544a670b_upstream-user-password-920b3854-24ff-47d3-bc87-918a318e6894__Secret
+          v: v1
+    lastAppliedRevision: master/7fb87ddca4cbd9b0613d3192b24f363776b73de1
+    lastAttemptedRevision: master/7fb87ddca4cbd9b0613d3192b24f363776b73de1
+    observedGeneration: 2
+

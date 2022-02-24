@@ -1,0 +1,10 @@
+#creating a direct helm repo ref via internet
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: HelmRepository
+metadata:
+  name: stakater-repo
+spec:
+  interval: 10m
+  url:  https://stakater.github.io/stakater-charts
+
+

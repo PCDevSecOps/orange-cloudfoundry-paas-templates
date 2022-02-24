@@ -1,0 +1,5 @@
+#disable k3s default traefik ingress controller
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=k3s-server/properties/k3s/disable?
+  value: [ servicelb, traefik ]

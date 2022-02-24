@@ -1,0 +1,45 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx"
+
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: ingress-nginx
+      version: "4.0.13" #nginx ingress 1.1.0
+      
+      sourceRef:
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    controller:
+      extraArgs:
+        enable-ssl-passthrough: ""
+      setAsDefaultIngress: true
+      
+      #metrics for prometheus see https://kubernetes.github.io/ingress-nginx/user-guide/monitoring/
+      metrics:
+        enabled: true
+      podAnnotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
+
+      wildcardTLS:
+        secret: nginx-ingress/tls
+      kind: Deployment
+      config:
+        use-proxy-protocol: "false"
+        use-forwarded-headers: "true"
+        use-http2: "false" #workaround for #1097
+
+

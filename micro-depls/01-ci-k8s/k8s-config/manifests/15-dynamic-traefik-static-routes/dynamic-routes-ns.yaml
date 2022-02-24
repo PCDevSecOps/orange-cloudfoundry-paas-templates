@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: 15-dynamic-traefik-static-routes
+  
+  #this lets 00-core-connectivity manage ns lifecycle (existing resource in target k8s cluster)
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled

@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: openldap
+resources:
+- openldap-configmap.yaml
+- openldap-ns.yaml
+- phpldapadmin-deployment.yaml
+- ssl-secret.yaml
+- ldap-service.yaml
+- openldap-config-secret.yaml
+- openldap-statefulset.yaml
+- phpldapadmin-ingress.yaml
+- phpldapadmin-oauth-ingress.yaml
+
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/oauth2-proxy
+

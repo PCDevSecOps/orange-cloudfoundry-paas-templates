@@ -1,0 +1,21 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: concourse
+spec:
+  values:
+    postgresql:
+      enabled: true
+      postgresqlUsername: concourse
+      postgresqlPassword: ((concourse-postgres-password))
+      postgresqlDatabase: concourse
+      postgresqlMaxConnections: 200
+      persistence:
+        enabled: true
+        storageClass: local-path
+        accessModes:
+        - ReadWriteOnce
+        size: 8Gi
+    secrets:
+      postgresUser: concourse
+      postgresPassword: ((concourse-postgres-password))

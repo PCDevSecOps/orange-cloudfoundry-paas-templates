@@ -1,0 +1,5 @@
+  #--- override
+- type: replace
+  path: /instance_groups/name=bosh/vm_type?
+  value: 8cpu-32g
+  

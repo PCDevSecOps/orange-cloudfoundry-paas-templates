@@ -1,0 +1,71 @@
+# add job section
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=cron/properties/cron/entries/-
+  value:
+    script:
+      name: replicate.sh
+      contents: |
+        #!/bin/bash
+        dt=$(date +"%d/%m/%Y à %Hh%M")
+        echo "begin $dt"
+
+        echo "- Replicate"
+
+        #--- Configure S3
+        set +e
+
+        export http_proxy=((http_proxy))
+        export https_proxy=((http_proxy))
+        export no_proxy=localhost,127.0.0.1,((shield-domain)),((shield-alias)),shield-s3.internal.paas
+
+        /var/vcap/packages/mc/mc config host add remote_s3 ((remote_s3_host)) ((remote_s3_access_key_id)) ((remote_s3_secret_access_key)) --api s3v4
+        if [ $? != 0 ] ; then echo "remote S3 target configuration failed\n" ; exit 0 ; fi
+
+        /var/vcap/packages/mc/mc config host add local_s3 ((local_s3_host)) ((local_s3_access_key_id)) ((local_s3_secret_access_key)) --api s3v4
+        if [ $? != 0 ] ; then echo "local S3 target configuration failed\n" ; exit 0 ; fi
+
+        #--- Mirroring and cleaning
+        /var/vcap/packages/mc/mc ls local_s3 > /tmp/local_s3.lst
+        while IFS= read -r line; do
+          echo ${line}
+          bucket=$(echo ${line} | awk '{print $5}') #[2020-02-11 09:07:27 UTC]      0B fe-int-backup-metabase/ gives fe-int-backup-metabase/
+
+          #test if prefix exists
+          prefix=$(grep -o "((/secrets/backup_bucket_prefix))" <<< ${bucket}  | wc -l)
+          if [ "${prefix}" -eq 0 ]; then
+            echo "prefix doesn't exist in local bucket"
+            local_bucket=${bucket}
+            remote_bucket=((s3_bucket_prefix))-${bucket}
+          else
+            echo "prefix exists in local bucket"
+            local_bucket=${bucket}
+            remote_bucket=${bucket}
+          fi
+
+          #recreate remote bucket in all cases
+          /var/vcap/packages/mc/mc mb remote_s3/${remote_bucket} --ignore-existing
+
+          echo "mirroring bucket ${local_bucket} vers ${remote_bucket}"
+          /var/vcap/packages/mc/mc mirror local_s3/${local_bucket} remote_s3/${remote_bucket}
+          echo "cleaning local bucket ${local_bucket}"
+          /var/vcap/packages/mc/mc rm --recursive --force --older-than 7d local_s3/${local_bucket}
+          echo "cleaning remote bucket ${remote_bucket}"
+          /var/vcap/packages/mc/mc rm --recursive --force --older-than 21d remote_s3/${remote_bucket}
+        done < /tmp/local_s3.lst
+
+        unset http_proxy
+        unset https_proxy
+        unset no_proxy
+
+        echo "- Replicate done"
+
+        dt=$(date +"%d/%m/%Y à %Hh%M")
+        echo "end $dt"
+    log: /var/vcap/sys/log/cron/replicate.log
+    lock: /var/vcap/sys/run/cron/replicate.lock
+    day: '*'
+    hour: '07'
+    minute: '00'
+    month: '*'
+    user: root
+    wday: '*'

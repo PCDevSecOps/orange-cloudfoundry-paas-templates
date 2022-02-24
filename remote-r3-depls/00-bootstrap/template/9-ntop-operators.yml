@@ -1,0 +1,52 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: docker
+    version: latest
+
+#--- docker daemon
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    name: docker
+    release: docker
+#    properties:
+#      store_dir: /var/vcap/data
+#      registry_mirrors:
+#      - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+
+#-- preload ntopng image from bosh release
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    name: load-ntopng-image
+    release: wireguard
+
+#add persistence for ntop datas
+- type: replace
+  path: /instance_groups/name=vpn/persistent_disk_type?
+  value: large
+
+#--- docker containers
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    name: containers
+    release: docker
+    properties:
+      containers: []
+
+#--- ntop
+- type: replace
+  path: /instance_groups/name=vpn/jobs/name=containers/properties/containers/-
+  value:
+    name: ntop
+    image: ntop/ntopng:stable
+    privileged: true
+    net: host
+    cap_adds:
+    - NET_ADMIN
+    bind_ports:
+    - "3000:3000"
+    command: "ntopng --community -i wg0 -i eth0 -i eth1"
+

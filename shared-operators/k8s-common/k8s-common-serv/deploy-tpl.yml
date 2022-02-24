@@ -1,0 +1,73 @@
+---
+#Deployment Identification
+name: ((deployment_name))
+
+#Features Block
+
+#Releases Block
+releases:
+- name: helm-kubectl
+  version: latest
+
+#Stemcells Block
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+#Update Block
+update:
+  canaries: 1
+  max_in_flight: 2
+  canary_watch_time: 15000-30000
+  update_watch_time: 15000-300000
+
+#Instance Groups Block
+instance_groups:
+- name: k8s-helm-addons
+  vm_type: 1cpu-1g
+  stemcell: default
+  lifecycle: errand
+  networks:
+  - name: ((network))
+  azs: [z1,z2,z3]
+  instances: 1
+  jobs:
+  - name: action
+    release: helm-kubectl
+    properties:
+      config: certificate
+      kubernetes:
+        host: ((kubernetes.host))
+        port: ((kubernetes.port))
+        cluster_ca_certificate: ((/bosh-coab/10-k8s/tls-ca.certificate))
+        client_certificate: ((/bosh-coab/10-k8s/tls-admin.certificate))
+        client_key: ((/bosh-coab/10-k8s/tls-admin.private_key))
+        default_storageclass: longhorn
+      ingress_class: traefik
+      default_per_namespace:
+        max_pods: 50
+      proxy:
+        https: ((https_proxy))
+        http: ((http_proxy))
+        noproxy: ((no_proxy))
+      repository_mirror:
+        enabled: true
+        url: https://jcr-k8s.((/secrets/cloudfoundry_ops_domain))/artifactory/helm
+      actions: []
+
+
+
+#variables:
+
+#Addons Block
+
+#Properties Block
+#should not be used anymore
+
+#variables:
+
+#Addons Block
+
+#Properties Block
+#should not be used anymore

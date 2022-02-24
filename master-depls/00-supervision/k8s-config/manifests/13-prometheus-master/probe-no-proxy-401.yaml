@@ -1,0 +1,32 @@
+---
+kind: Probe
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: probe-no-proxy-401
+  labels:
+    team: master-probe
+spec:
+  interval: 5s
+  module: http_no_proxy_401
+  prober:
+    url: prometheus-blackbox-exporter:9115
+  targets:
+    staticConfig:
+      static:
+
+        #3-black-box-scrape-osb-dedicated-services-brokers-operators.yml
+        - https://coa-cf-mysql-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://coa-mongodb-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://coa-cf-rabbit-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://coa-redis-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://coa-redis-extended-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://coa-cf-mysql-extended-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://coa-cf-rabbit-extended-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+        - https://coa-mongodb-extended-broker.((/secrets/cloudfoundry_system_domain))/actuator/health
+
+        #3-black-box-scrape-osb-shared-services-brokers-operators.yml
+        - https://mongodb-broker.((/secrets/osb_interco/osb_domain))/v2/catalog
+        - https://p-mysql.((/secrets/osb_interco/osb_domain))/v2/catalog
+        - https://rabbit-broker.((/secrets/osb_interco/osb_domain))/v2/catalog
+        - https://redis-broker.((/secrets/osb_interco/osb_domain))/v2/catalog
+        - https://p-mysql2.((/secrets/cloudfoundry_system_domain))/v2/catalog

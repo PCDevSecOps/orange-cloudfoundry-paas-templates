@@ -1,0 +1,14 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 01-loadbalancer
+resources:
+- loadbalancer-ns.yaml
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/metallb
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/nginx-ingress
+
+- nginx-ingress-tls-secret.yaml
+
+
+patchesStrategicMerge:
+- metallb-config-patch.yaml
+- ingress-nginx-helm-release-patch.yaml

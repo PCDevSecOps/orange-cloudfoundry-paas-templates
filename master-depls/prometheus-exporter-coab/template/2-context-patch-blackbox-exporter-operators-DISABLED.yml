@@ -1,0 +1,25 @@
+#--- local exporter
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=blackbox_exporter
+  value:
+    name: blackbox_exporter
+    release: prometheus
+    properties:
+      blackbox_exporter:
+        log_level: debug
+        config:
+          modules:
+            http:
+              prober: http
+              timeout: 5s
+              http:
+                preferred_ip_protocol: "ip4" # defaults to "ip6"
+                proxy_url: http://intranet-http-proxy.internal.paas:3129
+                valid_http_versions: ["HTTP/1.1", "HTTP/2.0"]
+                no_follow_redirects: false
+                valid_status_codes: # Defaults to 2xx
+                - 200
+                - 401
+                - 403
+                tls_config:
+                  insecure_skip_verify: false

@@ -1,0 +1,18 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/multi-region-common/r1
+        - shared-operators/multi-region-common/r3
+        - shared-operators/paas-templates-version
+    releases:
+      jumpbox:
+      bosh-dns-aliases:
+      os-conf:
+      wireguard:
+      docker:
+
+    errands:
+

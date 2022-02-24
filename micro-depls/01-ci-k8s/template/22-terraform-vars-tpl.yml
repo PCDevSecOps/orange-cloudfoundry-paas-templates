@@ -1,0 +1,11 @@
+#--- Terraform spec files
+versioned-providers: (( file "../../../additional-resource/shared-operators/00-terraform/versioned-providers.tf" ))
+gitlab-configuration: (( file "../../../additional-resource/micro-depls/01-ci-k8s/template/terraform-specs/gitlab-configuration.tf" )) 
+
+
+#rancher-registration: (( file "../../../additional-resource/shared-operators/k3s/rancher/rancher-registration.tf" )) 
+rancher-provider-tf: (( file "../../../additional-resource/shared-operators/k3s/rancher/rancher-provider.tf" )) 
+rancher-monitoring-logging-apps-tf: (( file "../../../additional-resource/shared-operators/k3s/rancher/rancher-monitoring-logging-apps.tf" ))
+
+
+rancher-longhorn-app-tf: (( file "../../../additional-resource/shared-operators/k3s/rancher/rancher-longhorn-app.tf" ))

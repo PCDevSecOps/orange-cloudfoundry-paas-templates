@@ -1,0 +1,12 @@
+# Holds the namespace where interoperator will provision service instance Kustomizations
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- service-instances-ns.yaml
+# Simulate Kustomization resources that service operator will provision for each service instance
+- 96-fake-service-instance-1/kustomization.yaml
+- service-instance-1-ns.yaml
+- 96-fake-service-instance-1-binding-1/kustomization.yaml
+
+- 96-fake-service-instance-2/kustomization.yaml
+- service-instance-2-ns.yaml

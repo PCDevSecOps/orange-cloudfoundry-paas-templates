@@ -1,0 +1,4 @@
+# disable swap on prometheus2 VM for prometheus-exporter-coab
+- type: replace
+  path: /instance_groups/name=prometheus2/env?/bosh?/swap_size?
+  value: 0

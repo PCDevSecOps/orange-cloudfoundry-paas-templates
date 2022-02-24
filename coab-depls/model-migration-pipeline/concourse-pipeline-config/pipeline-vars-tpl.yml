@@ -1,0 +1,18 @@
+paas-templates-reference-branch: (( grab secrets.paas-templates-reference-branch ))
+cf-mysql-service-instances-branch: (( grab secrets.cf-mysql-service-instances-branch ))
+cf-mysql-extended-service-instances-branch: (( grab secrets.cf-mysql-extended-service-instances-branch ))
+cf-rabbit-service-instances-branch: (( grab secrets.cf-rabbit-service-instances-branch ))
+cf-rabbit-extended-service-instances-branch: (( grab secrets.cf-rabbit-extended-service-instances-branch ))
+mongodb-service-instances-branch: (( grab secrets.mongodb-service-instances-branch ))
+mongodb-extended-service-instances-branch: (( grab secrets.mongodb-extended-service-instances-branch ))
+redis-service-instances-branch: (( grab secrets.redis-service-instances-branch ))
+redis-extended-service-instances-branch: (( grab secrets.redis-extended-service-instances-branch ))
+noop-service-instances-branch: (( grab secrets.noop-service-instances-branch ))
+strimzi-service-instances-branch:  (( grab secrets.strimzi-service-instances-branch ))
+
+orange-bosh-cli-version: 3.0.7
+concourse-url: ((concourse-micro-depls-target))
+concourse-insecure: ((concourse-micro-depls-insecure))
+upgrade:
+  exclude-service-prefixes: (( grab secrets.upgrade.exclude-service-prefixes))
+  exclude-models: (( grab secrets.upgrade.exclude-models))

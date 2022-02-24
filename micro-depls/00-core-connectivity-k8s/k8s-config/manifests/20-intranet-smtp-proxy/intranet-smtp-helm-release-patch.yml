@@ -1,0 +1,48 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: smtp-haproxy
+spec:
+  values:
+    replicaCount: 2
+    service:
+      type: LoadBalancer
+      ports:
+      - name: smtp
+        port: 25
+        targetPort: 2025
+      annotations:
+        "metallb.universe.tf/address-pool": internal-smtp-private-vip-pool
+    configuration: |
+      global
+        log 127.0.0.1 local2
+        maxconn 200
+      defaults
+        mode http
+        log global
+        option httplog
+        option dontlognull
+        option forwardfor except 127.0.0.0/8
+        option redispatch
+        retries 3
+        timeout queue 1m
+        timeout connect 10s
+        timeout client 1m
+        timeout server 1m
+        timeout check 10s
+        maxconn 3000
+      resolvers default
+          hold valid 60s
+          timeout retry 3
+          resolve_retries 30
+          nameserver intranet-dns-1 ((/secrets/intranet_interco_1/intranet_dns_1)):53
+          nameserver intranet-dns-2 ((/secrets/intranet_interco_1/intranet_dns_2)):53
+      
+      frontend tcp-frontend_intranet_smtp_relay
+          mode tcp
+          bind :2025
+          default_backend tcp-intranet_smtp_relay
+      
+      backend tcp-intranet_smtp_relay
+          mode tcp
+          server node0 ((/secrets/intranet_interco_1/smtp_server)):25 resolvers default check port 25 inter 1000

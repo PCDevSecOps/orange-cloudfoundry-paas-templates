@@ -1,0 +1,141 @@
+---
+- type: replace
+  path: /instance_groups/name=proxy/jobs/-
+  value:
+    name: scripting
+    release: generic-scripting
+    properties:
+      scripting:
+        pre-start-script: |
+          echo "pre-start !!"
+
+        post-start-script: |
+          echo "post-start !!"
+
+        pre-stop-script: |
+          echo "pre-stop !!"
+
+        post-stop-script: |
+          echo "post-stop !!"
+
+        post-deploy-script: |
+          echo "post-deploy !!"
+
+#define post-start script in order to add dns record to DNS4CLOUD
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=scripting/properties/scripting/post-start-script
+  value: |
+
+    #--- Initialize context
+    echo "- Start post-start"
+    > /var/vcap/sys/log/scripting/post-start.stderr.log
+    > /var/vcap/sys/log/scripting/post-start.stdout.log
+
+    set +e
+
+    #-------------------------------------
+    #--- Retrieve ip
+    #-------------------------------------
+    echo "- Start retrieve ip"
+    ip=$(hostname -I)
+    echo "ip is ${ip}"
+    echo "- End retrieve ip"
+
+    #-------------------------------------
+    #--- Generate nsupdate file
+    #-------------------------------------
+    echo "- Start nsupdate file generation"
+    cat <<EOF > /tmp/nsupdate.txt
+    server ((/secrets/multi_region_region_1_rfc2136_host))
+    zone ((/secrets/multi_region_region_1_rfc2136_zone_backend_services))
+    key hmac-sha256:((/secrets/multi_region_region_1_rfc2136_tsigKeyname)) ((/secrets/multi_region_region_1_rfc2136_tsigSecret))
+    update add ((instance_id)).((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) 28800 A ${ip}
+    show
+    send
+    EOF
+    echo "- End nsupdate file generation"
+
+    #-------------------------------------
+    #--- Add record in DNS
+    #-------------------------------------
+    echo "- Start add record"
+    nsupdate -v /tmp/nsupdate.txt
+    if [ $? -ne 0 ]; then
+      echo "- nsupdate command failure"
+      exit 1
+    fi
+    echo "- End add record"
+
+    #-------------------------------------
+    #--- Assert record has been added (need ip)
+    #-------------------------------------
+    echo "- Start assert record"
+    record=$(nslookup ((instance_id)).((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) | grep ${ip} | wc -l)
+    if [ "${record}" -eq 1 ]; then
+      echo "record has been added to DNS4CLOUD"
+    else
+      echo "record has not been added to DNS4CLOUD"
+    fi
+    echo "- End assert record"
+
+#define pre-stop script in order to remove dns record from DNS4CLOUD
+- type: replace
+  path: /instance_groups/name=proxy/jobs/name=scripting/properties/scripting/pre-stop-script
+  value: |
+
+    #--- Initialize context
+    echo "- Start pre-stop"
+    > /var/vcap/sys/log/scripting/pre-stop.stderr.log
+    > /var/vcap/sys/log/scripting/pre-stop.stdout.log
+
+    set +e
+
+    if [[ "${BOSH_DEPLOYMENT_NEXT_STATE}" == "delete" ]] ; then
+      # at the end of stop process this deployment is going to be deleted
+      # eg. shutdown_without_saving_data
+
+      #-------------------------------------
+      #--- Retrieve ip
+      #-------------------------------------
+      echo "- Start retrieve ip"
+      ip=$(hostname -I)
+      echo "ip is ${ip}"
+      echo "- End retrieve ip"
+
+      #-------------------------------------
+      #--- Generate nsupdate file
+      #-------------------------------------
+      echo "- Start nsupdate file generation"
+      cat <<EOF > /tmp/nsupdate.txt
+      server ((/secrets/multi_region_region_1_rfc2136_host))
+      zone ((/secrets/multi_region_region_1_rfc2136_zone_backend_services))
+      key hmac-sha256:((/secrets/multi_region_region_1_rfc2136_tsigKeyname)) ((/secrets/multi_region_region_1_rfc2136_tsigSecret))
+      update delete ((instance_id)).((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) A
+      show
+      send
+    EOF
+      echo "- End nsupdate file generation"
+
+      #-------------------------------------
+      #--- Remove record in DNS
+      #-------------------------------------
+      echo "- Start remove record"
+      nsupdate -v /tmp/nsupdate.txt
+      if [ $? -ne 0 ]; then
+        echo "- nsupdate command failure"
+        exit 1
+      fi
+      echo "- End remove record"
+
+      #-------------------------------------
+      #--- Assert record has been removed (need ip)
+      #-------------------------------------
+      echo "- Start assert record"
+      record=$(nslookup ((instance_id)).((/secrets/multi_region_region_1_rfc2136_zone_backend_services)) | grep ${ip} | wc -l)
+      if [ "${record}" -eq 0 ]; then
+        echo "record has been removed from DNS4CLOUD"
+      else
+        echo "record has not been removed from DNS4CLOUD"
+      fi
+      echo "- End assert record"
+    fi

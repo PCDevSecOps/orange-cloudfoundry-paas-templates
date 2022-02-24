@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-internal
+  labels:
+    app: prometheus-internal
+spec:
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 9090
+      nodePort: ${nodePort}
+  selector:
+    prometheus: prometheus # prometheus pod label

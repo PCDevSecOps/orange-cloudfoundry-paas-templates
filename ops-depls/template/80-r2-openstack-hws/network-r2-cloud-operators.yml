@@ -1,0 +1,15 @@
+#--- Add a r2 subnet for osb-data-plane-shared-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-shared-priv/subnets/-
+  value:
+    range: 192.168.64.0/24
+    gateway: 192.168.64.1
+    azs: [r2-z1]
+    reserved:
+      - 192.168.64.1 - 192.168.64.20          #--- Exclude dhcp address (see terraform )
+    static:
+      - 192.168.64.21 - 192.168.64.61
+    cloud_properties:
+      net_id: ((/tf/networks_net-osb-data-plane-shared-priv-r2))
+      security_groups:
+      - tf-default-sg-r2 #r2 security group provisionned by remote-r2-depls/terraform

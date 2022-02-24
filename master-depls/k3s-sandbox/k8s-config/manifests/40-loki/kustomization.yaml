@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 40-loki
+resources:
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/loki
+- loki-ns.yaml
+- loki-grafana-tls-secret.yaml
+- loki-ldap-secret.yaml
+
+patchesStrategicMerge:
+- loki-grafana-helm-release-patch.yaml

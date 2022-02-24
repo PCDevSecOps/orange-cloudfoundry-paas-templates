@@ -1,0 +1,98 @@
+---
+- type: replace
+  path: /releases/-
+  value:
+    name: jumpbox
+    version: latest
+
+
+- type: replace
+  path: /releases/name=routing?
+  value:
+    name: routing
+    version: latest
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: kafka
+    instances: 3
+    jobs:
+    - name: jumpbox #just to mark instance group as k3s-agent target
+      release: jumpbox
+      properties:
+        jumpbox:
+          one_time_setup: false
+    vm_type: 1cpu-4g
+    stemcell: default
+    networks:
+    - name: ((network))
+    persistent_disk_type: ((disk_type))
+    azs: [z1,z2]
+
+#install kafka manager helm chart
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: kafka-manager
+    chart: stable/kafka-manager
+    namespace: kafka
+    version: ((helm_kafka_manager))
+    properties:
+    - name: zkHosts
+      value: paas-templates-bi-zookeeper-client:2181 #dns of zookeeper service
+
+#expose kafka manager ui through oauth2 + traefik +gorouters
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: helm_chart
+    name: oauth2-proxy-kafka-manager
+    chart: stable/oauth2-proxy
+    namespace: kafka
+    version: ((helm_oauth2))
+    properties:
+    - name: config.clientID
+      value: generic-ops
+    - name: config.clientSecret
+      value: ((/bosh-master/ops-routing/generic-ops-client-secret))
+    - name: config.cookieSecret
+      value: ((/bosh-master/ops-routing/cookie_secret_ops))
+
+#create traefik 1 ingress for kafka manager access
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kafka-manager-ui-ingress"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: extensions/v1beta1
+      kind: Ingress
+      metadata:
+        name: kafka-manager-ui-ingress
+        namespace: kafka
+      spec:
+        rules:
+        - host: kafka-bi-manager.((/secrets/cloudfoundry_ops_domain))
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: oauth2-proxy-kafka-manager
+                servicePort: 80
+
+# register route in ops gorouter
+- type: replace
+  path: /addons/name=20-add-agents/jobs/name=route_registrar/properties/route_registrar/routes/-
+  value:
+    name: kafka-bi-manager
+    uris:
+      - kafka-bi-manager.((/secrets/cloudfoundry_ops_domain))
+    port: 80
+    registration_interval: 20s
+
+

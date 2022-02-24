@@ -1,0 +1,7 @@
+apiVersion: notification.toolkit.fluxcd.io/v1beta1
+kind: Alert
+metadata:
+  name: alert-on-fluxcd-sync-failure
+  namespace: flux-cd
+spec:
+  summary: 00-marketplace.((/secrets/site))

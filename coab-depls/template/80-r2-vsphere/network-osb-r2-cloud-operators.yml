@@ -1,0 +1,47 @@
+#--- Add a r2 subnet for osb-data-plane-dedicated-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-priv/subnets/-
+  value:
+    range: 192.168.65.0/24
+    gateway: 192.168.65.1
+    azs: [r2-z1]
+    reserved:
+      - 192.168.65.1 - 192.168.65.20          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      name: ((osb-data-plane-dedicated-priv-2-network-name))
+
+#--- Add a r2 subnet for osb-data-plane-dedicated-pub network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-pub/subnets/-
+  value:
+    range: ((osb-data-plane-dedicated-pub-2-range))
+    gateway: ((osb-data-plane-dedicated-pub-2-gateway))
+    azs: [r2-z1]
+    reserved:
+      - ((osb-data-plane-dedicated-pub-2-reserved-dhcp))          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      name: ((osb-data-plane-dedicated-pub-2-network-name))
+
+#--- Add a r2 subnet for osb-data-plane-dedicated-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-priv/subnets/-
+  value:
+    range: 192.168.71.0/24
+    gateway: 192.168.71.1
+    azs: [r2-z1]
+    reserved:
+      - 192.168.71.1 - 192.168.71.20          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      name: ((osb-data-plane-dedicated-priv-2-extension-network-name))
+
+#--- Add a r2 subnet for osb-data-plane-dedicated-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-priv/subnets/-
+  value:
+    range: 192.168.74.0/24
+    gateway: 192.168.74.1
+    azs: [r2-z1]
+    reserved:
+      - 192.168.74.1 - 192.168.74.20          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      name: ((osb-data-plane-dedicated-priv-2-extension-network-name-3))

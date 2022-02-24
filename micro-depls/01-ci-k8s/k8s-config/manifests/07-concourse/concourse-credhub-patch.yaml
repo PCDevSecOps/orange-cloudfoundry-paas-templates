@@ -1,0 +1,31 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: concourse
+spec:
+  values:
+    concourse:
+      web:
+        credhub:
+          enabled: "true"
+          url: https://credhub.internal.paas:8844
+          pathPrefix: /concourse-micro
+          useCaCert: true
+          authenticationMode: secrets #client-id and client-secrets must be set as secrets in values.yml see below
+          insecureSkipVerify: true #skip ca cert validation
+        secretCacheEnabled: true
+        secretCacheDuration: 4m       # credential-manager.duration: 4m
+        secretCachePurgeInterval: 10m  # credential-manager.purge_interval: 10m
+        secretRetryInterval: 8s       # credential-manager.retry_interval: 8s
+        secretRetryAttempts: 7        #  credential-manager.retry_attempts: 7
+        kubernetes:
+          enabled: false #required for credhub https://github.com/concourse/concourse-chart#credhub
+    #            teams:
+    #            - main
+    #            createTeamNamespaces: false
+    #            keepNamespaces: true
+
+    secrets:
+      credhubClientId: director_to_credhub
+      credhubClientSecret: ((/secrets/bosh_credhub_secrets))
+      credhubCaCert: ((/internalCA.certificate))

@@ -1,0 +1,19 @@
+---
+kind: Probe
+apiVersion: monitoring.coreos.com/v1
+metadata:
+  name: probe-internet-proxy-200
+  labels:
+    team: master-probe
+spec:
+  interval: 5s
+  module: http_internet_proxy_200
+  prober:
+    url: prometheus-blackbox-exporter:9115
+  targets:
+    staticConfig:
+      static:
+
+        #3-black-box-scrape-system-internet-proxy-operators.yml
+        - https://8.8.8.8
+

@@ -1,0 +1,28 @@
+#--- Add a r2 subnet for osb-data-plane-dedicated-private network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-shared-priv/subnets/-
+  value:
+    range: 192.168.64.0/24
+    gateway: 192.168.64.1
+    azs: [r2-z1]
+    reserved:
+      - 192.168.64.1 - 192.168.64.20          #--- Exclude dhcp address (see terraform )
+    static:
+      - 192.168.64.21 - 192.168.64.61
+    cloud_properties:
+      name: ((osb-data-plane-shared-priv-2-network-name))
+
+#--- Add a r2 subnet for osb-data-plane-shared-pub-2 network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-shared-pub2/subnets/-
+  value:
+    range: ((osb-data-plane-shared-pub-2-range))
+    gateway: ((osb-data-plane-shared-pub-2-gateway))
+    azs: [r2-z1]
+    reserved:
+      - ((osb-data-plane-shared-pub-2-reserved-dhcp))          #--- Exclude dhcp address (see terraform )
+      - ((osb-data-plane-shared-pub-2-reserved-vrrp))
+    static:
+      - ((osb-data-plane-shared-pub-2-static))
+    cloud_properties:
+      name: ((osb-data-plane-shared-pub-2-network-name))

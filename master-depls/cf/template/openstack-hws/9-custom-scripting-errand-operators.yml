@@ -1,0 +1,35 @@
+#--- Errand leveraging scripting release (errand script) and cf-cli release (cf cli binary)
+- type: replace
+  path: /releases/-
+  value:
+    name: generic-scripting
+    version: latest
+
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: post-bosh-deploy-errand
+    instances: 1
+    lifecycle: errand
+    vm_type: 1cpu-2g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: ((network_name))
+    jobs:
+    - name: errand-scripting
+      release: generic-scripting
+      properties:
+        scripting:
+          errand-script: |
+            echo "Launching Errand"
+            export PATH=/var/vcap/packages/cf-cli-6-linux/bin/:$PATH
+            cf --version
+            cf login -a https://api.((/secrets/cloudfoundry_system_domain)) -u admin -p ((/secrets/cloudfoundry_admin_password))
+            cf set-org-default-isolation-segment orange intranet_1_isolation_segment 
+            cf set-org-default-isolation-segment orange-internet internet_isolation_segment
+            cf set-org-default-isolation-segment obs-it intranet_2_isolation_segment
+            echo "Done scripting Errand"
+
+    - name: cf-cli-6-linux
+      release: cf-cli

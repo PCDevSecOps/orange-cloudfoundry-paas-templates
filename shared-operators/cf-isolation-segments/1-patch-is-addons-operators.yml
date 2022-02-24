@@ -1,0 +1,25 @@
+---
+#patch metrics-discovery-registrar (disable following v13.x nats 34 issue)
+- type: replace
+  path: /addons/name=metrics-discovery-registrar/jobs/name=metrics-discovery-registrar/consumes?
+  value:
+    nats-tls:
+      from: nats-tls
+      deployment: cf
+
+#haproxy only used by paas templates addition on cf-deployment, disable add-on
+- type: replace
+  path: /addons/name=metrics-discovery-registrar/exclude/jobs/-
+  value:
+    name: haproxy
+    release: haproxy
+
+
+#add loggregator syslog agent (v13.x)
+- type: replace
+  path: /addons/name=loggr-syslog-agent/jobs/name=loggr-syslog-agent/consumes?
+  value:
+    binding_cache:
+      from: binding_cache
+      deployment: cf
+

@@ -1,0 +1,4 @@
+- type: replace
+  path: /instance_groups/name=ops-relay/vm_extensions?
+  value: [ops-lb-pool-extension]
+

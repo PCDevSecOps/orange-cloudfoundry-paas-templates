@@ -1,0 +1,25 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: promtail
+spec:
+  values:
+    config:
+      lokiAddress: http://loki.internal.paas/loki/api/v1/push
+
+    #not used if using http
+    extraVolumeMounts:
+    - name: cert-volume
+      mountPath: /etc/ssl/certs
+      
+    extraVolumes:
+    - name: cert-volume
+      hostPath:
+        path: /etc/ssl/certs
+        type: Directory
+
+    #add a label to specify originating cluster
+    #see https://github.com/grafana/loki/issues/2628#issuecomment-1006286034
+    extraArgs:
+    - -client.external-labels=cluster=sandbox
+

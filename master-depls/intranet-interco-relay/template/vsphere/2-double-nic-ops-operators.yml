@@ -1,0 +1,26 @@
+#--- Add network interface on master-depls subnet
+- type: replace
+  path: /instance_groups/name=ops-relay/networks/-
+  value:
+    name: tf-net-exchange  #private network first, to enable bosh bootstrap. the networking release will use GIN gateway a default
+    default: [dns,gateway]
+    static_ips: [192.168.99.30]
+
+#--- Set routes to public internal subnets
+- type: replace
+  path: /instance_groups/name=ops-relay/jobs/-
+  value:
+    name: routes
+    release: networking
+    properties:
+      networking:
+        routes:
+        - net: 10.0.0.0
+          netmask: 255.0.0.0
+          gateway: ((interco_gateway))
+        #to enable response to dedicated pub network via private router, must set a more precise route than 10.x
+        - net: ((dedicated_pub_net)) #dedicated pub network
+          netmask: 255.255.255.0 #FIXME: dedicated pub netmask netmask for /24
+          gateway: 192.168.99.1 #tf-net-exchange gateway
+
+

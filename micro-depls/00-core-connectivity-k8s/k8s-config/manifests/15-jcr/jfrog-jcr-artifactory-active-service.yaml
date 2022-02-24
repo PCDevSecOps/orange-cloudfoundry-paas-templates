@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jfrog-jcr-artifactory-active
+spec:
+  ports:
+  - name: http-artifactory
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  - name: http-router
+    port: 8082
+    protocol: TCP
+    targetPort: 8082
+  selector:
+    app: artifactory
+    component: artifactory
+    release: jfrog-jcr-2 # Manually switch here to jcr-1 when required
+  type: ClusterIP
+

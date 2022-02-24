@@ -1,0 +1,13 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 20-minio
+spec:
+  interval: 2m0s
+  path: ./micro-depls/01-ci-k8s/k8s-config/manifests/20-minio
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+  validation: client
+

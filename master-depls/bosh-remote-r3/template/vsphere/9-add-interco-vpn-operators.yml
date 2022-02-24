@@ -1,0 +1,55 @@
+#--- set up the vpn server to enable transparent inter region subnet traffic
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+# add a relay vm for nats and registry (443/80 to 4222/25777)
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: nats-relay
+    instances: 1
+    vm_type: 1cpu-1g
+    stemcell: default
+    azs: [z1]
+    networks:
+    - name: intranet-ha-interco
+      static_ips:
+      - ((nats_ip))
+    jobs:
+    - release: haproxy
+      name: haproxy
+      properties:
+        ha_proxy:
+          disable_http: true
+          log_level: debug
+          tcp:
+          - name: nats-relay
+            port: 443
+            backend_port: 4222
+            backend_servers:
+            - ((internal_ip))
+          - name: registry-relay
+            port: 80
+            backend_port: 25777
+            backend_servers:
+            - ((internal_ip))
+
+#blobstore relay is colocated with bosh on vsphere (enable blobstore loading from director without routing issue)
+- type: replace
+  path: /instance_groups/name=bosh/jobs/-
+  value:
+    release: haproxy
+    name: haproxy
+    properties:
+      ha_proxy:
+        disable_http: true
+        log_level: debug
+        tcp:
+        - name: blobstore-relay
+          port: 443
+          backend_port: 25250
+          backend_servers:
+          - ((internal_ip))

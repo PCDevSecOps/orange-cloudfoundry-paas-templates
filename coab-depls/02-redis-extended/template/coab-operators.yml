@@ -1,0 +1,134 @@
+---
+#replace deployment name
+- type: replace
+  path: /name
+  value: ((deployment_name))
+
+# add job section
+- type: replace
+  path: /instance_groups/name=broker/jobs/-
+  value:
+    name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+
+          - script:
+              name: discovery.sh
+              contents: |
+
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Start discovery file pulling "
+
+                curl -X GET http://prometheus-coab.internal.paas:9095 > /tmp/bosh_target_groups.tmp
+                mv /tmp/bosh_target_groups.tmp /tmp/bosh_target_groups.json
+
+                cat /tmp/bosh_target_groups.json
+
+                echo "- End discovery file pulling "
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+            log: /var/vcap/sys/log/cron/discovery.log
+            lock: /var/vcap/sys/run/cron/discovery.lock
+            day: '*'
+            hour: '*'
+            minute: '*/5'
+            month: '*'
+            user: root
+            wday: '*'
+
+          - script:
+              name: prometheus.sh
+              contents: |
+
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Start metrics generation "
+
+                #prepare files
+                >/tmp/metrics
+
+                grep [0-2]\.redis.tf-net-osb-data-plane-dedicated-priv.((deployment-name)) /etc/hosts | cut -d ' ' -f 1 > /tmp/ips.lst
+                for ip in $(cat /tmp/ips.lst); do
+                  echo "bosh_job_healthy{bosh_deployment=\"((deployment_name))\",bosh_job_ip=\"${ip}\",bosh_job_name=\"redis\",environment=\"coab\"} 1" >> /tmp/metrics
+                done
+
+                grep [0-2]\.redis-master.tf-net-osb-data-plane-dedicated-priv.((deployment-name)) /etc/hosts | cut -d ' ' -f 1 > /tmp/ips.lst
+                for ip in $(cat /tmp/ips.lst); do
+                  echo "bosh_job_healthy{bosh_deployment=\"((deployment_name))\",bosh_job_ip=\"${ip}\",bosh_job_name=\"redis-master\",environment=\"coab\"} 1" >> /tmp/metrics
+                done
+
+                grep [0-2]\.redis-slave.tf-net-osb-data-plane-dedicated-priv.((deployment-name)) /etc/hosts | cut -d ' ' -f 1 > /tmp/ips.lst
+                for ip in $(cat /tmp/ips.lst); do
+                  echo "bosh_job_healthy{bosh_deployment=\"((deployment_name))\",bosh_job_ip=\"${ip}\",bosh_job_name=\"redis-slave\",environment=\"coab\"} 1" >> /tmp/metrics
+                done
+
+                #display metrics file
+                cat /tmp/metrics
+
+                echo "- End metrics generation "
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+            log: /var/vcap/sys/log/cron/prometheus.log
+            lock: /var/vcap/sys/run/cron/prometheus.lock
+            day: '*'
+            hour: '*'
+            minute: '0'
+            month: '*'
+            user: root
+            wday: '*'
+
+#add nginx job in order to expose metrics
+- type: replace
+  path: /instance_groups/name=broker/jobs/-
+  value:
+    name: nginx
+    release: nginx
+    properties:
+      nginx_conf: |
+        user vcap;
+        worker_processes 2;
+        daemon off;
+
+        events {
+        worker_connections 512;
+        }
+
+        http {
+        sendfile off;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        default_type application/octet-stream;
+
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$http_host"';
+
+        access_log /var/vcap/sys/log/nginx/access.log main;
+        error_log /var/vcap/sys/log/nginx/error.log debug;
+
+        include /etc/nginx/conf.d/*.conf;
+
+        server {
+          listen       9091;
+          server_name  metrics;
+          location / {
+          root   /tmp;
+          index  metrics;
+          add_header Content-Type text/plain;
+          autoindex on;
+          }
+        }
+
+        }

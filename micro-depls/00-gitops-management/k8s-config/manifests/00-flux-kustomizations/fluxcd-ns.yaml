@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fluxcd
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled #prevents fluxcd from deleting the ns
+  

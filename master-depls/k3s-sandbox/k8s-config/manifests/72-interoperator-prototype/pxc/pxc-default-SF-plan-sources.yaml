@@ -1,0 +1,21 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: sources
+    type: gotemplate
+    #TODO: check which other resources created by PerconaXtraDBCluster need to be checked
+    # during status
+    content: |
+      {{- $instanceID := "" }}
+      {{- with .instance.metadata.name }} {{ $instanceID = . }} {{ end }}
+      {{- $bindingID := "" }}
+      {{- with .binding.metadata.name }} {{ $bindingID = . }} {{ end }}
+      {{- $namespace := "" }}
+      {{- with .instance.metadata.namespace }} {{ $namespace = . }} {{ end }}
+      {{- $namePrefix := "" }}
+      {{- with .plan.spec.context.namePrefix }} {{ $namePrefix = . }} {{ end }}
+      cluster:
+        apiVersion: pxc.percona.com/v1-8-0
+        kind: PerconaXtraDBCluster
+        name: {{ $namePrefix }}-{{ $instanceID }}
+        namespace: {{ $namespace }}

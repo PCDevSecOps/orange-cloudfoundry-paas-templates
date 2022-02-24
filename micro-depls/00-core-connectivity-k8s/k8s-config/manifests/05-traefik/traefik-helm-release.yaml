@@ -1,0 +1,123 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: traefik
+  annotations:
+    paas-templates-helm-source-url: "https://github.com/traefik/traefik-helm-chart/blob/v9.19.1/traefik/values.yaml"
+
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: traefik
+      version: "9.19.1" #helm_ingress_nginx
+      sourceRef: #replica for https://helm.traefik.io/traefik
+        kind: HelmRepository
+        name: traefik
+        namespace: traefik
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    # Default values for Traefik
+    deployment:
+      replicas: 3
+    podDisruptionBudget:
+      enabled: true
+      maxUnavailable: 1
+      minAvailable: 0
+    # Create an IngressRoute for the dashboard
+    ingressRoute:
+      dashboard:
+        enabled: true
+        # Additional ingressRoute annotations (e.g. for kubernetes.io/ingress.class)
+        annotations: {}
+        # Additional ingressRoute labels (e.g. for filtering IngressRoute by custom labels)
+        labels: {}
+    #
+    # Configure providers
+    #
+    providers:
+      kubernetesCRD:
+        enabled: true
+        namespaces: []
+        # - "default"
+      kubernetesIngress:
+        enabled: false
+        namespaces: []
+        # - "default"
+        # IP used for Kubernetes Ingress endpoints
+        publishedService:
+          enabled: false
+    logs:
+      general:
+        level: INFO
+      access:
+        enabled: true
+    globalArguments:
+    - "--global.sendanonymoususage=false"
+    - "--global.checknewversion=false"
+    additionalArguments:
+      - "--log.level=DEBUG"
+      - "--providers.kubernetescrd.allowcrossnamespace=false"
+      - "--metrics.prometheus=true"
+    ports:
+      ldap:
+        expose: true
+        port: 8389
+        exposedPort: 389
+        protocol: TCP
+      minio:
+        expose: true
+        port: 9900
+        exposedPort: 9000
+        protocol: TCP
+      ssh-cli:
+        expose: true
+        port: 9080
+        exposedPort: 80
+        protocol: TCP
+      web:
+        expose: false
+      websecure:
+        tls:
+          enabled: false
+    service:
+      enabled: true
+      type: LoadBalancer
+      annotations:
+        metallb.universe.tf/address-pool: internal-ops-relay-vip-pool #uses external vrrp ip pool
+    autoscaling:
+      enabled: true
+      minReplicas: 3
+      maxReplicas: 4
+      metrics:
+      - type: Resource
+        resource:
+          name: cpu
+          targetAverageUtilization: 60
+      - type: Resource
+        resource:
+          name: memory
+          targetAverageUtilization: 60
+    podSecurityPolicy:
+      enabled: true
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "50Mi"
+      limits:
+        cpu: "300m"
+        memory: "150Mi"
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - traefik
+          topologyKey: "kubernetes.io/hostname"

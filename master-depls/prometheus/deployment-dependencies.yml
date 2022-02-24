@@ -1,0 +1,23 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+        - submodules/prometheus-boshrelease
+        - submodules/rabbit-mqserver
+        - shared-operators/docker-images
+        - shared-operators/paas-templates-version
+    releases:
+      routing:
+      prometheus:
+      docker:
+      bosh-dns-aliases:
+      generic-scripting:
+      orange-prometheus-addons:
+    errands:
+
+
+

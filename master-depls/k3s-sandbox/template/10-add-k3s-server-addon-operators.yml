@@ -1,0 +1,72 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value:
+    name: k3s
+    version: latest
+
+#k3s token
+- type: replace
+  path: /variables/-
+  value:
+    name: k3s_token
+    type: password
+
+#k8s token file admin admin password (for remote access)
+- type: replace
+  path: /variables/-
+  value:
+    name: admin_token
+    type: password
+
+
+
+# master node. colocated only with jumpbox release
+- type: replace
+  path: /addons/-
+  value:
+    name: 10-add-servers
+    jobs: []
+    include:
+      jobs: []
+    exclude:
+      jobs: []
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/-
+  value:
+    name: k3s-server
+    release: k3s
+    properties:
+      k3s:
+        cluster_name: ((cluster_name))
+        token: ((k3s_token))
+        
+        #set token-file
+        token-file-content: |
+          ((admin_token)),"admin","admin","system:masters"
+        
+        kube-apiserver-arg:
+        - enable-admission-plugins=NodeRestriction
+        - token-auth-file=/var/vcap/jobs/k3s-server/config/token.csv
+        #ServiceAccountIssuerDiscovery is k3s 1.20 default
+        - feature-gates=ServiceAccountIssuerDiscovery=false #,ServiceTopology=true,EndpointSlice=true #,GracefulNodeShutdown=true
+
+      containerd_registry:
+        mirrors:
+          docker.io:
+            endpoint:
+            - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          quay.io:
+            endpoint:
+            - https://quay-io.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+          '*':
+            endpoint:
+            - https://docker.jcr-k8s.((/secrets/cloudfoundry_ops_domain))
+
+
+- type: replace
+  path: /releases/-
+  value:
+    name: open-iscsi
+    version: latest

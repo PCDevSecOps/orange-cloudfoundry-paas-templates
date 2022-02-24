@@ -1,0 +1,13 @@
+## provision domain tls cert (kafka chain cert format)
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: dnsaas-domain-cert
+    secret_type: kubernetes.io/tls
+    namespace: kafka-cluster-((instance_id))
+    data:
+    - name: tls.crt
+      value: ((/secrets/certs/intranet-ca))((/secrets/certs/dnsaas.certificate))
+    - name: tls.key
+      value: ((/secrets/certs/dnsaas.private_key))

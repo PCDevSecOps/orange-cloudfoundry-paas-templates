@@ -1,0 +1,20 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true
+      templates:
+        extended_scan_path:
+          - shared-operators/shield
+          - shared-operators/paas-templates-version
+    releases:
+      cf-cli:
+      shared-redis:
+      routing:
+      minio:
+      shield:
+      generic-scripting:
+    errands:
+      import:
+        display-name: shield-provisioning

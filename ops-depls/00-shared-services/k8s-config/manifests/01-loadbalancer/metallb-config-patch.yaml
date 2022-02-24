@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: config-metallb
+data:
+  config: |
+    address-pools:
+      #web vip
+    - name: shared-services-vip-pool
+      protocol: layer2
+      addresses:
+      - "192.168.99.15/32"

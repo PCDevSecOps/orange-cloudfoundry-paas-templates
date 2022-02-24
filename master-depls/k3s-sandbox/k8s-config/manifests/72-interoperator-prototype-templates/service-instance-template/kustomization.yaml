@@ -1,0 +1,8 @@
+# This is produced and maintained by authors
+# In this simple hello world example, each service instance provisions a single
+# config map
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: ${interoperator_namespace}
+resources:
+- serviceinstance-configmap.yaml

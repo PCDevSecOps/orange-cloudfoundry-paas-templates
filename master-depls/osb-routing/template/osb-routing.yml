@@ -1,0 +1,124 @@
+---
+name: osb-routing
+
+releases:
+- {name: haproxy, version: latest}
+- {name: routing, version: latest}
+- {name: nats, version: latest}
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  serial: false
+  canary_watch_time: 1000-60000
+  update_watch_time: 1000-60000
+
+instance_groups:
+- name: osb-relay
+  instances: 1
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-osb-interco
+    static_ips:
+    - ((/secrets/osb_interco/osb))
+
+  jobs:
+  - {release: haproxy, name: haproxy}
+
+  properties:
+    ha_proxy:
+      disable_http: true
+      log_level: debug
+      tcp:
+      - name: osb-https  #--- https access to service api
+        port: 443
+        backend_servers:
+        - 192.168.62.21
+        - 192.168.62.22
+
+      #use proxy protocol to tcp backend to propagate originating ip
+      #https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#5.2-send-proxy-v2-ssl-cn
+      tcp_backend_config: |
+        default-server send-proxy
+
+- name: osb-routing-router
+  instances: 2
+  vm_type: 2cpu-8g
+  stemcell: default
+  azs: [z1,z2]
+  networks:
+  - name: tf-net-osb-control-plane
+    default: [dns,gateway]
+    static_ips:
+    - 192.168.62.21
+    - 192.168.62.22
+
+  jobs:
+  - {release: routing, name: gorouter}
+
+  properties:
+    router:
+      enable_ssl: true
+      disable_http: true                    #--- only https on ops_domain
+      ca_certs: ((/internalCA.certificate))((/internalCA2.certificate)) #--- ca cert to validate backend
+      write_access_logs_locally: true       #--- this targets the colocated syslog release
+      max_idle_connections: 500             #--- enables router => backend tcp keep alive.
+      enable_proxy: true #enable proxy protocol so originating ip are not lost par tcp relays
+      tls_pem:
+      - cert_chain: ((/secrets/certs/osb.certificate))
+        private_key: ((/secrets/certs/osb.private_key))
+
+      status:
+        password: ((router_status_password))
+        user: router-status
+      suspend_pruning_if_nats_unavailable: true
+#      Suspend pruning of routes when NATs is unavailable and maintain the current routing table.
+#      WARNING: This strategy favors availability over consistency and there is a possibility of
+#      routing to an incorrect endpoint in the case of port re-use. To be used with caution."
+#      default: false
+      tracing:
+        enable_zipkin: true
+      backends:
+        enable_tls: true
+      ssl_skip_validation: true
+
+    uaa:
+      clients:
+        gorouter:
+          secret: ((uaa_clients_gorouter_secret))
+      ssl:
+        port: 8443      #--- match cf uaa port ? ...
+
+- name: osb-routing-nats
+  instances: 1
+  vm_type: 1cpu-2g
+  stemcell: default
+  azs: [z1]
+  networks:
+  - name: tf-net-osb-control-plane
+    default: [dns,gateway]
+    static_ips: [192.168.62.23]
+
+  jobs:
+  - {release: nats, name: nats}
+
+  properties:
+    nats:
+      password: "((nats_password))"
+      user: nats
+      hostname: osb-routing-nats #required from v34, should be bosh-dns alias of nats ?
+
+variables:
+- name: nats_password
+  type: password
+- name: router_status_password
+  type: password
+- name: uaa_clients_gorouter_secret
+  type: password

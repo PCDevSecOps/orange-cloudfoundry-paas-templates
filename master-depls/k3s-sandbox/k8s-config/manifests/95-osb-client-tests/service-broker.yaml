@@ -1,0 +1,14 @@
+
+---
+apiVersion: servicecatalog.k8s.io/v1beta1
+kind: ClusterServiceBroker
+metadata:
+  name: service-broker
+spec:
+  url: http://interoperator-broker-service.72-interoperator-prototype/cf #to interoperator clusterIP
+  insecureSkipTLSVerify: true
+  authInfo:
+    basic:
+      secretRef:
+        name: service-broker-credentials
+        namespace: 95-osb-client-tests #clusterservice broker requires ns in secret ref?

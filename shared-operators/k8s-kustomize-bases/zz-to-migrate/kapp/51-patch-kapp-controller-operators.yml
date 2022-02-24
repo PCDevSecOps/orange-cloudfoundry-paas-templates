@@ -1,0 +1,39 @@
+#add a configmap to specify kapp controller  (ca, http proxy)
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kapp-controller-config"
+    cmd: "apply"
+    content:
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        # Name must be `kapp-controller-config` for kapp controller to pick it up
+        name: kapp-controller-config
+      
+        # Namespace must match the namespace kapp-controller is deployed to
+        namespace: kapp-controller
+      
+      data:
+        # A cert chain of trusted ca certs. These will be added to the system-wide
+        # cert pool of trusted ca's (optional)
+        caCerts: ((/secrets/certs/intranet-ca))
+      
+        # The url/ip of a proxy for kapp controller to use when making network
+        # requests (optional)
+        #httpProxy: proxy-svc.proxy-server.svc.cluster.local:80
+      
+      
+        # The url/ip of a tls capable proxy for kapp controller to use when
+        # making network requests (optional)
+        #httpsProxy: ""
+      
+        # A comma delimited list of domain names which kapp controller should
+        # bypass the proxy for when making requests (optional)
+        #noProxy: "github.com,docker.io"
+      
+        # A comma delimited list of domain names for which kapp controller, when
+        # fetching images or imgpkgBundles, will skip TLS verification. (optional)
+        #dangerousSkipTLSVerify: "private-registry.com,insecure-registry.com"

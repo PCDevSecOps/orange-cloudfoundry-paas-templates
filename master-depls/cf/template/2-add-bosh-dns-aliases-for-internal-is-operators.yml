@@ -1,0 +1,10 @@
+# add bosh-dns aliases for internet isolation segment
+- type: replace
+  path: /addons/name=bosh-dns-aliases/jobs/name=bosh-dns-aliases/properties/aliases/domain=_.cell.service.cf.internal/targets/-
+  value:
+    deployment: isolation-segment-internal
+    domain: bosh
+    instance_group: diego-cell
+    network: tf-net-cf
+    query: _
+

@@ -1,0 +1,14 @@
+log-level: "info"
+shield-domain: "shieldv8-webui.((/secrets/cloudfoundry_ops_domain))"
+shield-alias: "shield.internal.paas"
+shield-core: paas-templates
+s3_bucket_prefix: ((/secrets/backup_bucket_prefix)) #fe-int-backup
+remote_s3_host: https://((/secrets/backup_remote_s3_host))
+local_s3_host: https://shield-s3.internal.paas
+remote_s3_access_key_id: ((/secrets/backup_remote_s3_access_key_id))
+local_s3_access_key_id: shield-s3
+remote_s3_secret_access_key: ((/secrets/backup_remote_s3_secret_access_key))
+local_s3_secret_access_key: ((/bosh-master/shieldv8/s3_secretkey))
+s3_signature_version: ((/secrets/backup_remote_s3_signature_version))
+failsafe-password: ((/bosh-master/shieldv8/failsafe-password))
+fds: 50000 #The maximum number of open files (including sockets) that the shield-agent process can have

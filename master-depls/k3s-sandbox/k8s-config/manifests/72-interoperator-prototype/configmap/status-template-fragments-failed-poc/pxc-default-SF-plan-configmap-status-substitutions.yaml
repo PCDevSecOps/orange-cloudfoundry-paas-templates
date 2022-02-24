@@ -1,0 +1,13 @@
+# Prototype to split up the status template into smaller chunks using variable substitution
+- op: add
+  path: /spec/templates/-
+  value:
+    action: status
+    type: gotemplate
+    # Unfortunately, the line feeds are trimmed from the substituted variables, preventing use of this approach
+    # See https://github.com/fluxcd/kustomize-controller/issues/518
+    content: |
+      ${status_bind_gotemplate}
+      ${status_unbind_gotemplate}
+      ${status_provision_gotemplate}
+      ${status_unprovision_gotemplate}

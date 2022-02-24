@@ -1,0 +1,14 @@
+- type: remove
+  path: /instance_groups/name=ingestor/jobs/name=ingestor_cloudfoundry-firehose
+
+  
+ #disable kibana auth plugin
+- type: remove
+  path: /instance_groups/name=kibana/jobs/name=kibana-auth-plugin
+  
+- type: remove
+  path: /instance_groups/name=kibana/jobs/name=kibana/properties/kibana/plugins
+
+- type: remove
+  path: /instance_groups/name=kibana/jobs/name=kibana/properties/kibana/source_files
+  

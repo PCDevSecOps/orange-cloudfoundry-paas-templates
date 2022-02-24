@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: firehose-exporter
+  labels:
+    app: firehose-exporter
+spec:
+  type: ClusterIP # default
+  ports:
+    - name: web
+      port: 9186
+      protocol: TCP
+      targetPort: 9186 #deployment port
+  selector:
+    app: firehose-exporter # firehose-exporter pod label

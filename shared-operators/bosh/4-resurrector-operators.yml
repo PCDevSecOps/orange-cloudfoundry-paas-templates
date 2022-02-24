@@ -1,0 +1,5 @@
+#--- Update resurrector threshold to avoid bosh cck when rotate director certs
+- type: replace
+  path: /instance_groups/name=bosh/properties/hm/resurrector?
+  value:
+    minimum_down_jobs: 8

@@ -1,0 +1,9 @@
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value: 
+    name: wondershaper
+    release: wondershaper
+    properties:
+      interface: wg0
+      uspeed: ((/secrets/multi_region_region_3_max_upload_speed_kbps))
+      dspeed: ((/secrets/multi_region_region_3_max_download_speed_kbps))

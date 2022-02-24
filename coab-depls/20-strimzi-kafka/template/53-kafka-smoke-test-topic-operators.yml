@@ -1,0 +1,19 @@
+#create a topic for smoke-tests/monitoring usage
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "kafka-probe-topic"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: kafka.strimzi.io/v1beta2
+      kind: KafkaTopic
+      metadata:
+        name: kafka-probe-topic
+        namespace: kafka-cluster-((instance_id)) 
+        labels:
+          strimzi.io/cluster: kafka-cluster #cluster name
+      spec:
+        partitions: 3
+        replicas: 1

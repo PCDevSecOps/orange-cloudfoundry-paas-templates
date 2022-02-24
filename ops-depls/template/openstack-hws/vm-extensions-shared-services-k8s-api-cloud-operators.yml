@@ -1,0 +1,6 @@
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: vm-extensions-shared-services-k8s
+    cloud_properties:
+      allowed_address_pairs: 192.168.60.16

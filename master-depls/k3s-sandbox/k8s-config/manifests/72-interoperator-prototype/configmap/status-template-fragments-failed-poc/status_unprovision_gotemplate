@@ -1,0 +1,12 @@
+# Status template for deprovision call
+{{ $deprovisionStateString := "in progress" }}
+{{- with .configmapInstance.metadata.uid }}
+  {{if not .}}
+    {{- $deprovisionStateString = "succeeded" }}
+  {{- else }}
+    {{- $deprovisionStateString = "in progress" }}
+  {{- end }}
+{{- end }}
+deprovision:
+  state: {{ printf "%s" $deprovisionStateString }}
+  error: ""

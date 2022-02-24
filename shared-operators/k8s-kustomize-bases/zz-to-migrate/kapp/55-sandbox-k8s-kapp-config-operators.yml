@@ -1,0 +1,45 @@
+# concourse gitlab credentials as k8s secret
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: secret
+    name: gitlab-https-secret
+    secret_type: Opaque
+    namespace: kapp-gitops
+    data:
+    - name: username
+      value: ((/secrets/concourse_git_secrets_user))
+    - name: password
+      value: ((/secrets/concourse_git_secrets_password))
+
+#wire kapp controller to git repo
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "sandbox-kapp"
+    cmd: "apply"
+    content:
+      apiVersion: kappctrl.k14s.io/v1alpha1
+      kind: App
+      metadata:
+        name: sandbox-kapp
+        namespace: kapp-gitops
+      spec:
+        serviceAccountName: default-ns-sa
+        fetch: []
+        template:
+        - ytt: {}
+        deploy:
+        - kapp: {}
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=sandbox-kapp/content/spec/fetch/-
+  value:
+    git:
+      url: https://gitlab-gitlab-k8s.((/secrets/cloudfoundry_ops_domain))/paas_templates_group/gitops-kapp-controller-repo.git
+      ref: origin/master
+      subPath: kapp/sandbox-depls/sample-kapp
+      secretRef:
+        name: gitlab-https-secret
+  

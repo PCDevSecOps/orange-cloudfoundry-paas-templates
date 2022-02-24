@@ -1,0 +1,22 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: provision
+    type: gotemplate
+    content: |
+      {{- $namePrefix := "" }}
+      {{- with .plan.spec.context }}
+        {{- with .namePrefix }} {{ $namePrefix = . }} {{ end }}
+      {{- end }}
+      {{- $instanceID := "" }}
+      {{- with .instance.metadata.name }} {{ $instanceID = . }} {{ end }}
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: instance-{{ $namePrefix }}-{{ $instanceID }}
+        annotations:
+          operator-broker/service-id: {{ .plan.spec.serviceId }}
+          operator-broker/plan-id: {{ .plan.spec.id }}
+      data:
+        config: |
+          A sample config map provisionned by interoperator for service instance. In version 1.1.0

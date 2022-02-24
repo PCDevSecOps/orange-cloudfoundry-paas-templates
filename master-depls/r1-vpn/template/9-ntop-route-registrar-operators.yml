@@ -1,0 +1,70 @@
+#--- Add routing bosh release
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+#--- Expose ntop-ng webui
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    name: route_registrar
+    release: routing
+    properties:
+      nats:
+        machines:
+        - q-s0.ops-routing-nats.net-bosh-2.ops-routing.bosh
+        password: ((/micro-bosh/ops-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: ntop-r1-vpn
+          port: 3000
+          registration_interval: 20s
+          uris:
+          - ntop-r1-vpn.((/secrets/cloudfoundry_ops_domain))
+
+        - name: ntop-r2-vpn
+          port: 4000
+          registration_interval: 20s
+          uris:
+          - ntop-r2-vpn.((/secrets/cloudfoundry_ops_domain))
+
+        - name: ntop-r3-vpn
+          port: 5000
+          registration_interval: 20s
+          uris:
+          - ntop-r3-vpn.((/secrets/cloudfoundry_ops_domain))
+
+          
+#-- Expose ntop r3 and r2 web gui
+
+- type: replace
+  path: /releases/-
+  value:
+    name: haproxy
+    version: latest
+
+# add a relay jobs to enable r2 and r3 ntop ui exposition
+- type: replace
+  path: /instance_groups/name=vpn/jobs/-
+  value:
+    release: haproxy
+    name: haproxy
+    properties:
+      ha_proxy:
+        disable_http: true
+        log_level: debug
+        tcp:
+        - name: r2-ntop-ui
+          port: 4000
+          backend_port: 3000
+          backend_servers:
+          - 192.168.2.3
+        - name: r3-ntop-ui
+          port: 5000
+          backend_port: 3000
+          backend_servers:
+          - 192.168.2.4

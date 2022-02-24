@@ -1,0 +1,38 @@
+#--- Add vpn probe web-server container (don't use "-" in container name, and escape every "$" with "\$" in dockerfile)
+- type: replace
+  path: /instance_groups/name=vpn-probe/jobs/name=containers/properties/containers/-
+  value:
+    name: vpn_probe
+    image: "paas/vpn_probe:((template_version))"
+    bind_ports:
+    - "80:80"
+    volumes:
+    - "/var/vcap/data/tmp/vpn-probe:/var/tmp/vpn-probe:ro"
+    command: "/usr/local/bin/nginx.sh"
+    dockerfile: |
+      FROM alpine:3.12.0
+      RUN export http_proxy=http://system-internet-http-proxy.internal.paas:3128 && export https_proxy=http://system-internet-http-proxy.internal.paas:3128 && export no_proxy=localhost,127.0.0.1 && \
+      apk -U add --no-cache nginx && \
+      mkdir /var/www/htdocs && \
+      printf '#!/bin/sh\n' > /usr/local/bin/nginx.sh && \
+      printf 'cp /var/tmp/vpn-probe/nginx.conf /etc/nginx/\ncp /var/tmp/vpn-probe/default.conf /etc/nginx/conf.d/\n' >> /usr/local/bin/nginx.sh && \
+      printf 'cp /var/tmp/vpn-probe/index.html /var/www/htdocs/\nchown -R nginx:nginx /var/www/htdocs\n/usr/sbin/nginx' >> /usr/local/bin/nginx.sh && \
+      chmod 755 /usr/local/bin/nginx.sh
+
+#--- Add vpn probe iperf3 container (don't use "-" in container name, and escape every "$" with "\$" in dockerfile)
+- type: replace
+  path: /instance_groups/name=vpn-probe/jobs/name=containers/properties/containers/-
+  value:
+    name: iperf3
+    image: "paas/iperf3:((template_version))"
+    entrypoint: "iperf3"
+    command: "-s"
+    user: iperf
+    bind_ports:
+    - "5201:5201/tcp"
+    - "5201:5201/udp"
+    dockerfile: |
+      FROM alpine:3.12.0
+      RUN export http_proxy=http://system-internet-http-proxy.internal.paas:3128 && export https_proxy=http://system-internet-http-proxy.internal.paas:3128 && export no_proxy=localhost,127.0.0.1 && \
+      apk -U add --no-cache iperf3 && \
+      adduser -S iperf

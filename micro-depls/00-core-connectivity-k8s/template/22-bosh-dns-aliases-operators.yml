@@ -1,0 +1,47 @@
+#base bosh-dns-aliases add-on, alias are added with separate operators
+- type: replace
+  path: /releases/-
+  value: 
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /addons?/-
+  value: 
+    name: bosh-dns-aliases
+    jobs:
+    - name: bosh-dns-aliases
+      release: bosh-dns-aliases
+      properties:
+        aliases:
+        #see bosh reference doc for query construction syntax https://bosh.io/docs/dns/#constructing-queries
+        - domain: ci-k8s.bosh #local alias to remote k8s cluster
+          targets:
+          - query: 'q-s0'
+            instance_group: agents
+            deployment: 01-ci-k8s
+            network: net-bosh-2
+            domain: bosh
+          - query: 'q-s0'
+            instance_group: server
+            deployment: 01-ci-k8s
+            network: net-bosh-2
+            domain: bosh
+
+        - domain: gitops-management.bosh #local alias to remote k8s-cluster, RFC compliant+2 segments required by EndpointSlices
+          targets:
+          - query: 'q-s0'
+            instance_group: agents
+            deployment: 00-gitops-management
+            network: net-bosh-2
+            domain: bosh
+          - query: 'q-s0'
+            instance_group: server
+            deployment: 00-gitops-management
+            network: net-bosh-2
+            domain: bosh
+
+#        - domain: ops-router.bosh #local alias to ops routers, RFC compliant+2 segments required by EndpointSlices
+#          targets:
+#          - 192.168.99.81
+#          - 192.168.99.82

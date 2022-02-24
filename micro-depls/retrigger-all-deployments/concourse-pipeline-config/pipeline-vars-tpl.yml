@@ -1,0 +1,3 @@
+cf-bosh-cli-version: 3.0.5
+concourse-url: ((concourse-micro-depls-target))
+concourse-insecure: ((concourse-micro-depls-insecure))

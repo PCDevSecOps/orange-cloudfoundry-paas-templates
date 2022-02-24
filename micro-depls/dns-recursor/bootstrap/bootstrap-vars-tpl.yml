@@ -1,0 +1,16 @@
+#--- Bosh-dns certs
+BOSH_DNS_CA_CERT: (( grab $BOSH_DNS_CA_CERT ))
+BOSH_DNS_CLIENT_CERT: (( grab $BOSH_DNS_CLIENT_CERT ))
+BOSH_DNS_CLIENT_KEY: (( grab $BOSH_DNS_CLIENT_KEY ))
+BOSH_DNS_SERVER_CERT: (( grab $BOSH_DNS_SERVER_CERT ))
+BOSH_DNS_SERVER_KEY: (( grab $BOSH_DNS_SERVER_KEY ))
+
+dns_api_client_tls:
+  ca: (( file BOSH_DNS_CA_CERT ))
+  certificate: (( file BOSH_DNS_CLIENT_CERT ))
+  private_key: (( file BOSH_DNS_CLIENT_KEY ))
+
+dns_api_server_tls:
+  ca: (( file BOSH_DNS_CA_CERT ))
+  certificate: (( file BOSH_DNS_SERVER_CERT ))
+  private_key: (( file BOSH_DNS_SERVER_KEY ))

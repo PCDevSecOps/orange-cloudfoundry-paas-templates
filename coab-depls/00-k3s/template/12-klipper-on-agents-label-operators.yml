@@ -1,0 +1,24 @@
+# label k3s agents node with klipper to void lb on hosted master
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "klipper-label-worker-0"
+    cmd: "label"
+    options: "--overwrite nodes worker-0 svccontroller.k3s.cattle.io/enablelb=true"
+    
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "klipper-label-worker-1"
+    cmd: "label"
+    options: "--overwrite nodes worker-1 svccontroller.k3s.cattle.io/enablelb=true"
+    
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "klipper-label-worker-2"
+    cmd: "label"
+    options: "--overwrite nodes worker-2 svccontroller.k3s.cattle.io/enablelb=true"

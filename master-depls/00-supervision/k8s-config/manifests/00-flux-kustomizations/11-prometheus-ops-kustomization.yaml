@@ -1,0 +1,28 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 11-prometheus-ops
+spec:
+  interval: 2m0s
+  path: ./master-depls/00-supervision/k8s-config/manifests/11-prometheus-ops
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+
+  #post-build substitution
+  postBuild:
+    substitute:
+      clientID: "supervision-client"
+      clientSecret: "((/uaa/supervision-client-secret))"
+      cookieSecret: "((/uaa/supervision-cookie-secret))"
+      opsDomain: ((/secrets/cloudfoundry_ops_domain))
+      oidc_issuer_url: "https://uaa.((/secrets/cloudfoundry_ops_domain))/oauth/token"
+      endpoint: prometheus-ops.((/secrets/cloudfoundry_ops_domain))
+      name: prometheus-ops
+      namespace: 11-prometheus-ops
+      team: ops-exporter
+      nodePort: "30001"
+      boshFqdn: "bosh-ops.internal.paas"
+      prometheusPassword: "((/secrets/prometheus_password))"
+      site: "((/secrets/site))"

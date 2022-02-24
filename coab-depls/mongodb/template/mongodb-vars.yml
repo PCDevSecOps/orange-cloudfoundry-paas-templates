@@ -1,0 +1,16 @@
+network_name   : tf-net-coab-depls-instance
+
+vm-cf-mongodb:
+  persistent_disk_type: xlarge
+  vm_type:              2cpu-8g
+
+cf:
+  api:
+    url: "https://api.((/secrets/cloudfoundry_system_domain))"
+  admin:
+    password: ((!/secrets/cloudfoundry_admin_password))
+  mongodb:
+    appdomain: ((!/secrets/cloudfoundry_apps_domain))
+
+broker:
+  password: ((!/secrets/cloudfoundry_service_brokers_mongodb_password))

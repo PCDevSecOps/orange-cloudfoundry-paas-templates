@@ -1,0 +1,20 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: weave-scope
+    version: 0.0.18
+
+- type: replace
+  path: /addons/-
+  value:
+    name: scope-probe
+    jobs:
+    - name: scope_probe
+      release: weave-scope
+      #user properties instead of bosh-links (weave server is in another bosh director)
+      properties:
+        weave:
+          scope:
+            probe:
+              target_addr: weave-scope.internal.paas
+              #service_token: xx, replaces link and target_addr

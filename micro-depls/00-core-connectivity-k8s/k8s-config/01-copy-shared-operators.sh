@@ -1,0 +1,1 @@
+../../../shared-operators/k3s/fluxcd/coa-fluxcd-bridge/01-copy-shared-operators.sh

@@ -1,0 +1,6 @@
+#--- Mattermost properties
+mattermost_match_re: ((grab secrets.mattermost.match_re))
+mattermost_text: ((grab secrets.mattermost.text))
+mattermost_title: ((grab secrets.mattermost.title))
+mattermost_username: ((grab secrets.mattermost.username))
+mattermost_group_wait: ((grab secrets.mattermost.group_wait))

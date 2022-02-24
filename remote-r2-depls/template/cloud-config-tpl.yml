@@ -1,0 +1,21 @@
+#--- Availability zones
+azs: []
+#--- VM flavors
+vm_types: []
+
+#--- Vm extensions
+vm_extensions: []
+
+#--- disk sizes
+disk_types: []
+
+#--- Networks
+networks: []
+
+compilation:
+  workers: 1
+  reuse_compilation_vms: true
+  az: r2-z1
+  vm_type: 4cpu-16g
+  network: remote-r2-interco-network
+

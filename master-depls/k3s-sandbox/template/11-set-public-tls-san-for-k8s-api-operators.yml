@@ -1,0 +1,4 @@
+#set additional tls-san for k3-sandbox public access
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=k3s-server/properties/k3s/additional_tls_sans?/-
+  value: k3s-sandbox-api.((/secrets/cloudfoundry_ops_domain))

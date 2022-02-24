@@ -1,0 +1,1 @@
+../../../shared-operators/coab/coa-hooks/generate-fake-coab-vars-when-vars-are-missing.bash

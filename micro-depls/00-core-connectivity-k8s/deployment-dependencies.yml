@@ -1,0 +1,31 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - shared-operators/k3s
+        - shared-operators/k8s-common
+        - shared-operators/shield
+        - shared-operators/paas-templates-version
+        - shared-operators/k8s-kustomize-bases
+        - vendor/k8s-manifests #to feed fluxcd gitops repo on vendoring
+    releases:
+      routing:
+      bosh-dns-aliases:
+      k3s:
+      open-iscsi:
+      helm-kubectl:
+      pxc:
+      generic-taint-jobs:
+      generic-scripting:
+      haproxy:
+      networking:
+    errands:
+      action:
+        display-name: kubectl-actions
+      smoke-tests: #pxc smoke test
+        display-name: pxc-smoke-tests
+#      errand-scripting:
+#        display-name: rancher-registration
+      

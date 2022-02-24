@@ -1,0 +1,63 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: status
+    type: gotemplate
+    content: |
+      # Status template for provision call
+      {{ $provisionStateString := "in progress" }}
+      {{- with .configmapInstance.metadata.uid }}
+        {{if .}}
+          {{- $provisionStateString = "succeeded" }}
+        {{- else }}
+          {{- $provisionStateString = "in progress" }}
+        {{- end }}
+      {{- end }}
+      provision:
+        state: {{ $provisionStateString }}
+        description: configmapInstance uid {{ with .configmapInstance.metadata.uid }} {{ printf "%s" . }} {{ else }} "" {{ end }}
+      # Status template for bind call
+      # See spec at https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator-templates.md#supported-status-template-fields-for-bind-and-unbind-field
+      {{ $bindStateString := "in progress" }}
+      {{- with .configmapBinding.metadata.uid }}
+        {{if .}}
+          {{- $bindStateString = "succeeded" }}
+        {{- else }}
+          {{- $bindStateString = "in progress" }}
+        {{- end }}
+      {{- end }}
+      {{- $responseString := "" }}
+      {{- if eq $bindStateString "succeeded"}}
+        {{- $credsMap := dict "creationTimestamp" .configmapBinding.metadata.creationTimestamp "uid" .configmapBinding.metadata.uid "data" .configmapBinding.data.config }}
+        {{- $responseMap := dict "credentials" $credsMap }}
+        {{- $responseString = mustToJson $responseMap | squote }}
+      {{ end }}
+      bind:
+        state: {{ $bindStateString }}
+        description: binding configmapInstance uid {{ with .configmapBinding.metadata.uid }} {{ printf "%s" . }} {{ else }} "" {{ end }}
+        response: {{ $responseString }}
+      
+      # Status template for unbind call
+      {{ $unbindStateString := "in progress" }}
+      {{- with .configmapBinding.metadata.uid }}
+        {{if not .}}
+          {{- $unbindStateString = "succeeded" }}
+        {{- else }}
+          {{- $unbindStateString = "in progress" }}
+        {{- end }}
+      {{- end }}
+      unbind:
+        state: {{ $unbindStateString }}
+        error: ""
+      # Status template for deprovision call
+      {{ $deprovisionStateString := "in progress" }}
+      {{- with .configmapInstance.metadata.uid }}
+        {{if not .}}
+          {{- $deprovisionStateString = "succeeded" }}
+        {{- else }}
+          {{- $deprovisionStateString = "in progress" }}
+        {{- end }}
+      {{- end }}
+      deprovision:
+        state: {{ printf "%s" $deprovisionStateString }}
+        error: ""

@@ -1,0 +1,13 @@
+# cleanup old jcr helm release
+# This must be executed after 30-preload-jcr-images-operators.yml
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/-
+  value:
+    type: exec
+    cmd: |
+      echo "Removing 'artifactory-jcr' in 'jcr' namespace. We expect errors when object does not exist"
+      helm uninstall -n jcr artifactory-jcr 2>&1
+      echo "Removing 'jcr-artifactory' ingress in 'jcr' namespace. We expect errors when object does not exist"
+      kubectl delete ingress -n jcr jcr-artifactory 2>&1
+      echo "Removing 'docker-jcr-artifactory' ingress in 'jcr' namespace. We expect errors when object does not exist"
+      kubectl delete ingress -n jcr docker-jcr-artifactory 2>&1

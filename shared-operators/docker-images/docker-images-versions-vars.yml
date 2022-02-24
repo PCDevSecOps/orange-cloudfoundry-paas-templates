@@ -1,0 +1,30 @@
+---
+boshprometheus/bosh-exporter: "v3.3.0"
+boynux/squid-exporter: "v1.9.2"
+confluentinc/cp-kafka-connect: "5.2.1"
+busybox: "1.32.1"
+confluentinc/cp-ksql-server: "5.2.1"
+
+crunchydata/pgo-deployer: "centos7-4.3.0"
+crunchydata/pgo-osb: "centos7-4.4.0"
+coreos/etcd: "v3.3.25" #used by ops-depls/postgres
+debezium/connect: "0.10.0.Final"
+envoyproxy/envoy: "v1.10.0"
+fluent/fluent-bit: "1.5"
+gitlab/gitlab-ce: "12.4.0-ce.0" #used by micro-depls/gitlab
+jfrog/artifactory-jcr: "7.27.10"
+kiwigrid/k8s-sidecar: "0.1.144"
+mindflavor/prometheus-wireguard-exporter: "3.5.0"
+niedbalski/openstack-exporter-linux-amd64: "v1.3.0"
+
+orangecloudfoundry/stolon-keeper: "v0.10.2"
+orangecloudfoundry/stolon-proxy: "v0.10.2"
+orangecloudfoundry/stolon-sentinel: "v0.10.2"
+osixia/phpldapadmin: "0.9.0"
+osixia/openldap:  "1.5.0"
+pryorda/vmware_exporter: "v0.18.2"
+
+sameersbn/squid: "3.5.27-2"
+thanosio/thanos: "v0.23.1"
+yugabytedb/yugabyte: "2.0.7.0-b9"
+weaveworks/scope: "1.13.1"

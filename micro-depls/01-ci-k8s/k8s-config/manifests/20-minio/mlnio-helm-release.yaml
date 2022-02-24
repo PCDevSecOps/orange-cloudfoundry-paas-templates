@@ -1,0 +1,93 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: minio
+spec:
+  interval: 3m
+  chart:
+    spec:
+      chart: minio
+      version: "8.0.9"   #https://artifacthub.io/packages/helm/minio/minio 8.0.10
+      sourceRef: #replica for https://helm.min.io/
+        kind: HelmRepository
+        name: helm-repo
+        namespace: fluxcd
+      interval: 5m
+  install:
+    crds: Create
+  upgrade:
+    crds: CreateReplace
+  values:
+    mode: "distributed"
+    accessKey: "private-s3"
+    secretKey: ((minio-secret-key))
+    persistence:
+      storageClass: local-path
+      enabled: 'true'
+      size: 200Gi
+    service:
+      type: NodePort
+      clusterIP: ~
+      port: 9000
+      nodePort: 32020
+      annotations:
+        prometheus.io/scrape: 'true'
+        prometheus.io/path: '/minio/prometheus/metrics'
+        prometheus.io/port: '9000'
+        
+    #initialize buckets
+    buckets:
+    - name: bosh-releases
+      policy: download
+      purge: false
+      
+    - name: cached-buildpacks
+      policy: download
+      purge: false
+      
+    - name: stemcells
+      policy: download
+      purge: false
+      
+    - name:  compiled-releases
+      policy: download
+      purge: false
+    # set legacy env var, allowing public scraping from bosh prometheus
+    environment:
+      MINIO_PROMETHEUS_AUTH_TYPE: "public"
+      
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/proxy-body-size: "0" #unlimited (at least 700Mo required for stemcells upload"
+      hosts:
+        - minio-k8s.((/secrets/cloudfoundry_ops_domain))
+      tls:
+        - secretName: minio-tls
+          hosts:
+            - minio-k8s.((/secrets/cloudfoundry_ops_domain))
+            
+    #placement of minio pods for HA
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        #distinct host for each minio pod
+        - labelSelector:
+            matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+              - minio
+          topologyKey: "kubernetes.io/hostname"
+          
+          #TBC: distinct az for each minio pod, but minio requires 4 pods and most iaas have at most 3 azs
+          #          - labelSelector:
+          #              matchExpressions:
+          #              - key: app.kubernetes.io/name
+          #                operator: In
+          #                values:
+          #                - minio
+          #            topologyKey: topology.kubernetes.io/zone #should be failure-domain.beta.kubernetes.io/zone ?
+
+

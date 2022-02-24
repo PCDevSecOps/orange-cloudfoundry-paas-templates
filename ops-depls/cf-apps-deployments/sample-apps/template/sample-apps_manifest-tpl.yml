@@ -1,0 +1,53 @@
+---
+applications:
+- name: cf-sample-app-python
+  path: cf-sample-app-python
+  memory: 128M
+  routes:
+    - route: (( concat "cf-sample-app-python." secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpacks:
+    - python_buildpack
+
+- name: cf-default-app-ruby
+  path: cf-default-app-ruby
+  memory: 64M
+  routes:
+    - route: (( concat "cf-sample-app-ruby." secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpacks:
+    - ruby_buildpack
+
+- name: cf-sample-app-nodejs
+  path: cf-sample-app-nodejs
+  memory: 128M
+  routes:
+    - route: (( concat "cf-sample-app-nodejs." secrets.cloudfoundry.system_domain ))
+    - route: (( concat "cf-sample-app-nodejs." secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpacks:
+    - nodejs_buildpack
+  timeout: 180 # to allow slow start
+  env:
+    TITLE: Orange Sample App
+    MESSAGE: from Swisscom Sample
+
+- name: cf-sample-app-php
+  path: cf-sample-app-php
+  memory: 128M
+  routes:
+    - route: (( concat "cf-sample-app-php." secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpacks:
+    - php_buildpack
+
+- name: cf-sample-app-go
+  path: cf-sample-app-go
+  memory: 64M
+  routes:
+    - route: (( concat "cf-sample-app-go." secrets.intranet_interco_1.apps_domain ))
+  stack: cflinuxfs3
+  buildpacks:
+    - cached-go-buildpack
+  env:
+    GOVERSION: go1.14

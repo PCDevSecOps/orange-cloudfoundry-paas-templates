@@ -1,0 +1,21 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: 60-ops-portal
+spec:
+  interval: 2m0s
+  path: ./micro-depls/00-core-connectivity-k8s/k8s-config/manifests/60-ops-portal
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: paas-k8s-gitops-repo
+  validation: client
+
+  postBuild:
+    substitute:
+      clientID: "connectivity-client"
+      clientSecret: "((/uaa/connectivity-client-secret))"
+      cookieSecret: "((/uaa/connectivity-cookie-secret))"
+      opsDomain: ((/secrets/cloudfoundry_ops_domain))
+      oidc_issuer_url: "https://uaa.((/secrets/cloudfoundry_ops_domain))/oauth/token"
+      endpoint: ops-portal.((/secrets/cloudfoundry_ops_domain))

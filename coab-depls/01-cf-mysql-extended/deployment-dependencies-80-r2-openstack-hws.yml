@@ -1,0 +1,7 @@
+---
+deployment:
+  bosh-deployment:
+    releases:
+      os-conf:
+        base_location: https://bosh.io/d/github.com/
+        repository: cloudfoundry/os-conf-release

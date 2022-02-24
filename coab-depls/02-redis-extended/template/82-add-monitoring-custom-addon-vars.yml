@@ -1,0 +1,7 @@
+job_name: redis
+exporter_name: redis_exporter
+exporter_port: 9121
+dashboard_release: orange-prometheus-addons
+dashboard_name: redis_dashboards
+dashboard_folder_name: Redis
+dashboard_folder_path: /var/vcap/jobs/redis_dashboards/*.json

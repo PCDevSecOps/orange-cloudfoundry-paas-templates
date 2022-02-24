@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: traefik
+resources:
+- traefik-ns.yaml
+- traefik-helm-repo.yaml
+- traefik-helm-release.yaml
+- public-ops-lb-service.yaml
+
+#dashboard
+- traefik-dashboard-service.yaml
+- traefik-dashboard-ingress.yaml
+- traefik-dashboard-oauth2-ingress.yaml
+- ssl-secret.yaml
+- ../../../../../shared-operators/k8s-kustomize-bases/helm/oauth2-proxy

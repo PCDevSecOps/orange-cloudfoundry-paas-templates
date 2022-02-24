@@ -1,0 +1,16 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      templates:
+        extended_scan_path:
+        - "shared-operators/00-terraform"
+        - "micro-depls/00-core-connectivity-terraform/template/terraform-specs"
+        - "shared-operators/shield"
+        - shared-operators/paas-templates-version
+    releases:
+      terraform:
+    errands:
+      terraform-apply: 
+      terraform-plan-only:
+      

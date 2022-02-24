@@ -1,0 +1,4 @@
+# disable pre-stop hook for delete-deployment see https://github.com/orange-cloudfoundry/helm-kubectl-boshrelease/issues/19
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/undo_action_on_delete_deployment?
+  value: false

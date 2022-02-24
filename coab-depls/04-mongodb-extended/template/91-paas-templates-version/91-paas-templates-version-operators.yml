@@ -1,0 +1,6 @@
+---
+# This adds the content of the meta.inf file as an extra toplevel "paas_templates_version" field
+# which gets ignored by bosh director, but preserved in the resulting manifest.
+- type: replace
+  path: /paas_templates_version?
+  value: ((paas-templates-version))

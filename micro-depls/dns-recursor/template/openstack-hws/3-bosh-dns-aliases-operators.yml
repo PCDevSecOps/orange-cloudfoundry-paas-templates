@@ -1,0 +1,11 @@
+#--- wildcards for split brain dns
+
+#--- Public S3 split brain dns
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/((public_s3_service_host))?
+  value: [192.168.99.89]
+
+- type: replace
+  path: /instance_groups/name=dns-recursor/jobs/name=bosh-dns/properties/aliases/_.((public_s3_service_host))?
+  value: [192.168.99.89]
+

@@ -1,0 +1,15 @@
+#--- Customize bosh swap alerts
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/custom_rules?/-
+  value:
+    name: Concourse-custom
+    rules:
+    - alert: ConcourseStalledWorkers
+      expr: max(concourse_workers_registered{bosh_deployment="concourse",job="concourse",state="stalled"}) > 0
+      for: 5m
+      labels:
+        service: concourse
+        severity: critical
+      annotations:
+        summary: "At least one concourse web node reported a positive number of stalled worker"
+        description: "At least one concourse web node reported a positive number of stalled worker: {{$value}}. Please identify stalled workers using fly workers command and purge them using prune-worker -a"

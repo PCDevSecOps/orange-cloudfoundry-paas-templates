@@ -1,0 +1,13 @@
+- op: add
+  path: /spec/templates/-
+  value:
+    action: unbind
+    type: gotemplate
+    content: |
+      {{- $bindingID := "" }}
+      {{- with .binding.metadata.name }} {{ $bindingID = . }} {{ end }}
+      {{- $postgresql := .postgresql }}
+      {{- $spec := get $postgresql "spec" }}
+      {{- $users := get $spec "users" }}
+      {{- $_ := unset $users $bindingID }}
+      {{ toYaml $postgresql }}

@@ -1,0 +1,11 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: ingress-nginx
+spec:
+  values:
+    controller:
+      replicaCount: 4
+      service:
+        annotations:
+          metallb.universe.tf/address-pool: web-vip-pool #web vip pool usage

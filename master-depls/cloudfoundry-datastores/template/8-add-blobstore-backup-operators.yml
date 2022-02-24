@@ -1,0 +1,95 @@
+# add blobstore backup
+
+
+# Releases Section
+- type: replace
+  path: /releases/-
+  value:
+    name: cron
+    version: latest
+
+# Instance_groups section
+- type: replace
+  path: /instance_groups/-
+  value:
+    name: cron-blobstore-backup
+    azs: [z1]
+    instances: 1
+    vm_type: 1cpu-2g
+    stemcell: default
+    persistent_disk_type: default
+    networks: [{name: tf-net-exchange}]
+    jobs:
+    - name: mc
+      release: minio
+      templates:
+        - name: mc
+      consumes:
+        minio:
+          instances:
+            - address: cf-datastores.internal.paas
+          properties:
+            port: "1234"
+            credential:
+              accesskey: fake-s3
+              secretkey: "fake*1234"
+      properties:
+        script: |
+          #!/bin/sh
+
+    - name: cron
+      release: cron
+      properties:
+        cron:
+          entries:
+          - script:
+              name: backup.sh
+              contents: |
+                #!/bin/bash
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                export http_proxy=((http_proxy))
+                export https_proxy=((http_proxy))
+                export no_proxy=cf-datastores.internal.paas
+
+                # Init hosts
+                /var/vcap/packages/mc/mc config host add obos_v4 ((remote_s3_host)) ((remote_s3_access_key_id)) ((remote_s3_secret_access_key)) --api S3v4
+                /var/vcap/packages/mc/mc config host add minio http://cf-datastores.internal.paas:80 ((/bosh-master/cloudfoundry-datastores/cf_blobstore_s3_accesskey)) ((/bosh-master/cloudfoundry-datastores/cf_blobstore_s3_secretkey)) --api S3v2
+
+                # Create buckets if not exist
+                /var/vcap/packages/mc/mc mb "obos_v4/((/secrets/backup_bucket_prefix))-((/secrets/cloudfoundry_system_domain))-cc-droplets" --ignore-existing
+                /var/vcap/packages/mc/mc mb "obos_v4/((/secrets/backup_bucket_prefix))-((/secrets/cloudfoundry_system_domain))-cc-packages" --ignore-existing
+
+                # Transfering files from minio to OBOS V4
+                echo "Begin Transfering files to S3 Storage"
+
+                echo "It may take long time please wait"
+
+                /var/vcap/packages/mc/mc mirror --remove "minio/((/secrets/cloudfoundry_system_domain))-cc-droplets" "obos_v4/((/secrets/backup_bucket_prefix))-((/secrets/cloudfoundry_system_domain))-cc-droplets"
+                /var/vcap/packages/mc/mc mirror --remove "minio/((/secrets/cloudfoundry_system_domain))-cc-packages" "obos_v4/((/secrets/backup_bucket_prefix))-((/secrets/cloudfoundry_system_domain))-cc-packages"
+                echo "End of transfert"
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+
+                # Statistics
+                local_packages=$(/var/vcap/packages/mc/mc ls --json --recursive minio/((/secrets/cloudfoundry_system_domain))-cc-packages | wc -l)
+                echo "local_packages : ${local_packages}"
+                local_droplets=$(/var/vcap/packages/mc/mc ls --json --recursive minio/((/secrets/cloudfoundry_system_domain))-cc-droplets | wc -l)
+                echo "local_droplets : ${local_droplets}"
+                remote_packages=$(/var/vcap/packages/mc/mc ls --json --recursive obos_v4/((/secrets/backup_bucket_prefix))-((/secrets/cloudfoundry_system_domain))-cc-packages | wc -l)
+                echo "remote_packages : ${remote_packages}"
+                remote_droplets=$(/var/vcap/packages/mc/mc ls --json --recursive obos_v4/((/secrets/backup_bucket_prefix))-((/secrets/cloudfoundry_system_domain))-cc-droplets | wc -l)
+                echo "remote_droplets : ${remote_droplets}"
+
+            log: /var/vcap/sys/log/cron/connection.log
+            lock: /var/vcap/sys/run/cron/myhourly.lock
+
+            day: '*'
+            hour: '3'
+            minute: '0'
+            month: '*'
+            user: root
+            wday: '*'

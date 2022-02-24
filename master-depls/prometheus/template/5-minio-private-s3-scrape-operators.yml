@@ -1,0 +1,10 @@
+#--- scrape minio-private-s3 metrics
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: minio_private_s3_exporter
+    metrics_path: "/minio/prometheus/metrics"
+    scheme: http
+    static_configs:
+    - targets:
+      - private-s3.internal.paas:9000

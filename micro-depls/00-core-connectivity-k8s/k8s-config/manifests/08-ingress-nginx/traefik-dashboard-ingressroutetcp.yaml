@@ -1,0 +1,19 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: traefik-dashboard-ingressroute
+spec:
+  entryPoints:
+  - websecure
+  tls:
+    passthrough: true
+  routes:
+  #web ui
+  - match: HostSNI(`traefik-dashboard.((/secrets/cloudfoundry_ops_domain))`)
+    kind: Rule
+    priority: 50 #highest is higher priority
+    services:
+    - name: ingress-nginx-controller
+      kind: Service
+      namespace: ingress-nginx
+      port: 443

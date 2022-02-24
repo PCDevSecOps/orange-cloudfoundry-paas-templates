@@ -1,0 +1,24 @@
+#errand leveraging scripting release (errand script) to repair bosh variables/variaable set unconsistency
+- type: replace
+  path: /instance_groups/name=rmq/jobs/-
+  value:
+    name: errand-scripting
+    release: generic-scripting
+    lifecycle: errand
+    properties:
+      scripting:
+        errand-script: |
+          echo "Begin cleaning policy errand"
+          set +e
+          #Policy cleaning
+          export PATH=$PATH:/usr/sbin:/sbin:/var/vcap/packages/rabbitmq-server/bin/:/var/vcap/packages/erlang/bin:/var/vcap/packages/rabbitmq-admin/bin/
+          /var/vcap/packages/rabbitmq-server/bin/rabbitmqctl list_vhosts | egrep '[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}' > vhosts.lst
+          #browse vhosts
+          for vhost in $(cat vhosts.lst); do
+            policy_counter=$(/var/vcap/packages/rabbitmq-server/bin/rabbitmqctl --vhost ${vhost} list_policies | grep "((policy_name))" | wc -l)
+            if [ ${policy_counter} -eq 1 ]; then #test policy existency on vhost
+              echo "cleaning policy on ${vhost}"
+              /var/vcap/packages/rabbitmq-server/bin/rabbitmqctl clear_policy --vhost ${vhost} ((policy_name))
+            fi
+          done
+          echo "End cleaning policy errand"

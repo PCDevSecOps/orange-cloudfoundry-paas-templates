@@ -1,0 +1,5 @@
+#enable openstack allowed address pair at bosh level
+- path: /instance_groups/name=server/vm_extensions?/-
+  type: replace
+  value: vm-extensions-shared-services-k8s
+

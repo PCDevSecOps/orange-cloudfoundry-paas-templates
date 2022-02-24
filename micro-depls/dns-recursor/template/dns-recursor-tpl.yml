@@ -1,0 +1,75 @@
+---
+name: dns-recursor
+
+releases:
+- {name: bosh-dns, version: latest}
+- {name: ntp, version: latest}
+
+stemcells:
+- alias: default
+  os: ubuntu-bionic
+  version: latest
+
+update:
+  canaries: 0
+  canary_watch_time: 30000-1200000
+  update_watch_time:  30000-1200000
+  max_in_flight: 32
+  serial: true
+
+instance_groups:
+- name: dns-recursor
+  azs: [z1,z2]
+  instances: 2
+  vm_type: 1cpu-2g
+  stemcell: default
+
+  networks:
+  - name: net-bosh-2
+    default: [dns,gateway]
+    static_ips:
+    - 192.168.116.156
+    - 192.168.116.166
+
+  jobs:
+  - name: bosh-dns
+    release: bosh-dns
+    properties:
+      address: 0.0.0.0            #--- force a public dns
+      override_nameserver: false  #--- do not modify local /etc/resolv.conf
+      cache:
+        enabled: false
+
+      api:
+        server:
+          tls: ((dns_api_server_tls))
+        client:
+          tls: ((dns_api_client_tls))
+
+      recursor_timeout: 5s
+      recursors:
+      - ((target_dns_recursor_1))
+      - ((target_dns_recursor_2))
+
+      aliases:
+        (( append ))
+
+  - name: ntpd
+    release: ntp
+    properties:
+      ntp_conf: |
+        #--- Dont panic and exit whetever time lag (virtual server only)
+        tinker panic 0
+
+        #--- Frequency offset storage file
+        driftfile /var/vcap/data/sys/run/ntpd/ntp.drift
+
+        #--- Access control restrictions (ipv4 and ipv6) and limit NTP to local interface
+        restrict default kod nomodify nopeer noquery notrap
+        restrict 127.0.0.0 mask 255.0.0.0
+        restrict -6 default kod nomodify nopeer noquery notrap
+        restrict -6 ::1
+
+        #--- NTP legacy servers
+        server ((target_ntp_server_1))
+        server ((target_ntp_server_2))

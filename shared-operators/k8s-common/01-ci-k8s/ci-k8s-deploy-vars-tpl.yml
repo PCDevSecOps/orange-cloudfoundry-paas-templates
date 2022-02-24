@@ -1,0 +1,5 @@
+env_pf: k8s-micro
+kubernetes.host: 0.server.net-bosh-2.01-ci-k8s.bosh
+network: net-bosh-2
+prefix-deployment: ""
+docker_repository: ""

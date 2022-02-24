@@ -1,0 +1,26 @@
+#additionnal Ingress, same host but specific path for oauth2 proxy
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-buffer-size: "8k"
+    nginx.ingress.kubernetes.io/proxy-buffers-number: "4"
+
+  name: longhorn-ui-oauth
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - longhorn-ui-ci-k8s.((/secrets/cloudfoundry_ops_domain))
+      secretName: tls
+  rules:
+    - host: longhorn-ui-ci-k8s.((/secrets/cloudfoundry_ops_domain))
+      http:
+        paths:
+          - path: /oauth2
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: 80

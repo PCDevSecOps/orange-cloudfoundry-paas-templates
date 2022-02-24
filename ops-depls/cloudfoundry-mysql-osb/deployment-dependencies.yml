@@ -1,0 +1,26 @@
+---
+deployment:
+  bosh-deployment:
+    resources:
+      secrets:
+        local_deployment_scan: true              
+      templates:
+        extended_scan_path:
+          - submodules/orange-cf-mysql-deployment
+          - shared-operators/shield
+          - shared-operators/paas-templates-version
+    releases:
+      cf-cli:
+      cf-mysql:
+      bpm:
+      routing:
+      prometheus:
+      haproxy:
+      shield:
+      minio:
+      generic-scripting:
+    errands:
+      import:
+        display-name: shield-provisioning
+    manual-errands:
+      bootstrap:

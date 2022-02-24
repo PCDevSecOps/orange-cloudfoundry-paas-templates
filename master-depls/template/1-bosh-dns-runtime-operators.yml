@@ -1,0 +1,69 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: bosh-dns
+    version: 1.29.0
+
+- type: replace
+  path: /addons/-
+  value:
+    name: bosh-dns
+    jobs:
+    - name: bosh-dns
+      release: bosh-dns
+      properties:
+        health:
+          enabled: true
+          server:
+            tls: ((/dns_healthcheck_server_tls))
+          client:
+            tls: ((/dns_healthcheck_client_tls))
+        api:
+          server:
+            tls: ((/dns_api_server_tls))
+          client:
+            tls: ((/dns_api_client_tls))
+        recursors:
+        - 192.168.116.156
+        - 192.168.116.166
+        cache:
+          enabled: true
+        aliases:
+          ops-routing-nats:
+          - "*.ops-routing-nats.tf-net-exchange.ops-routing.bosh"
+          cf-deployment-routers:
+          - "q-s0-a1.router.tf-net-cf.cf.bosh"
+          - "q-s0-a2.router.tf-net-cf.cf.bosh"
+          cf-deployment-schedulers:
+          - "q-s0-a1.scheduler.tf-net-cf.cf.bosh"
+          - "q-s0-a2.scheduler.tf-net-cf.cf.bosh"
+
+        #bosh-dns recursion for micro-depls (via micro-depls/dns-recursor)
+        handlers:
+        - domain: net-bosh-2.00-core-connectivity-k8s.bosh. #due to bosh-dns alias structure, must set deployment name
+          cache:
+            enabled: true
+          source:
+            type: dns
+            recursors: [ 192.168.116.156, 192.168.116.166 ]
+        - domain: net-bosh-2.ops-routing.bosh. #due to bosh-dns alias structure, must set deployment name
+          cache:
+            enabled: true
+          source:
+            type: dns
+            recursors: [ 192.168.116.156, 192.168.116.166 ]
+
+    include:
+      stemcell:
+      - os: ubuntu-bionic
+      - os: ubuntu-xenial
+
+    #exclude cf-deployment as it uses consul internally
+    exclude:
+      deployments:
+      - intranet-interco-gateway #to avoid 53 dns conflict
+      - isolation-segment-intranet-1
+      - isolation-segment-intranet-2
+      jobs:
+        - name: bosh-dns
+          release: bosh-dns #exclude general bosh-dns if job alreadry present (eg: isolation-segment-intranet-2 relay instance group)

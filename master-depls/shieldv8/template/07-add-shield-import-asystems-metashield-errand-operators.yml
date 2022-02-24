@@ -1,0 +1,20 @@
+#add shield errand import operator
+- type: replace
+  path: /instance_groups/name=shield/jobs/name=import/properties/import/tenants/0/systems/-
+  value:
+      name: ((deployment_name))-metashield-(ip)
+      agent:  (ip):5444
+      plugin: metashield
+      config:
+          url: http://((static_ip))
+          token: daa9a25d-8f52-4b9a-b9c8-2730e0e4a9eb
+          core_ca_cert: ((/internalCA.certificate))
+      summary: "Metashield backup"
+      jobs:
+          - name:    ((deployment_name))-metashield-full-daily
+            when:    ((when))
+            policy:  four-days-term
+            retain:  3
+            storage: local-((deployment_name))-(ip)
+            fixed_key: true
+            paused:  false

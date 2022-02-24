@@ -1,0 +1,27 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: Ditto...
+      sha: 3542f65fcc2085e70403810b3ea2e5711f11e043
+      tags:
+      - v3.8.0-rc.1-29172-g3542f65fcc
+    path: .
+  path: rabbit-mqserver
+- contents:
+  - git:
+      commitTitle: Bump release v211.1.0
+      sha: 7e56a1e8bc01bef3c8217369af7f182140004a80
+      tags:
+      - v211.1.0
+    path: .
+  path: logsearch-boshrelease
+- contents:
+  - git:
+      commitTitle: Update cf-deployment manifest version to v16.25.0
+      sha: 4f7398f7e413d072211a7944d212e75ef04f7a84
+      tags:
+      - v16.25.0
+    path: .
+  path: cf-deployment
+kind: LockConfig

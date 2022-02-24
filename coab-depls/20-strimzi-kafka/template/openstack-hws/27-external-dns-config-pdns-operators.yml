@@ -1,0 +1,41 @@
+#configure external dns for rfc 2136
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/provider?
+  value: pdns
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/pdns?
+  value:
+    zone: ((/secrets/multi_region_region_1_rfc2136_zone_backend_services))
+    apiUrl: ((/secrets/multi_region_region_1_powerdns_api_url))
+    apiPort: 443 #default
+    apiKey: ((/secrets/multi_region_region_1_powerdns_apiKey))
+
+#add proxy to reach intranet powerdns api
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/extraEnv?/-
+  value:
+    name: https_proxy
+    value: "http://intranet-http-proxy.internal.paas:3129"
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/extraEnv?/-
+  value:
+    name: no_proxy
+    value: "127.0.0.1,localhost,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.internal.paas,.cluster.local."
+
+
+#add ca to support intranet dns domain powerdns api
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/extraVolumes?/-
+  value:
+    name: cert-volume
+    hostPath:
+      path: /etc/ssl/certs
+      type: Directory
+
+- type: replace
+  path: /addons/name=10-add-servers/jobs/name=action/properties/actions/name=external-dns-release/values_file_content/extraVolumeMounts?/-
+  value:
+    name: cert-volume
+    mountPath: /etc/ssl/certs

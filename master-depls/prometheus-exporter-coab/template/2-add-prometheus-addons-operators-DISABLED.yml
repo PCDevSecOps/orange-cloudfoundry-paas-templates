@@ -1,0 +1,4 @@
+# add bosh release
+- type: replace
+  path: /releases/-
+  value: {name: orange-prometheus-addons, version: latest }

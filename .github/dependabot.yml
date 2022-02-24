@@ -1,0 +1,60 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://help.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
+
+# See logs of execution of dependabot on https://github.com/orange-cloudfoundry/paas-templates-private/network/updates
+
+version: 2
+updates:
+
+# Disable Docker image support for now as we don't have any in this repo
+# This avoids useless scans that waste computing resources
+#
+#  # Enable version updates for Docker images
+#  - package-ecosystem: "docker"
+#    directory: "/" # Location of package manifests
+#    schedule:
+#      interval: "weekly"
+#    # Raise pull requests for Docker version updates
+#    # against the "develop" branch. The Docker configuration
+#    # no longer affects security update pull requests.
+#    target-branch: "develop"
+#    # Use custom labels on pull requests for Docker version updates
+#    labels:
+#      - "Docker dependencies"
+#      - "triage-board"
+#    open-pull-requests-limit: 5 # 5 by default
+
+  # Enable version updates for bosh deployment git submodules
+  # Right now this would create a PR for every new commit
+  # Watch this issue for ability to bump to new releases https://github.com/dependabot/dependabot-core/issues/2192
+  - package-ecosystem: "gitsubmodule"
+    directory: "/" # Relative location of the ".gitmodules" directory
+    schedule:
+      interval: "weekly"
+    # Raise pull requests for Docker version updates
+    # against the "develop" branch. The Docker configuration
+    # no longer affects security update pull requests.
+    target-branch: "develop"
+    # Use custom labels on pull requests for Docker version updates
+    labels:
+      - "gitsubmodule dependencies"
+      - "triage-board"
+    open-pull-requests-limit: 30 # 5 by default
+
+  # Enable version updates for terraform remote modules.
+  # Not yet enabled since we don't use remote terraform modules yet
+#  - package-ecosystem: "terraform"
+#    directory: "/" # Location of terraform .tf
+#    schedule:
+#      interval: "weekly"
+#    # Raise pull requests for Docker version updates
+#    # against the "develop" branch. The Docker configuration
+#    # no longer affects security update pull requests.
+#    target-branch: "develop"
+#    # Use custom labels on pull requests for Docker version updates
+#    labels:
+#      - "terraform dependencies"
+#      - "triage-board"
+#    open-pull-requests-limit: 5 # 5 by default

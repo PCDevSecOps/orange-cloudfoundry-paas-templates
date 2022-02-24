@@ -1,0 +1,59 @@
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "jaeger-strategy-production"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: jaegertracing.io/v1
+      kind: Jaeger
+      metadata:
+        name: jaeger-prod-elasticsearch
+      spec:
+        strategy: production
+        storage:
+          type: elasticsearch
+          options:
+            es:
+              server-urls: http://elasticsearch.default.svc:9200
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "jaeger-strategy-local-storage"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: jaegertracing.io/v1
+      kind: Jaeger
+      metadata:
+        name: jaeger-all-in-one-local-storage
+      spec:
+        storage:
+          type: badger
+          options:
+            badger:
+              ephemeral: false
+              directory-key: "/badger/key"
+              directory-value: "/badger/data"
+          volumeMounts:
+          - name: data
+            mountPath: /badger
+          volumes:
+          - name: data
+            emptyDir: {}
+
+- type: replace
+  path: /instance_groups/name=k8s-helm-addons/jobs/name=action/properties/actions/-
+  value:
+    type: kubectl
+    name: "jaeger-strategy-memory"
+    cmd: "apply"
+    options: ""
+    content:
+      apiVersion: jaegertracing.io/v1
+      kind: Jaeger
+      metadata:
+        name: jaeger-all-in-one-inmemory

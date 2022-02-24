@@ -1,0 +1,16 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: es-exporter-service-monitor
+  labels:
+    team: master-exporter
+spec:
+  namespaceSelector:
+    matchNames:
+      - 13-prometheus-master
+  selector:
+    matchLabels:
+      app: es-exporter # service label
+  endpoints:
+    - path: /metrics
+      port: web            # must be the name of the service port (file es-exporter-service.yaml)

@@ -1,0 +1,3 @@
+#--- Delete intranet interco network (inception uses EIP) and set micro-depls network properties
+- type: remove
+  path: /instance_groups/name=inception/networks/name=intranet-ha-interco

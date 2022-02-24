@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: service-instance-${instance_id}
+data:
+  sample_key: "a string with interpolated instance_id=${instance_id} sample value"

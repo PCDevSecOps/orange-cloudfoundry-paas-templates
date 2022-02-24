@@ -1,0 +1,18 @@
+# Created by .ignore support plugin (hsz.mobi)
+.idea
+*.iml
+
+**/secrets/*
+**/secrets.yml
+shared/
+**/*-generated.yml
+
+### Eclipse template
+.settings/
+# Eclipse Core
+.project
+
+/ops-depls/cf-apps-deployments/mattermost/mattermost/
+/bin/fly-*
+admin/paas-templates-for-rebase/
+**/private-*-vars.yml

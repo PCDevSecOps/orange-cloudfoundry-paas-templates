@@ -1,0 +1,4 @@
+#replace deployment name
+- path: /name
+  type: replace
+  value: logsearch-ops

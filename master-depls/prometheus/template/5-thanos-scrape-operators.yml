@@ -1,0 +1,11 @@
+#--- Scrape thanos compact metrics
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/-
+  value:
+    job_name: thanos-compact
+    metrics_path: /metrics
+    scheme: http
+    static_configs:
+    - targets:
+#      - q-s0-a1.thanos-store.tf-net-exchange.prometheus.bosh:10903
+      - q-s0.thanos-store.tf-net-exchange.prometheus.bosh:10902

@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 15-dynamic-static-routes-ns
+resources:
+- dynamic-routes-ns.yaml
+
+#externalName services put in this ns to support dynamically created IngressRouteTcp backend target
+- ci-k8s-external-name-service.yaml
+- gitops-management-external-name-service.yaml
+- k3s-sandbox-external-name-service.yaml

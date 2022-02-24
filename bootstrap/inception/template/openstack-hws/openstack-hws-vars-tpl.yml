@@ -1,0 +1,12 @@
+#--- Openstack cpi properties
+az: (( grab secrets.openstack.availability_zone ))
+auth_url: (( grab secrets.openstack.auth_url ))
+openstack_domain: (( grab secrets.openstack.tenant.name ))
+openstack_project: (( grab secrets.openstack.region.name ))
+region: (( grab secrets.openstack.region.name ))
+default_security_groups: (( grab secrets.openstack.tenant_security_group ))
+openstack_username: (( grab secrets.openstack.username ))
+openstack_password: (( grab secrets.openstack.password ))
+
+instance_type: s3.medium.4
+bootstrap_security_groups: [tf-default-sg, bootstrap-sg]

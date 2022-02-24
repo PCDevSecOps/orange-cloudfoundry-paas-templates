@@ -1,0 +1,11 @@
+## creating service reference with an external fqdn, leveraging endpoint slides (fqdn is ok with ExternalName)
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: gitops-management
+  namespace: traefik
+spec:
+  #externalName: gitops-management.bosh
+  externalName: q-s0.agents.net-bosh-2.00-gitops-management.bosh
+  type: ExternalName

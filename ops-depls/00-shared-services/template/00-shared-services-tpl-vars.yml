@@ -1,0 +1,4 @@
+deployment_name: 00-shared-services
+
+#reserved privte vip for k3s api access
+k3s_server_vip: 192.168.60.16

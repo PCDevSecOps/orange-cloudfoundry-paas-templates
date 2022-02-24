@@ -1,0 +1,42 @@
+- type: replace
+  path: /instance_groups/name=mongodb-broker/jobs/name=scripting/properties/scripting/post-deploy-script?
+  value: |
+
+    #!/bin/bash
+    echo "post-deploy !!"
+
+    #--- Set scripting tmp directory
+    TMP_SCRIPTING="/var/vcap/data/tmp/scripting"
+    rm -fr ${TMP_SCRIPTING} > /dev/null 2>&1 ; mkdir ${TMP_SCRIPTING}
+    echo "begin" > ${TMP_SCRIPTING}/post-deploy.log
+
+    #--- Connect to CF as admin
+    export PATH=$PATH:/var/vcap/jobs/cf-cli-6-linux/packages/cf-cli-6-linux/bin
+    cf api ((cf.api.url)) --skip-ssl-validation
+    cf auth ((cf.admin.username)) ((cf.admin.password))
+    if [ $? != 0 ] ; then
+      echo "connect to cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+    else
+      echo "connect to cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+    fi
+
+    #--- Register broker or update its registration
+    service=$( cf service-brokers | grep "((cf.mongo.servicename))" | wc -l)
+    if [ $service -eq 0 ] ; then
+      cf create-service-broker ((cf.mongo.servicename)) mongodb-broker ((broker-password)) https://((route_registrar.external_host))
+    else
+      cf update-service-broker ((cf.mongo.servicename)) mongodb-broker ((broker-password)) https://((route_registrar.external_host))
+    fi
+    if [ $? != 0 ] ; then
+      echo "register (create or update) in cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+    else
+      echo "register (create or update) in cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+    fi
+    cf enable-service-access ((cf.mongo.servicename))
+    if [ $? != 0 ] ; then
+      echo "enable access in cf failure \n" >> ${TMP_SCRIPTING}/post-deploy.log ; exit 0
+    else
+      echo "enable access in cf success \n" >> ${TMP_SCRIPTING}/post-deploy.log
+    fi
+
+    echo "end" >> ${TMP_SCRIPTING}/post-deploy.log

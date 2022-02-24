@@ -1,0 +1,34 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: loki-stack
+spec:
+  values:
+    promtail:
+      enabled: false
+    loki:
+      persistence:
+        enabled: true
+        size: 40Gi
+      config:
+        #retention configuration
+        chunk_store_config:
+          max_look_back_period: 168h
+        table_manager:
+          retention_deletes_enabled: true
+          retention_period: 168h #7 days retention
+          
+      #expose loki for remote k8s promtail push 
+      ingress:
+        enabled: true
+        annotations:
+          kubernetes.io/ingress.class: nginx
+        hosts:
+          - host: loki.internal.paas
+            paths: ["/"]
+
+      #expose loki metrics
+      serviceMonitor:
+        enabled: true
+        additionalLabels:
+#          release: "prometheus"

@@ -1,0 +1,2 @@
+agent_persistent_addon_include_release: generic-taint-jobs
+agent_persistent_addon_include_job: persistent-taint

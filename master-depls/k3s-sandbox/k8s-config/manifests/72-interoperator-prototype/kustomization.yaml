@@ -1,0 +1,84 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: 72-interoperator
+resources:
+- sfcluster.yaml
+- k3s-sandbox-kubeconfig-secret.yaml
+- interoperator-prototype-service.yaml
+- configmap/small-SF-plan.yaml
+- configmap/large-SF-plan.yaml
+- configmap/fails-SF-plan.yaml
+- kustomize/flux-SF-plan.yaml
+# not yet ready:
+#- pxc/percona-mysql-test-cr.yaml
+#- pxc/pxc-SF-service.yaml
+#- pxc/pxc-default-SF-plan.yaml
+
+# default SAP templates don't work out of the box: they rely on crds which need to be installed first
+# provisioner-5c74b9b5dd-jh6wm2021-12-08T14:12:35.802Z    ERROR    controller-runtime.source    if kind is a CRD, it should be installed before calling Start    {"kind": "postgresql.acid.zalan.do", "error": "no matches for kind \"postgresql\" in version \"acid.zalan.do/v1\""}
+#- postgres-service-plan-definition.yaml
+#- postgress-service-definition.yaml
+
+patchesJson6902:
+# Simple version with configmap: configmap-small plan
+- target: &configMapSmallPlan
+    group: osb.servicefabrik.io
+    version: v1alpha1
+    kind: SFPlan
+    name: 39d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+  path: configmap/sources-template.yaml
+- target: *configMapSmallPlan
+  path: configmap/provision-template.yaml
+- target: *configMapSmallPlan
+  path: configmap/bind-template.yaml
+- target: *configMapSmallPlan
+  path: configmap/status-template.yaml
+# Note: unbind and unprovision are optional,
+# see https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator-templates.md#unbind
+
+# Version with PerconaXtraDbCluster to added here (not yet tested, likely planid conflicts)
+
+
+#Fails plan
+- target: &configMapFailsPlan
+    group: osb.servicefabrik.io
+    version: v1alpha1
+    kind: SFPlan
+    name: 24d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+  path: configmap/sources-template.yaml
+- target: *configMapFailsPlan
+  path: configmap/provision-template.yaml
+- target: *configMapFailsPlan
+  path: configmap/bind-template.yaml
+- target: *configMapFailsPlan
+  path: configmap/pxc-fails-SF-plan-status.yaml
+
+#Large plan
+- target: &configMapLargePlan
+    group: osb.servicefabrik.io
+    version: v1alpha1
+    kind: SFPlan
+    name: 99d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+  path: configmap/sources-template.yaml
+- target: *configMapLargePlan
+  path: configmap/large-provision-template.yaml # ConfigMap content with LARGE keyword
+- target: *configMapLargePlan
+  path: configmap/large-bind-template.yaml  # ConfigMap content with LARGE keyword
+- target: *configMapLargePlan
+  path: configmap/status-template.yaml
+
+#Flux plan
+- target: &fluxDefaultPlan
+    group: osb.servicefabrik.io
+    version: v1alpha1
+    kind: SFPlan
+    name: 00d7d4c8-6fe2-4c2a-a5ca-b826937d5a88
+  path: kustomize/sources-template.yaml
+- target: *fluxDefaultPlan
+  path: kustomize/provision-template.yaml
+- target: *fluxDefaultPlan
+  path: kustomize/bind-template.yaml
+- target: *fluxDefaultPlan
+  path: kustomize/status-template.yaml
+
+

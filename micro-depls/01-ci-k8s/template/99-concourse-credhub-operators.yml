@@ -1,0 +1,29 @@
+- type: replace
+  path: /variables?/-
+  value:
+    name: local_user
+    type: user
+
+- type: replace
+  path: /variables/-
+  value:
+    name: token_signing_key
+    type: rsa
+
+- type: replace
+  path: /variables/-
+  value:
+    name: tsa_host_key
+    type: ssh
+
+- type: replace
+  path: /variables/-
+  value:
+    name: worker_key
+    type: ssh
+
+- type: replace
+  path: /variables/-
+  value:
+    name: concourse-postgres-password
+    type: password

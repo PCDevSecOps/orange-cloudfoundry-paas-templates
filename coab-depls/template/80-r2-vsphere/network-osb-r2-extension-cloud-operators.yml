@@ -1,0 +1,11 @@
+#--- Add a r2 subnet for osb-data-plane-dedicated-pub network definition
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-pub/subnets/-
+  value:
+    range: ((osb-data-plane-dedicated-pub-2-extension-range))
+    gateway: ((osb-data-plane-dedicated-pub-2-extension-gateway))
+    azs: [r2-z1]
+    reserved:
+      - ((osb-data-plane-dedicated-pub-2-extension-reserved-dhcp))          #--- Exclude dhcp address (see terraform )
+    cloud_properties:
+      name: ((osb-data-plane-dedicated-pub-2-extension-network-name))

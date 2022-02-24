@@ -1,0 +1,47 @@
+#policy to enfore
+# - gitops repo location, based on coa metadata and Kustomization name.
+# - gitrepositories
+# - homogeneous Kustomization settings
+
+apiVersion: kyverno.io/v1
+kind: Policy
+metadata:
+  name: root-kustomizations-policy
+  namespace: fluxcd
+  
+spec:
+  background: false
+  rules:
+  - name: standardize-root-fluxcd-kustomization
+    match:
+      resources:
+        kinds:
+        - Kustomization
+    #avoid self standarization on bridge Kustomization
+    exclude:
+      any:
+      - resources:
+          names:
+          - "paas-k8s-gitops-bridge-kustomizations"
+          - "paas-k8s-gitops-kustomization" #includes default
+          - "paas-k8s-gitops-kustomization-iaas" # iaas specific Kustomization
+    mutate:
+      #this will be merged with Kustomization definition
+      patchStrategicMerge:
+        spec:
+          interval: 4m0s
+          
+          path: "./${coa_root_deployment_name}/${coa_deployment_name}/k8s-config/manifests/{{request.object.metadata.name}}"
+          prune: true
+          sourceRef:
+            kind: GitRepository
+            name: paas-k8s-gitops-repo
+          wait: true
+          timeout: 4m0s #default same as interval, explicit settings overrides previously set value
+
+          #post-build substitution, all root Kustomization have coa metadata injected
+          postBuild:
+            substituteFrom:
+              - kind: ConfigMap
+                name: coa-metadata
+

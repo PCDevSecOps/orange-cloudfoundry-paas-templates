@@ -1,0 +1,21 @@
+#--- Blackbox exporter to intranet resources
+- type: replace
+  path: /instance_groups/name=to-intranet/jobs/name=blackbox_exporter/properties?/blackbox_exporter?
+  value:
+    log_level: debug
+    config:
+      modules:
+        http_2xx_example:
+          prober: http
+          timeout: 5s
+          http:
+            valid_status_codes: []  # Defaults to 2xx
+            method: GET
+            headers:
+              Accept-Language: en-US
+            no_follow_redirects: false
+            fail_if_ssl: false
+            fail_if_not_ssl: false
+            tls_config:
+              insecure_skip_verify: true #--- Do not check ssl certs until cf depl ca certs loaded in bosh vms
+            preferred_ip_protocol: "ip4"

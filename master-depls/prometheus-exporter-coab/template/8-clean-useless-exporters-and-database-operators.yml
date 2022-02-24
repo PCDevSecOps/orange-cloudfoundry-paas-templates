@@ -1,0 +1,110 @@
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=vault
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=statsd
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=stackdriver
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=shield
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=pushgateway
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=postgres
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=nats
+
+#- type: remove
+#  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=nats-exporter
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=bosh_tsdb
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=cadvisor
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=cf
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=collectd
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=concourse
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=consul
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=credhub
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=elasticsearch
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=firehose
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=graphite
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=haproxy
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=influxdb
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=ingestor_exporter
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=kubernetes
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=memcached
+
+#useless because of 6-federate-coab-cf-mysql-depls-operators.yml
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=mysql
+
+#useless because of 6-federate-coab-mongodb-depls-operators.yml
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=mongodb
+
+#useless because of 6-federate-coab-redis-depls-operators.yml
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=redis
+#- type: remove
+#  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=Redis-sentinel
+
+#useless because of 6-federate-coab-cf-rabbit-depls-operators.yml
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=rabbitmq
+#- type: remove
+#  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=rabbitmq-builtin
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=prometheus
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=node
+
+- type: remove
+  path: /instance_groups/name=prometheus2/jobs/name=prometheus2/properties/prometheus/scrape_configs/job_name=grafana
+
+- type: remove
+  path: /instance_groups/name=database
+
+
+
+
+
+
+
+
+
+

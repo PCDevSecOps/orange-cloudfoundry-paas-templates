@@ -1,0 +1,28 @@
+# Status template for provision call
+{{ $provisionStateString := "in progress" }}
+{{- with .configmapInstance.metadata.uid }}
+  {{if .}}
+    {{- $provisionStateString = "succeeded" }}
+  {{- else }}
+    {{- $provisionStateString = "in progress" }}
+  {{- end }}
+{{- end }}
+provision:
+  state: {{ $provisionStateString }}
+  description: configmapInstance uid {{ with .configmapInstance.metadata.uid }} {{ printf "%s" . }} {{ else }} "" {{ end }}
+# Status template for bind call
+# See spec at https://github.com/cloudfoundry-incubator/service-fabrik-broker/blob/master/docs/Interoperator-templates.md#supported-status-template-fields-for-bind-and-unbind-field
+{{ $bindStateString := "in progress" }}
+{{- with .configmapBinding.metadata.uid }}
+  {{if .}}
+    {{- $bindStateString = "succeeded" }}
+  {{- else }}
+    {{- $bindStateString = "in progress" }}
+  {{- end }}
+{{- end }}
+{{- $responseString := "" }}
+{{- if eq $bindStateString "succeeded"}}
+  {{- $credsMap := dict "creationTimestamp" .configmapBinding.metadata.creationTimestamp "uid" .configmapBinding.metadata.uid }}
+  {{- $responseMap := dict "credentials" $credsMap }}
+  {{- $responseString = mustToJson $responseMap | squote }}
+{{ end }}

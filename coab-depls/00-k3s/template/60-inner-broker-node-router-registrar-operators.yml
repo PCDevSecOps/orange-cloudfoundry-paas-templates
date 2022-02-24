@@ -1,0 +1,25 @@
+- type: replace
+  path: /releases/-
+  value:
+    name: routing
+    version: latest
+
+
+- type: replace
+  path: /instance_groups/name=worker/jobs/-
+  value :
+    name: route_registrar
+    release: routing
+    properties: &registrar_properties
+      nats:
+        machines: [q-s0.ops-routing-nats.net-bosh-2.ops-routing.bosh]
+        password: ((/micro-bosh/ops-routing/nats_password))
+        port: 4222
+        user: nats
+      route_registrar:
+        routes:
+        - name: inner-broker-((instance_id))
+          registration_interval: 10s
+          port: 30000 #wsb node port
+          uris:
+          - inner-broker-((instance_id)).((/secrets/cloudfoundry_ops_domain))

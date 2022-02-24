@@ -1,0 +1,16 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: longhorn
+spec:
+  values:
+    defaultSettings:
+      backupTarget: s3://shield-s3.internal.paas@us-east-1/((/secrets/site))-backup-01-ci-k8s
+    ingress:
+      host: longhorn-ui-ci-k8s.((/secrets/cloudfoundry_ops_domain))
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+        nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
+        nginx.ingress.kubernetes.io/auth-response-headers: "x-auth-request-user, x-auth-request-email"
+

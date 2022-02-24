@@ -1,0 +1,25 @@
+#base bosh-dns-aliases add-on, alias are added with separate operators
+- type: replace
+  path: /releases/-
+  value: 
+    name: bosh-dns-aliases
+    version: latest
+
+- type: replace
+  path: /addons?/-
+  value: 
+    name: bosh-dns-aliases
+    jobs:
+    - name: bosh-dns-aliases
+      release: bosh-dns-aliases
+      properties:
+        aliases:
+        - domain: osb-routing-nats #local alias
+          targets:
+          - query: '*'
+            instance_group: osb-routing-nats
+            deployment: osb-routing
+            network: tf-net-osb-control-plane
+            domain: bosh
+
+

@@ -1,0 +1,48 @@
+#--- add cron release
+- type: replace
+  path: /releases/name=cron?
+  value:
+    name: cron
+    version: latest
+
+# add job section
+- type: replace
+  path: /instance_groups/name=shield/jobs/-
+  value:
+    name: cron
+    release: cron
+    properties:
+      cron:
+        entries:
+          - script:
+              name: alert.sh
+              contents: |
+                #!/bin/bash
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "begin $dt"
+
+                echo "- Status alert"
+                /var/vcap/packages/shield/bin/shield api -k https://((shield-alias)) ((shield-core))
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) login -u admin -p ((failsafe-password))
+                /var/vcap/packages/shield/bin/shield --core ((shield-core)) status > /tmp/status
+                ligne=$(sed -n '/BACKUP JOB HEALTH/=' /tmp/status)
+                taille=$(cat /tmp/status | wc -l)
+                echo $taille
+                let "extract=$taille-$ligne+2"
+                echo $extract
+                tail -n ${extract} /tmp/status > /tmp/jobs
+                failing=$(grep 'FAILING' /tmp/jobs | wc -l)
+                sed -i "1i Subject:[((site))]${failing} jobs are failing on Shield v8" /tmp/jobs
+                cat /tmp/jobs | msmtp ((mailto))
+                echo "- Status alert done"
+
+                dt=$(date +"%d/%m/%Y à %Hh%M")
+                echo "end $dt"
+            log: /var/vcap/sys/log/cron/alert.log
+            lock: /var/vcap/sys/run/cron/alert.lock
+            day: '*'
+            hour: '*'
+            minute: '0'
+            month: '*'
+            user: root
+            wday: '*'

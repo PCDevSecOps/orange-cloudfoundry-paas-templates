@@ -1,0 +1,23 @@
+- type: replace
+  path: /releases/name=backup-and-restore-sdk?
+  value:
+    name: backup-and-restore-sdk
+    version: latest
+
+- type: replace
+  path: /instance_groups/name=db/jobs/name=bbr-atcdb/properties?
+  value:
+    postgresql:
+      database: atc
+      host: 127.0.0.1
+      port: 5432
+      role:
+        name: concourse
+        password: ((postgres_password))
+      tls:
+#        cert:
+#          ca:
+#          certificate:
+#          private_key:
+        enabled: false
+        skip_host_verify: true

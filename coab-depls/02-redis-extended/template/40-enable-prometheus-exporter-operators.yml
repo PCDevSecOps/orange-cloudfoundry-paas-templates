@@ -1,0 +1,41 @@
+---
+# add prometheus release to deployment manifest
+- type: replace
+  path: /releases/name=prometheus?
+  value:
+    name: prometheus
+    version: latest
+
+# add redis exporter properties Master
+- type: replace
+  path: /instance_groups/name=redis-master/jobs/name=redis_exporter?
+  value:
+    name: redis_exporter
+    release: redis-service
+    consumes:
+      redis_conn: {from: master}    
+    properties:
+      debug: ((redis_exporter_debug))
+
+# add redis exporter sentinel properties Master
+- type: replace
+  path: /instance_groups/name=redis-master/jobs/name=redis_sentinel_exporter?
+  value:
+    name: redis_sentinel_exporter
+    release: redis-service
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+    properties:
+      debug: ((redis_sentinel_exporter_debug))       
+
+
+# add redis exporter sentinel slave properties
+- type: replace
+  path: /instance_groups/name=redis-sentinel/jobs/name=redis_sentinel_exporter?
+  value:
+    name: redis_sentinel_exporter
+    release: redis-service    
+    consumes:
+      redis_sentinel_conn: {from: sentinel_master}
+    properties:
+      debug: ((redis_sentinel_exporter_debug))        

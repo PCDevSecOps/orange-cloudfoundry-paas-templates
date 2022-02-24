@@ -1,0 +1,143 @@
+---
+#adapt deployment name
+- type: replace
+  path: /name
+  value: cloudfoundry-mysql-osb
+
+#adapt stemcell
+- path: /stemcells/alias=default/version
+  type: replace
+  value: latest
+
+#adapt release
+- type: replace
+  path: /releases/name=cf-mysql
+  value:
+    name: cf-mysql
+    version: latest
+
+- type: replace
+  path: /stemcells/alias=default
+  value:
+    alias: default
+    os: ubuntu-bionic
+    version: latest
+
+- type: replace
+  path: /releases/name=bpm?
+  value:
+    name: bpm
+    version: latest
+
+- type: replace
+  path: /releases/name=routing?
+  value:
+    name: routing
+    version: latest
+
+#--- Adapt vm types and disk size
+- type: remove
+  path: /instance_groups/name=mysql/persistent_disk
+
+- type: replace
+  path: /instance_groups/name=mysql/persistent_disk_type?
+  value: ((persistent_disk_type))
+
+- type: replace
+  path: /instance_groups/name=mysql/vm_type?
+  value: ((vm-mysql_vm_type))
+
+- type: replace
+  path: /instance_groups/name=broker/vm_type?
+  value: 1cpu-4g
+
+- type: replace
+  path: /instance_groups/name=broker-registrar-vm/vm_type?
+  value: 1cpu-4g
+
+- type: replace
+  path: /instance_groups/name=deregister-and-purge-instances-vm/vm_type?
+  value: 1cpu-4g
+
+#adapt network
+- type: replace
+  path: /instance_groups/name=mysql/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-priv
+      static_ips:
+        - 192.168.60.21
+        - 192.168.60.22
+        - 192.168.60.23
+
+- type: replace
+  path: /instance_groups/name=proxy/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-pub
+      static_ips:
+        - ((proxy_ip1))
+        - ((proxy_ip2))
+
+- path: /instance_groups/name=bootstrap-vm/networks
+  type: replace
+  value: [{name: tf-net-osb-data-plane-shared-priv}]
+
+- path: /instance_groups/name=rejoin-unsafe-vm/networks
+  type: replace
+  value: [{name: tf-net-osb-data-plane-shared-priv}]
+
+- path: /instance_groups/name=verify-cluster-schemas-vm/networks
+  type: replace
+  value: [{name: tf-net-osb-data-plane-shared-priv}]
+
+- path: /instance_groups/name=smoke-tests-vm/networks
+  type: replace
+  value: [{name: tf-net-osb-data-plane-shared-priv}]
+
+- path: /instance_groups/name=broker/networks
+  type: replace
+  value: [{name: tf-net-osb-data-plane-shared-priv}]
+
+- path: /instance_groups/name=deregister-and-purge-instances-vm/networks
+  type: replace
+  value: [{name: tf-net-osb-data-plane-shared-priv}]
+
+- path: /instance_groups/name=broker-registrar-vm/networks
+  type: replace
+  value: [{name: tf-net-osb-data-plane-shared-priv}]
+
+- type: remove
+  path: /instance_groups/name=smoke-tests-vm
+
+- type: remove
+  path: /instance_groups/name=broker-registrar-vm
+
+- type: remove
+  path: /instance_groups/name=deregister-and-purge-instances-vm
+
+#adapt AZ
+- path: /instance_groups/name=mysql/azs
+  type: replace
+  value: [z1]
+
+- path: /instance_groups/name=proxy/azs
+  type: replace
+  value: [z1]
+
+- path: /instance_groups/name=broker/azs
+  type: replace
+  value: [z1]
+
+#adapt AZ : [z1,]
+# mysql and proxy
+- type: replace
+  path: /instance_groups/name=mysql/azs
+  value: [z1]
+
+- type: replace
+  path: /instance_groups/name=proxy/azs
+  value: [z1]
+
+# broker
+- type: replace
+  path: /instance_groups/name=broker/azs
+  value: [z1]

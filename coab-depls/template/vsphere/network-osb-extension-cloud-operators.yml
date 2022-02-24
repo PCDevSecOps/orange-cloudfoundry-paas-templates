@@ -1,0 +1,11 @@
+#--- Add data plane dedicated public extension network name
+- type: replace
+  path: /networks/name=tf-net-osb-data-plane-dedicated-pub/subnets/-
+  value:
+    range: ((osb_data_plane_dedicated_public_extension_range))
+    gateway: ((osb_data_plane_dedicated_public_extension_gateway))
+    azs: [z1,z2,z3]
+    reserved:
+      - ((osb_data_plane_dedicated_public_extension_reserved_dhcp))
+    cloud_properties:
+      name: ((osb-data-plane-dedicated-pub-extension-network-name))

@@ -1,0 +1,4 @@
+# Persistent disk types
+- type: replace
+  path: /instance_groups/name=maintenance/persistent_disk_type
+  value: ((maintenance_disk_type))

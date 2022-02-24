@@ -1,0 +1,8 @@
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: haproxy-cf-rabbit-osb-vrrp
+    cloud_properties:
+      #--- vrrp config ops-depls/cf-rabbit-osb/haproxy (see https://github.com/cloudfoundry-incubator/bosh-openstack-cpi-release/pull/98)
+      allowed_address_pairs: ((vrrp_ip_cf_rabbit_osb)) #--- #--- ip for port mapped to ops-depls/cf-rabbit37/haproxy
+      #--- NOTE: port must be reserved in openstack by terraform rules (required by bosh cpi to retrieve port id from allowed ip)

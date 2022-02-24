@@ -1,0 +1,3 @@
+- type: replace
+  path: /instance_groups/name=mysql/jobs/name=mysql/properties/cf_mysql/mysql/max_connections?
+  value: ((mysql-max_connections))

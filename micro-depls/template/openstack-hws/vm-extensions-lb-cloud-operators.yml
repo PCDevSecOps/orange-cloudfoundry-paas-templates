@@ -1,0 +1,12 @@
+#create vm extension to identify vms as backend of openstack loadbalancer
+#to use on 00-core-connectivity/agents vm to expose ops domain (https and 80)
+- type: replace
+  path: /vm_extensions?/-
+  value:
+    name: ops-lb-pool-extension
+    cloud_properties:
+      loadbalancer_pools:
+        - name: ops-lb-pool-https
+          port: 80
+        - name: ops-lb-pool-https
+          port: 443

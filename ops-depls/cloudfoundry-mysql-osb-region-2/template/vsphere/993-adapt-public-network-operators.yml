@@ -1,0 +1,8 @@
+---
+- type: replace
+  path: /instance_groups/name=proxy/networks
+  value:
+    - name: tf-net-osb-data-plane-shared-pub2
+      static_ips:
+        - ((proxy_ip1))
+        - ((proxy_ip2))

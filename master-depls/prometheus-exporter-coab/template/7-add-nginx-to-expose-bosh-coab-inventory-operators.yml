@@ -1,0 +1,44 @@
+#add nginx job on prometheus in order to expose bosh-coab inventory
+- type: replace
+  path: /instance_groups/name=prometheus2/jobs/-
+  value:
+    name: nginx
+    release: nginx
+    properties:
+      nginx_conf: |
+        user vcap;
+        worker_processes 2;
+        daemon off;
+
+        events {
+        worker_connections 512;
+        }
+
+        http {
+        sendfile off;
+        tcp_nopush on;
+        tcp_nodelay on;
+        keepalive_timeout 65;
+        types_hash_max_size 2048;
+
+        default_type application/octet-stream;
+
+        log_format main '$remote_addr - $remote_user [$time_local] "$request" $status $body_bytes_sent "$http_referer" "$http_user_agent" "$http_x_forwarded_for" "$http_host"';
+
+        access_log /var/vcap/sys/log/nginx/access.log main;
+        error_log /var/vcap/sys/log/nginx/error.log debug;
+
+        include /etc/nginx/conf.d/*.conf;
+
+        server {
+          listen       9095;
+          server_name  discovery;
+          location / {
+          root   /var/vcap/store/bosh_exporter;
+          index  bosh_target_groups.json;
+          add_header Content-Type text/json;
+          autoindex on;
+          }
+        }
+
+        }

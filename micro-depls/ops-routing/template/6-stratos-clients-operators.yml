@@ -1,0 +1,23 @@
+
+# UAA client for stratos
+- type: replace
+  path: /variables/-
+  value:
+    name: /uaa/stratos-client-secret
+    type: password
+
+- type: replace
+  path: /instance_groups/name=uaa/jobs/name=uaa/properties/uaa/clients/stratos?
+  value:
+    secret: ((/uaa/stratos-client-secret))
+    scope: openid,profile,email,resource.read,bosh.admin,cloud_controller.admin #scope of the users, see https://content.pivotal.io/practitioners-blog/securing-services-with-spring-cloud-gateway-2
+    authorities: uaa.none #no authority on the client by it self
+    authorized-grant-types: "authorization_code,client_credentials,refresh_token"
+    required_user_groups:
+    - bosh.admin
+    access-token-validity: 3600
+    refresh-token-validity: 3600
+    autoapprove: true
+    override: true
+    redirect-uri: https://stratos.((/secrets/cloudfoundry_ops_domain))/pp/v1/auth/sso_login_callback
+

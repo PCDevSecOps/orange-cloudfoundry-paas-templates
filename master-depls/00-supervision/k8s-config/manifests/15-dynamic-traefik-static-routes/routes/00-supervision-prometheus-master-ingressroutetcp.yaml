@@ -1,0 +1,16 @@
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: routingmap-prometheus-master
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: HostSNI(`prometheus-master.((/secrets/cloudfoundry_ops_domain))`)
+      services:
+        - name: supervision-vip
+          namespace: 15-dynamic-static-routes-ns #namespace created by 00-core-connectivity
+          port: 443
+  tls:
+    passthrough: true
