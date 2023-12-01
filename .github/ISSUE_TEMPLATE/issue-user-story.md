@@ -7,7 +7,7 @@ assignees: ''
 
 ---
 
-### Expected behavior
+### Expected behavior 
 
 <!-- hint: if you're reporting a bug or something broken, then describe unexpected negative impact of the bug, e.g. As a user, I expect my dataservice to be available  -->
 
@@ -39,17 +39,17 @@ and
 </details>
 -->
 
+### Workaround
+
+<!-- hint: document how the impacted actor may workaround the issue  -->
+* 
+
 ### Possible fixes
 
 <!-- hint: document how a feature branch could address the feature or issue -->
 
 * 
 
-### Workaround
-
-<!-- hint: document how the impacted actor may workaround the issue  -->
-* 
- 
 ### Affected releases and environments
 
 * affects release: x.y
