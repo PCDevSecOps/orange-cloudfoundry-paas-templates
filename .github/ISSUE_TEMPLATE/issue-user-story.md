@@ -1,6 +1,6 @@
 ---
 name: Issue/user story
-about: Report a bug, suggest a feature
+about: Suggest a feature
 title: ''
 labels: ''
 assignees: ''
