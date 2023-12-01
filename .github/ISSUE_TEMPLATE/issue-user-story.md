@@ -9,8 +9,6 @@ assignees: ''
 
 ### Expected behavior 
 
-<!-- hint: if you're reporting a bug or something broken, then describe unexpected negative impact of the bug, e.g. As a user, I expect my dataservice to be available  -->
-
 * As a paas-templates operator | cf user | marketplace user | osb service provider | paas-templates author | paas-templates maintainer
 * In order to 
 * I need 
@@ -25,10 +23,6 @@ and
 
 ### Observed behavior
 
-<!-- hint: if you're reporting a bug or something broken, then use this section to collect 
-- observed symptoms. Remember this is a public repo. DON'T leak credentials or Orange internal URLs in text or screenshots
-- diagnostic steps and commands
--->
 * 
 
 <!--
