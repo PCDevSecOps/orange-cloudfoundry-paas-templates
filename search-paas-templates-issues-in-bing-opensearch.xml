@@ -2,9 +2,9 @@
 <OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/"
                        xmlns:moz="http://www.mozilla.org/2006/browser/search/">
   <!-- Created on Fri, 15 Dec 2023 17:38:29 GMT -->
-  <ShortName>bing project-specific github.com issues</ShortName>
+  <ShortName>paas-templates gihtub issues by bing</ShortName>
   <Description>Search github.com/orange-cloudfoundry/paas-templates/issues through bing </Description>
-  <Url type="text/html" method="get" template="https://www.bing.com/search?q=orange-cloudfoundry+%2F+paas-templates+%2Fissues+github+{searchTerms}"/>
+  <Url type="text/html" method="get" template="https://www.bing.com/search?q=site%3Agithub.com%2Forange-cloudfoundry%2Fpaas-templates+{searchTerms}"/>
   <!-- <Image width="16" height="16">GENERATEDLATER</Image> -->
   <Developer>gberche</Developer>
   <InputEncoding>UTF-8</InputEncoding>
