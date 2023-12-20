@@ -27,3 +27,8 @@ The following plugins are ready to load into your browser as custom search engin
 
 The following recording show how to open the page, and add the search engine configuration from the page metadata
 See ![howto-add-custom-search-engine](https://github.com/orange-cloudfoundry/paas-templates/assets/4748380/8df69bd8-ad0a-427b-9856-b8b0998d860a)
+
+To add new custom search engine configurations, add the .html and .xml into https://github.com/orange-cloudfoundry/orange-cloudfoundry.github.io (required admin permissions on the repo) 
+
+https://docs.github.com/en/pages/getting-started-with-github-pages/troubleshooting-404-errors-for-github-pages-sites 
+> The repository must have a commit pushed to it by someone with admin permissions for the repository, such as the repository owner.
