@@ -22,7 +22,7 @@ The [backlog](https://github.com/orange-cloudfoundry/paas-templates/projects/2) 
 
 The following plugins are ready to load into your browser as custom search engines:
 * [issues through bing](https://orange-cloudfoundry.github.io/search-paas-templates-issues-in-bing-opensearch.html)
-* [issues through github](search-paas-templates-issues-in-github-opensearch.html)
+* [issues through github](https://orange-cloudfoundry.github.io/search-paas-templates-issues-in-github-opensearch.html)
 * [paas-templates-private through github](https://orange-cloudfoundry.github.io/search-paas-templates-PRs-in-github-opensearch.html)
 
 The following recording show how to open the page, and add the search engine configuration from the page metadata
