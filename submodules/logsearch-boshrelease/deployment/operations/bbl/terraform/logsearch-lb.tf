@@ -3,6 +3,9 @@ resource "aws_lb" "logsearch_lb" {
   name               = "${var.short_env_id}-logsearch-lb"
   load_balancer_type = "network"
   subnets            = ["${aws_subnet.lb_subnets.*.id}"]
+  tags = {
+    yor_trace = "2e1f16a3-edcc-4caa-ab80-9c9b8870698e"
+  }
 }
 
 # Listener for Kibana
@@ -28,6 +31,9 @@ resource "aws_lb_target_group" "logsearch_lb_80" {
     unhealthy_threshold = 10
     interval            = 30
     protocol            = "TCP"
+  }
+  tags = {
+    yor_trace = "4656b011-b061-4301-ace2-1e36d7d6e862"
   }
 }
 
@@ -55,6 +61,9 @@ resource "aws_lb_target_group" "logsearch_lb_8080" {
     interval            = 30
     protocol            = "TCP"
   }
+  tags = {
+    yor_trace = "797e47b6-c1b2-4475-9345-a24e5f5f56a9"
+  }
 }
 
 # Listener for Ingestor
@@ -80,6 +89,9 @@ resource "aws_lb_target_group" "logsearch_lb_5514" {
     unhealthy_threshold = 10
     interval            = 30
     protocol            = "TCP"
+  }
+  tags = {
+    yor_trace = "84c7c9a6-baf0-4af7-9039-f817dc229caf"
   }
 }
 
@@ -107,6 +119,9 @@ resource "aws_lb_target_group" "logsearch_lb_6514" {
     interval            = 30
     protocol            = "TCP"
   }
+  tags = {
+    yor_trace = "cbf8c1eb-fdf4-496c-9554-c2a2dab20043"
+  }
 }
 
 # Listener for RELP
@@ -133,6 +148,9 @@ resource "aws_lb_target_group" "logsearch_lb_2514" {
     interval            = 30
     protocol            = "TCP"
   }
+  tags = {
+    yor_trace = "b7a6396b-64a3-464a-9078-8305007fa554"
+  }
 }
 
 # Security group
@@ -147,6 +165,9 @@ resource "aws_security_group" "logsearch_lb_security_group" {
 
   lifecycle {
     ignore_changes = ["name"]
+  }
+  tags = {
+    yor_trace = "f951e415-d633-466a-8529-247246b8cac8"
   }
 }
 
